@@ -58,7 +58,7 @@ cd frontend/atendimento-app
 ```
 ---
 
-# �� Instalação das Dependências
+# 🛠️ Instalação das Dependências
 
  O projeto frontend **Atendimento Apae** utiliza o **pnpm**, gerenciador de pacotes do Node.js, moderno, eficiente em processamento computacional e em ocupação de menos espaço em disco. Então, antes de instalar todas as dependências e iniciar o projeto, há a necessidade de instalar globalmente na máquina com o comando:
 
