@@ -1,6 +1,13 @@
 # 📘 Projeto Atendimento Apae — Frontend
 
-Documentação sobre as tecnologias, configuração e execução local do projeto **Atendimento Apae**.
+Documentação sobre protótipos, as tecnologias, configuração e execução local do projeto **Atendimento Apae**.
+
+---
+
+## Protótipos
+
+- [Figma - web]()
+- [Figma - mobile]()
 
 ---
 
@@ -13,17 +20,7 @@ Documentação sobre as tecnologias, configuração e execução local do projet
 
 ---
 
-## ⚙️ Configuração do Ambiente
-
-
-> 💡 **Atenção:**  
-> A seção de pré-requisitos e clonagem foi
-> removida conforme o PR, mas ainda é recomendável
-> que qualquer desenvolvedor consulte essas 
-> instruções externamente para rodar o projeto 
-> localmente.
-
----
+# ⚙️ Configuração do Ambiente
 
 ## 🏗️ Instalação das Dependências
 
@@ -68,11 +65,5 @@ Por fim, pode-se acessá-la localmente pelo localhost na porta 3000.
 
 [Acessar Aplicação](http://localhost:3000/)
 
----
-
-## Protótipos
-
-- [Figma - web]()
-- [Figma - mobile]()
 
 
