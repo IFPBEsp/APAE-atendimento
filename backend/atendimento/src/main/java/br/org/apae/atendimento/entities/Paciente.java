@@ -22,9 +22,7 @@ public class Paciente {
     @Column(name = "contato")
     private String contato;
 
-    @ElementCollection
-    @CollectionTable(name = "paciente_responsaveis", joinColumns = @JoinColumn(name = "paciente_id"))
-    @Column(name = "responsavel")
+    @Column(name = "responsaveiscd^^")
     private List<String> responsaveis;
 
     @Column(name = "rua")
@@ -36,9 +34,7 @@ public class Paciente {
     @Column(name = "numero_casa")
     private Integer numeroCasa;
 
-    @ElementCollection
-    @CollectionTable(name = "paciente_transtornos", joinColumns = @JoinColumn(name = "paciente_id"))
-    @Column(name = "transtorno")
+    @Column(name = "transtornos")
     private List<String> transtornos;
 
     @OneToMany(mappedBy = "paciente")
