@@ -22,7 +22,7 @@ public class Paciente {
     @Column(name = "contato")
     private String contato;
 
-    @Column(name = "responsaveiscd^^")
+    @Column(name = "responsaveis")
     private List<String> responsaveis;
 
     @Column(name = "rua")
@@ -119,7 +119,15 @@ public class Paciente {
         return consultas;
     }
 
+    public void setConsultas(List<Consulta> consultas) {
+        this.consultas = consultas;
+    }
+
     public List<ProfissionalSaude> getProfissionais() {
         return profissionais;
+    }
+
+    public void setProfissionais(List<ProfissionalSaude> profissionais) {
+        this.profissionais = profissionais;
     }
 }

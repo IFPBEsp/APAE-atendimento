@@ -1,8 +1,11 @@
 package br.org.apae.atendimento.entities;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 
 @Entity
 @Table(name = "consulta")
@@ -12,8 +15,9 @@ public class Consulta {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "relatorio", columnDefinition = "json")
-    private String relatorio;
+    private Map<String, String> relatorio;
 
     @Column(name = "data_consulta")
     private LocalDateTime dataConsulta;
@@ -37,11 +41,11 @@ public class Consulta {
         this.id = id;
     }
 
-    public String getRelatorio() {
+    public Map<String, String> getRelatorio() {
         return relatorio;
     }
 
-    public void setRelatorio(String relatorio) {
+    public void setRelatorio(Map<String, String> relatorio) {
         this.relatorio = relatorio;
     }
 
@@ -59,5 +63,21 @@ public class Consulta {
 
     public void setStatus(boolean status) {
         this.status = status;
+    }
+
+    public Paciente getPaciente() {
+        return paciente;
+    }
+
+    public void setPaciente(Paciente paciente) {
+        this.paciente = paciente;
+    }
+
+    public ProfissionalSaude getProfissional() {
+        return profissional;
+    }
+
+    public void setProfissional(ProfissionalSaude profissional) {
+        this.profissional = profissional;
     }
 }
