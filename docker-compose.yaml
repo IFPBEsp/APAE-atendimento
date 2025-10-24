@@ -1,5 +1,22 @@
 services:
-
+  app-spring-boot:
+    build:
+      context: .
+      dockerfile: ./services/spring/Dockerfile
+    container_name: spring-atendimento-apae
+    env_file:
+      - .env
+    environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
+    ports:
+      - "8080:8080"
+    networks:
+      - public-network
+      - private-network
+    depends_on:
+      - postgres-db
+      - minio
+      
   minio:
     image: minio-atendimento-apae
     build:
