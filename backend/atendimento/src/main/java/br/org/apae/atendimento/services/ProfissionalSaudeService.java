@@ -18,7 +18,8 @@ public class ProfissionalSaudeService {
     }
 
     public ProfissionalSaude getProfissionalById(Long id) {
-        return profissionalSaudeRepository.findById(id).orElseThrow(() -> new ProfissionalNotFoundException("Profissional com ID " + id + " não encontrado."));
+        return profissionalSaudeRepository.findById(id)
+        .orElseThrow(() -> new ProfissionalNotFoundException("Profissional com ID " + id + " não encontrado."));
     }
 
     public List<Paciente> getPacienteDoProfissional (Long id) {
