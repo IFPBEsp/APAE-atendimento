@@ -5,11 +5,11 @@ import br.org.apae.atendimento.entities.Paciente;
 import br.org.apae.atendimento.repositories.ConsultaRepository;
 import java.util.List;
 
-public class ConsultaServiceImpl {
+public class ConsultaService {
     private PacienteService pacienteService;
     private ConsultaRepository consultaRepository;
 
-    public ConsultaServiceImpl(ConsultaRepository consultaRepository, PacienteService pacienteService){
+    public ConsultaService(ConsultaRepository consultaRepository, PacienteService pacienteService){
         this.consultaRepository= consultaRepository;
         this.pacienteService = pacienteService;
     }
