@@ -1,0 +1,46 @@
+@startuml
+
+class Paciente {
+    - id: Long
+    - nomeCompleto: String
+    - dataDeNascimento: LocalDate
+    - contato: String
+    - responsaveis: List<String>
+    - rua: String
+    - bairro: String
+    - numeroCasa: Integer
+    - transtornos: List<String>
+    --
+    + getDetalhes(id: Long): Paciente
+}
+
+class Consulta {
+    - id: Long
+    - relatorio: Map<String, Object>
+    - dataConsulta: LocalDateTime
+    - status: boolean
+    --
+    + getConsultas(idPaciente: Long, idProfissionalSaude: Long): List<Consulta>
+    + addConsulta(id: Long, relatorio: Json, dataConsulta: LocalDateTime, profissionalId: Long): Consulta
+    + trocarDataConsulta(id: Long, novaData: LocalDateTime): LocalDateTime
+    + addAnexo(arquivo: File): String
+}
+
+class ProfissionalSaude {
+    - id: Long
+    - primeiroNome: String
+    - nomeCompleto: String
+    - email: String
+    - contato: String
+    - crm: String
+    --
+    + getPacientes(id: Long): List<Paciente>
+    + getDetalhes(id: Long): ProfissionalSaude
+    + getPrimeiroNome(id: Long): String
+}
+
+Paciente "1" -- "0..*" Consulta
+ProfissionalSaude "1" -- "0..*" Consulta
+Paciente "0..*" -- "0..*" ProfissionalSaude
+
+@enduml
