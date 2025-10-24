@@ -1,5 +1,4 @@
 services:
-
   minio:
     image: minio-atendimento-apae
     container_name: minio-atendimento-apae
