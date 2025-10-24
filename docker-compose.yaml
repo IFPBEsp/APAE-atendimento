@@ -1,0 +1,33 @@
+services:
+  postgres-db:
+    image: postgres-atendimento-apae-image
+    build:
+      context: ./services/postgres
+      dockerfile: Dockerfile
+    container_name: postgres-atendimento-apae
+    restart: always
+    env_file:
+      - .env
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_DB: ${POSTGRES_DATABASE}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    networks:
+      - private-network
+
+volumes:
+  db-data:
+    driver: local
+  minio-data:
+    driver: local
+
+networks:
+  private-network:
+    driver: bridge
+    internal: true
+  public-network:
+    driver: bridge
