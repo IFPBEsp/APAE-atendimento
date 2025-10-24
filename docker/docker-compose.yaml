@@ -2,9 +2,6 @@ services:
 
   minio:
     image: minio-atendimento-apae
-    build:
-      context: ./services/minio
-      dockerfile: Dockerfile
     container_name: minio-atendimento-apae
     restart: always
     env_file:
@@ -22,9 +19,6 @@ services:
 
   postgres-db:
     image: postgres-atendimento-apae-image
-    build:
-      context: ./services/postgres
-      dockerfile: Dockerfile
     container_name: postgres-atendimento-apae
     restart: always
     env_file:
