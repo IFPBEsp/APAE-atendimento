@@ -34,15 +34,12 @@ public class ProfissionalSaude {
             joinColumns = @JoinColumn(name = "profissional_id"),
             inverseJoinColumns = @JoinColumn(name = "paciente_id")
     )
-    private List<Paciente> pacientes;
+    private List<Paciente> pacientes = new ArrayList<>();
 
     @OneToMany(mappedBy = "profissional")
-    private List<Consulta> consultas;
+    private List<Consulta> consultas = new ArrayList<>();
 
-    public ProfissionalSaude() {
-        this.pacientes = new ArrayList<>();
-        this.consultas = new ArrayList<>();
-    }
+    public ProfissionalSaude() {}
 
     public Long getId() {
         return id;

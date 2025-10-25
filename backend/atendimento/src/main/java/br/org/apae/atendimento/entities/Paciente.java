@@ -24,7 +24,7 @@ public class Paciente {
     private String contato;
 
     @Column(name = "responsaveis")
-    private List<String> responsaveis;
+    private List<String> responsaveis = new ArrayList<>();
 
     @Column(name = "rua")
     private String rua;
@@ -36,18 +36,15 @@ public class Paciente {
     private Integer numeroCasa;
 
     @Column(name = "transtornos")
-    private List<String> transtornos;
+    private List<String> transtornos = new ArrayList<>();
 
     @OneToMany(mappedBy = "paciente")
-    private List<Consulta> consultas;
+    private List<Consulta> consultas = new ArrayList<>();
 
     @ManyToMany(mappedBy = "pacientes")
-    private List<ProfissionalSaude> profissionais;
+    private List<ProfissionalSaude> profissionais = new ArrayList<>();
 
-    public Paciente() {
-        this.consultas = new ArrayList<>();
-        this.profissionais = new ArrayList<>();
-    }
+    public Paciente() {}
 
     public Long getId() {
         return id;
