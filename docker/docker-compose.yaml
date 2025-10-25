@@ -1,6 +1,6 @@
 services:
   postgres-db:
-    image: postgres-atendimento-apae-image
+    image: postgres:16
     container_name: postgres-atendimento-apae
     restart: always
     env_file:
