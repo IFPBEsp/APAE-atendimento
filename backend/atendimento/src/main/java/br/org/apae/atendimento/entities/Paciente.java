@@ -3,6 +3,7 @@ package br.org.apae.atendimento.entities;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -42,6 +43,11 @@ public class Paciente {
 
     @ManyToMany(mappedBy = "pacientes")
     private List<ProfissionalSaude> profissionais;
+
+    public Paciente() {
+        this.consultas = new ArrayList<>();
+        this.profissionais = new ArrayList<>();
+    }
 
     public Long getId() {
         return id;

@@ -2,6 +2,7 @@ package br.org.apae.atendimento.entities;
 
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -37,6 +38,11 @@ public class ProfissionalSaude {
 
     @OneToMany(mappedBy = "profissional")
     private List<Consulta> consultas;
+
+    public ProfissionalSaude() {
+        this.pacientes = new ArrayList<>();
+        this.consultas = new ArrayList<>();
+    }
 
     public Long getId() {
         return id;
