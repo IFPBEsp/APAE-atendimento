@@ -29,6 +29,5 @@ volumes:
 networks:
   private-network:
     driver: bridge
-    internal: true
   public-network:
     driver: bridge
