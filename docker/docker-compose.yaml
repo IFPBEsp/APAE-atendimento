@@ -15,6 +15,10 @@ services:
       - db-data:/var/lib/postgresql/data
     networks:
       - private-network
+    command: >
+      postgres
+      -c listen_addresses='*'
+      -c port=5432
 
 volumes:
   db-data:
