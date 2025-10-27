@@ -1,12 +1,12 @@
 package br.org.apae.atendimento.services;
 
-import br.org.apae.atendimento.entities.Paciente;
-import br.org.apae.atendimento.entities.ProfissionalSaude;
-import br.org.apae.atendimento.exceptions.ProfissionalNotFoundException;
-import br.org.apae.atendimento.repositories.ProfissionalSaudeRepository;
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import br.org.apae.atendimento.entities.Paciente;
+import br.org.apae.atendimento.entities.ProfissionalSaude;
+import br.org.apae.atendimento.repositories.ProfissionalSaudeRepository;
 
 @Service
 public class ProfissionalSaudeService {
@@ -18,17 +18,19 @@ public class ProfissionalSaudeService {
     }
 
     public ProfissionalSaude getProfissionalById(Long id) {
-        return profissionalSaudeRepository.findById(id)
-        .orElseThrow(() -> new ProfissionalNotFoundException("Profissional com ID " + id + " não encontrado."));
+        return profissionalSaudeRepository.findById(id).orElseThrow(() -> new RuntimeException("Profissional não encontrado."));
     }
 
-    public List<Paciente> getPacienteDoProfissional (Long id) {
+    public List<Paciente> getPacientesDoProfissional (Long id) {
         ProfissionalSaude profissionalSaude = getProfissionalById(id);
         return profissionalSaude.getPacientes();
     }
 
     public String getPrimeiroNome (Long id) {
-        ProfissionalSaude profissionalSaude = getProfissionalById(id);
-        return profissionalSaude.getPrimeiroNome();
+        String nome = profissionalSaudeRepository.findPrimeiroNomeById(id);
+        if(nome == null) {
+            throw new RuntimeException("Profissional não encontrado");
+        }
+        return nome;
     }
 }

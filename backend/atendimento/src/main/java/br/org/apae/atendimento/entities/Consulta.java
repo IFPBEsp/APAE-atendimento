@@ -33,6 +33,8 @@ public class Consulta {
     @JoinColumn(name = "profissional_id")
     private ProfissionalSaude profissional;
 
+    public Consulta() {}
+
     public Long getId() {
         return id;
     }
