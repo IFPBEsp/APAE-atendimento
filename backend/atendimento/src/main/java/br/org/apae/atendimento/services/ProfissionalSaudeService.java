@@ -1,11 +1,12 @@
 package br.org.apae.atendimento.services;
 
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
 import br.org.apae.atendimento.entities.Paciente;
 import br.org.apae.atendimento.entities.ProfissionalSaude;
 import br.org.apae.atendimento.repositories.ProfissionalSaudeRepository;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public class ProfissionalSaudeService {
