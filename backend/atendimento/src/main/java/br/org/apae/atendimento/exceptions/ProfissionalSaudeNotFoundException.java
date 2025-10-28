@@ -1,7 +1,7 @@
 package br.org.apae.atendimento.exceptions;
 
 public class ProfissionalSaudeNotFoundException extends RuntimeException{
-    ProfissionalSaudeNotFoundException(){
+    public ProfissionalSaudeNotFoundException(){
         super("O profissional de saúde não foi encontrado.");
     }
 }
