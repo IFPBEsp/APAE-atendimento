@@ -2,6 +2,7 @@ package br.org.apae.atendimento.services;
 
 import java.util.List;
 
+import br.org.apae.atendimento.exceptions.ProfissionalSaudeNotFoundException;
 import org.springframework.stereotype.Service;
 
 import br.org.apae.atendimento.entities.Paciente;
@@ -18,7 +19,7 @@ public class ProfissionalSaudeService {
     }
 
     public ProfissionalSaude getProfissionalById(Long id) {
-        return profissionalSaudeRepository.findById(id).orElseThrow(() -> new RuntimeException("Profissional não encontrado."));
+        return profissionalSaudeRepository.findById(id).orElseThrow(() -> new ProfissionalSaudeNotFoundException());
     }
 
     public List<Paciente> getPacientesDoProfissional (Long id) {
@@ -29,7 +30,7 @@ public class ProfissionalSaudeService {
     public String getPrimeiroNome (Long id) {
         String nome = profissionalSaudeRepository.findPrimeiroNomeById(id);
         if(nome == null) {
-            throw new RuntimeException("Profissional não encontrado");
+            throw new new ProfissionalSaudeNotFoundException();
         }
         return nome;
     }

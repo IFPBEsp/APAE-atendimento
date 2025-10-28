@@ -1,5 +1,6 @@
 package br.org.apae.atendimento.services;
 import br.org.apae.atendimento.entities.Paciente;
+import br.org.apae.atendimento.exceptions.PacienteNotFoundException;
 import br.org.apae.atendimento.repositories.PacienteRepository;
 
 
@@ -12,7 +13,7 @@ public class PacienteService {
 
     public Paciente getPacienteById(Long id){
         return pacienteRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Paciente Não encontrado"));
+                .orElseThrow(() -> new PacienteNotFoundException());
     }
 
 }
