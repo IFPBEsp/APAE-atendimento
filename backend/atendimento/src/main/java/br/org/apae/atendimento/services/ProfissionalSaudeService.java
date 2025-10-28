@@ -30,7 +30,7 @@ public class ProfissionalSaudeService {
     public String getPrimeiroNome (Long id) {
         String nome = profissionalSaudeRepository.findPrimeiroNomeById(id);
         if(nome == null) {
-            throw new new ProfissionalSaudeNotFoundException();
+            throw new ProfissionalSaudeNotFoundException();
         }
         return nome;
     }
