@@ -28,10 +28,10 @@ docker compose version
 
 ### 1. Execução dos Containers
 
-Para iniciar os containers em segundo plano (modo *detached*), utilize o comando `docker-compose up -d`.
+Para iniciar os containers em segundo plano (modo *detached*), utilize o comando `docker compose up -d`.
 
 ```bash
-docker-compose up -d 
+docker compose up -d 
 ```
 
 ### 2. Verificação do Status
