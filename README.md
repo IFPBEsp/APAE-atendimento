@@ -1,66 +1,57 @@
-# Documentação do Sistema de Atendimento da APAE
+![Logo da APAE](https://seeklogo.com/images/A/apae-logo-30E7C409C6-seeklogo.com.png)
 
-Uma aplicação web e móvel responsiva que permite aos profissionais de saúde da APAE gerenciarem os prontuários dos pacientes, incluindo consultas, relatórios e anexos.
+# Sistema de Atendimento da APAE
 
----
+O Sistema de Atendimento da APAE busca ser uma sistema seguro que busca otimizar o registro de atendimento dos pacientes atendidos pela instituição. Seu principal propósito é otimizar o trabalho dos profissionais de saúde, oferecendo uma ferramenta eficiente para o gerenciamento dos atendimentos.
 
-## Pacientes
+A intenção do sistema é modernizar e unificar o processo de acompanhamento dos pacientes, garantindo acesso rápido, organizado e restrito às informações. Dessa forma, busca-se melhorar a qualidade do atendimento, agilizar a comunicação interna entre as especialidades e fortalecer a segurança dos dados dos pacientes. Em síntese, o sistema visa promover eficiência, transparência e confidencialidade no fluxo de atendimentos da APAE, contribuindo diretamente para a excelência no cuidado e acompanhamento das pessoas assistidas pela instituição.
 
-O especialista visualiza **a lista de pacientes pelos quais é responsável**, contendo:
+# Funcionalidades presentes no sistema
+- Visualização da lista de pacientes com dados pessoais;
+- Consultar prontuário do paciente;
+- Adicionar as consultas permitindo registrar o atendimento;
+- Produção de relatórios e inseri-los no prontuário do paciente;
+- Adicionar anexos importantes presentes na consulta.
 
-- Nome do paciente
-- Condição (intelectual e múltipla)
-
-### Funcionalidades
-
-- **Consultar prontuário** (`Ver detalhes`):
-    
-    Permite acessar informações detalhadas do paciente.
-    
-- **Adicionar consultas**:
-    - Registrar atendimento do paciente
-    - Informar **data da consulta**
-    - Adicionar **descrição completa do atendimento**
-- **Adicionar anexos**:
-    - Incluir documentos importantes, como **receitas, laudos e outros documentos surgidos durante as consultas**
-- **Produzir relatórios**:
-    - Devem conter:
-        - **Tipo**: classificação do relatório (ex.: relatório anual, relatório por demanda)
-        - **Descrição**: informações sobre a evolução do paciente 
-    - Devem permitir:
-        - Acompanhamento: permite acompanhar o histórico de atendimentos
-        - Encaminhamento: botão para finalizar e encaminhar à diretoria
-- **Pesquisar pacientes**: localizar pelo **nome**
-- **Navegar entre páginas** da lista de pacientes
-
-### Observações
-
+# Observações
 - Cada especialista **só vê pacientes pelos quais é responsável**, garantindo **privacidade e segurança**
 
----
+- Permite ao profissional visualizar seus **dados pessoais cadastrados no sistema**
 
-## Meus Dados
+# Stack Tecnológico
+- Framework: https://react.dev
+- SpringBoot: https://spring.io/projects/spring-boot
+- Biblioteca de componentes: https://ui.shadcn.com
+- Autenticação e autorização: https://www.keycloak.org
 
-Permite ao profissional visualizar seus **dados pessoais cadastrados no sistema**
+### Front-end
 
----
+**🧩 Caminho referente ao Front-end do sistema**
 
-> Informações detalhadas, consultar a documentação [historia dos usuarios](https://github.com/IFPBEsp/APAE-atendimento/blob/main/docs/historia.md)
+(https://github.com/IFPBEsp/APAE-atendimento/tree/dev/frontend#-tecnologias)
 
----
+### Back-end
 
-## Stack Tecnológico
+**🧩 Caminho referente ao Back-end do sistema**
 
-### Frontend
+(https://github.com/IFPBEsp/APAE-atendimento/tree/dev/backend#-pré-requisitos)
 
-**🧩 Tecnologias**
+# Contribuições
 
-[Tecnologias-Frontend](https://github.com/IFPBEsp/APAE-atendimento/tree/dev/frontend#-tecnologias)
+**1. Clone o repositório**
 
-### Backend
+``https://github.com/IFPBEsp/APAE-atendimento.git``
 
-**🧩 Tecnologias**
+**2. Crie uma nova branch**
 
-[Tecnologias-Backend](https://github.com/IFPBEsp/APAE-atendimento/tree/dev/backend#-pré-requisitos)
+``git checkout -b minha-nova-feature``
 
-## 
+**3. Realize um commit**
+
+``git commit -m "Descrição da sua alteração"``
+
+**4. Envie suas alterações para o repositório remoto**
+
+``git push -u origin minha-nova-feature``
+
+**5. Crie um Pull Request**: Vá até o repositório remoto e crie um novo Pull Request.
