@@ -1,54 +1,95 @@
 # Instruções de Uso e Conexão do Docker Compose
 
-Este guia detalhado descreve o processo para construir as imagens Docker do **Postgres** e do **Minio**, e como executar seus respectivos containers configurados usando o **Docker Compose**. 
+Este guia detalha como construir as imagens Docker do **Postgres** e do **Minio**, executar os containers configurados via **Docker Compose** e gerenciar suas operações.
 
----
+***
 
 ## Pré-requisitos
 
-Antes de iniciar a execução dos containers, certifique-se de que os seguintes softwares estão instalados e configurados em seu sistema:
+Antes de iniciar, garanta que os seguintes softwares estejam instalados e configurados em seu sistema:
+
 
 | Requisito | Descrição | Link para Instalação |
-| --- | --- | --- |
-| **Docker** | Plataforma para desenvolver, enviar e executar aplicativos em containers. | [https://docs.docker.com/get-docker/](https://docs.docker.com/get-docker/) |
-| **Docker Compose** | Ferramenta para definir e executar aplicativos Docker multi-container. | [https://docs.docker.com/compose/install/](https://docs.docker.com/compose/install/) |
+| :-- | :-- | :-- |
+| **Docker** | Plataforma para desenvolver, enviar e executar containers. | [https://docs.docker.com/get-docker/](https://docs.docker.com/get-docker/) |
+| **Docker Compose** | Ferramenta para definir e executar apps Docker multi-container. | [https://docs.docker.com/compose/install/](https://docs.docker.com/compose/install/) |
 
 ### Verificação da Instalação
 
-Para confirmar se o Docker e o Docker Compose estão corretamente instalados, execute os comandos abaixo em seu terminal:
+Execute no terminal para confirmar a instalação:
 
 ```bash
 docker --version
 docker compose version
 ```
 
----
 
-## Conexão e Execução
+***
 
-### 1. Execução dos Containers
+## Conexão e Execução dos Containers
 
-Para iniciar os containers em segundo plano (modo *detached*), utilize o comando `docker compose up -d`.
-
-```bash
-docker compose up -d 
-```
-
-### 2. Verificação do Status
-
-Após a execução, verifique se os containers foram iniciados corretamente e estão em execução. O comando `docker ps` listará todos os containers ativos:
+### 1. Navegue até o diretório do Compose
 
 ```bash
-docker ps
+cd APAE-ATENDIMENTO/backend/docker
 ```
 
-**Exemplo de Saída Esperada:**
+
+### 2. Inicie os containers em modo destacado (background)
+
+```bash
+docker compose up -d
+```
+
+
+### 3. Verifique se os containers estão em execução
+
+```bash
+docker container ps
+```
+
+Exemplo esperado:
+
 
 | CONTAINER ID | IMAGE | STATUS |
-| --- | --- | --- |
-| `896e5f8a5e1c` | `postgres:16` | `Up 2 minutes` |
-| `98ecd313fc61` | `minio/minio:RELEASE.2024-09-22T00-33-43Z` | `Up 2 minutes` |
+| :-- | :-- | :-- |
+| 896e5f8a5e1c | postgres:16 | Up 2 minutes |
+| 98ecd313fc61 | minio/minio:RELEASE.2024-09-22T00-33-43Z | Up 2 minutes |
 
-Se a coluna `STATUS` mostrar `Up` seguido de um tempo, isso indica que os containers estão funcionando conforme o esperado.
+### 4. Execute a aplicação Spring
 
----
+```bash
+cd ../atendimento && mvn spring-boot:run -e -X
+```
+
+
+***
+
+## Encerrando a Execução
+
+### 1. Parar os containers
+
+```bash
+docker compose stop
+```
+
+
+### 2. Remover containers e volumes
+
+> ⚠️ Atenção: use `docker compose down -v` apenas em ambientes de desenvolvimento ou quando for necessário limpar volumes e dados persistidos.
+
+```bash
+docker compose down -v
+```
+
+
+***
+
+## Serviços e Portas Utilizadas
+
+| Serviço | Descrição | Porta |
+| :-- | :-- | :-- |
+| Postgres | Banco de dados relacional do backend | 5432 |
+| MinIo | Armazenamento compatível com S3 | 9000 (API) / 9001 (Console) |
+
+
