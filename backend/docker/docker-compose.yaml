@@ -5,29 +5,28 @@ services:
     restart: always
     env_file:
       - .env
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_DB: ${POSTGRES_DATABASE}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "5432:5432"
     volumes:
       - db-data:/var/lib/postgresql/data
-    networks:
-      - private-network
     command: >
       postgres
       -c listen_addresses='*'
       -c port=5432
 
+  minio:
+    image: minio/minio:latest
+    container_name: minio-atendimento-apae
+    command: server /data --console-address ":9001"
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio-data:/data
+
 volumes:
   db-data:
-    driver: local
   minio-data:
-    driver: local
-
-networks:
-  private-network:
-    driver: bridge
-  public-network:
-    driver: bridge
