@@ -54,7 +54,7 @@ Exemplo esperado:
 | CONTAINER ID | IMAGE | STATUS |
 | :-- | :-- | :-- |
 | 896e5f8a5e1c | postgres:16 | Up 2 minutes |
-| 98ecd313fc61 | minio/minio:RELEASE.2024-09-22T00-33-43Z | Up 2 minutes |
+| 98ecd313fc61 | minio/minio:latest | Up 2 minutes |
 
 ### 4. Execute a aplicação Spring
 
