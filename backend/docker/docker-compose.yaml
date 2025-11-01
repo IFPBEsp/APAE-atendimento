@@ -16,7 +16,6 @@ services:
 
 volumes:
   db-data:
-   
   minio-data:
    
 
