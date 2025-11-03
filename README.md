@@ -14,7 +14,7 @@ A intenção do sistema é modernizar e unificar o processo de acompanhamento do
 # Observações
 - Cada especialista **só vê pacientes pelos quais é responsável**, garantindo **privacidade e segurança**
 
-- Per![apae_novo_logo.jpg](../../OneDrive/Documentos/APAE/apae_novo_logo.jpg)mite ao profissional visualizar seus **dados pessoais cadastrados no sistema**
+- Permite ao profissional visualizar seus **dados pessoais cadastrados no sistema**
 
 # Stack Tecnológico
 - Framework: https://react.dev
