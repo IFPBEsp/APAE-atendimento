@@ -30,12 +30,10 @@ export default function LoginPage() {
      
       <div className="bg-white p-8 rounded-2xl shadow-lg w-full max-w-sm text-center">
 
-        {/* Logo */}
         <div className="flex flex-col items-center mb-6">
           <Image src="/logo-apae.svg" alt="Logo APAE" width={60} height={60} />
         </div>
 
-        {/* Formulário */}
         <form onSubmit={handleSubmit} className="space-y-5">
           <div className="text-left">
             <label className="block font-bold text-[18px] text-gray-700 mb-1">
@@ -84,7 +82,6 @@ export default function LoginPage() {
             )}
           </div>
 
-          {/* Botão principal */}
           <button
             type="submit"
             disabled={!isValidEmail(email)}
@@ -102,14 +99,12 @@ export default function LoginPage() {
             Entrar
           </button>
 
-          {/* Separador */}
           <div className="flex items-center my-3">
             <hr className="flex-grow border-gray-300" />
             <span className="mx-2 text-gray-500 text-sm">ou</span>
             <hr className="flex-grow border-gray-300" />
           </div>
 
-          {/* Botão Google */}
           <button
             type="button"
             className="
