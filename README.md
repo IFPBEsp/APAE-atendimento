@@ -1,8 +1,9 @@
 # Sistema de Atendimento da APAE
+![Logo APAE](./assents/apae_novo_logo.jpg)
 
 O Sistema de Atendimento da APAE busca ser uma sistema seguro que busca otimizar o registro de atendimento dos pacientes atendidos pela instituição. Seu principal propósito é otimizar o trabalho dos profissionais de saúde, oferecendo uma ferramenta eficiente para o gerenciamento dos atendimentos.
 
-A intenção do sistema é modernizar e unificar o processo de acompanhamento dos pacientes, garantindo acesso rápido, organizado e restrito às informações. Dessa forma, busca-se melhorar a qualidade do atendimento, agilizar a comunicação interna entre as especialidades e fortalecer a segurança dos dados dos pacientes. Em síntese, o sistema visa promover eficiência, transparência e confidencialidade no fluxo de atendimentos da APAE, contribuindo diretamente para a excelência no cuidado e acompanhamento das pessoas assistidas pela instituição.
+A intenção do sistema é modernizar e uanificar o processo de acompanhamento dos pacientes, garantindo acesso rápido, organizado e restrito às informações. Dessa forma, busca-se melhorar a qualidade do atendimento, agilizar a comunicação interna entre as especialidades e fortalecer a segurança dos dados dos pacientes. Em síntese, o sistema visa promover eficiência, transparência e confidencialidade no fluxo de atendimentos da APAE, contribuindo diretamente para a excelência no cuidado e acompanhamento das pessoas assistidas pela instituição.
 
 # Funcionalidades presentes no sistema
 - Visualização da lista de pacientes com dados pessoais;
