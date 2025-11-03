@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { Button } from "../ui/button";
 import { LogOut } from "lucide-react";
+import { Menu } from "lucide-react";
 
 export default function Header() {
   const [open, setOpen] = useState(false);
@@ -31,15 +32,7 @@ export default function Header() {
             className="h-10 w-10 p-2 md:hidden"
             onClick={() => setOpen(!open)}
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6 text-[#344054]"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
+            <Menu className="w-6 h-6 text-[#344054]"/>
           </Button>
 
           {/*Menu web*/}
@@ -49,7 +42,7 @@ export default function Header() {
                 Pacientes
               </Link>
 
-              <Link href="" className="text-[#344054] hover:underline">
+              <Link href="#" className="text-[#344054] hover:underline">
                 Meus dados
               </Link>
             </div>
