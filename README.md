@@ -1,5 +1,3 @@
-![Logo da APAE](https://seeklogo.com/images/A/apae-logo-30E7C409C6-seeklogo.com.png)
-
 # Sistema de Atendimento da APAE
 
 O Sistema de Atendimento da APAE busca ser uma sistema seguro que busca otimizar o registro de atendimento dos pacientes atendidos pela instituição. Seu principal propósito é otimizar o trabalho dos profissionais de saúde, oferecendo uma ferramenta eficiente para o gerenciamento dos atendimentos.
@@ -16,7 +14,7 @@ A intenção do sistema é modernizar e unificar o processo de acompanhamento do
 # Observações
 - Cada especialista **só vê pacientes pelos quais é responsável**, garantindo **privacidade e segurança**
 
-- Permite ao profissional visualizar seus **dados pessoais cadastrados no sistema**
+- Per![apae_novo_logo.jpg](../../OneDrive/Documentos/APAE/apae_novo_logo.jpg)mite ao profissional visualizar seus **dados pessoais cadastrados no sistema**
 
 # Stack Tecnológico
 - Framework: https://react.dev
