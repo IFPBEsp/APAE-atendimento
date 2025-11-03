@@ -51,12 +51,40 @@ O Maven gerencia as dependências automaticamente. Para garantir que todas sejam
 mvn clean install
 ```
 
-## Executando o Backend Localmente
+## Perfis e Configurações
 
-Para iniciar o servidor local, execute o comando:
+O projeto utiliza perfis do Spring Boot para diferenciar ambientes:
+
+* dev → Desenvolvimento com PostgreSQL local
+* test → Testes com H2 em memória
+* prod → Produção (configuração futura)
+
+Os arquivos correspondentes são:
+
+- application-dev.properties
+- application-test.properties
+- application-prod.properties
+
+O parâmetro -Dprofile define qual perfil será carregado ao iniciar o backend.
+
+## Executando o Backend 
+
+> “O parâmetro -Dprofile define qual perfil do Spring Boot será carregado (dev, test ou prod).
+
+### Localmente em modo Test
+
+Para iniciar o servidor local em modo teste, execute o comando:
 
 ```bash
-mvn spring-boot:run
+mvn spring-boot:run -Dprofile=test
+```
+
+### Localmente em modo Dev (desenvolvedor)
+
+Para iniciar o servidor local em modo dev, execute o comando:
+
+```bash
+mvn spring-boot:run -Dprofile=dev
 ```
 
 Após a inicialização, o backend estará acessível em:
@@ -68,3 +96,4 @@ Endpoints Disponíveis
 | Método | Endpoint | Descrição | Resposta |
 |--------|----------|-----------|----------|
 | GET    |  /hello  | Retorna uma mensagem de teste	"Hello World" | Hello World! |
+
