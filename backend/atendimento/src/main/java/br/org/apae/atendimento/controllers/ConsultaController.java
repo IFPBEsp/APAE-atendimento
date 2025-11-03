@@ -32,11 +32,8 @@ public class ConsultaController {
             @RequestParam Long pacienteId,
             @RequestParam Long profissionalId
     ) {
-        Paciente paciente = pacienteService.getPacienteById(pacienteId);
-        ProfissionalSaude profissional = profissionalSaudeService.getProfissionalById(profissionalId);
-
-        Consulta novaConsulta = consultaService.addConsulta(consulta, paciente, profissional);
-        return ResponseEntity.ok(novaConsulta);
+        Consulta novaConsulta = consultaService.addConsulta(consulta, pacienteId, profissionalId);
+        return ResponseEntity.status(HttpStatus.created).body(novaConsulta);
     }
 
     @GetMapping("/paciente/{id}")
