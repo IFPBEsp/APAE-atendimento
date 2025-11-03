@@ -54,7 +54,7 @@ export default function Header() {
               </Link>
             </div>
 
-            <button className="text-red-500 font-medium flex items-center gap-2 cursor-pointer">
+            <button className="text-red-500 text-sm font-medium flex items-center gap-2 cursor-pointer">
               <LogOut className="w-4 h-4" /> Sair
             </button>
           </div>

@@ -5,8 +5,13 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
 import { Search } from "lucide-react";
 import { PacienteCard } from "@/components/pacientes/pacienteCard";
+import { useState } from "react";
+
 
 export default function PacientesPage() {
+
+  const [medicoNome, setMedicoNome] = useState("Fulano da silva");
+
     return(
         <>
         <Header/>
@@ -16,7 +21,7 @@ export default function PacientesPage() {
 
               <div className="text-center flex flex-col items-center sm:flex-row sm:items-center sm:gap-2 sm:text-left sm:items-start">
                 <h1 className="font-semibold text-[#344054] text-xl">
-                  Olá Dr. Fulano!
+                  Olá Dr. {medicoNome}!
                 </h1>
                 <h1 className="font-semibold text-[#344054] text-lg sm:text-xl sm:inline-block">
                   Esses são seus pacientes
@@ -49,7 +54,7 @@ export default function PacientesPage() {
               </div>
             </section>
 
-            <section className="w-full bg-white rounded-t-3xl p-6 flex flex-col gap-4 sm:grid sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
+            <section className="w-full bg-white rounded-t-3xl p-6 flex flex-col gap-4 sm:grid sm:grid-cols-2 sm:gap-6">
 
                 <PacienteCard
                     nome="Fulano de Tal da Silva Santos"
