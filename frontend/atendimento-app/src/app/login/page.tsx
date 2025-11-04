@@ -3,10 +3,12 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { Mail, LogIn, Info } from 'lucide-react';
+import { useRouter } from 'next/navigation'; 
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [touched, setTouched] = useState(false);
+  const router = useRouter(); 
 
   const isValidEmail = (value: string) =>
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
@@ -17,19 +19,24 @@ export default function LoginPage() {
     e.preventDefault();
     if (!isValidEmail(email)) return;
     alert(`Login com o e-mail: ${email}`);
+
+    router.push('/verificacao');
   };
 
   return (
-    <div
-      className="
-        flex items-center justify-center min-h-screen
-        bg-cover bg-center bg-no-repeat
-      "
-      style={{ backgroundImage: "url('/background-login-apae.svg')" }}
-    >
-     
-      <div className="bg-white p-8 rounded-2xl shadow-lg w-full max-w-sm text-center">
+    <div className="relative flex items-center justify-center min-h-screen overflow-hidden">
+      <div className="absolute inset-0 -z-10">
+        <Image
+          src="/background-login-apae.svg"
+          alt="Background"
+          fill
+          priority
+          className="object-cover w-full h-full"
+        />
+        <div className="absolute inset-0 bg-[#0D4F97]/85" />
+      </div>
 
+      <div className="relative z-10 bg-white p-8 rounded-2xl shadow-lg w-full max-w-sm text-center">
         <div className="flex flex-col items-center mb-6">
           <Image src="/logo-apae.svg" alt="Logo APAE" width={60} height={60} />
         </div>
@@ -93,7 +100,6 @@ export default function LoginPage() {
               transition
               hover:bg-blue-700
               disabled:bg-blue-300 disabled:cursor-not-allowed
-              cursor-pointer
             "
           >
             <LogIn size={25} />
