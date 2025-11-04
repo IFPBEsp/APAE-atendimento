@@ -100,6 +100,7 @@ export default function LoginPage() {
               transition
               hover:bg-blue-700
               disabled:bg-blue-300 disabled:cursor-not-allowed
+              cursor-pointer
             "
           >
             <LogIn size={25} />
