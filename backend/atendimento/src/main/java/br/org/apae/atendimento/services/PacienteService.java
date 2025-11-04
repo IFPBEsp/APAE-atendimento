@@ -12,8 +12,8 @@ public class PacienteService {
     }
 
     public Paciente getPacienteById(Long id){
-        return pacienteRepository.findById(id)
-                .orElseThrow(() -> new PacienteNotFoundException());
+        return pacienteRepository.
+        findById(id).orElseThrow(() -> new PacienteNotFoundException());
     }
 
 }
