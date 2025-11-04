@@ -110,14 +110,14 @@ const handleVerify = async () => {
         <Button
           onClick={handleVerify}
           disabled={value.length < 4}
-          className={`w-full rounded-full bg-[#165BAA] hover:bg-blue-700 text-white mt-8 disabled:opacity-60 disabled:cursor-not-allowed`}
+          className={`w-full rounded-full bg-[#165BAA] hover:bg-blue-700 text-white mt-8 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer`}
         >
           {status === "success" ? <Check size={22}/> : "Verificar"}
         </Button>
 
         <button
           onClick={() => console.log("Reenviar código")}
-          className="text-base text-[#344054] mt-6 underline"
+          className="text-base text-[#344054] mt-6 underline cursor-pointer"
         >
           Enviar novamente
         </button>
