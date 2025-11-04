@@ -13,9 +13,17 @@ export default function VerificacaoPage() {
   const [status, setStatus] = useState<"idle" | "error" | "success">("idle");
   const router = useRouter();
 
-  const handleVerify = () => {
-  
-    if (/^\d{4}$/.test(value)) {
+const handleVerify = async () => {
+  try {
+    const response = await fetch("/api/verificacao", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ codigo: value }),
+    });
+
+    const result = await response.json();
+
+    if (result.success) {
       setStatus("success");
       setTimeout(() => {
         router.push("/");
@@ -23,7 +31,11 @@ export default function VerificacaoPage() {
     } else {
       setStatus("error");
     }
-  };
+  } catch (error) {
+    console.error("Erro ao verificar código:", error);
+    setStatus("error");
+  }
+};
 
 
   const borderColor =
