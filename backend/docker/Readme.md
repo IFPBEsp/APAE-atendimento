@@ -74,12 +74,10 @@ docker compose stop
 ```
 
 
-### 2. Remover containers e volumes
-
-> ⚠️ Atenção: use `docker compose down -v` apenas em ambientes de desenvolvimento ou quando for necessário limpar volumes e dados persistidos.
+### 2. Remover containers 
 
 ```bash
-docker compose down -v
+docker compose down 
 ```
 
 
