@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -14,8 +14,7 @@ export default function Header() {
     <>
       <header className="w-full border-b bg-[#F8FAFD] shadow-sm">
         <div className="flex items-center justify-between px-6 py-3 w-full">
-
-          <Link href="/" className="flex items-center gap-3">
+          <Link href="/home" className="flex items-center gap-3">
             <Image
               src="/APAE-logo.svg"
               alt="Logo APAE"
@@ -32,13 +31,13 @@ export default function Header() {
             className="h-10 w-10 p-2 md:hidden"
             onClick={() => setOpen(!open)}
           >
-            <Menu className="w-6 h-6 text-[#344054]"/>
+            <Menu className="w-6 h-6 text-[#344054]" />
           </Button>
 
           {/*Menu web*/}
           <div className="hidden md:flex items-center w-full">
             <div className="flex-1 flex justify-center gap-10 text-sm font-medium">
-              <Link href="/" className="text-[#344054] hover:underline">
+              <Link href="/home" className="text-[#344054] hover:underline">
                 Pacientes
               </Link>
 
@@ -51,15 +50,13 @@ export default function Header() {
               <LogOut className="w-4 h-4" /> Sair
             </button>
           </div>
-
         </div>
       </header>
 
       {/* Menu dropdown mobile*/}
       {open && (
         <div className="w-full bg-white shadow-md py-4 flex flex-col items-center gap-4 border-b md:hidden">
-
-          <Link href="/" className="text-[#344054] text-sm hover:underline">
+          <Link href="/home" className="text-[#344054] text-sm hover:underline">
             Pacientes
           </Link>
 
