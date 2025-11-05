@@ -2,41 +2,32 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSlot,
+} from "@/components/ui/input-otp";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Check } from "lucide-react";
+import dados from "../../../data/verificacao.json";
 
 export default function VerificacaoPage() {
   const [value, setValue] = useState("");
   const [status, setStatus] = useState<"idle" | "error" | "success">("idle");
   const router = useRouter();
 
-const handleVerify = async () => {
-  try {
-    const response = await fetch("/api/verificacao", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ codigo: value }),
-    });
-
-    const result = await response.json();
-
-    if (result.success) {
-      setStatus("success");
-      setTimeout(() => {
-        router.push("/");
-      }, 1200);
-    } else {
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (value !== dados.codigo) {
       setStatus("error");
-    }
-  } catch (error) {
-    console.error("Erro ao verificar código:", error);
-    setStatus("error");
-  }
-};
-
+      return;
+    } else setStatus("success");
+    setTimeout(() => {
+      router.push("/home");
+    }, 1200);
+  };
 
   const borderColor =
     status === "error"
@@ -54,14 +45,12 @@ const handleVerify = async () => {
         className="object-cover"
       />
 
-
       <div className="absolute inset-0 bg-[#0D4F97]/80" />
 
-
-      <div className="relative z-10 w-[88%] max-w-xs bg-white rounded-2xl p-5 text-center shadow-md min-h-[480px] flex flex-col justify-center">
-
-        <h1 className="text-[36px] font-semibold text-[#344054]">Verificação</h1>
-
+      <div className="relative z-10 w-[380px] bg-white p-5 text-center shadow-md min-h-[480px] flex flex-col justify-center rounded-[30px] sm:w-[410px]">
+        <h1 className="text-[36px] font-semibold text-[#344054]">
+          Verificação
+        </h1>
 
         <p className="text-base text-[#344054] mt-3">
           Verifique o código no seu e-mail para efetuar o login, ou{" "}
@@ -71,13 +60,11 @@ const handleVerify = async () => {
           .
         </p>
 
-
         <div className="mt-8 flex justify-center">
           <InputOTP
             maxLength={4}
             value={value}
             onChange={(val) => {
-
               if (/^\d*$/.test(val)) setValue(val);
             }}
           >
@@ -93,7 +80,6 @@ const handleVerify = async () => {
           </InputOTP>
         </div>
 
-
         <div className="h-6 mt-3">
           {status === "error" && (
             <p className="text-red-500 text-sm">
@@ -108,11 +94,12 @@ const handleVerify = async () => {
         </div>
 
         <Button
-          onClick={handleVerify}
+          onClick={handleSubmit}
           disabled={value.length < 4}
-          className={`w-full rounded-full bg-[#165BAA] hover:bg-blue-700 text-white mt-8 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer`}
+          className={`active:scale-[0.98] text-[18px] w-full h-[46px] rounded-full bg-[#165BAA] hover:bg-[#13447D] hover:cursor-pointer text-white mt-8 disabled:bg-[#B0C6DE] disabled:cursor-not-allowed`}
+          style={{ boxShadow: "4px 4px 10px rgba(0, 0, 0, 0.25)" }}
         >
-          {status === "success" ? <Check size={22}/> : "Verificar"}
+          {status === "success" ? <Check size={22} /> : "Verificar"}
         </Button>
 
         <button

@@ -2,15 +2,17 @@
 
 import { useState } from "react";
 
-import { Mail, Info } from "lucide-react";
+import { Mail } from "lucide-react";
 import { Nunito, Baloo_2 } from "next/font/google";
 import { Card, CardContent } from "@/components/ui/card";
-
+import { useRouter } from "next/navigation";
 import {
   InputGroup,
   InputGroupAddon,
   InputGroupInput,
 } from "@/components/ui/input-group";
+
+import dados from "../../../data/verificacao.json";
 
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -25,18 +27,18 @@ const baloo2Font = Baloo_2({
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
-
+  const router = useRouter();
   const isValidEmail = (value: string) =>
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (email !== "algo@hotmail.com") {
+    if (email !== dados.email) {
       setError("E-mail inválido.");
       return;
     }
     if (!isValidEmail(email)) return;
-    alert(`Login com o e-mail: ${email}`);
+    router.push("/verificacao");
   };
 
   return (
@@ -102,6 +104,7 @@ export default function LoginPage() {
               </div>
 
               <Button
+                onClick={() => router.push("/home")}
                 type="button"
                 className={` active:scale-[0.98] w-full h-[46px] rounded-full border border-[#B2D7EC] bg-white  text-gray-700 text-[18px] hover:cursor-pointer hover:bg-[#F8FAFD] ${baloo2Font.className}`}
                 style={{ boxShadow: "4px 4px 10px rgba(0, 0, 0, 0.25)" }}
