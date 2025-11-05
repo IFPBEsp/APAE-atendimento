@@ -26,6 +26,9 @@ public class Paciente {
     @Column(name = "responsaveis")
     private List<String> responsaveis = new ArrayList<>();
 
+    @Column(name = "cidade")
+    private String cidade;
+
     @Column(name = "rua")
     private String rua;
 
