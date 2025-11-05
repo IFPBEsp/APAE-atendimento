@@ -76,7 +76,7 @@ O parâmetro -Dprofile define qual perfil será carregado ao iniciar o backend.
 Para iniciar o servidor local em modo teste, execute o comando:
 
 ```bash
-mvn spring-boot:run -Dprofile=test
+mvn spring-boot:run -Dspring-boot.run.profiles=test
 ```
 
 ### Localmente em modo Dev (desenvolvedor)
@@ -84,7 +84,7 @@ mvn spring-boot:run -Dprofile=test
 Para iniciar o servidor local em modo dev, execute o comando:
 
 ```bash
-mvn spring-boot:run -Dprofile=dev
+mvn spring-boot:run -Dspring-boot.run.profiles=dev
 ```
 
 Após a inicialização, o backend estará acessível em:

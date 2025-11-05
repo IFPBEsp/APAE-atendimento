@@ -8,7 +8,9 @@ import br.org.apae.atendimento.entities.ProfissionalSaude;
 import br.org.apae.atendimento.repositories.ConsultaRepository;
 import br.org.apae.atendimento.repositories.PacienteRepository;
 import br.org.apae.atendimento.repositories.ProfissionalSaudeRepository;
+import org.springframework.stereotype.Service;
 
+@Service
 public class ConsultaService {
     private ConsultaRepository consultaRepository;
     private PacienteService pacienteService;
