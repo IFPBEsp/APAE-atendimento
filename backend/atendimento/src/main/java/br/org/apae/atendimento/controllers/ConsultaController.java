@@ -1,13 +1,12 @@
 package br.org.apae.atendimento.controllers;
 
 import br.org.apae.atendimento.entities.Consulta;
-import br.org.apae.atendimento.entities.Paciente;
-import br.org.apae.atendimento.entities.ProfissionalSaude;
 import br.org.apae.atendimento.services.ConsultaService;
 import br.org.apae.atendimento.services.PacienteService;
 import br.org.apae.atendimento.services.ProfissionalSaudeService;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,7 +32,7 @@ public class ConsultaController {
             @RequestParam Long profissionalId
     ) {
         Consulta novaConsulta = consultaService.addConsulta(consulta, pacienteId, profissionalId);
-        return ResponseEntity.status(HttpStatus.created).body(novaConsulta);
+        return ResponseEntity.status(HttpStatus.CREATED).body(novaConsulta);
     }
 
     @GetMapping("/paciente/{id}")
