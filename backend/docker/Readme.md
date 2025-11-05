@@ -67,14 +67,6 @@ cd ../atendimento && mvn spring-boot:run -e -X
 
 ## Encerrando a Execução
 
-### 1. Parar os containers
-
-```bash
-docker compose stop
-```
-
-
-### 2. Remover containers 
 
 ```bash
 docker compose down 
