@@ -24,7 +24,7 @@ jobs:
           cache: maven
 
       - name: Compilar aplicação com Maven (sem testes)
-        working-directory: ./backend
+        working-directory: ./backend/atendimento
         run: mvn clean package -DskipTests
 
       - name: Salvar artefato gerado
