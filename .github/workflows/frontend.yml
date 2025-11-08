@@ -16,16 +16,11 @@ jobs:
       - name: Baixar repositório
         uses: actions/checkout@v4
 
-      - name: Configurar Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'pnpm'
-
       - name: Instalar PNPM
         uses: pnpm/action-setup@v3
         with:
           version: 8
+          cache: true
 
       - name: Instalar dependências
         working-directory: ./frontend/atendimento-app
