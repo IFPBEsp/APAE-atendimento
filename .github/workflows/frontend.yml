@@ -1,4 +1,3 @@
-# .github/workflows/frontend-ci.yml
 name: CI Front-end
 
 on:
@@ -10,33 +9,33 @@ on:
 
 jobs:
   build:
-    name: Construir e validar projeto front-end
+    name: Build do projeto Front-end
     runs-on: ubuntu-latest
 
     steps:
       - name: Baixar repositório
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
 
-      - name: Configurar pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 'latest'
-
-      - name: Configurar Node.js (versão 20)
+      - name: Configurar Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'pnpm'
 
+      - name: Instalar PNPM
+        uses: pnpm/action-setup@v3
+        with:
+          version: 8
+
       - name: Instalar dependências
         working-directory: ./frontend/atendimento-app
         run: pnpm install --frozen-lockfile
 
-      - name: Compilar projeto
+      - name: Construir aplicação
         working-directory: ./frontend/atendimento-app
         run: pnpm run build
 
-      - name: Salvar build front-end
+      - name: Salvar artefato de build
         uses: actions/upload-artifact@v4
         with:
           name: frontend-build
