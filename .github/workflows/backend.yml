@@ -31,4 +31,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: backend-build
-          path: backend/target/*.jar
+          path: backend/atendimento/target/*.jar
