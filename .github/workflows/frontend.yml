@@ -4,6 +4,8 @@ on:
   pull_request:
     branches:
       - dev
+    paths:
+      - 'frontend/**'
     paths-ignore:
       - 'docs/**'
 
