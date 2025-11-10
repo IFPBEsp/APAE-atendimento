@@ -40,8 +40,36 @@ class ProfissionalSaude {
     + getPrimeiroNome(id: Long): String
 }
 
+
+class Anexo {
+    - id: Long
+    - idArquivo: Long
+    - nomeAnexo: String
+    - descricao: String
+    - profissionalId: Long
+    - pacienteId: Long
+    --
+    + getPacientes(id: Long): List<Paciente>
+    + addArquivo(arquivo: File, idPaciente: Long, idProfissional: Long): Long
+
+}
+
+class Relatorio {
+    - id: Long
+    - idArquivo: Long
+    - profissionalId: Long
+    - pacienteId: Long
+    --
+    + getPacientes(id: Long): List<Paciente>
+    + addArquivo(arquivo: File, idPaciente: Long, idProfissional: Long): Long
+}
+
 Paciente "1" -- "0..*" Consulta
 ProfissionalSaude "1" -- "0..*" Consulta
 Paciente "0..*" -- "0..*" ProfissionalSaude
+Anexo "0..*" -- "1" Paciente
+Paciente "1" -- "0..*" Relatorio
+ProfissionalSaude "1" -- "0..*" Relatorio
+ProfissionalSaude "1" -- "0..*" Anexo
 
 @enduml
