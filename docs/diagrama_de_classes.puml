@@ -43,25 +43,20 @@ class ProfissionalSaude {
 
 class Anexo {
     - id: Long
-    - idArquivo: Long
+    - idArquivo: String
     - nomeAnexo: String
     - descricao: String
-    - profissionalId: Long
-    - pacienteId: Long
+    - date: LocalDate
     --
-    + getPacientes(id: Long): List<Paciente>
-    + addArquivo(arquivo: File, idPaciente: Long, idProfissional: Long): Long
-
+    + addArquivo(arquivo: File, idPaciente: Long, idProfissional: Long, date: LocalDateTime): Anexo
 }
 
 class Relatorio {
     - id: Long
-    - idArquivo: Long
-    - profissionalId: Long
-    - pacienteId: Long
+    - idArquivo: String
+    - date: LocalDateTime
     --
-    + getPacientes(id: Long): List<Paciente>
-    + addArquivo(arquivo: File, idPaciente: Long, idProfissional: Long): Long
+    + addArquivo(arquivo: File, idPaciente: Long, idProfissional: Long, date: LocalDateTime): Relatorio
 }
 
 Paciente "1" -- "0..*" Consulta
