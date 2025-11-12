@@ -47,7 +47,7 @@ export default function VerificacaoPage() {
 
       <div className="absolute inset-0 bg-[#0D4F97]/80" />
 
-      <div className="relative z-10 w-[380px] bg-white p-5 text-center shadow-md min-h-[480px] flex flex-col justify-center rounded-[30px] sm:w-[410px]">
+      <div className="relative z-10 w-[340px] bg-white p-5 text-center shadow-md min-h-[480px] flex flex-col justify-center rounded-[30px] sm:w-[410px]">
         <h1 className="text-[36px] font-semibold text-[#344054]">
           Verificação
         </h1>

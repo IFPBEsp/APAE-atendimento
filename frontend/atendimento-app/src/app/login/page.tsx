@@ -51,7 +51,7 @@ export default function LoginPage() {
             className="w-[90px] h-[140px] mt-[3rem]"
           />
         </div>
-        <Card className="w-[380px] h-[455px] rounded-[30px] sm:w-[410px]">
+        <Card className="w-[340px] h-[455px] rounded-[30px] sm:w-[410px]">
           <CardContent className="flex flex-col justify-end h-full pb-6 ">
             <form onSubmit={handleSubmit}>
               <div className=" flex flex-col gap-6 ">
