@@ -1,0 +1,16 @@
+package br.org.apae.atendimento.dtos.response.find;
+
+import java.time.LocalDate;
+
+public record PacienteResponseFindDTO(
+        Long id,
+        String nomeCompleto,
+        LocalDate dataDeNascimento,
+        String contato,
+        String cidade,
+        String rua,
+        String bairro,
+        Integer numeroCasa
+) {}
+
+/// Faltando responsáveis, transtornos, consultas, profissionais?
