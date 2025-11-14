@@ -13,7 +13,6 @@ public class Relatorio{
     @Column(name = "id_arquivo")
     private Long idArquivo
 
-
     @ManyToOne 
     @JoinColumn(name = "profissional_id")
     private ProfissionalSaude profissional; 

@@ -39,6 +39,12 @@ public class ProfissionalSaude {
     @OneToMany(mappedBy = "profissional")
     private List<Consulta> consultas = new ArrayList<>();
 
+    @OneToMany(mappedBy = "profissional")
+    private List<Anexo> anexos = new ArrayList<>();
+
+    @OneToMany(mappedBy = "profissional")
+    private List<Relatorio> relatorios = new ArrayList<>();
+
     public ProfissionalSaude() {}
 
     public Long getId() {
