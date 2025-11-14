@@ -6,7 +6,7 @@ import java.util.Map;
 public record ConsultaRequestCreateDTO(
         Long pacienteId,
         Long profissionalId,
-        Map<String, String> relatorio,
+        Map<String, Object> relatorio,
         LocalDateTime dataConsulta
 ) {
 }

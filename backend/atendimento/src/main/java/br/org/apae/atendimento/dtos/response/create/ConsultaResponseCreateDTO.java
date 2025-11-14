@@ -4,7 +4,7 @@ import java.util.Map;
 
 public record ConsultaResponseCreateDTO(
     Long id,
-    Map<String, String> relatorio,
+    Map<String, Object> relatorio,
     LocalDateTime dataConsulta,
     boolean status
 ) {

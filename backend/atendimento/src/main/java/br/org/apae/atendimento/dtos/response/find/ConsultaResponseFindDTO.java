@@ -7,7 +7,5 @@ public record ConsultaResponseFindDTO(
         Long id,
         LocalDateTime dataConsulta,
         boolean status,
-        Map<String, String> relatorio
+        Map<String, Object> relatorio
 ){}
-
-/// Faltando paciente, profissional?
