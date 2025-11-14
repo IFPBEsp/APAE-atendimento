@@ -1,4 +1,4 @@
-package br.org.apae.atendimento.dtos.response.find;
+package br.org.apae.atendimento.dtos.response;
 
 public record ProfissionalResponseFindDTO(
         Long id,
