@@ -22,7 +22,7 @@ public class Anexo {
 
     @ManyToOne
     @JoinColumn(name = "profissional_id")
-    private ProfissionalSaude profissionalSaude; 
+    private ProfissionalSaude profissional; 
 
     @ManyToOne
     @JoinColumn(name = "paciente_id")
