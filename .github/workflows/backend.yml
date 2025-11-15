@@ -25,7 +25,7 @@ jobs:
 
       - name: Compilar aplicação com Maven (sem testes)
         working-directory: ./backend/atendimento
-        run: mvn clean package -DskipTests
+        run: mvn clean package -Dspring-boot.run.profiles=test -DskipTests
 
       - name: Salvar artefato gerado
         uses: actions/upload-artifact@v4
