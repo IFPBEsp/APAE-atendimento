@@ -1,7 +1,8 @@
 package br.org.apae.atendimento.entities;
+import jakarta.persistence.*;
 
 @Entity
-@Table(name = relatorio)
+@Table(name = "relatorio")
 public class Relatorio{
 
     public Relatorio(){}
@@ -11,7 +12,7 @@ public class Relatorio{
     private Long id;
    
     @Column(name = "id_arquivo")
-    private Long idArquivo
+    private Long idArquivo;
 
     @ManyToOne 
     @JoinColumn(name = "profissional_id")

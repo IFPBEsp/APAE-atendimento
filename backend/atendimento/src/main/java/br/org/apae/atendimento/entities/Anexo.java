@@ -1,4 +1,6 @@
 package br.org.apae.atendimento.entities;
+import jakarta.persistence.*;
+
 
 @Entity
 @Table(name = "anexo")
@@ -11,7 +13,7 @@ public class Anexo {
     private Long id;
 
     @Column(name = "id_arquivo")
-    private Long idArquivo
+    private Long idArquivo;
 
 
     @Column(name = "nome_anexo")
