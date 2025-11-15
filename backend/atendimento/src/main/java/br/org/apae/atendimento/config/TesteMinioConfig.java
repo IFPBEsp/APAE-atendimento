@@ -17,10 +17,6 @@ public class TesteMinioConfig {
     @Value("${minio.root.password}")
     private String minioSecretKey;
 
-    // Se você for definir um bucket padrão no seu MinIO e quiser injetar aqui
-    // @Value("${minio.bucketName:default-bucket}")
-    // private String minioBucketName;
-
     @Bean
     public MinioClient minioClient() {
         return MinioClient.builder()
@@ -28,5 +24,5 @@ public class TesteMinioConfig {
                 .credentials(minioAccessKey, minioSecretKey)
                 .build();
     }
-    
+
 }
