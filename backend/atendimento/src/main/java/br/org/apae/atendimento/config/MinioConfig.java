@@ -6,9 +6,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class TesteMinioConfig {
+public class MinioConfig {
 
-    @Value("${minio.endpoint:http://localhost:9000}")
+    @Value("${minio.endpoint}")
     private String minioEndpoint;
 
     @Value("${minio.root.user}")
