@@ -6,10 +6,17 @@ import { useState } from "react";
 import { Button } from "../ui/button";
 import { LogOut } from "lucide-react";
 import { Menu } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function Header() {
   const [open, setOpen] = useState(false);
+  const router = useRouter();
 
+  function logout() {
+    document.cookie =
+      "verified=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;";
+    router.push("/login");
+  }
   return (
     <>
       <header className="w-full border-b bg-[#F8FAFD] shadow-sm">
@@ -46,7 +53,10 @@ export default function Header() {
               </Link>
             </div>
 
-            <button className="text-red-500 text-sm font-medium flex items-center gap-2 cursor-pointer">
+            <button
+              onClick={logout}
+              className="text-red-500 text-sm font-medium flex items-center gap-2 cursor-pointer"
+            >
               <LogOut className="w-4 h-4" /> Sair
             </button>
           </div>
