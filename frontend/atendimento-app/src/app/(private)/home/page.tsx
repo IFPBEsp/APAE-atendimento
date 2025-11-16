@@ -6,11 +6,37 @@ import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@
 import { Search } from "lucide-react";
 import { PacienteCard } from "@/components/pacientes/pacienteCard";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 
 export default function PacientesPage() {
 
+  const router = useRouter();
+
   const [medicoNome, setMedicoNome] = useState("Fulano da silva");
+
+  const pacientes = [
+    {
+      id: "1",
+      nome: "Fulano de Tal da Silva Santos",
+      cpf: "123.456.789-00",
+      endereco: "Esperança - PB, R. Hugo Feitosa Figueiredo, 76, Centro.",
+      contato: "(83) 9 1234-5678",
+      dataNascimento: "10/01/2001",
+      transtornos: ["Autismo", "TDAH"],
+      responsaveis: ["Fulano da Silva", "Cicrano de Tal"],
+    },  
+    {
+      id: "2",
+      nome: "Maria das Dores Souza",
+      cpf: "987.654.321-00",
+      endereco: "Esperança - PB, Rua Principal, 123.",
+      contato: "(83) 9 9999-8888",
+      dataNascimento: "15/02/1998",
+      transtornos: ["Autismo", "TDAH"],
+      responsaveis: ["Fulano da Silva", "Cicrano de Tal"],
+    },
+  ];
 
     return(
         <>
@@ -56,45 +82,14 @@ export default function PacientesPage() {
 
             <section className="w-full bg-white rounded-t-3xl p-6 flex flex-col gap-4 sm:grid sm:grid-cols-2 sm:gap-6">
 
+              {pacientes.map((pac) => (
                 <PacienteCard
-                    nome="Fulano de Tal da Silva Santos"
-                    cpf="123.456.789-00"
-                    endereco="Esperança - PB, R. Hugo Feitosa Figueiredo, 76, Centro."
-                    contato="(83) 9 1234-5678"
-                    dataNascimento="10/01/2001"
-                    transtornos={["Autismo", "TDAH"]}
-                    responsaveis={["Fulano da silva", "Cicrano de tal"]}
-                />
+                  key={pac.id}
+                  {...pac}
+                  onViewAtendimentos={() => router.push(`/atendimento/${pac.id}`)}
+                  />
+              ))}
 
-                <PacienteCard
-                    nome="Maria das Dores Souza"
-                    cpf="987.654.321-00"
-                    endereco="Esperança - PB, Rua Principal, 123."
-                    contato="(83) 9 9999-8888"
-                    dataNascimento="15/02/1998"
-                    transtornos={["Autismo", "TDAH"]}
-                    responsaveis={["Fulano da silva", "Cicrano de tal"]}
-                />
-
-                <PacienteCard
-                    nome="Fulano de Tal da Silva Santos"
-                    cpf="123.456.789-00"
-                    endereco="Esperança - PB, R. Hugo Feitosa Figueiredo, 76, Centro."
-                    contato="(83) 9 1234-5678"
-                    dataNascimento="10/01/2001"
-                    transtornos={["Autismo", "TDAH"]}
-                    responsaveis={["Fulano da silva", "Cicrano de tal"]}
-                />
-
-                <PacienteCard
-                    nome="Maria das Dores Souza"
-                    cpf="987.654.321-00"
-                    endereco="Esperança - PB, Rua Principal, 123."
-                    contato="(83) 9 9999-8888"
-                    dataNascimento="15/02/1998"
-                    transtornos={["Autismo", "TDAH"]}
-                    responsaveis={["Fulano da silva", "Cicrano de tal"]}
-                />
 
             </section>
         </main>

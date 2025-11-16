@@ -3,6 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem} from "@/components/ui/dropdown-menu";
 
 interface PacienteCardProps {
+  id?: string;
   nome: string;
   cpf: string;
   endereco: string;
@@ -10,6 +11,7 @@ interface PacienteCardProps {
   dataNascimento: string;
   transtornos: string[];
   responsaveis: string[];
+  onViewAtendimentos?: () => void;
 }
 
 export function PacienteCard({
@@ -20,6 +22,7 @@ export function PacienteCard({
   dataNascimento,
   transtornos,
   responsaveis,
+  onViewAtendimentos
 }: PacienteCardProps) {
   return (
     <Card className="w-full max-w-md md:max-w-4xl rounded-2xl shadow-md border border-[#EAECF0] bg-white relative">
@@ -32,7 +35,13 @@ export function PacienteCard({
           className="w-48 bg-white rounded-xl shadow-lg border border-gray-200 p-4"
           sideOffset={8}
         >
-          <DropdownMenuItem className="justify-center">Ver consultas</DropdownMenuItem>
+          <DropdownMenuItem 
+            className="justify-center"
+            onClick={onViewAtendimentos}
+          >
+              Ver Atendimentos
+          </DropdownMenuItem>
+
           <DropdownMenuItem className="justify-center">Criar relatório</DropdownMenuItem>
           <DropdownMenuItem className="justify-center">Adicionar anexo</DropdownMenuItem>
         </DropdownMenuContent>
