@@ -36,6 +36,16 @@ export default function PacientesPage() {
       transtornos: ["Autismo", "TDAH"],
       responsaveis: ["Fulano da Silva", "Cicrano de Tal"],
     },
+    {
+      id: "3",
+      nome: "Ana da Silva Oliveira",
+      cpf: "987.654.321-00",
+      endereco: "Esperança - PB, Rua Principal, 123.",
+      contato: "(83) 9 9999-8888",
+      dataNascimento: "15/02/1998",
+      transtornos: ["Autismo", "TDAH"],
+      responsaveis: ["Fulano da Silva", "Cicrano de Tal"],
+    },
   ];
 
     return(
