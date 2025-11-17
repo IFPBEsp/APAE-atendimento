@@ -75,18 +75,18 @@ public class TesteJpaConfig {
             System.out.println("Relacionamento ManyToMany salvo");
 
             // Atendimento
-            Atendimento consulta = new Atendimento();
-            consulta.setPaciente(paciente);
-            consulta.setProfissional(profissionalSaude);
-            consulta.setDataAtendimento(LocalDateTime.now());
-            consulta.setStatus(true);
-            consulta.setRelatorio(Map.of(
+            Atendimento atendimento = new Atendimento();
+            atendimento.setPaciente(paciente);
+            atendimento.setProfissional(profissionalSaude);
+            atendimento.setDataAtendimento(LocalDateTime.now());
+            atendimento.setStatus(true);
+            atendimento.setRelatorio(Map.of(
                     "tema", "escuro",
                     "notificacoes", "true",
                     "linguagem", "pt-BR"
             ));
-            atendimentoRepository.save(consulta);
-            System.out.println("Atendimento salva: " + consulta.getId());
+            atendimentoRepository.save(atendimento);
+            System.out.println("Atendimento salva: " + atendimento.getId());
 
             // Teste das relações (dentro da transação, sem LazyException)
             Paciente pacienteSalvo = pacienteRepository.findById(paciente.getId()).get();
