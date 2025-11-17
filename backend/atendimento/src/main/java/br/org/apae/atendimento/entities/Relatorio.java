@@ -20,5 +20,37 @@ public class Relatorio{
 
     @ManyToOne
      @JoinColumn(name = "paciente_id")
-    private Paciente paciente; 
+    private Paciente paciente;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getIdArquivo() {
+        return idArquivo;
+    }
+
+    public void setIdArquivo(Long idArquivo) {
+        this.idArquivo = idArquivo;
+    }
+
+    public ProfissionalSaude getProfissional() {
+        return profissional;
+    }
+
+    public void setProfissional(ProfissionalSaude profissional) {
+        this.profissional = profissional;
+    }
+
+    public Paciente getPaciente() {
+        return paciente;
+    }
+
+    public void setPaciente(Paciente paciente) {
+        this.paciente = paciente;
+    }
 }
