@@ -11,7 +11,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Check } from "lucide-react";
-import dados from "../../../data/verificacao.json";
+import dados from "../../../../../data/verificacao.json";
 
 export default function VerificacaoPage() {
   const [value, setValue] = useState("");
@@ -25,6 +25,7 @@ export default function VerificacaoPage() {
       return;
     } else setStatus("success");
     setTimeout(() => {
+      document.cookie = "verified=true; path=/;";
       router.push("/home");
     }, 1200);
   };

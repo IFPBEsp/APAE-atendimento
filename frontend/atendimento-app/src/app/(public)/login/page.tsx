@@ -12,7 +12,7 @@ import {
   InputGroupInput,
 } from "@/components/ui/input-group";
 
-import dados from "../../../data/verificacao.json";
+import dados from "../../../../data/verificacao.json";
 
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -38,7 +38,8 @@ export default function LoginPage() {
       return;
     }
     if (!isValidEmail(email)) return;
-    router.push("/verificacao");
+    document.cookie = "verified=true; path=/;";
+    router.push("/login/verificacao");
   };
 
   return (

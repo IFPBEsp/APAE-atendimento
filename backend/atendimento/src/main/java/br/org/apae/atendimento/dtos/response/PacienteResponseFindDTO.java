@@ -10,7 +10,7 @@ public record PacienteResponseFindDTO(
         String cidade,
         String rua,
         String bairro,
-        Integer numeroCasa
+        Integer numeroCasa,
+        List<String> responsaveis,
+        List<String> transtornos
 ) {}
-
-/// Faltando responsáveis, transtornos, consultas, profissionais?

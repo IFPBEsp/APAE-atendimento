@@ -3,9 +3,10 @@ package br.org.apae.atendimento.dtos.request;
 import java.time.LocalDateTime;
 import java.util.Map;
 
-public record ConsultaRequestCreateDTO(
-        Long pacienteId,
+public record ConsultaRequestDTO(
+        Long id,
         Long profissionalId,
+        Long pacienteId,
         Map<String, Object> relatorio,
         LocalDateTime dataConsulta
 ) {
