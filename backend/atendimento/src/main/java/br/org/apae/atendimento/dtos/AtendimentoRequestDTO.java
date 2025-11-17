@@ -3,7 +3,7 @@ package br.org.apae.atendimento.dtos.request;
 import java.time.LocalDateTime;
 import java.util.Map;
 
-public record ConsultaRequestDTO(
+public record AtendimentoRequestDTO(
         Long id,
         Long profissionalId,
         Long pacienteId,

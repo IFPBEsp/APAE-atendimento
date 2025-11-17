@@ -8,8 +8,8 @@ import java.time.LocalDateTime;
 import java.util.Map;
 
 @Entity
-@Table(name = "consulta")
-public class Consulta {
+@Table(name = "atendimento")
+public class Atendimento {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,7 +33,7 @@ public class Consulta {
     @JoinColumn(name = "profissional_id")
     private ProfissionalSaude profissional;
 
-    public Consulta() {}
+    public Atendimento() {}
 
     public Long getId() {
         return id;

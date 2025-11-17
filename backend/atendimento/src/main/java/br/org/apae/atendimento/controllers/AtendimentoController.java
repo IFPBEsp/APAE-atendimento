@@ -1,7 +1,7 @@
 package br.org.apae.atendimento.controllers;
 
-import br.org.apae.atendimento.entities.Consulta;
-import br.org.apae.atendimento.services.ConsultaService;
+import br.org.apae.atendimento.entities.Atendimento;
+import br.org.apae.atendimento.services.AtendimentoService;
 import br.org.apae.atendimento.services.PacienteService;
 import br.org.apae.atendimento.services.ProfissionalSaudeService;
 
@@ -13,11 +13,11 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/consultas")
-public class ConsultaController {
+@RequestMapping("/atendimentos")
+public class AtendimentoController {
 
     @Autowired
-    private ConsultaService consultaService;
+    private AtendimentoService atendimentoService;
 
     @Autowired
     private PacienteService pacienteService;
@@ -26,18 +26,18 @@ public class ConsultaController {
     private ProfissionalSaudeService profissionalSaudeService;
 
     @PostMapping
-    public ResponseEntity<Consulta> criarConsulta(
-            @RequestBody Consulta consulta,
+    public ResponseEntity<Atendimento> criarAtendimento(
+            @RequestBody Atendimento atendimento,
             @RequestParam Long pacienteId,
             @RequestParam Long profissionalId
     ) {
-        Consulta novaConsulta = consultaService.addConsulta(consulta, pacienteId, profissionalId);
+        Atendimento novoAtendimento = atendimentoService.addAtendimento(atendimento, pacienteId, profissionalId);
         return ResponseEntity.status(HttpStatus.CREATED).body(novaConsulta);
     }
 
     @GetMapping("/paciente/{id}")
-    public ResponseEntity<List<Consulta>> listarConsultasDoPaciente(@PathVariable Long id) {
-        List<Consulta> consultas = consultaService.getConsultasDoPaciente(id);
-        return ResponseEntity.ok(consultas);
+    public ResponseEntity<List<Atendimento>> listarAtendimentosDoPaciente(@PathVariable Long id) {
+        List<Atendimento> atendimentos = atendimentoService.getAtendimentosDoPaciente(id);
+        return ResponseEntity.ok(atendimentos);
     }
 }
