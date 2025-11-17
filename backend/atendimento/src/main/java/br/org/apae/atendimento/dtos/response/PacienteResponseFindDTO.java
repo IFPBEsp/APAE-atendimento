@@ -1,5 +1,5 @@
 package br.org.apae.atendimento.dtos.response;
-
+import java.util.List;
 import java.time.LocalDate;
 
 public record PacienteResponseFindDTO(
