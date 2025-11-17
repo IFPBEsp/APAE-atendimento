@@ -1,4 +1,4 @@
-package br.org.apae.atendimento.dtos.request;
+package br.org.apae.atendimento.dtos;
 
 import java.time.LocalDateTime;
 import java.util.Map;

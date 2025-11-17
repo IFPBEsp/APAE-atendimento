@@ -32,7 +32,7 @@ public class AtendimentoController {
             @RequestParam Long profissionalId
     ) {
         Atendimento novoAtendimento = atendimentoService.addAtendimento(atendimento, pacienteId, profissionalId);
-        return ResponseEntity.status(HttpStatus.CREATED).body(novaConsulta);
+        return ResponseEntity.status(HttpStatus.CREATED).body(novoAtendimento);
     }
 
     @GetMapping("/paciente/{id}")
