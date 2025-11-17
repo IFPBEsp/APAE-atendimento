@@ -37,16 +37,28 @@ export default function AtendimentoPage() {
               Voltar
             </button>
 
-            <Select>
-              <SelectTrigger className="bg-white border border-[#3B82F6] rounded-full w-[130px] text-gray-600 text-sm">
-                <SelectValue placeholder="Filtrar por..." />
-              </SelectTrigger>
-              <SelectContent className="border border-[#3B82F6] rounded-xl">
-                <SelectItem value="todos">Todos</SelectItem>
-                <SelectItem value="numeracao">Numeração</SelectItem>
-                <SelectItem value="data">Data</SelectItem>
-              </SelectContent>
-            </Select>
+            <div className="flex items-center gap-3">
+
+              <button
+                onClick={() => console.log("Implementar novo atendimento")}
+                className="hidden md:flex items-center bg-[#165BAA] text-white gap-2 px-4 h-[38px]  rounded-full text-sm shadow-sm active:scale-95"
+              >
+                <Plus size={18} />
+                Novo atendimento
+              </button>
+
+              <Select>
+                <SelectTrigger className="bg-white border border-[#3B82F6] rounded-full w-[130px] text-gray-600 text-sm">
+                  <SelectValue placeholder="Filtrar por..." />
+                </SelectTrigger>
+                <SelectContent className="border border-[#3B82F6] rounded-xl">
+                  <SelectItem value="todos">Todos</SelectItem>
+                  <SelectItem value="numeracao">Numeração</SelectItem>
+                  <SelectItem value="data">Data</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
           </div>
         </section>
 
@@ -90,7 +102,7 @@ export default function AtendimentoPage() {
           className="
             fixed bottom-6 right-6 w-14 h-14 rounded-full bg-[#165BAA]
             flex items-center justify-center shadow-[4px_4px_12px_rgba(0,0,0,0.25)]
-            active:scale-95
+            active:scale-95 md:hidden
           "
         >
           <Plus size={28} className="text-white" />
