@@ -6,8 +6,6 @@ on:
       - dev
     paths:
       - 'backend/**'
-    paths-ignore:
-      - 'docs/**'
 
 jobs:
   build:
