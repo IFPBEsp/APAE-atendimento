@@ -39,7 +39,7 @@ export default function AtendimentoPage() {
       },
       {
         id: 3,
-        data: "01/09/2025",
+        data: "01/10/2025",
         numeracao: 3,
         titulo: "Título do tópico",
         descricao:
@@ -47,6 +47,24 @@ export default function AtendimentoPage() {
       },
     ];
 
+    function agruparPorMes(lista: any[]) {
+      const meses: { [mes: string]: any[] } = {};
+
+      lista.forEach((item) => {
+        const [dia, mes, ano] = item.data.split("/");
+        const nomeMes = new Date(Number(ano), Number(mes) - 1)
+          .toLocaleString("pt-BR", { month: "long" });
+
+        const chave = `${nomeMes} ${ano}`;
+
+        if (!meses[chave]) meses[chave] = [];
+        meses[chave].push(item);
+      });
+
+      return meses;
+    }
+
+    const atendimentosPorMes = agruparPorMes(atendimentos);
     const nomePaciente = "Fulano de Tal de Lorem Ipsum da Silva Santos";
 
     return (
@@ -114,13 +132,19 @@ export default function AtendimentoPage() {
             </div>
           )}
 
-          {atendimentos.length > 0 && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {atendimentos.map((a) => (
-                <AtendimentoCard key={a.id} {...a} />
-              ))}
+          {Object.entries(atendimentosPorMes).map(([mes, itens]) => (
+            <div key={mes} className="flex flex-col gap-4">
+              <h2 className="text-lg font-bold text-[#344054] capitalize">
+                {mes}
+              </h2>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {itens.map((a) => (
+                  <AtendimentoCard key={a.id} {...a} />
+                ))}
+              </div>
             </div>
-          )}
+          ))}
         </section>
 
         <button
