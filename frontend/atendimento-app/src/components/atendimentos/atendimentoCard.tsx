@@ -1,7 +1,6 @@
 import { Expand } from "lucide-react";
 
 interface AtendimentoCardProps {
-  id: string;
   data: string;
   numeracao: number;
   titulo: string;
@@ -9,7 +8,6 @@ interface AtendimentoCardProps {
 }
 
 export default function AtendimentoCard({
-  id,
   data,
   numeracao,
   titulo,

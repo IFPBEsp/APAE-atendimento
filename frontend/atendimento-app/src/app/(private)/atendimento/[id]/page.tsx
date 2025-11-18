@@ -2,7 +2,7 @@
 
 import { useRouter, useParams } from "next/navigation";
 import { ArrowLeft, Plus } from "lucide-react";
-import { Nunito, Baloo_2 } from "next/font/google";
+import { Nunito } from "next/font/google";
 import Header from "@/components/shared/header";
 import AtendimentoCard from "@/components/atendimentos/atendimentoCard";
 import {
@@ -13,8 +13,15 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 
+interface Atendimento {
+  id: number;
+  data: string;
+  numeracao: number;
+  titulo: string;
+  descricao: string;
+};
+
 const nunitoFont = Nunito({ weight: "700" });
-const baloo2Font = Baloo_2({ weight: "500" });
 
 export default function AtendimentoPage() {
     const router = useRouter();
@@ -47,20 +54,21 @@ export default function AtendimentoPage() {
       },
     ];
 
-    function agruparPorMes(lista: any[]) {
-      const meses: { [mes: string]: any[] } = {};
-
+     function agruparPorMes(lista: Atendimento[]) {
+      const meses: Record<string, Atendimento[]> = {};
+    
       lista.forEach((item) => {
-        const [dia, mes, ano] = item.data.split("/");
+        const [, mes, ano] = item.data.split("/");
+      
         const nomeMes = new Date(Number(ano), Number(mes) - 1)
           .toLocaleString("pt-BR", { month: "long" });
-
+      
         const chave = `${nomeMes} ${ano}`;
-
+      
         if (!meses[chave]) meses[chave] = [];
         meses[chave].push(item);
       });
-
+    
       return meses;
     }
 
