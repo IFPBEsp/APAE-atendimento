@@ -20,7 +20,33 @@ export default function AtendimentoPage() {
     const router = useRouter();
     const { id } = useParams();
 
-    const atendimentos: any[] = [];
+    const atendimentos = [
+      {
+        id: 1,
+        data: "01/11/2025",
+        numeracao: 1,
+        titulo: "Título do tópico",
+        descricao:
+          "Nullam varius tempor massa et iaculis. Praesent sodales orci ut ultrices tempor. Quisque ac mauris gravida, dictum ipsum sit amet, bibendum turpis...",
+      },
+      {
+        id: 2,
+        data: "28/10/2025",
+        numeracao: 2,
+        titulo: "Outro atendimento",
+        descricao: 
+          "Nullam varius tempor massa et iaculis. Praesent sodales orci ut ultrices tempor. Quisque ac mauris gravida, dictum ipsum sit amet, bibendum turpis...",
+      },
+      {
+        id: 3,
+        data: "01/09/2025",
+        numeracao: 3,
+        titulo: "Título do tópico",
+        descricao:
+          "Nullam varius tempor massa et iaculis. Praesent sodales orci ut ultrices tempor. Quisque ac mauris gravida, dictum ipsum sit amet, bibendum turpis...",
+      },
+    ];
+
     const nomePaciente = "Fulano de Tal de Lorem Ipsum da Silva Santos";
 
     return (
@@ -89,7 +115,7 @@ export default function AtendimentoPage() {
           )}
 
           {atendimentos.length > 0 && (
-            <div className="flex flex-col gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {atendimentos.map((a) => (
                 <AtendimentoCard key={a.id} {...a} />
               ))}
