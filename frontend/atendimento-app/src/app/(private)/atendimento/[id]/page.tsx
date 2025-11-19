@@ -47,7 +47,7 @@ export default function AtendimentoPage() {
       {
         id: 3,
         data: "01/10/2025",
-        numeracao: 3,
+        numeracao: 1,
         titulo: "Título do tópico",
         descricao:
           "Nullam varius tempor massa et iaculis. Praesent sodales orci ut ultrices tempor. Quisque ac mauris gravida, dictum ipsum sit amet, bibendum turpis...",
@@ -145,6 +145,8 @@ export default function AtendimentoPage() {
               <h2 className="text-lg font-bold text-[#344054] capitalize">
                 {mes}
               </h2>
+
+              <div className="w-full h-[2px] bg-[#E8EEF7] mb-3"></div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {itens.map((a) => (
