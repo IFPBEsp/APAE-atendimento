@@ -1,36 +1,39 @@
 package br.org.apae.atendimento.services;
 
+import br.org.apae.atendimento.dtos.ArquivoDTO;
+import br.org.apae.atendimento.entities.interfaces.ArquivoStorage;
 import br.org.apae.atendimento.exceptions.MinioStorageException;
 import io.minio.*;
 import io.minio.errors.*;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
 import java.io.IOException;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 public class MinioService {
 
     private final MinioClient client;
 
+    @Autowired
     public MinioService(MinioClient client) {
         this.client = client;
     }
 
-    public void uploadArquivo(String bucket, MultipartFile file, String path, String objectName) {
+    public void uploadArquivo(String bucket, String objectName, MultipartFile file) {
 
-        if (path == null || path.isBlank()) {
+        if (objectName == null || objectName.isBlank()) {
             throw new MinioStorageException("O nome do arquivo no MinIO não pode ser vazio.");
         }
 
         try {
             criarBucketSeNaoExiste(bucket);
-            colocarArquivo(bucket, path, objectName, file);
+            colocarArquivo(bucket, objectName, file);
 
         } catch (MinioStorageException e) {
             throw e;
@@ -64,7 +67,7 @@ public class MinioService {
 
 
 
-    private void colocarArquivo(String bucket, String path, String objectName, MultipartFile file) {
+    private void colocarArquivo(String bucket, String objectName, MultipartFile file) {
         try (InputStream is = file.getInputStream()) {
 
             String contentType = file.getContentType();
@@ -75,7 +78,7 @@ public class MinioService {
             client.putObject(
                     PutObjectArgs.builder()
                             .bucket(bucket)
-                            .object(path + "/" + objectName)
+                            .object(objectName)
                             .stream(is, file.getSize(), -1)
                             .contentType(contentType)
                             .build()
@@ -96,36 +99,41 @@ public class MinioService {
         }
     }
 
-    public ResponseEntity<InputStreamResource> exibir(String bucket, String path, String objectName) {
 
-        String finalPath = path + "/" + objectName;
-
+    public List<ArquivoDTO> capturarArquivos(List<? extends ArquivoStorage> arquivos) {
         try {
-            StatObjectResponse stat = client.statObject(
-                    StatObjectArgs.builder()
-                            .bucket(bucket)
-                            .object(finalPath)
-                            .build()
-            );
-
-            InputStream is = client.getObject(
-                    GetObjectArgs.builder()
-                            .bucket(bucket)
-                            .object(finalPath)
-                            .build()
-            );
-
-            InputStreamResource resource = new InputStreamResource(is);
-
-            return ResponseEntity.ok()
-                    .contentType(MediaType.parseMediaType(stat.contentType()))
-                    .contentLength(stat.size())
-                    .header(HttpHeaders.CONTENT_DISPOSITION,
-                            "inline; filename=\"" + path + "\"")
-                    .body(resource);
-
+            return arquivos.stream()
+                    .map(this::processarArquivo)
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
         } catch (Exception e) {
-            throw new MinioStorageException("Erro ao obter o arquivo: " + path, e);
+            throw new MinioStorageException("Erro ao capturar arquivos", e);
+        }
+    }
+
+    private ArquivoDTO processarArquivo(ArquivoStorage arquivo) {
+        try {
+            String url = gerarUrlPreAssinada(arquivo.getBucket(), arquivo.getId());
+            return new ArquivoDTO(arquivo.getId(), url);
+        } catch (Exception e) {
+            throw new MinioStorageException("Erro ao processar arquivo", e);
+        }
+    }
+
+    public String gerarUrlPreAssinada(String bucket, String objectName) {
+        try {
+            String url = client.getPresignedObjectUrl(
+                    GetPresignedObjectUrlArgs.builder()
+                            .bucket(bucket)
+                            .object(objectName)
+                            .method(io.minio.http.Method.GET)
+                            .expiry(60 * 60)
+                            .build()
+            );
+            return url;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new MinioStorageException("Erro ao gerar URL para " + bucket + "/" + objectName + ": " + e.getMessage(), e);
         }
     }
 }
