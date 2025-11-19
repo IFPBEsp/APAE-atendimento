@@ -100,7 +100,7 @@ public class MinioService {
     }
 
 
-    public List<ArquivoDTO> capturarArquivos(List<? extends ArquivoStorage> arquivos) {
+    public List<? extends ArquivoStorage> capturarArquivos(List<? extends ArquivoStorage> arquivos) {
         try {
             return arquivos.stream()
                     .map(this::processarArquivo)
@@ -111,10 +111,11 @@ public class MinioService {
         }
     }
 
-    private ArquivoDTO processarArquivo(ArquivoStorage arquivo) {
+    private <T extends ArquivoStorage> T processarArquivo(T arquivo) {
         try {
             String url = gerarUrlPreAssinada(arquivo.getBucket(), arquivo.getId());
-            return new ArquivoDTO(arquivo.getId(), url);
+            arquivo.setUrl(url);
+            return arquivo;
         } catch (Exception e) {
             throw new MinioStorageException("Erro ao processar arquivo", e);
         }
