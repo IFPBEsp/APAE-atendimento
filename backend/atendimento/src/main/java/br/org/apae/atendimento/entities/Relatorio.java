@@ -1,18 +1,20 @@
 package br.org.apae.atendimento.entities;
+import br.org.apae.atendimento.entities.interfaces.ArquivoStorage;
 import jakarta.persistence.*;
 
 @Entity
 @Table(name = "relatorio")
-public class Relatorio{
+public class Relatorio implements ArquivoStorage {
 
     public Relatorio(){}
 
-    @Id 
-    @GeneratedValue(strategy = GenerationType.IDENTITY) 
-    private Long id;
-   
-    @Column(name = "id_arquivo")
-    private Long idArquivo;
+    @Id
+    private String id;
+
+    private String bucket;
+
+    @Transient
+    private String url;
 
     @ManyToOne 
     @JoinColumn(name = "profissional_id")
@@ -22,20 +24,12 @@ public class Relatorio{
      @JoinColumn(name = "paciente_id")
     private Paciente paciente;
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
-    }
-
-    public Long getIdArquivo() {
-        return idArquivo;
-    }
-
-    public void setIdArquivo(Long idArquivo) {
-        this.idArquivo = idArquivo;
     }
 
     public ProfissionalSaude getProfissional() {
@@ -52,5 +46,20 @@ public class Relatorio{
 
     public void setPaciente(Paciente paciente) {
         this.paciente = paciente;
+    }
+
+    @Override
+    public String getBucket() {
+        return bucket;
+    }
+
+    @Override
+    public String getUrl() {
+        return this.url;
+    }
+
+    @Override
+    public void setUrl(String url) {
+        this.url = url;
     }
 }
