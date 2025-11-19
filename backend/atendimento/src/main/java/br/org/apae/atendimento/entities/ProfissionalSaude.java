@@ -37,7 +37,7 @@ public class ProfissionalSaude {
     private List<Paciente> pacientes = new ArrayList<>();
 
     @OneToMany(mappedBy = "profissional")
-    private List<Consulta> consultas = new ArrayList<>();
+    private List<Atendimento> atendimentos = new ArrayList<>();
 
     @OneToMany(mappedBy = "profissional")
     private List<Anexo> anexos = new ArrayList<>();
@@ -103,11 +103,11 @@ public class ProfissionalSaude {
         this.pacientes = pacientes;
     }
 
-    public List<Consulta> getConsultas() {
-        return consultas;
+    public List<Atendimento> getAtendimentos() {
+        return atendimentos;
     }
 
-    public void setConsultas(List<Consulta> consultas) {
-        this.consultas = consultas;
+    public void setAtendimentos(List<Atendimento> atendimentos) {
+        this.atendimentos = atendimentos;
     }
 }

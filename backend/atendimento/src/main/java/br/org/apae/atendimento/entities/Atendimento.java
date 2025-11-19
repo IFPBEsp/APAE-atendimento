@@ -8,8 +8,8 @@ import java.time.LocalDateTime;
 import java.util.Map;
 
 @Entity
-@Table(name = "consulta")
-public class Consulta {
+@Table(name = "atendimento")
+public class Atendimento {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,8 +19,8 @@ public class Consulta {
     @Column(name = "relatorio", columnDefinition = "json")
     private Map<String, String> relatorio;
 
-    @Column(name = "data_consulta")
-    private LocalDateTime dataConsulta;
+    @Column(name = "data_atendimento")
+    private LocalDateTime dataAtendimento;
 
     @Column(name = "status")
     private boolean status;
@@ -33,7 +33,7 @@ public class Consulta {
     @JoinColumn(name = "profissional_id")
     private ProfissionalSaude profissional;
 
-    public Consulta() {}
+    public Atendimento() {}
 
     public Long getId() {
         return id;
@@ -51,12 +51,12 @@ public class Consulta {
         this.relatorio = relatorio;
     }
 
-    public LocalDateTime getDataConsulta() {
-        return dataConsulta;
+    public LocalDateTime getDataAtendimento() {
+        return dataAtendimento;
     }
 
-    public void setDataConsulta(LocalDateTime dataConsulta) {
-        this.dataConsulta = dataConsulta;
+    public void setDataAtendimento(LocalDateTime dataAtendimento) {
+        this.dataAtendimento = dataAtendimento;
     }
 
     public boolean isStatus() {
