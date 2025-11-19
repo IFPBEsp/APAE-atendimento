@@ -42,7 +42,7 @@ public class Paciente {
     private List<String> transtornos = new ArrayList<>();
 
     @OneToMany(mappedBy = "paciente")
-    private List<Consulta> consultas = new ArrayList<>();
+    private List<Atendimento> atendimentos = new ArrayList<>();
 
     @ManyToMany(mappedBy = "pacientes")
     private List<ProfissionalSaude> profissionais = new ArrayList<>();
@@ -121,12 +121,12 @@ public class Paciente {
         this.transtornos = transtornos;
     }
 
-    public List<Consulta> getConsultas() {
-        return consultas;
+    public List<Atendimento> getAtendimentos() {
+        return atendimentos;
     }
 
-    public void setConsultas(List<Consulta> consultas) {
-        this.consultas = consultas;
+    public void setAtendimentos(List<Atendimento> atendimentos) {
+        this.atendimentos = atendimentos;
     }
 
     public List<ProfissionalSaude> getProfissionais() {
