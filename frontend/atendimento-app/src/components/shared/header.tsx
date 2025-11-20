@@ -4,6 +4,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { User } from "lucide-react";
 import { MeusDadosModal } from "../modals/meusDados";
+import {
+  Avatar,
+  AvatarImage,
+  AvatarFallback
+} from "@/components/ui/avatar";
 
 export default function Header() {
 
@@ -25,9 +30,12 @@ export default function Header() {
 
           <MeusDadosModal
             trigger={
-              <button className="text-[#344054] hover:cursor-pointer font-medium">
-                <User/>
-              </button>
+                <Avatar className="w-10 h-10 rounded-full bg-[#F2F4F7] flex items-center justify-center hover:cursor-pointer">
+                  <AvatarImage src=""/>
+                  <AvatarFallback>
+                    <User className="w-5 h-5 text-[#344054]"/>
+                  </AvatarFallback>
+                </Avatar>
             }
           />
 

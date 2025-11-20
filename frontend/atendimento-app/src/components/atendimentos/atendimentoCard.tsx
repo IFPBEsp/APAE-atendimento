@@ -28,7 +28,7 @@ export default function AtendimentoCard({
 
           <button
             onClick={() => console.log("a implemetar")}
-            className="text-[#344054]"
+            className="text-[#344054] hover:cursor-pointer"
           >
             <Expand size={22}/>
           </button>

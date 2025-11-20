@@ -83,7 +83,7 @@ export default function AtendimentoPage() {
           <div className="flex items-center justify-between mb-6">
             <button
               onClick={() => router.back()}
-              className="h-[38px] px-4 rounded-full flex items-center gap-2 bg-[#EDF2FB] text-sm text-gray-700"
+              className="h-[38px] px-4 rounded-full flex items-center gap-2 bg-[#EDF2FB] text-sm text-gray-700 hover:cursor-pointer"
             >
               <ArrowLeft size={18} />
               Voltar
@@ -93,7 +93,7 @@ export default function AtendimentoPage() {
 
               <button
                 onClick={() => console.log("Implementar novo atendimento")}
-                className="hidden md:flex items-center bg-[#165BAA] text-white gap-2 px-4 h-[38px]  rounded-full text-sm shadow-sm active:scale-95"
+                className="hidden md:flex items-center bg-[#165BAA] text-white gap-2 px-4 h-[38px]  rounded-full text-sm shadow-sm active:scale-95 hover:cursor-pointer"
               >
                 <Plus size={18} />
                 Novo atendimento
@@ -162,7 +162,7 @@ export default function AtendimentoPage() {
           className="
             fixed bottom-6 right-6 w-14 h-14 rounded-full bg-[#165BAA]
             flex items-center justify-center shadow-[4px_4px_12px_rgba(0,0,0,0.25)]
-            active:scale-95 md:hidden
+            active:scale-95 md:hidden hover:cursor-pointer
           "
         >
           <Plus size={28} className="text-white" />
