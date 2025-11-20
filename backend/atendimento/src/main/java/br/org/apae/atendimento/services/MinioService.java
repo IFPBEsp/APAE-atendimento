@@ -25,7 +25,7 @@ public class MinioService {
         this.client = client;
     }
 
-    public void uploadArquivo(String bucket, String objectName, MultipartFile file) {
+    public String uploadArquivo(String bucket, String objectName, MultipartFile file) {
 
         if (objectName == null || objectName.isBlank()) {
             throw new MinioStorageException("O nome do arquivo no MinIO não pode ser vazio.");
@@ -34,6 +34,7 @@ public class MinioService {
         try {
             criarBucketSeNaoExiste(bucket);
             colocarArquivo(bucket, objectName, file);
+            return gerarUrlPreAssinada(bucket, objectName);
 
         } catch (MinioStorageException e) {
             throw e;
@@ -100,7 +101,7 @@ public class MinioService {
     }
 
 
-    public List<? extends ArquivoStorage> capturarArquivos(List<? extends ArquivoStorage> arquivos) {
+    public <T extends ArquivoStorage> List<T> capturarArquivos(List<T> arquivos) {
         try {
             return arquivos.stream()
                     .map(this::processarArquivo)

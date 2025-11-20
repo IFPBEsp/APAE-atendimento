@@ -4,6 +4,8 @@ import br.org.apae.atendimento.exceptions.PacienteNotFoundException;
 import br.org.apae.atendimento.repositories.PacienteRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 @Service
 public class PacienteService {
     private PacienteRepository pacienteRepository;
@@ -12,7 +14,7 @@ public class PacienteService {
         this.pacienteRepository = pacienteRepository;
     }
 
-    public Paciente getPacienteById(Long id){
+    public Paciente getPacienteById(UUID id){
         return pacienteRepository.
         findById(id).orElseThrow(() -> new PacienteNotFoundException());
     }
