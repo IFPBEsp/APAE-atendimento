@@ -20,9 +20,6 @@ public class MinioService {
 
     private final PresignedUrlService urlService;
 
-    private static final Duration PRESIGNED_TTL = Duration.ofDays(7);
-    private static final Duration MARGEM_RENOVAR = Duration.ofHours(1);
-
     @Autowired
     public MinioService(MinioClient client, PresignedUrlService urlService) {
         this.client = client;
