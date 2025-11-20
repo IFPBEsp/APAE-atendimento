@@ -12,10 +12,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import AtendimentoForm from "@/components/atendimentos/atendimentoForm";
+import AtendimentoForm from "@/components/forms/atendimentoForm";
+import { AtendimentoModal } from "@/components/modals/atendimentoModal";
 import { useState } from "react";
+
 interface Atendimento {
   id: number;
   data: string;
@@ -30,32 +31,28 @@ export default function AtendimentoPage() {
   const router = useRouter();
   const { id } = useParams();
 
-  const atendimentos: string | any[] = [];
-  /*{
-      id: 1,
-      data: "01/11/2025",
-      numeracao: 1,
-      titulo: "Título do tópico",
-      descricao:
-        "Nullam varius tempor massa et iaculis. Praesent sodales orci ut ultrices tempor. Quisque ac mauris gravida, dictum ipsum sit amet, bibendum turpis...",
-    },
-    {
-      id: 2,
-      data: "28/10/2025",
-      numeracao: 2,
-      titulo: "Outro atendimento",
-      descricao:
-        "Nullam varius tempor massa et iaculis. Praesent sodales orci ut ultrices tempor. Quisque ac mauris gravida, dictum ipsum sit amet, bibendum turpis...",
-    },
-    {
-      id: 3,
-      data: "01/10/2025",
-      numeracao: 3,
-      titulo: "Título do tópico",
-      descricao:
-        "Nullam varius tempor massa et iaculis. Praesent sodales orci ut ultrices tempor. Quisque ac mauris gravida, dictum ipsum sit amet, bibendum turpis...",
-    },*/
-
+  const atendimentos: Atendimento[] = [];
+  /*{ id: 1, 
+    data: "01/11/2025", 
+    numeracao: 1, 
+    titulo: "Título do tópico", 
+    descricao: "Nullam varius tempor massa et iaculis. Praesent sodales orci ut ultrices tempor. 
+    Quisque ac mauris gravida, dictum ipsum sit amet, bibendum turpis...", 
+  }, 
+  { id: 2, 
+    data: "28/10/2025", 
+    numeracao: 2, 
+    titulo: "Outro atendimento", 
+    descricao: "Nullam varius tempor massa et iaculis. Praesent sodales orci ut ultrices tempor. 
+    Quisque ac mauris gravida, dictum ipsum sit amet, bibendum turpis...", 
+  }, 
+  { id: 3, 
+    data: "01/10/2025", 
+    numeracao: 3, 
+    titulo: "Título do tópico", 
+    descricao: "Nullam varius tempor massa et iaculis. Praesent sodales orci ut ultrices tempor. 
+    Quisque ac mauris gravida, dictum ipsum sit amet, bibendum turpis...", 
+  },*/
   function agruparPorMes(lista: Atendimento[]) {
     const meses: Record<string, Atendimento[]> = {};
 
@@ -78,7 +75,20 @@ export default function AtendimentoPage() {
 
   const atendimentosPorMes = agruparPorMes(atendimentos);
   const nomePaciente = "Fulano de Tal de Lorem Ipsum da Silva Santos";
+
   const [open, setOpen] = useState(false);
+
+  //Recebe os dados do formulário:
+  function handleCreateAtendimento(data: any) {
+    console.log("Novo atendimento recebido:", data);
+
+    // Mudar futuramente:
+    // await api.post("/rota", data);
+    // depois atualiza a lista
+
+    setOpen(false);
+  }
+
   return (
     <div className="min-h-screen w-full bg-[#F8FAFD]">
       <Header />
@@ -140,11 +150,11 @@ export default function AtendimentoPage() {
             </Button>
           </div>
         )}
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogContent className="sm:max-w-[632px] rounded-[30px] max-h-[560px] overflow-scroll">
-            <AtendimentoForm />
-          </DialogContent>
-        </Dialog>
+
+        <AtendimentoModal open={open} onOpenChange={setOpen}>
+          <AtendimentoForm onSubmit={handleCreateAtendimento} />
+        </AtendimentoModal>
+
         {Object.entries(atendimentosPorMes).map(([mes, itens]) => (
           <div key={mes} className="flex flex-col gap-4">
             <h2 className="text-lg font-bold text-[#344054] capitalize">
