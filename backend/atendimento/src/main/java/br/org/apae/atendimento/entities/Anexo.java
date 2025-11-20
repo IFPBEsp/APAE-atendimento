@@ -1,16 +1,15 @@
 package br.org.apae.atendimento.entities;
-import br.org.apae.atendimento.entities.interfaces.ArquivoStorage;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 
 @Entity
 @Table(name = "anexo")
-public class Anexo implements ArquivoStorage {
+public class Anexo {
 
     @Id
     private String objectName;
@@ -96,18 +95,12 @@ public class Anexo implements ArquivoStorage {
     public void setPaciente(Paciente paciente) {
         this.paciente = paciente;
     }
-
-    @Override
     public String getBucket() {
         return bucket;
     }
-
-    @Override
     public String getPresignedUrl() {
         return presignedUrl;
     }
-
-    @Override
     public void setPresignedUrl(String presignedUrl) {
         this.presignedUrl = presignedUrl;
     }
