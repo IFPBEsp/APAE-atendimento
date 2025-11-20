@@ -1,9 +1,9 @@
 package br.org.apae.atendimento.config;
 
-import br.org.apae.atendimento.entities.Consulta;
+import br.org.apae.atendimento.entities.Atendimento;
 import br.org.apae.atendimento.entities.Paciente;
 import br.org.apae.atendimento.entities.ProfissionalSaude;
-import br.org.apae.atendimento.repositories.ConsultaRepository;
+import br.org.apae.atendimento.repositories.AtendimentoRepository;
 import br.org.apae.atendimento.repositories.PacienteRepository;
 import br.org.apae.atendimento.repositories.ProfissionalSaudeRepository;
 import org.springframework.boot.CommandLineRunner;
@@ -30,14 +30,14 @@ public class TesteJpaConfig {
     static class TesteJpaService {
         private final PacienteRepository pacienteRepository;
         private final ProfissionalSaudeRepository profissionalSaudeRepository;
-        private final ConsultaRepository consultaRepository;
+        private final AtendimentoRepository atendimentoRepository;
 
         public TesteJpaService(PacienteRepository pacienteRepository,
                                ProfissionalSaudeRepository profissionalSaudeRepository,
-                               ConsultaRepository consultaRepository) {
+                               AtendimentoRepository atendimentoRepository) {
             this.pacienteRepository = pacienteRepository;
             this.profissionalSaudeRepository = profissionalSaudeRepository;
-            this.consultaRepository = consultaRepository;
+            this.atendimentoRepository = atendimentoRepository;
         }
 
         @Transactional
@@ -74,35 +74,35 @@ public class TesteJpaConfig {
             profissionalSaudeRepository.save(profissionalSaude);
             System.out.println("Relacionamento ManyToMany salvo");
 
-            // Consulta
-            Consulta consulta = new Consulta();
-            consulta.setPaciente(paciente);
-            consulta.setProfissional(profissionalSaude);
-            consulta.setDataConsulta(LocalDateTime.now());
-            consulta.setStatus(true);
-            consulta.setRelatorio(Map.of(
+            // Atendimento
+            Atendimento atendimento = new Atendimento();
+            atendimento.setPaciente(paciente);
+            atendimento.setProfissional(profissionalSaude);
+            atendimento.setDataAtendimento(LocalDateTime.now());
+            atendimento.setStatus(true);
+            atendimento.setRelatorio(Map.of(
                     "tema", "escuro",
                     "notificacoes", "true",
                     "linguagem", "pt-BR"
             ));
-            consultaRepository.save(consulta);
-            System.out.println("Consulta salva: " + consulta.getId());
+            atendimentoRepository.save(atendimento);
+            System.out.println("Atendimento salva: " + atendimento.getId());
 
             // Teste das relações (dentro da transação, sem LazyException)
             Paciente pacienteSalvo = pacienteRepository.findById(paciente.getId()).get();
             ProfissionalSaude profissionalSalvo = profissionalSaudeRepository.findById(profissionalSaude.getId()).get();
 
             System.out.println("\n--- Relações OneToMany e ManyToOne ---");
-            System.out.println("Consultas do paciente " + pacienteSalvo.getNomeCompleto() + ":");
-            if (pacienteSalvo.getConsultas() != null)
-                pacienteSalvo.getConsultas().forEach(c ->
-                        System.out.println("→ Consulta ID " + c.getId() + " com " + c.getProfissional().getNomeCompleto())
+            System.out.println("Atendimentos do paciente " + pacienteSalvo.getNomeCompleto() + ":");
+            if (pacienteSalvo.getAtendimentos() != null)
+                pacienteSalvo.getAtendimentos().forEach(c ->
+                        System.out.println("→ Atendimento ID " + c.getId() + " com " + c.getProfissional().getNomeCompleto())
                 );
 
-            System.out.println("\nConsultas do profissional " + profissionalSalvo.getNomeCompleto() + ":");
-            if (profissionalSalvo.getConsultas() != null)
-                profissionalSalvo.getConsultas().forEach(c ->
-                        System.out.println("→ Consulta ID " + c.getId() + " com paciente " + c.getPaciente().getNomeCompleto())
+            System.out.println("\nAtendimentos do profissional " + profissionalSalvo.getNomeCompleto() + ":");
+            if (profissionalSalvo.getAtendimentos() != null)
+                profissionalSalvo.getAtendimentos().forEach(c ->
+                        System.out.println("→ Atendimento ID " + c.getId() + " com paciente " + c.getPaciente().getNomeCompleto())
                 );
 
             System.out.println("\n--- Relação ManyToMany ---");
