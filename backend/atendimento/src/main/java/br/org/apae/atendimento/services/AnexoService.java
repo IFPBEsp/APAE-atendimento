@@ -22,6 +22,9 @@ public class AnexoService implements ArquivoService<Anexo> {
     @Autowired
     private MinioService minioService;
 
+    @Autowired
+    private PresignedUrlService urlService;
+
     private static final String ANEXO_PATH = "anexo";
 
     @Transactional
@@ -53,7 +56,7 @@ public class AnexoService implements ArquivoService<Anexo> {
         List<Anexo> anexos = repository.findByProfissionalIdAndPacienteId(profissionalId, pacienteId);
 
         anexos.forEach(anexo -> {
-            String url = minioService.gerarUrlPreAssinada(anexo.getBucket(), anexo.getObjectName());
+            String url = urlService.gerarUrlPreAssinada(anexo.getBucket(), anexo.getObjectName());
             anexo.setPresignedUrl(url);
         });
 
@@ -67,10 +70,16 @@ public class AnexoService implements ArquivoService<Anexo> {
         );
 
         anexos.forEach(anexo -> {
-            String url = minioService.gerarUrlPreAssinada(anexo.getBucket(), anexo.getObjectName());
+            String url = urlService.gerarUrlPreAssinada(anexo.getBucket(), anexo.getObjectName());
             anexo.setPresignedUrl(url);
         });
 
         return anexos;
+    }
+
+    @Override
+    public void deletar(String bucket, String objectName) {
+        repository.deleteById(objectName);
+        minioService.deletarArquivo(bucket, objectName);
     }
 }

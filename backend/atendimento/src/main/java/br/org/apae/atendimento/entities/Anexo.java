@@ -42,6 +42,10 @@ public class Anexo implements ArquivoStorage {
 
     public Anexo(){}
 
+    public Anexo(String objectName) {
+        this.objectName = objectName;
+    }
+
     public Anexo(String id, String bucket, String nomeAnexo, UUID pacienteId,
                  Long profissionalId, LocalDate data, String url) {
         this.objectName = id;

@@ -18,48 +18,15 @@ public class MinioService {
 
     private final MinioClient client;
 
-    @Lazy
-    @Autowired
-    private MinioService self;
+    private final PresignedUrlService urlService;
 
     private static final Duration PRESIGNED_TTL = Duration.ofDays(7);
     private static final Duration MARGEM_RENOVAR = Duration.ofHours(1);
 
     @Autowired
-    public MinioService(MinioClient client) {
+    public MinioService(MinioClient client, PresignedUrlService urlService) {
         this.client = client;
-    }
-
-    @Cacheable(
-            value = "presignedUrls",
-            key = "'presigned:' + #bucket + ':' + #objectName",  // ← CHAVE EXPLÍCITA
-            unless = "#result == null"
-    )
-    public String gerarUrlPreAssinada(String bucket, String objectName) {
-        try {
-            System.out.println("🔴 CACHE MISS - Gerando NOVA URL: " + bucket + "/" + objectName);
-            System.out.println("   Chave: presigned:" + bucket + ":" + objectName);
-
-            String url = client.getPresignedObjectUrl(
-                    GetPresignedObjectUrlArgs.builder()
-                            .bucket(bucket)
-                            .object(objectName)
-                            .method(io.minio.http.Method.GET)
-                            .expiry(60 * 60)
-                            .build()
-            );
-
-            System.out.println("✅ URL gerada (tamanho: " + url.length() + ")");
-            return url;
-
-        } catch (Exception e) {
-            throw new MinioStorageException("Erro ao gerar URL", e);
-        }
-    }
-
-    @CacheEvict(value = "presignedUrls", key = "'presigned:' + #bucket + ':' + #objectName")
-    public void evictUrlFromCache(String bucket, String objectName) {
-        System.out.println("🗑️ Removendo do cache: presigned:" + bucket + ":" + objectName);
+        this.urlService = urlService;
     }
 
     public String uploadArquivo(String bucket, String objectName, MultipartFile file) {
@@ -70,11 +37,15 @@ public class MinioService {
         try {
             criarBucketSeNaoExiste(bucket);
             colocarArquivo(bucket, objectName, file);
-            return self.gerarUrlPreAssinada(bucket, objectName);
+            return urlService.gerarUrlPreAssinada(bucket, objectName);
 
         } catch (Exception e) {
             throw new MinioStorageException("Erro ao fazer upload no MinIO.", e);
         }
+    }
+
+    public void evictUrlFromCache(String bucket, String objectName) {
+        urlService.evictUrlFromCache(bucket, objectName);
     }
 
     private void criarBucketSeNaoExiste(String bucket) {
@@ -107,6 +78,18 @@ public class MinioService {
             );
         } catch (Exception e) {
             throw new MinioStorageException("Erro ao enviar arquivo para o bucket", e);
+        }
+    }
+
+    public void deletarArquivo(String bucket, String objectName){
+        try {
+            client.removeObject(RemoveObjectArgs.builder()
+                    .bucket(bucket)
+                    .object(objectName)
+                    .build());
+        } catch (Exception e){
+            e.printStackTrace();
+            throw new MinioStorageException("Erro ao apagar arquivo", e);
         }
     }
 }

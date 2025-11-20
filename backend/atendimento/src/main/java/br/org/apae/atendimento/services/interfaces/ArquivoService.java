@@ -12,5 +12,5 @@ public interface ArquivoService<T> {
     String criarObjectName(Long profissionalId);
     List<T> listarPorProfissionalEPaciente(Long profissional, UUID pacienteId);
     List<T> buscarPorData(Long profissionalId, UUID pacienteId, LocalDate data);
-
+    void deletar(String bucket, String objectName);
 }
