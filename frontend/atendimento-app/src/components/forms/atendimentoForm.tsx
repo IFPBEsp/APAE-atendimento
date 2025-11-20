@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Plus, Check, CircleMinus } from "lucide-react";
 import { DialogFooter } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
 
 type Topico = {
   titulo: string;
@@ -46,7 +47,7 @@ export default function AtendimentoForm({ onSubmit }: AtendimentoFormProps) {
           </Label>
           <Input
             type="date"
-            className="rounded-[30px] border-[#B2D7EC] focus-visible:ring-0"
+            className="rounded-[30px] border-[#B2D7EC] focus-visible:ring-0 focus-visible:border-[#B2D7EC]"
             {...register("data", { required: true })}
           />
         </div>
@@ -59,7 +60,7 @@ export default function AtendimentoForm({ onSubmit }: AtendimentoFormProps) {
             type="number"
             min={1}
             max={10}
-            className="rounded-[30px] border-[#B2D7EC] focus-visible:ring-0"
+            className="rounded-[30px] border-[#B2D7EC] focus-visible:ring-0 focus-visible:border-[#B2D7EC]"
             {...register("numeracao", { required: true, valueAsNumber: true })}
           />
         </div>
@@ -70,8 +71,9 @@ export default function AtendimentoForm({ onSubmit }: AtendimentoFormProps) {
           <div className="flex items-center justify-between">
             <Label>
               <Input
+                required
                 placeholder="Insira o título do tópico *"
-                className="p-0 rounded-none border-0 border-b border-[#B2D7EC] focus-visible:ring-0"
+                className="p-0 rounded-none border-0 border-b border-[#B2D7EC] focus-visible:ring-0 focus-visible:border-[#B2D7EC]"
                 {...register(`topicos.${index}.titulo`, { required: true })}
               />
             </Label>
@@ -89,8 +91,9 @@ export default function AtendimentoForm({ onSubmit }: AtendimentoFormProps) {
             )}
           </div>
 
-          <textarea
-            className="min-h-[100px] w-full rounded-[30px] border border-[#B2D7EC] focus-visible:ring-0 px-3 py-2 text-sm"
+          <Textarea
+            required
+            className="min-h-[100px] w-full rounded-[30px] border border-[#B2D7EC] focus-visible:ring-0 focus-visible:border-[#B2D7EC] px-3 py-2 text-sm"
             placeholder="Insira a descrição do tópico"
             {...register(`topicos.${index}.descricao`, {
               required: index === 0,
