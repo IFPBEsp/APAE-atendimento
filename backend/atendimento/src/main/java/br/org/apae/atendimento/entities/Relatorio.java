@@ -24,7 +24,7 @@ public class Relatorio implements ArquivoStorage {
      @JoinColumn(name = "paciente_id")
     private Paciente paciente;
 
-    public String getId() {
+    public String getObjectName() {
         return id;
     }
 
@@ -54,12 +54,12 @@ public class Relatorio implements ArquivoStorage {
     }
 
     @Override
-    public String getUrl() {
+    public String getPresignedUrl() {
         return this.url;
     }
 
     @Override
-    public void setUrl(String url) {
-        this.url = url;
+    public void setPresignedUrl(String presignedUrl) {
+        this.url = presignedUrl;
     }
 }

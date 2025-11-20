@@ -2,17 +2,20 @@ package br.org.apae.atendimento.services;
 
 import br.org.apae.atendimento.entities.Anexo;
 import br.org.apae.atendimento.repositories.AnexoRepository;
+import br.org.apae.atendimento.services.interfaces.ArquivoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
 @Service
-public class AnexoService {
+public class AnexoService implements ArquivoService<Anexo> {
+
     @Autowired
     private AnexoRepository repository;
 
@@ -22,7 +25,7 @@ public class AnexoService {
     private static final String ANEXO_PATH = "anexo";
 
     @Transactional
-    public Anexo save(UUID pacienteId, Long profissionalId, MultipartFile file, LocalDate date) {
+    public Anexo salvar(UUID pacienteId, Long profissionalId, MultipartFile file, LocalDate date) {
         String objectName = criarObjectName(profissionalId);
         String url = minioService.uploadArquivo(pacienteId.toString(), objectName, file);
 
@@ -35,25 +38,39 @@ public class AnexoService {
                 date,
                 url
         );
-        repository.save(anexo);
 
+        repository.save(anexo);
         return anexo;
     }
 
-    private String criarObjectName(Long profissionalId) {
-        String idOject = UUID.randomUUID().toString();
-        return profissionalId + "/" + ANEXO_PATH + "/" + idOject;
+    @Override
+    public String criarObjectName(Long profissionalId) {
+        String objectId = UUID.randomUUID().toString();
+        return profissionalId + "/" + ANEXO_PATH + "/" + objectId;
     }
 
-    public List<Anexo> listarAnexos(Long profissionalId, UUID pacienteId) {
+    public List<Anexo> listarPorProfissionalEPaciente(Long profissionalId, UUID pacienteId) {
         List<Anexo> anexos = repository.findByProfissionalIdAndPacienteId(profissionalId, pacienteId);
-        return minioService.capturarArquivos(anexos);
+
+        anexos.forEach(anexo -> {
+            String url = minioService.gerarUrlPreAssinada(anexo.getBucket(), anexo.getObjectName());
+            anexo.setPresignedUrl(url);
+        });
+
+        return anexos;
     }
 
-    public List<Anexo> buscarPorData(Long profissionalId, UUID pacienteId, LocalDate data){
+    @Override
+    public List<Anexo> buscarPorData(Long profissionalId, UUID pacienteId, LocalDate data) {
         List<Anexo> anexos = repository.findByProfissionalIdAndPacienteIdAndData(
-                profissionalId, pacienteId, data);
+                profissionalId, pacienteId, data
+        );
 
-        return minioService.capturarArquivos(anexos);
+        anexos.forEach(anexo -> {
+            String url = minioService.gerarUrlPreAssinada(anexo.getBucket(), anexo.getObjectName());
+            anexo.setPresignedUrl(url);
+        });
+
+        return anexos;
     }
 }

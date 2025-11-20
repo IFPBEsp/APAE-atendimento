@@ -1,8 +1,8 @@
 package br.org.apae.atendimento.entities.interfaces;
 
 public interface ArquivoStorage {
-    String getId();
+    String getObjectName();
     String getBucket();
-    String getUrl();
-    void setUrl(String url);
+    String getPresignedUrl();
+    void setPresignedUrl(String presignedUrl);
 }

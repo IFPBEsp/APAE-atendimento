@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 
@@ -12,14 +13,13 @@ import java.util.UUID;
 public class Anexo implements ArquivoStorage {
 
     @Id
-    private String id;
+    private String objectName;
 
     @Column(name = "bucket")
     private String bucket;
 
-    @Column(name = "url")
     @Transient
-    private String url;
+    private String presignedUrl;
 
     @Column(name = "nome_anexo")
     private String nomeAnexo;
@@ -44,21 +44,21 @@ public class Anexo implements ArquivoStorage {
 
     public Anexo(String id, String bucket, String nomeAnexo, UUID pacienteId,
                  Long profissionalId, LocalDate data, String url) {
-        this.id = id;
+        this.objectName = id;
         this.bucket = bucket;
         this.nomeAnexo = nomeAnexo;
         this.paciente = new Paciente(pacienteId);
         this.profissional = new ProfissionalSaude(profissionalId);
         this.data = data;
-        this.url = url;
+        this.presignedUrl = url;
     }
 
-    public String getId() {
-        return id;
+    public String getObjectName() {
+        return objectName;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setObjectName(String objectName) {
+        this.objectName = objectName;
     }
 
     public String getNomeAnexo() {
@@ -99,13 +99,13 @@ public class Anexo implements ArquivoStorage {
     }
 
     @Override
-    public String getUrl() {
-        return url;
+    public String getPresignedUrl() {
+        return presignedUrl;
     }
 
     @Override
-    public void setUrl(String url) {
-        this.url = url;
+    public void setPresignedUrl(String presignedUrl) {
+        this.presignedUrl = presignedUrl;
     }
 
     public LocalDate getData() {
