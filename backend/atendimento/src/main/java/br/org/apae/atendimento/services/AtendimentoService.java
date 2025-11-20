@@ -2,39 +2,39 @@ package br.org.apae.atendimento.services;
 
 import java.util.List;
 
-import br.org.apae.atendimento.entities.Consulta;
+import br.org.apae.atendimento.entities.Atendimento;
 import br.org.apae.atendimento.entities.Paciente;
 import br.org.apae.atendimento.entities.ProfissionalSaude;
-import br.org.apae.atendimento.repositories.ConsultaRepository;
+import br.org.apae.atendimento.repositories.AtendimentoRepository;
 import br.org.apae.atendimento.repositories.PacienteRepository;
 import br.org.apae.atendimento.repositories.ProfissionalSaudeRepository;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ConsultaService {
-    private ConsultaRepository consultaRepository;
+public class AtendimentoService {
+    private AtendimentoRepository atendimentoRepository;
     private PacienteService pacienteService;
     private ProfissionalSaudeService profissionalSaudeService;
 
-    public ConsultaService(ConsultaRepository consultaRepository,
+    public AtendimentoService(AtendimentoRepository atendimentoRepository,
                            PacienteService pacienteService,
                            ProfissionalSaudeService profissionalSaudeService){
-        this.consultaRepository = consultaRepository;
+        this.atendimentoRepository = atendimentoRepository;
         this.pacienteService = pacienteService;
         this.profissionalSaudeService = profissionalSaudeService;
     }
 
-    public Consulta addConsulta(Consulta consulta, Long pacienteId, Long profissionalSaudeId){
+    public Atendimento addAtendimento(Atendimento atendimento, Long pacienteId, Long profissionalSaudeId){
         Paciente paciente = pacienteService.getPacienteById(pacienteId);
         ProfissionalSaude profissional = profissionalSaudeService.getProfissionalById(profissionalSaudeId);
 
-        consulta.setPaciente(paciente);
-        consulta.setProfissional(profissional);
-        return consultaRepository.save(consulta);
+        atendimento.setPaciente(paciente);
+        atendimento.setProfissional(profissional);
+        return atendimentoRepository.save(atendimento);
     }
 
-    public List<Consulta> getConsultasDoPaciente(Long id){
+    public List<Atendimento> getAtendimentosDoPaciente(Long id){
         Paciente paciente = pacienteService.getPacienteById(id);
-        return paciente.getConsultas();
+        return paciente.getAtendimentos();
     }
 }
