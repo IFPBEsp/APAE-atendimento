@@ -1,6 +1,15 @@
 import { User, MoreVertical } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem} from "@/components/ui/dropdown-menu";
+import { 
+  DropdownMenu, 
+  DropdownMenuTrigger, 
+  DropdownMenuContent, 
+  DropdownMenuItem} from "@/components/ui/dropdown-menu";
+import {
+  Avatar,
+  AvatarImage,
+  AvatarFallback
+} from "@/components/ui/avatar";
 
 interface PacienteCardProps {
   id?: string;
@@ -50,9 +59,14 @@ export function PacienteCard({
       <CardContent className="p-4 flex flex-col md:flex-row md:gap-6">
 
         <div className="flex items-center gap-3 md:flex-col md:items-start md:gap-4 md:w-40 pb-2">
-          <div className="w-12 h-12 rounded-full bg-[#F2F4F7] flex items-center justify-center md:w-40 md:h-50 md:rounded-xl">
-            <User className="w-6 h-6 text-gray-500 md:w-20 md:h-20" />
-          </div>
+
+            <Avatar className="w-12 h-12 rounded-full bg-[#F2F4F7] flex items-center justify-center md:w-40 md:h-50 md:rounded-xl">
+              <AvatarImage src=""/>
+              <AvatarFallback>
+                <User className="w-6 h-6 text-gray-500 md:w-10 md:h-10" />
+              </AvatarFallback>
+            </Avatar>
+
 
           {/* Nome visível SOMENTE no mobile*/}
           <h2 className="font-semibold text-[#344054] text-base md:hidden text-left">
