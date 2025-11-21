@@ -7,10 +7,10 @@ public record PacienteResponseDTO(
         String nomeCompleto,
         LocalDate dataDeNascimento,
         String contato,
-        String cidade,
         String rua,
         String bairro,
         Integer numeroCasa,
         List<String> responsaveis,
-        List<String> transtornos
+        List<String> transtornos,
+        String cidade
 ) {}

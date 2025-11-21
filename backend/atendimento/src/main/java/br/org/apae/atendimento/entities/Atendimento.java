@@ -17,7 +17,7 @@ public class Atendimento {
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "relatorio", columnDefinition = "json")
-    private Map<String, String> relatorio;
+    private Map<String, Object> relatorio;
 
     @Column(name = "data_atendimento")
     private LocalDateTime dataAtendimento;
@@ -43,11 +43,11 @@ public class Atendimento {
         this.id = id;
     }
 
-    public Map<String, String> getRelatorio() {
+    public Map<String, Object> getRelatorio() {
         return relatorio;
     }
 
-    public void setRelatorio(Map<String, String> relatorio) {
+    public void setRelatorio(Map<String, Object> relatorio) {
         this.relatorio = relatorio;
     }
 
