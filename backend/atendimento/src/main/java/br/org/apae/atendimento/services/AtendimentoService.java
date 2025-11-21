@@ -1,10 +1,17 @@
 package br.org.apae.atendimento.services;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
+import br.org.apae.atendimento.dtos.AtendimentoRequestDTO;
+import br.org.apae.atendimento.dtos.response.AtendimentoResponseDTO;
+import br.org.apae.atendimento.dtos.response.PacienteResponseDTO;
 import br.org.apae.atendimento.entities.Atendimento;
 import br.org.apae.atendimento.entities.Paciente;
 import br.org.apae.atendimento.entities.ProfissionalSaude;
+import br.org.apae.atendimento.mappers.AtendimentoMapper;
+import br.org.apae.atendimento.mappers.IAtendimentoMapper;
+import br.org.apae.atendimento.mappers.IMapper;
 import br.org.apae.atendimento.repositories.AtendimentoRepository;
 import br.org.apae.atendimento.repositories.PacienteRepository;
 import br.org.apae.atendimento.repositories.ProfissionalSaudeRepository;
@@ -15,26 +22,28 @@ public class AtendimentoService {
     private AtendimentoRepository atendimentoRepository;
     private PacienteService pacienteService;
     private ProfissionalSaudeService profissionalSaudeService;
+    private IAtendimentoMapper atendimentoMapper;
 
     public AtendimentoService(AtendimentoRepository atendimentoRepository,
-                           PacienteService pacienteService,
-                           ProfissionalSaudeService profissionalSaudeService){
+                              PacienteService pacienteService,
+                              ProfissionalSaudeService profissionalSaudeService,
+                              AtendimentoMapper atendimentoMapper){
         this.atendimentoRepository = atendimentoRepository;
         this.pacienteService = pacienteService;
         this.profissionalSaudeService = profissionalSaudeService;
+        this.atendimentoRepository = atendimentoRepository;
     }
 
-    public Atendimento addAtendimento(Atendimento atendimento, Long pacienteId, Long profissionalSaudeId){
-        Paciente paciente = pacienteService.getPacienteById(pacienteId);
-        ProfissionalSaude profissional = profissionalSaudeService.getProfissionalById(profissionalSaudeId);
-
-        atendimento.setPaciente(paciente);
-        atendimento.setProfissional(profissional);
-        return atendimentoRepository.save(atendimento);
+    public AtendimentoResponseDTO addAtendimento(AtendimentoRequestDTO atendimentoRequestDTO){
+        Atendimento dadosConvertidos = this.atendimentoMapper.toEntityPadrao(atendimentoRequestDTO);
+        Atendimento dadosPersistidos = this.atendimentoRepository.save(dadosConvertidos);
+        return this.atendimentoMapper.toDTOPadrao(dadosPersistidos);
     }
 
-    public List<Atendimento> getAtendimentosDoPaciente(Long id){
+    public List<AtendimentoResponseDTO> getAtendimentosDoPaciente(Long id){
         Paciente paciente = pacienteService.getPacienteById(id);
-        return paciente.getAtendimentos();
+        return paciente.getAtendimentos().stream()
+                                  .map(atendimento -> atendimentoMapper.toDTOPadrao(atendimento))
+                                  .collect(Collectors.toList()) ;
     }
 }

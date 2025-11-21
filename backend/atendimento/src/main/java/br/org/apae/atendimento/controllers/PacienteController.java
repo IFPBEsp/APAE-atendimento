@@ -1,5 +1,6 @@
 package br.org.apae.atendimento.controllers;
 
+import br.org.apae.atendimento.dtos.response.PacienteResponseDTO;
 import br.org.apae.atendimento.entities.Paciente;
 import br.org.apae.atendimento.services.PacienteService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,8 +15,8 @@ public class PacienteController {
     private PacienteService pacienteService;
 
     @GetMapping("/{id}")
-    public ResponseEntity<Paciente> buscarPorId(@PathVariable Long id) {
-        Paciente paciente = pacienteService.getPacienteById(id);
+    public ResponseEntity<PacienteResponseDTO> buscarPorId(@PathVariable Long id) {
+        PacienteResponseDTO paciente = pacienteService.getPacienteById(id);
         return ResponseEntity.ok(paciente);
     }
 }

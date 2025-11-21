@@ -1,5 +1,7 @@
 package br.org.apae.atendimento.controllers;
 
+import br.org.apae.atendimento.dtos.AtendimentoRequestDTO;
+import br.org.apae.atendimento.dtos.response.AtendimentoResponseDTO;
 import br.org.apae.atendimento.entities.Atendimento;
 import br.org.apae.atendimento.services.AtendimentoService;
 import br.org.apae.atendimento.services.PacienteService;
@@ -26,18 +28,16 @@ public class AtendimentoController {
     private ProfissionalSaudeService profissionalSaudeService;
 
     @PostMapping
-    public ResponseEntity<Atendimento> criarAtendimento(
-            @RequestBody Atendimento atendimento,
-            @RequestParam Long pacienteId,
-            @RequestParam Long profissionalId
+    public ResponseEntity<AtendimentoResponseDTO> criarAtendimento(
+            @RequestBody AtendimentoRequestDTO atendimento
     ) {
-        Atendimento novoAtendimento = atendimentoService.addAtendimento(atendimento, pacienteId, profissionalId);
+        AtendimentoResponseDTO novoAtendimento = atendimentoService.addAtendimento(atendimento);
         return ResponseEntity.status(HttpStatus.CREATED).body(novoAtendimento);
     }
 
     @GetMapping("/paciente/{id}")
-    public ResponseEntity<List<Atendimento>> listarAtendimentosDoPaciente(@PathVariable Long id) {
-        List<Atendimento> atendimentos = atendimentoService.getAtendimentosDoPaciente(id);
+    public ResponseEntity<List<AtendimentoResponseDTO>> listarAtendimentosDoPaciente(@PathVariable Long id) {
+        List<AtendimentoResponseDTO> atendimentos = atendimentoService.getAtendimentosDoPaciente(id);
         return ResponseEntity.ok(atendimentos);
     }
 }
