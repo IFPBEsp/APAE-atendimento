@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/atendimentos")
@@ -28,7 +29,7 @@ public class AtendimentoController {
     @PostMapping
     public ResponseEntity<Atendimento> criarAtendimento(
             @RequestBody Atendimento atendimento,
-            @RequestParam Long pacienteId,
+            @RequestParam UUID pacienteId,
             @RequestParam Long profissionalId
     ) {
         Atendimento novoAtendimento = atendimentoService.addAtendimento(atendimento, pacienteId, profissionalId);
@@ -36,7 +37,7 @@ public class AtendimentoController {
     }
 
     @GetMapping("/paciente/{id}")
-    public ResponseEntity<List<Atendimento>> listarAtendimentosDoPaciente(@PathVariable Long id) {
+    public ResponseEntity<List<Atendimento>> listarAtendimentosDoPaciente(@PathVariable UUID id) {
         List<Atendimento> atendimentos = atendimentoService.getAtendimentosDoPaciente(id);
         return ResponseEntity.ok(atendimentos);
     }

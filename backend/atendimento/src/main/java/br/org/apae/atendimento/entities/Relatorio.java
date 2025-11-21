@@ -1,10 +1,10 @@
 package br.org.apae.atendimento.entities;
-import br.org.apae.atendimento.entities.interfaces.ArquivoStorage;
+
 import jakarta.persistence.*;
 
 @Entity
 @Table(name = "relatorio")
-public class Relatorio implements ArquivoStorage {
+public class Relatorio{
 
     public Relatorio(){}
 
@@ -24,7 +24,7 @@ public class Relatorio implements ArquivoStorage {
      @JoinColumn(name = "paciente_id")
     private Paciente paciente;
 
-    public String getId() {
+    public String getObjectName() {
         return id;
     }
 
@@ -47,19 +47,13 @@ public class Relatorio implements ArquivoStorage {
     public void setPaciente(Paciente paciente) {
         this.paciente = paciente;
     }
-
-    @Override
     public String getBucket() {
         return bucket;
     }
-
-    @Override
-    public String getUrl() {
+    public String getPresignedUrl() {
         return this.url;
     }
-
-    @Override
-    public void setUrl(String url) {
-        this.url = url;
+    public void setPresignedUrl(String presignedUrl) {
+        this.url = presignedUrl;
     }
 }

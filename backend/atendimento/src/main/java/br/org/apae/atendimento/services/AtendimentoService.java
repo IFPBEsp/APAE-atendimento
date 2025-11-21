@@ -1,6 +1,7 @@
 package br.org.apae.atendimento.services;
 
 import java.util.List;
+import java.util.UUID;
 
 import br.org.apae.atendimento.entities.Atendimento;
 import br.org.apae.atendimento.entities.Paciente;
@@ -24,7 +25,7 @@ public class AtendimentoService {
         this.profissionalSaudeService = profissionalSaudeService;
     }
 
-    public Atendimento addAtendimento(Atendimento atendimento, Long pacienteId, Long profissionalSaudeId){
+    public Atendimento addAtendimento(Atendimento atendimento, UUID pacienteId, Long profissionalSaudeId){
         Paciente paciente = pacienteService.getPacienteById(pacienteId);
         ProfissionalSaude profissional = profissionalSaudeService.getProfissionalById(profissionalSaudeId);
 
@@ -33,7 +34,7 @@ public class AtendimentoService {
         return atendimentoRepository.save(atendimento);
     }
 
-    public List<Atendimento> getAtendimentosDoPaciente(Long id){
+    public List<Atendimento> getAtendimentosDoPaciente(UUID id){
         Paciente paciente = pacienteService.getPacienteById(id);
         return paciente.getAtendimentos();
     }
