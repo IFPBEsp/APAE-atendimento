@@ -11,7 +11,7 @@ type Topico = {
   descricao: string;
 };
 
-type AtendimentoFormData = {
+export type AtendimentoFormData = {
   data: string;
   numeracao: number;
   topicos: Topico[];

@@ -1,7 +1,5 @@
-export default function PacientesPage() {
-  return (
-    <div className="flex items-center justify-center h-screen">
-      Hello World!
-    </div>
-  );
+import { redirect } from "next/navigation";
+
+export default function Page() {
+  redirect("/login");
 }

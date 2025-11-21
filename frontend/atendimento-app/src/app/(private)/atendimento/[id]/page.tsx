@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import AtendimentoForm from "@/components/forms/atendimentoForm";
 import { AtendimentoModal } from "@/components/modals/atendimentoModal";
 import { useState } from "react";
+import type { AtendimentoFormData } from "@/components/forms/atendimentoForm";
 
 interface Atendimento {
   id: number;
@@ -79,7 +80,7 @@ export default function AtendimentoPage() {
   const [open, setOpen] = useState(false);
 
   //Recebe os dados do formulário:
-  function handleCreateAtendimento(data: any) {
+  function handleCreateAtendimento(data: AtendimentoFormData) {
     console.log("Novo atendimento recebido:", data);
 
     // Mudar futuramente:

@@ -15,6 +15,11 @@ interface MeusDadosModalProps {
   trigger: React.ReactNode;
 }
 
+function logout() {
+  document.cookie = "verified=; path=/; max-age=0";
+  window.location.href = "/login";
+}
+
 export function MeusDadosModal({ trigger }: MeusDadosModalProps) {
   return (
     <Dialog>
@@ -79,7 +84,10 @@ export function MeusDadosModal({ trigger }: MeusDadosModalProps) {
             </div>
           </div>
 
-          <Button className="w-full bg-[#F45D6C] hover:bg-[#D44D54] text-white font-medium rounded-full h-12 text-base shadow-none">
+          <Button
+            onClick={logout}
+            className="w-full bg-[#F45D6C] hover:bg-[#D44D54] text-white font-medium rounded-full h-12 text-base shadow-none"
+          >
             <LogOut className="mr-2 h-5 w-5 rotate-180" />
             Sair
           </Button>
