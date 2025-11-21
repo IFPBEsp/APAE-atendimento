@@ -125,6 +125,10 @@ public class Paciente {
         return atendimentos;
     }
 
+    public String getCidade() {
+        return cidade;
+    }
+
     public void setAtendimentos(List<Atendimento> atendimentos) {
         this.atendimentos = atendimentos;
     }
