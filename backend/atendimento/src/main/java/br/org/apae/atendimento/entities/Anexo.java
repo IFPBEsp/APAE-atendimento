@@ -41,17 +41,13 @@ public class Anexo {
 
     public Anexo(){}
 
-    public Anexo(String objectName) {
+    public Anexo(String objectName, String bucket, String nomeAnexo,
+                 Paciente paciente, ProfissionalSaude profissional, LocalDate data, String url) {
         this.objectName = objectName;
-    }
-
-    public Anexo(String id, String bucket, String nomeAnexo, UUID pacienteId,
-                 Long profissionalId, LocalDate data, String url) {
-        this.objectName = id;
         this.bucket = bucket;
         this.nomeAnexo = nomeAnexo;
-        this.paciente = new Paciente(pacienteId);
-        this.profissional = new ProfissionalSaude(profissionalId);
+        this.paciente = paciente;
+        this.profissional = profissional;
         this.data = data;
         this.presignedUrl = url;
     }

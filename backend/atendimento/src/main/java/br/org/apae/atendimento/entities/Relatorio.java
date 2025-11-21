@@ -6,30 +6,45 @@ import jakarta.persistence.*;
 @Table(name = "relatorio")
 public class Relatorio{
 
-    public Relatorio(){}
-
     @Id
-    private String id;
+    @Column(name = "objectName")
+    private String objectName;
 
+    @Column(name = "bucket")
     private String bucket;
 
     @Transient
-    private String url;
+    @Column(name = "presigned_url")
+    private String presignedUrl;
 
-    @ManyToOne 
+    @Column(name = "nome_arquivo")
+    private String nomeArquivo;
+
+    @ManyToOne
     @JoinColumn(name = "profissional_id")
-    private ProfissionalSaude profissional; 
+    private ProfissionalSaude profissional;
 
     @ManyToOne
      @JoinColumn(name = "paciente_id")
     private Paciente paciente;
 
+    public Relatorio(){}
+
+    public Relatorio(String objectName, String bucket,
+                     Paciente paciente, ProfissionalSaude profissionalSaude, String url) {
+        this.objectName = objectName;
+        this.bucket = bucket;
+        this.paciente = paciente;
+        this.profissional = profissionalSaude;
+        this.presignedUrl = url;
+    }
+
     public String getObjectName() {
-        return id;
+        return objectName;
     }
 
     public void setId(String id) {
-        this.id = id;
+        this.objectName = id;
     }
 
     public ProfissionalSaude getProfissional() {
@@ -51,9 +66,9 @@ public class Relatorio{
         return bucket;
     }
     public String getPresignedUrl() {
-        return this.url;
+        return this.presignedUrl;
     }
     public void setPresignedUrl(String presignedUrl) {
-        this.url = presignedUrl;
+        this.presignedUrl = presignedUrl;
     }
 }

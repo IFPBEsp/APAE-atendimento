@@ -1,7 +1,11 @@
 package br.org.apae.atendimento.services;
 
 import br.org.apae.atendimento.entities.Anexo;
+import br.org.apae.atendimento.entities.Paciente;
+import br.org.apae.atendimento.entities.ProfissionalSaude;
 import br.org.apae.atendimento.repositories.AnexoRepository;
+import br.org.apae.atendimento.repositories.PacienteRepository;
+import br.org.apae.atendimento.repositories.ProfissionalSaudeRepository;
 import br.org.apae.atendimento.services.interfaces.ArquivoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,6 +24,12 @@ public class AnexoService implements ArquivoService<Anexo> {
     private AnexoRepository repository;
 
     @Autowired
+    private PacienteRepository pacienteRepository;
+
+    @Autowired
+    private ProfissionalSaudeRepository profissionalSaudeRepository;
+
+    @Autowired
     private MinioService minioService;
 
     @Autowired
@@ -32,12 +42,15 @@ public class AnexoService implements ArquivoService<Anexo> {
         String objectName = criarObjectName(profissionalId);
         String url = minioService.uploadArquivo(pacienteId.toString(), objectName, file);
 
+        Paciente paciente = pacienteRepository.getReferenceById(pacienteId);
+        ProfissionalSaude profissionalSaude = profissionalSaudeRepository.getReferenceById(profissionalId);
+
         Anexo anexo = new Anexo(
                 objectName,
                 pacienteId.toString(),
                 file.getOriginalFilename(),
-                pacienteId,
-                profissionalId,
+                paciente,
+                profissionalSaude,
                 date,
                 url
         );
