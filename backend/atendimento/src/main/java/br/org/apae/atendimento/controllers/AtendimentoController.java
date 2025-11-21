@@ -2,7 +2,6 @@ package br.org.apae.atendimento.controllers;
 
 import br.org.apae.atendimento.dtos.AtendimentoRequestDTO;
 import br.org.apae.atendimento.dtos.response.AtendimentoResponseDTO;
-import br.org.apae.atendimento.entities.Atendimento;
 import br.org.apae.atendimento.services.AtendimentoService;
 import br.org.apae.atendimento.services.PacienteService;
 import br.org.apae.atendimento.services.ProfissionalSaudeService;
@@ -13,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/atendimentos")
@@ -36,7 +36,7 @@ public class AtendimentoController {
     }
 
     @GetMapping("/paciente/{id}")
-    public ResponseEntity<List<AtendimentoResponseDTO>> listarAtendimentosDoPaciente(@PathVariable Long id) {
+    public ResponseEntity<List<AtendimentoResponseDTO>> listarAtendimentosDoPaciente(@PathVariable UUID id) {
         List<AtendimentoResponseDTO> atendimentos = atendimentoService.getAtendimentosDoPaciente(id);
         return ResponseEntity.ok(atendimentos);
     }

@@ -47,6 +47,10 @@ public class ProfissionalSaude {
 
     public ProfissionalSaude() {}
 
+    public ProfissionalSaude(Long id) {
+        this.id = id;
+    }
+
     public Long getId() {
         return id;
     }

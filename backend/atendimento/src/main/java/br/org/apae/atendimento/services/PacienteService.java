@@ -1,10 +1,13 @@
 package br.org.apae.atendimento.services;
+import java.util.UUID;
+
+import org.springframework.stereotype.Service;
+
 import br.org.apae.atendimento.dtos.response.PacienteResponseDTO;
 import br.org.apae.atendimento.entities.Paciente;
 import br.org.apae.atendimento.exceptions.PacienteNotFoundException;
 import br.org.apae.atendimento.mappers.PacienteMapper;
 import br.org.apae.atendimento.repositories.PacienteRepository;
-import org.springframework.stereotype.Service;
 
 @Service
 public class PacienteService {
@@ -17,12 +20,15 @@ public class PacienteService {
         this.pacienteMapper = pacienteMapper;
     }
 
-    public PacienteResponseDTO getPacienteById(Long id){
-        Paciente paciente = pacienteRepository.
-        findById(id).orElseThrow(() -> new PacienteNotFoundException());
+    public PacienteResponseDTO getPaciente(UUID id){
+        Paciente paciente = getPacienteById(id);
         return this.pacienteMapper.toDTOPadrao(paciente);
     }
 
+    public Paciente getPacienteById(UUID id){
+        return pacienteRepository.
+        findById(id).orElseThrow(() -> new PacienteNotFoundException());
+    }
 
 
 }

@@ -27,5 +27,10 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ConsultaInvalidException.class)
     public ResponseEntity<String> handleConsultaInvalid(ConsultaInvalidException ex) {
         return ResponseEntity.badRequest().body(ex.getMessage());
-    }   
+    }
+
+    @ExceptionHandler(MinioStorageException.class)
+    public ResponseEntity<String> handleMinioStorage(MinioStorageException ex){
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
 }

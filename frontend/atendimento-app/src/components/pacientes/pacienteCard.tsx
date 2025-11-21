@@ -1,8 +1,18 @@
 import { User, MoreVertical } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem} from "@/components/ui/dropdown-menu";
+import { 
+  DropdownMenu, 
+  DropdownMenuTrigger, 
+  DropdownMenuContent, 
+  DropdownMenuItem} from "@/components/ui/dropdown-menu";
+import {
+  Avatar,
+  AvatarImage,
+  AvatarFallback
+} from "@/components/ui/avatar";
 
 interface PacienteCardProps {
+  id?: string;
   nome: string;
   cpf: string;
   endereco: string;
@@ -10,6 +20,7 @@ interface PacienteCardProps {
   dataNascimento: string;
   transtornos: string[];
   responsaveis: string[];
+  onViewAtendimentos?: () => void;
 }
 
 export function PacienteCard({
@@ -20,6 +31,7 @@ export function PacienteCard({
   dataNascimento,
   transtornos,
   responsaveis,
+  onViewAtendimentos
 }: PacienteCardProps) {
   return (
     <Card className="w-full max-w-md md:max-w-4xl rounded-2xl shadow-md border border-[#EAECF0] bg-white relative">
@@ -32,7 +44,13 @@ export function PacienteCard({
           className="w-48 bg-white rounded-xl shadow-lg border border-gray-200 p-4"
           sideOffset={8}
         >
-          <DropdownMenuItem className="justify-center">Ver consultas</DropdownMenuItem>
+          <DropdownMenuItem 
+            className="justify-center"
+            onClick={onViewAtendimentos}
+          >
+              Ver Atendimentos
+          </DropdownMenuItem>
+
           <DropdownMenuItem className="justify-center">Criar relatório</DropdownMenuItem>
           <DropdownMenuItem className="justify-center">Adicionar anexo</DropdownMenuItem>
         </DropdownMenuContent>
@@ -41,9 +59,14 @@ export function PacienteCard({
       <CardContent className="p-4 flex flex-col md:flex-row md:gap-6">
 
         <div className="flex items-center gap-3 md:flex-col md:items-start md:gap-4 md:w-40 pb-2">
-          <div className="w-12 h-12 rounded-full bg-[#F2F4F7] flex items-center justify-center md:w-40 md:h-50 md:rounded-xl">
-            <User className="w-6 h-6 text-gray-500 md:w-20 md:h-20" />
-          </div>
+
+            <Avatar className="w-12 h-12 rounded-full bg-[#F2F4F7] flex items-center justify-center md:w-40 md:h-50 md:rounded-xl">
+              <AvatarImage src=""/>
+              <AvatarFallback>
+                <User className="w-6 h-6 text-gray-500 md:w-10 md:h-10" />
+              </AvatarFallback>
+            </Avatar>
+
 
           {/* Nome visível SOMENTE no mobile*/}
           <h2 className="font-semibold text-[#344054] text-base md:hidden text-left">

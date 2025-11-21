@@ -1,20 +1,14 @@
 package br.org.apae.atendimento.services;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
-
 import br.org.apae.atendimento.dtos.AtendimentoRequestDTO;
 import br.org.apae.atendimento.dtos.response.AtendimentoResponseDTO;
-import br.org.apae.atendimento.dtos.response.PacienteResponseDTO;
 import br.org.apae.atendimento.entities.Atendimento;
 import br.org.apae.atendimento.entities.Paciente;
-import br.org.apae.atendimento.entities.ProfissionalSaude;
 import br.org.apae.atendimento.mappers.AtendimentoMapper;
-import br.org.apae.atendimento.mappers.IAtendimentoMapper;
-import br.org.apae.atendimento.mappers.IMapper;
 import br.org.apae.atendimento.repositories.AtendimentoRepository;
-import br.org.apae.atendimento.repositories.PacienteRepository;
-import br.org.apae.atendimento.repositories.ProfissionalSaudeRepository;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -22,7 +16,7 @@ public class AtendimentoService {
     private AtendimentoRepository atendimentoRepository;
     private PacienteService pacienteService;
     private ProfissionalSaudeService profissionalSaudeService;
-    private IAtendimentoMapper atendimentoMapper;
+    private AtendimentoMapper atendimentoMapper;
 
     public AtendimentoService(AtendimentoRepository atendimentoRepository,
                               PacienteService pacienteService,
@@ -40,10 +34,10 @@ public class AtendimentoService {
         return this.atendimentoMapper.toDTOPadrao(dadosPersistidos);
     }
 
-    public List<AtendimentoResponseDTO> getAtendimentosDoPaciente(Long id){
+    public List<AtendimentoResponseDTO> getAtendimentosDoPaciente(UUID id){
         Paciente paciente = pacienteService.getPacienteById(id);
         return paciente.getAtendimentos().stream()
                                   .map(atendimento -> atendimentoMapper.toDTOPadrao(atendimento))
-                                  .collect(Collectors.toList()) ;
+                                  .collect(Collectors.toList());
     }
 }

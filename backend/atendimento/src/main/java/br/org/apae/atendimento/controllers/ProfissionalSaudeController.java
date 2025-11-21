@@ -1,12 +1,11 @@
 package br.org.apae.atendimento.controllers;
 
-import br.org.apae.atendimento.entities.Paciente;
-import br.org.apae.atendimento.entities.ProfissionalSaude;
+import br.org.apae.atendimento.dtos.response.PacienteResponseDTO;
+import br.org.apae.atendimento.dtos.response.ProfissionalResponseDTO;
 import br.org.apae.atendimento.services.ProfissionalSaudeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController
@@ -17,14 +16,14 @@ public class ProfissionalSaudeController {
     private ProfissionalSaudeService profissionalSaudeService;
 
     @GetMapping("/{id}")
-    public ResponseEntity<ProfissionalSaude> buscarPorId(@PathVariable Long id) {
-        ProfissionalSaude profissional = profissionalSaudeService.getProfissionalById(id);
+    public ResponseEntity<ProfissionalResponseDTO> buscarPorId(@PathVariable Long id) {
+        ProfissionalResponseDTO profissional = profissionalSaudeService.getProfissionalByIdDTO(id);
         return ResponseEntity.ok(profissional);
     }
 
     @GetMapping("/{id}/pacientes")
-    public ResponseEntity<List<Paciente>> listarPacientesDoProfissional(@PathVariable Long id) {
-        List<Paciente> pacientes = profissionalSaudeService.getPacientesDoProfissional(id);
+    public ResponseEntity<List<PacienteResponseDTO>> listarPacientesDoProfissional(@PathVariable Long id) {
+        List<PacienteResponseDTO> pacientes = profissionalSaudeService.getPacientesDoProfissional(id);
         return ResponseEntity.ok(pacientes);
     }
 
