@@ -1,20 +1,24 @@
 package br.org.apae.atendimento.entities;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+
+import java.time.LocalDate;
+import java.util.UUID;
 
 
 @Entity
 @Table(name = "anexo")
 public class Anexo {
 
-    public Anexo(){}
-
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String objectName;
 
-    @Column(name = "id_arquivo")
-    private Long idArquivo;
+    @Column(name = "bucket")
+    private String bucket;
 
+    @Transient
+    private String presignedUrl;
 
     @Column(name = "nome_anexo")
     private String nomeAnexo;
@@ -22,28 +26,42 @@ public class Anexo {
     @Column(name = "descricao")
     private String descricao;
 
+    @Column(name = "data")
+    private LocalDate data;
+
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "profissional_id")
     private ProfissionalSaude profissional;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "paciente_id")
     private Paciente paciente;
 
-    public Long getId() {
-        return id;
+    public Anexo(){}
+
+    public Anexo(String objectName) {
+        this.objectName = objectName;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public Anexo(String id, String bucket, String nomeAnexo, UUID pacienteId,
+                 Long profissionalId, LocalDate data, String url) {
+        this.objectName = id;
+        this.bucket = bucket;
+        this.nomeAnexo = nomeAnexo;
+        this.paciente = new Paciente(pacienteId);
+        this.profissional = new ProfissionalSaude(profissionalId);
+        this.data = data;
+        this.presignedUrl = url;
     }
 
-    public Long getIdArquivo() {
-        return idArquivo;
+    public String getObjectName() {
+        return objectName;
     }
 
-    public void setIdArquivo(Long idArquivo) {
-        this.idArquivo = idArquivo;
+    public void setObjectName(String objectName) {
+        this.objectName = objectName;
     }
 
     public String getNomeAnexo() {
@@ -77,6 +95,21 @@ public class Anexo {
     public void setPaciente(Paciente paciente) {
         this.paciente = paciente;
     }
+    public String getBucket() {
+        return bucket;
+    }
+    public String getPresignedUrl() {
+        return presignedUrl;
+    }
+    public void setPresignedUrl(String presignedUrl) {
+        this.presignedUrl = presignedUrl;
+    }
 
+    public LocalDate getData() {
+        return data;
+    }
 
+    public void setData(LocalDate data) {
+        this.data = data;
+    }
 }

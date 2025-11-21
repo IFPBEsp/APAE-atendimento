@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/pacientes")
 public class PacienteController {
@@ -14,7 +16,7 @@ public class PacienteController {
     private PacienteService pacienteService;
 
     @GetMapping("/{id}")
-    public ResponseEntity<Paciente> buscarPorId(@PathVariable Long id) {
+    public ResponseEntity<Paciente> buscarPorId(@PathVariable UUID id) {
         Paciente paciente = pacienteService.getPacienteById(id);
         return ResponseEntity.ok(paciente);
     }

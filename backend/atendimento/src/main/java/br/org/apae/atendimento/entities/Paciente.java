@@ -5,14 +5,15 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Table(name = "paciente")
 public class Paciente {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
     @Column(name = "nome_completo")
     private String nomeCompleto;
@@ -49,11 +50,15 @@ public class Paciente {
 
     public Paciente() {}
 
-    public Long getId() {
+    public Paciente(UUID id) {
+        this.id = id;
+    }
+
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 

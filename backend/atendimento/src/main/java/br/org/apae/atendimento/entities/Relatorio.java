@@ -1,4 +1,5 @@
 package br.org.apae.atendimento.entities;
+
 import jakarta.persistence.*;
 
 @Entity
@@ -7,12 +8,13 @@ public class Relatorio{
 
     public Relatorio(){}
 
-    @Id 
-    @GeneratedValue(strategy = GenerationType.IDENTITY) 
-    private Long id;
-   
-    @Column(name = "id_arquivo")
-    private Long idArquivo;
+    @Id
+    private String id;
+
+    private String bucket;
+
+    @Transient
+    private String url;
 
     @ManyToOne 
     @JoinColumn(name = "profissional_id")
@@ -22,20 +24,12 @@ public class Relatorio{
      @JoinColumn(name = "paciente_id")
     private Paciente paciente;
 
-    public Long getId() {
+    public String getObjectName() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
-    }
-
-    public Long getIdArquivo() {
-        return idArquivo;
-    }
-
-    public void setIdArquivo(Long idArquivo) {
-        this.idArquivo = idArquivo;
     }
 
     public ProfissionalSaude getProfissional() {
@@ -52,5 +46,14 @@ public class Relatorio{
 
     public void setPaciente(Paciente paciente) {
         this.paciente = paciente;
+    }
+    public String getBucket() {
+        return bucket;
+    }
+    public String getPresignedUrl() {
+        return this.url;
+    }
+    public void setPresignedUrl(String presignedUrl) {
+        this.url = presignedUrl;
     }
 }

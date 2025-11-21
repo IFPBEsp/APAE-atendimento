@@ -4,6 +4,7 @@ import br.org.apae.atendimento.dtos.response.ProfissionalResponseDTO;
 import br.org.apae.atendimento.entities.ProfissionalSaude;
 
 public class ProfissionalMapper extends AbstractMapper<ProfissionalSaude, Void, ProfissionalResponseDTO>{
+    
     @Override
     public ProfissionalSaude toEntityPadrao(Void dtoPadraoProfissionalSaude) {
         return null;
