@@ -4,14 +4,15 @@ import jakarta.persistence.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Table(name = "profissional_saude")
 public class ProfissionalSaude {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
     @Column(name = "primeiro_nome")
     private String primeiroNome;
@@ -40,22 +41,19 @@ public class ProfissionalSaude {
     private List<Atendimento> atendimentos = new ArrayList<>();
 
     @OneToMany(mappedBy = "profissional")
-    private List<Anexo> anexos = new ArrayList<>();
-
-    @OneToMany(mappedBy = "profissional")
-    private List<Relatorio> relatorios = new ArrayList<>();
+    private List<Arquivo> arquivos = new ArrayList<>();
 
     public ProfissionalSaude() {}
 
-    public ProfissionalSaude(Long id) {
+    public ProfissionalSaude(UUID id) {
         this.id = id;
     }
 
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 
@@ -113,5 +111,13 @@ public class ProfissionalSaude {
 
     public void setAtendimentos(List<Atendimento> atendimentos) {
         this.atendimentos = atendimentos;
+    }
+
+    public List<Arquivo> getArquivos() {
+        return arquivos;
+    }
+
+    public void setArquivos(List<Arquivo> arquivos) {
+        this.arquivos = arquivos;
     }
 }

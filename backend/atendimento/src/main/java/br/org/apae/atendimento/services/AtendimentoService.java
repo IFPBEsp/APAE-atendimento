@@ -7,8 +7,6 @@ import br.org.apae.atendimento.entities.Atendimento;
 import br.org.apae.atendimento.entities.Paciente;
 import br.org.apae.atendimento.entities.ProfissionalSaude;
 import br.org.apae.atendimento.repositories.AtendimentoRepository;
-import br.org.apae.atendimento.repositories.PacienteRepository;
-import br.org.apae.atendimento.repositories.ProfissionalSaudeRepository;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -25,7 +23,7 @@ public class AtendimentoService {
         this.profissionalSaudeService = profissionalSaudeService;
     }
 
-    public Atendimento addAtendimento(Atendimento atendimento, UUID pacienteId, Long profissionalSaudeId){
+    public Atendimento addAtendimento(Atendimento atendimento, UUID pacienteId, UUID profissionalSaudeId){
         Paciente paciente = pacienteService.getPacienteById(pacienteId);
         ProfissionalSaude profissional = profissionalSaudeService.getProfissionalById(profissionalSaudeId);
 

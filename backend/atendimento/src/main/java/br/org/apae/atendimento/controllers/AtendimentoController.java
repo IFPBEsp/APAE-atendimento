@@ -30,7 +30,7 @@ public class AtendimentoController {
     public ResponseEntity<Atendimento> criarAtendimento(
             @RequestBody Atendimento atendimento,
             @RequestParam UUID pacienteId,
-            @RequestParam Long profissionalId
+            @RequestParam UUID profissionalId
     ) {
         Atendimento novoAtendimento = atendimentoService.addAtendimento(atendimento, pacienteId, profissionalId);
         return ResponseEntity.status(HttpStatus.CREATED).body(novoAtendimento);

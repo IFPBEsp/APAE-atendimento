@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/profissionais")
@@ -17,19 +18,19 @@ public class ProfissionalSaudeController {
     private ProfissionalSaudeService profissionalSaudeService;
 
     @GetMapping("/{id}")
-    public ResponseEntity<ProfissionalSaude> buscarPorId(@PathVariable Long id) {
+    public ResponseEntity<ProfissionalSaude> buscarPorId(@PathVariable UUID id) {
         ProfissionalSaude profissional = profissionalSaudeService.getProfissionalById(id);
         return ResponseEntity.ok(profissional);
     }
 
     @GetMapping("/{id}/pacientes")
-    public ResponseEntity<List<Paciente>> listarPacientesDoProfissional(@PathVariable Long id) {
+    public ResponseEntity<List<Paciente>> listarPacientesDoProfissional(@PathVariable UUID id) {
         List<Paciente> pacientes = profissionalSaudeService.getPacientesDoProfissional(id);
         return ResponseEntity.ok(pacientes);
     }
 
     @GetMapping("/{id}/primeiro-nome")
-    public ResponseEntity<String> obterPrimeiroNome(@PathVariable Long id) {
+    public ResponseEntity<String> obterPrimeiroNome(@PathVariable UUID id) {
         String nome = profissionalSaudeService.getPrimeiroNome(id);
         return ResponseEntity.ok(nome);
     }

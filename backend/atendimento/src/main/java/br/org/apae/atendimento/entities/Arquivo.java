@@ -4,12 +4,11 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
-import java.util.UUID;
 
 
 @Entity
 @Table(name = "anexo")
-public class Anexo {
+public class Arquivo {
 
     @Id
     private String objectName;
@@ -20,14 +19,16 @@ public class Anexo {
     @Transient
     private String presignedUrl;
 
-    @Column(name = "nome_anexo")
-    private String nomeAnexo;
+    @Column(name = "nome_arquivo")
+    private String nomeArquivo;
 
-    @Column(name = "descricao")
-    private String descricao;
 
     @Column(name = "data")
     private LocalDate data;
+
+    @ManyToOne
+    @JoinColumn(name = "tipo_id")
+    private TipoArquivo tipo;
 
     @JsonIgnore
     @ManyToOne
@@ -39,16 +40,18 @@ public class Anexo {
     @JoinColumn(name = "paciente_id")
     private Paciente paciente;
 
-    public Anexo(){}
+    public Arquivo(){}
 
-    public Anexo(String objectName, String bucket, String nomeAnexo,
-                 Paciente paciente, ProfissionalSaude profissional, LocalDate data, String url) {
+    public Arquivo(String objectName, String bucket, String nomeAnexo,
+                   Paciente paciente, ProfissionalSaude profissional,
+                   LocalDate data, TipoArquivo tipoArquivo, String url) {
         this.objectName = objectName;
         this.bucket = bucket;
-        this.nomeAnexo = nomeAnexo;
+        this.nomeArquivo = nomeAnexo;
         this.paciente = paciente;
         this.profissional = profissional;
         this.data = data;
+        this.tipo = tipoArquivo;
         this.presignedUrl = url;
     }
 
@@ -60,20 +63,12 @@ public class Anexo {
         this.objectName = objectName;
     }
 
-    public String getNomeAnexo() {
-        return nomeAnexo;
+    public String getNomeArquivo() {
+        return nomeArquivo;
     }
 
-    public void setNomeAnexo(String nomeAnexo) {
-        this.nomeAnexo = nomeAnexo;
-    }
-
-    public String getDescricao() {
-        return descricao;
-    }
-
-    public void setDescricao(String descricao) {
-        this.descricao = descricao;
+    public void setNomeArquivo(String nomeArquivo) {
+        this.nomeArquivo = nomeArquivo;
     }
 
     public ProfissionalSaude getProfissional() {
@@ -107,5 +102,13 @@ public class Anexo {
 
     public void setData(LocalDate data) {
         this.data = data;
+    }
+
+    public TipoArquivo getTipo() {
+        return tipo;
+    }
+
+    public void setTipo(TipoArquivo tipo) {
+        this.tipo = tipo;
     }
 }

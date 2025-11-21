@@ -1,6 +1,7 @@
 package br.org.apae.atendimento.services;
 
 import java.util.List;
+import java.util.UUID;
 
 import br.org.apae.atendimento.exceptions.ProfissionalSaudeNotFoundException;
 import org.springframework.stereotype.Service;
@@ -18,16 +19,16 @@ public class ProfissionalSaudeService {
         this.profissionalSaudeRepository = profissionalSaudeRepository;
     }
 
-    public ProfissionalSaude getProfissionalById(Long id) {
+    public ProfissionalSaude getProfissionalById(UUID id) {
         return profissionalSaudeRepository.findById(id).orElseThrow(() -> new ProfissionalSaudeNotFoundException());
     }
 
-    public List<Paciente> getPacientesDoProfissional (Long id) {
+    public List<Paciente> getPacientesDoProfissional (UUID id) {
         ProfissionalSaude profissionalSaude = getProfissionalById(id);
         return profissionalSaude.getPacientes();
     }
 
-    public String getPrimeiroNome (Long id) {
+    public String getPrimeiroNome (UUID id) {
         String nome = profissionalSaudeRepository.findPrimeiroNomeById(id);
         if(nome == null) {
             throw new ProfissionalSaudeNotFoundException();
