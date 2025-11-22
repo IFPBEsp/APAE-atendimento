@@ -26,7 +26,7 @@ export function RelatorioModal ({
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent 
-            className={`sm:max-w-[632px] rounded-[30px] max-h-[560px] overflow-scroll ${nunitoFont.className}`}
+            className={`sm:max-w-[632px] rounded-[30px] max-h-[560px] overflow-auto ${nunitoFont.className}`}
             >
                 <div className="absolute right-5 top-5 z-10">
                     <DialogClose className="rounded-full p-1 hover:bg-gray-100 transition-colors outline-none">
