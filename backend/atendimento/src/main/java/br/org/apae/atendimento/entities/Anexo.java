@@ -60,6 +60,10 @@ public class Anexo {
         return objectName;
     }
 
+    public void setBucket(String bucket) {
+        this.bucket = bucket;
+    }
+
     public void setObjectName(String objectName) {
         this.objectName = objectName;
     }

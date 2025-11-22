@@ -1,5 +1,6 @@
 package br.org.apae.atendimento.controllers;
 
+import br.org.apae.atendimento.dtos.ArquivoDTO;
 import br.org.apae.atendimento.entities.Anexo;
 import br.org.apae.atendimento.services.AnexoService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,17 +21,15 @@ public class AnexoController {
     private AnexoService service;
 
     @PostMapping("/{pacienteId}/{profissionalId}")
-    public ResponseEntity<Anexo> upload(@PathVariable UUID pacienteId,
-                                        @PathVariable Long profissionalId,
-                                        @RequestParam("file") MultipartFile file,
-                                        @RequestParam("data")LocalDate data){
-        Anexo anexo = service.salvar(pacienteId, profissionalId, file, data);
-        return ResponseEntity.status(HttpStatus.CREATED).body(anexo);
+    public ResponseEntity<ArquivoDTO> upload(@RequestPart("file") MultipartFile file,
+                                             @RequestPart("metadata") ArquivoDTO metadata){
+        ArquivoDTO anexoDTO = service.salvar(file, metadata);
+        return ResponseEntity.status(HttpStatus.CREATED).body(anexoDTO);
     }
 
     @GetMapping("/{pacienteId}/{profissionalId}")
-    public ResponseEntity<List<Anexo>> list(@PathVariable UUID pacienteId, @PathVariable Long profissionalId){
-        List<Anexo> anexos = service.listarPorProfissionalEPaciente(profissionalId, pacienteId);
+    public ResponseEntity<List<ArquivoDTO>> list(@PathVariable UUID pacienteId, @PathVariable Long profissionalId){
+        List<ArquivoDTO> anexos = service.listarPorProfissionalEPaciente(profissionalId, pacienteId);
         return ResponseEntity.ok().body(anexos);
     }
 

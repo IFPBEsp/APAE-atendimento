@@ -1,6 +1,8 @@
 package br.org.apae.atendimento.services;
 
+import br.org.apae.atendimento.dtos.ArquivoDTO;
 import br.org.apae.atendimento.entities.Anexo;
+import br.org.apae.atendimento.mappers.AnexoMapper;
 import br.org.apae.atendimento.repositories.AnexoRepository;
 import br.org.apae.atendimento.services.interfaces.ArquivoService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,9 +14,10 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
-public class AnexoService implements ArquivoService<Anexo> {
+public class AnexoService implements ArquivoService<ArquivoDTO> {
 
     @Autowired
     private AnexoRepository repository;
@@ -27,23 +30,19 @@ public class AnexoService implements ArquivoService<Anexo> {
 
     private static final String ANEXO_PATH = "anexo";
 
+    private static AnexoMapper anexoMapper;
+
     @Transactional
-    public Anexo salvar(UUID pacienteId, Long profissionalId, MultipartFile file, LocalDate date) {
-        String objectName = criarObjectName(profissionalId);
-        String url = minioService.uploadArquivo(pacienteId.toString(), objectName, file);
+    public ArquivoDTO salvar(MultipartFile file, ArquivoDTO metadata) {
+        String objectName = criarObjectName(metadata.profissionalId());
+        String url = minioService.uploadArquivo(metadata.pacienteId().toString(), metadata.objectName(), file);
+        Anexo anexo = anexoMapper.toEntityPadrao(metadata);
+        anexo.setObjectName(objectName);
+        anexo.setPresignedUrl(url);
+        anexo.setNomeAnexo(file.getOriginalFilename());
+        Anexo anexoPersistido = repository.save(anexo);
 
-        Anexo anexo = new Anexo(
-                objectName,
-                pacienteId.toString(),
-                file.getOriginalFilename(),
-                pacienteId,
-                profissionalId,
-                date,
-                url
-        );
-
-        repository.save(anexo);
-        return anexo;
+        return anexoMapper.toDTOPadrao(anexoPersistido);
     }
 
     @Override
@@ -52,29 +51,27 @@ public class AnexoService implements ArquivoService<Anexo> {
         return profissionalId + "/" + ANEXO_PATH + "/" + objectId;
     }
 
-    public List<Anexo> listarPorProfissionalEPaciente(Long profissionalId, UUID pacienteId) {
+    public List<ArquivoDTO> listarPorProfissionalEPaciente(Long profissionalId, UUID pacienteId) {
         List<Anexo> anexos = repository.findByProfissionalIdAndPacienteId(profissionalId, pacienteId);
-
-        anexos.forEach(anexo -> {
-            String url = urlService.gerarUrlPreAssinada(anexo.getBucket(), anexo.getObjectName());
-            anexo.setPresignedUrl(url);
-        });
-
-        return anexos;
+        return  anexos.stream()
+                .map(anexo -> {
+                    String url = urlService.gerarUrlPreAssinada(anexo.getBucket(), anexo.getObjectName());
+                    anexo.setPresignedUrl(url);
+                    return anexoMapper.toDTOPadrao(anexo);
+                }).collect(Collectors.toList());
     }
 
     @Override
-    public List<Anexo> buscarPorData(Long profissionalId, UUID pacienteId, LocalDate data) {
+    public List<ArquivoDTO> buscarPorData(Long profissionalId, UUID pacienteId, LocalDate data) {
         List<Anexo> anexos = repository.findByProfissionalIdAndPacienteIdAndData(
                 profissionalId, pacienteId, data
         );
-
-        anexos.forEach(anexo -> {
-            String url = urlService.gerarUrlPreAssinada(anexo.getBucket(), anexo.getObjectName());
-            anexo.setPresignedUrl(url);
-        });
-
-        return anexos;
+        return anexos.stream()
+                .map(anexo -> {
+                    String url = urlService.gerarUrlPreAssinada(anexo.getBucket(), anexo.getObjectName());
+                    anexo.setPresignedUrl(url);
+                    return anexoMapper.toDTOPadrao(anexo);
+                }).collect(Collectors.toList());
     }
 
     @Override
