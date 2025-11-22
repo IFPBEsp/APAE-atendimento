@@ -1,10 +1,12 @@
 package br.org.apae.atendimento.mappers;
+import org.springframework.stereotype.Component;
+
 import br.org.apae.atendimento.dtos.ArquivoDTO;
 import br.org.apae.atendimento.entities.Anexo;
 import br.org.apae.atendimento.entities.Paciente;
 import br.org.apae.atendimento.entities.ProfissionalSaude;
 
-
+@Component
 public class AnexoMapper extends AbstractMapper<Anexo, ArquivoDTO, ArquivoDTO>{
     @Override
     public Anexo toEntityPadrao(ArquivoDTO dtoPadraoAnexo) {
