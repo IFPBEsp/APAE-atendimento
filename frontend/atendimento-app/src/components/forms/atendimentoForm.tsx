@@ -24,7 +24,7 @@ interface AtendimentoFormProps {
 export default function AtendimentoForm({ onSubmit }: AtendimentoFormProps) {
   const { register, handleSubmit, control } = useForm<AtendimentoFormData>({
     defaultValues: {
-      data: "2025-11-01",
+      data: new Date().toISOString().split("T")[0],
       numeracao: 1,
       topicos: [{ titulo: "", descricao: "" }],
     },
