@@ -4,7 +4,7 @@ import { useRouter, useParams } from "next/navigation";
 import { ArrowLeft, Plus } from "lucide-react";
 import { Nunito } from "next/font/google";
 import Header from "@/components/shared/header";
-import AtendimentoCard from "@/components/atendimentos/atendimentoCard";
+import AtendimentoCard from "@/components/cards/atendimentoCard";
 import {
   Select,
   SelectContent,

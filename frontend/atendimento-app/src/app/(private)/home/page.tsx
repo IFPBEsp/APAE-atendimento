@@ -10,7 +10,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Search } from "lucide-react";
-import { PacienteCard } from "@/components/pacientes/pacienteCard";
+import { PacienteCard } from "@/components/cards/pacienteCard";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
