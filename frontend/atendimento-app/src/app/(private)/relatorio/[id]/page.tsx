@@ -1,11 +1,12 @@
 "use client";
 
 import { useRouter, useParams } from "next/navigation";
-import { ArrowLeft, Plus } from "lucide-react";
+import { ArrowLeft, ClipboardPlus  } from "lucide-react";
 import { Nunito } from "next/font/google";
 import Header from "@/components/shared/header";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 interface Relatorio {
   id: number;
@@ -38,11 +39,23 @@ export default function RelatorioPage() {
             Voltar
           </button>
 
+          <div className="flex items-center gap-3">
+            <Button
+              onClick={() => setOpen(true)}
+              className="hidden cursor-pointer md:flex items-center bg-[#165BAA] hover:bg-[#13447D] text-white gap-2 px-4 h-[38px]  rounded-full text-sm shadow-sm active:scale-95"
+            >
+              <ClipboardPlus size={18} />
+              Gerenciar relatórios
+            </Button>
 
-          <Input
-            type="date"
-            className="bg-white border border-[#3B82F6] rounded-full w-[160px] text-gray-600 text-sm"
-          />
+
+            <Input
+              type="date"
+              defaultValue={new Date().toISOString().split("T")[0]}
+              className="bg-white border border-[#3B82F6] rounded-full w-[150px] text-gray-600 text-sm focus-visible:ring-0 focus-visible:border-[#3B82F6]"
+            />
+          </div>
+         
         </div>
       </section>
 
@@ -50,6 +63,24 @@ export default function RelatorioPage() {
         <h1 className={`text-xl text-[#344054] font-bold ${nunitoFont.className}`}>
           {nomePaciente}
         </h1>
+
+        {relatorios.length === 0 && (
+          <div className="text-center mt-20">
+            <p
+              className={` text-[#344054] text-[15px] font-medium ${nunitoFont.className}`}
+            >
+              Não existem relatóris para este paciente.
+            </p>
+
+            <Button
+              variant="link"
+              onClick={() => setOpen(true)}
+              className="text-[#165BAA] underline text-sm hover:opacity-80 pt-0 cursor-pointer"
+            >
+              Adicionar relatório.
+            </Button>
+          </div>
+        )}
       </section>
 
       <button
@@ -59,7 +90,7 @@ export default function RelatorioPage() {
               flex items-center justify-center shadow-[4px_4px_12px_rgba(0,0,0,0.25)]
               active:scale-95 md:hidden"
       >
-        <Plus size={28} className="text-white" />
+        <ClipboardPlus  size={28} className="text-white" />
       </button>
     </div>
   );
