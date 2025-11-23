@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useParams } from "next/navigation";
-import { ArrowLeft, Plus } from "lucide-react";
+import { ArrowLeft, Plus, ClipboardPlus  } from "lucide-react";
 import { Nunito } from "next/font/google";
 import Header from "@/components/shared/header";
 import { useState } from "react";
@@ -41,7 +41,7 @@ export default function RelatorioPage() {
 
           <Input
             type="date"
-            className="bg-white border border-[#3B82F6] rounded-full w-[160px] text-gray-600 text-sm"
+            className="bg-white border border-[#3B82F6] rounded-full w-[160px] text-gray-600 text-sm focus-visible:ring-0 focus-visible:border-[#3B82F6] outline-none"
           />
         </div>
       </section>
@@ -59,7 +59,7 @@ export default function RelatorioPage() {
               flex items-center justify-center shadow-[4px_4px_12px_rgba(0,0,0,0.25)]
               active:scale-95 md:hidden"
       >
-        <Plus size={28} className="text-white" />
+        <ClipboardPlus  size={28} className="text-white" />
       </button>
     </div>
   );
