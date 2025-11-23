@@ -4,7 +4,7 @@ import { useRouter, useParams } from "next/navigation";
 import { ArrowLeft, Plus } from "lucide-react";
 import { Nunito } from "next/font/google";
 import Header from "@/components/shared/header";
-import AtendimentoCard from "@/components/atendimentos/atendimentoCard";
+import AtendimentoCard from "@/components/cards/atendimentoCard";
 import {
   Select,
   SelectContent,
@@ -176,8 +176,7 @@ export default function AtendimentoPage() {
         className="
             fixed bottom-6 right-6 w-14 h-14 rounded-full bg-[#165BAA]
             flex items-center justify-center shadow-[4px_4px_12px_rgba(0,0,0,0.25)]
-            active:scale-95 md:hidden
-          "
+            active:scale-95 md:hidden"
       >
         <Plus size={28} className="text-white" />
       </button>
