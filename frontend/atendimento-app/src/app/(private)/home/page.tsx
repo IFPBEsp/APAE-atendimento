@@ -96,6 +96,7 @@ export default function PacientesPage() {
               key={pac.id}
               {...pac}
               onViewAtendimentos={() => router.push(`/atendimento/${pac.id}`)}
+              onViewRelatorios={() => router.push(`/relatorio/${pac.id}`)}
             />
           ))}
         </section>
