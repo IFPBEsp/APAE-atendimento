@@ -13,9 +13,6 @@ public class Arquivo {
     @Id
     private String objectName;
 
-    @Column(name = "bucket")
-    private String bucket;
-
     @Transient
     private String presignedUrl;
 
@@ -42,11 +39,10 @@ public class Arquivo {
 
     public Arquivo(){}
 
-    public Arquivo(String objectName, String bucket, String nomeAnexo,
+    public Arquivo(String objectName, String nomeAnexo,
                    Paciente paciente, ProfissionalSaude profissional,
                    LocalDate data, TipoArquivo tipoArquivo, String url) {
         this.objectName = objectName;
-        this.bucket = bucket;
         this.nomeArquivo = nomeAnexo;
         this.paciente = paciente;
         this.profissional = profissional;
@@ -85,9 +81,6 @@ public class Arquivo {
 
     public void setPaciente(Paciente paciente) {
         this.paciente = paciente;
-    }
-    public String getBucket() {
-        return bucket;
     }
     public String getPresignedUrl() {
         return presignedUrl;

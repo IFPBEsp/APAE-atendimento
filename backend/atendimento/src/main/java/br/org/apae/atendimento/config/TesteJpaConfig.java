@@ -118,9 +118,9 @@ public class TesteJpaConfig {
 
             System.out.println("\n===== INICIALIZAÇÃO DE TIPOS DE ARQUIVOS =====");
 
-            TipoArquivo tipoArquivo1 = new TipoArquivo(1L, "relatório");
+            TipoArquivo tipoArquivo1 = new TipoArquivo(1L, "anexo");
             tipoArquivoRepository.save(tipoArquivo1);
-            TipoArquivo tipoArquivo2 = new TipoArquivo(2L, "anexo");
+            TipoArquivo tipoArquivo2 = new TipoArquivo(2L, "relatório");
             tipoArquivoRepository.save(tipoArquivo2);
             System.out.println("\n===== TESTE JPA FINALIZADO COM SUCESSO =====");
         }
