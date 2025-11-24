@@ -32,7 +32,8 @@ public class ArquivoService {
     @Autowired
     private PresignedUrlService urlService;
 
-    private static AnexoMapper anexoMapper;
+    @Autowired
+    private AnexoMapper anexoMapper;
 
     private static final String ANEXO_PATH = "anexo";
     private static final String RELATORIO_PATH = "relatorio";
@@ -47,11 +48,10 @@ public class ArquivoService {
         Arquivo arquivo = anexoMapper.toEntityPadrao(arquivoRequest);
         arquivo.setObjectName(objectName);
         arquivo.setNomeArquivo(file.getOriginalFilename());
-        arquivo.setPresignedUrl(url);
         arquivo.setTipo(tipoArquivo);
 
         Arquivo arquivoPersistido = repository.save(arquivo);
-
+        arquivoPersistido.setPresignedUrl(url);
         return anexoMapper.toDTOPadrao(arquivoPersistido);
     }
 
