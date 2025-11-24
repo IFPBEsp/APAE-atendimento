@@ -20,7 +20,7 @@ interface RelatorioFormProps {
 export default function RelatorioForm({ onSubmit }: RelatorioFormProps) {
   const { register, handleSubmit } = useForm<RelatorioFormData>({
     defaultValues: {
-      data: "",
+      data: new Date().toISOString().split("T")[0],
       titulo: "",
       descricao: "",
     },

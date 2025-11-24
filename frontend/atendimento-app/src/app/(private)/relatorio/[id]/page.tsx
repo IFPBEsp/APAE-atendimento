@@ -7,6 +7,8 @@ import Header from "@/components/shared/header";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import RelatorioForm, { RelatorioFormData } from "@/components/forms/relatorioForm";
+import { RelatorioModal } from "@/components/modals/relatorioModal";
 
 interface Relatorio {
   id: number;
@@ -24,6 +26,16 @@ export default function RelatorioPage() {
 
   const nomePaciente = "Fulano de Tal de Lorem Ipsum Santos";
   const [open, setOpen] = useState(false);
+
+  function handleCreateRelatorio(data: RelatorioFormData) {
+      console.log("Novo relatório recebido:", data);
+  
+      // Mudar futuramente:
+      // await api.post("/rota", data);
+      // depois atualiza a lista
+  
+      setOpen(false);
+  }
 
   return (
     <div className="min-h-screen w-full bg-[#F8FAFD]">
@@ -81,6 +93,11 @@ export default function RelatorioPage() {
             </Button>
           </div>
         )}
+
+        <RelatorioModal open={open} onOpenChange={setOpen}>
+          <RelatorioForm onSubmit={handleCreateRelatorio} />
+        </RelatorioModal>
+
       </section>
 
       <button
