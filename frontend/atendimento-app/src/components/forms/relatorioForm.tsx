@@ -38,7 +38,15 @@ export default function RelatorioForm({ onSubmit }: RelatorioFormProps) {
 
   const [isDragging, setIsDragging] = useState(false);
 
+  const titulo = watch("titulo");
+  const descricao = watch("descricao");
   const arquivo = watch("arquivo");
+
+  const existeArquivo = arquivo && arquivo.length > 0;
+  const existeTemplate = titulo?.trim().length > 0 && descricao?.trim().length > 0;
+
+  const envioValidado = existeArquivo || existeTemplate;
+
   const previewUrl = arquivo?.[0] ? URL.createObjectURL(arquivo[0]) : null;
 
   const removerArquivo = () => setValue("arquivo", undefined);
@@ -186,7 +194,6 @@ export default function RelatorioForm({ onSubmit }: RelatorioFormProps) {
         </Label>
 
         <Input
-          required
           placeholder="Insira o título do relatório*"
           className="p-0 rounded-none border-0 border-b border-[#B2D7EC] focus-visible:ring-0 focus-visible:border-[#B2D7EC]"
           {...register("titulo")}
@@ -194,7 +201,6 @@ export default function RelatorioForm({ onSubmit }: RelatorioFormProps) {
       </div>
 
       <Textarea
-        required
         placeholder="Insira a descrição do relatório"
         className="min-h-[100px] w-full rounded-[30px] border border-[#B2D7EC] focus-visible:ring-0 focus-visible:border-[#B2D7EC] px-3 py-2 text-sm"
         {...register("descricao")}
@@ -203,6 +209,7 @@ export default function RelatorioForm({ onSubmit }: RelatorioFormProps) {
       <DialogFooter>
         <Button
           type="submit"
+          disabled={!envioValidado}
           className="w-full rounded-[30px] shadow-md bg-[#0D4F97] hover:bg-[#13447D] cursor-pointer"
         >
           <CirclePlus className="mr-1" />
