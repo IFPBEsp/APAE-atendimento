@@ -13,6 +13,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 
+import { useState } from "react";
 import { Upload, CirclePlus, Info } from "lucide-react";
 
 export type RelatorioFormData = {
@@ -26,8 +27,8 @@ interface RelatorioFormProps {
   onSubmit: (data: RelatorioFormData) => void;
 }
 
-export default function RelatorioForm({ onSubmit }: RelatorioFormProps) {
-  const { register, handleSubmit, watch } = useForm<RelatorioFormData>({
+export default function RelatorioForm({ onSubmit }: RelatorioFormProps) {  
+  const { register, handleSubmit, watch, setValue } = useForm<RelatorioFormData>({
     defaultValues: {
       data: new Date().toISOString().split("T")[0],
       titulo: "",
@@ -35,8 +36,35 @@ export default function RelatorioForm({ onSubmit }: RelatorioFormProps) {
     },
   });
 
+  const [isDragging, setIsDragging] = useState(false);
+
   const arquivo = watch("arquivo");
-  const previewUrl = arquivo && arquivo[0] ? URL.createObjectURL(arquivo[0]) : null;
+  const previewUrl = arquivo?.[0] ? URL.createObjectURL(arquivo[0]) : null;
+
+  const removerArquivo = () => setValue("arquivo", undefined);
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = () => setIsDragging(false);
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+
+    const file = e.dataTransfer.files?.[0];
+    if (!file) return;
+
+    const fileList = {
+      0: file,
+      length: 1,
+      item: () => file,
+    } as unknown as FileList;
+
+    setValue("arquivo", fileList);
+  };
 
   return (
     <form
@@ -50,52 +78,83 @@ export default function RelatorioForm({ onSubmit }: RelatorioFormProps) {
 
         <Input
           type="date"
-          className="rounded-[30px] border-[#B2D7EC] focus-visible:ring-0 focus-visible:border-[#B2D7EC]
-          text-black-400"
+          className="rounded-[30px] border-[#B2D7EC] focus-visible:ring-0 focus-visible:border-[#B2D7EC]"
           {...register("data", { required: true })}
         />
-
       </div>
 
       <div className="grid gap-2">
         <Label>Inserir arquivo</Label>
 
-        <Label
-          htmlFor="arquivo"
-          className="
-          relative w-full h-[150px] flex flex-col items-center justify-center border-1 border-dashed border-[#B2D7EC] rounded-[30px] cursor-pointer bg-[#F8FAFD] overflow-hidden"
+        <div
+          className={`
+            relative w-full h-[220px] flex flex-col items-center justify-center 
+            border-2 border-dashed rounded-[30px] cursor-pointer bg-[#F8FAFD] overflow-hidden
+            transition-colors
+            ${isDragging ? "border-blue-400 bg-blue-50" : "border-[#B2D7EC]"}
+          `}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
         >
           {previewUrl ? (
             <img
               src={previewUrl}
               alt="Prévia"
-              className="w-[200px] h-full object-cover"
+              className="w-[200px] h-full object-cover pointer-events-none"
             />
           ) : (
-            <button className="pointer-events-none flex items-center gap-2 px-6 py-2 rounded-full
-              bg-[#0D4F97] text-white font-semibold h-9">
-            <Upload className="h-4 w-4 text-white" />
-              Enviar arquivo
-          </button>
-          )}
-          
-          {arquivo && arquivo[0] && (
-            <p className="absolute bottom-0 left-1/2 transform -translate-x-1/2 
-                          bg-white bg-opacity-70 border border-[#B2D7EC]
-                          text-[#344054] text-sm px-3 py-1 rounded-full">
-              {arquivo[0].name}
-            </p>
+            <>
+              <Label
+                htmlFor="arquivo"
+                className="flex flex-col items-center gap-2 pointer-events-auto cursor-pointer"
+              >
+                <button
+                  type="button"
+                  className="pointer-events-none flex items-center gap-2 px-6 py-2 rounded-full
+                    bg-[#0D4F97] text-white font-semibold h-9"
+                >
+                  <Upload className="h-4 w-4 text-white" />
+                  Enviar arquivo
+                </button>
+              </Label>
+
+              <p className="hidden md:block text-sm text-gray-500 mt-2">
+                Ou arraste arquivos até aqui
+              </p>
+            </>
           )}
 
-        </Label>
+          {arquivo?.[0] && (
+            <div
+              className="absolute bottom-0 left-1/2 transform -translate-x-1/2 
+                bg-white bg-opacity-70 border border-[#B2D7EC]
+                text-[#344054] text-sm px-3 py-1 rounded-full flex items-center gap-2"
+            >
+              <span className="max-w-[150px] truncate">{arquivo[0].name}</span>
+
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  removerArquivo();
+                }}
+                className="text-gray-500 hover:text-red-500 font-bold text-xs"
+              >
+                ✕
+              </button>
+            </div>
+          )}
+        </div>
+
         <Input
           id="arquivo"
           type="file"
           className="hidden"
           {...register("arquivo")}
         />
- 
-    </div>
+
+      </div>
 
       <div className="flex items-center gap-3">
         <div className="flex-1 h-[1px] bg-gray-300"></div>
@@ -103,24 +162,12 @@ export default function RelatorioForm({ onSubmit }: RelatorioFormProps) {
         <div className="flex-1 h-[1px] bg-gray-300"></div>
       </div>
 
-      
-      <div className="grid gap-2 flex items-center justify-between">
-
-        <Label>Gerar relatório por template</Label>
-
-
-        <Label>
-
-          <Input
-              required
-              placeholder="Insira o título do relatório*"
-              className="p-0 rounded-none border-0 border-b border-[#B2D7EC] focus-visible:ring-0 focus-visible:border-[#B2D7EC]"
-              {...register("titulo")}
-          />
-              
+      <div className="grid gap-2">
+        <Label className="flex items-center gap-2">
+          Gerar relatório por template
           <Dialog>
             <DialogTrigger asChild>
-              <button type="button" className="p-1">
+              <button type="button">
                 <Info size={16} className="text-gray-500" />
               </button>
             </DialogTrigger>
@@ -129,12 +176,21 @@ export default function RelatorioForm({ onSubmit }: RelatorioFormProps) {
               <DialogHeader>
                 <DialogTitle>Como funciona o template?</DialogTitle>
                 <DialogDescription>
-                  Ao gerar o relatório por template, um arquivo completo é criado automaticamente. Nele, além do conteúdo que você preencher, também são incluídos o cabeçalho e outras informações padrões do sistema, garantindo organização e padronização no documento final.
+                  Ao gerar o relatório por template, o sistema cria um arquivo
+                  padronizado automaticamente, incluindo cabeçalho e informações
+                  essenciais.
                 </DialogDescription>
               </DialogHeader>
             </DialogContent>
           </Dialog>
         </Label>
+
+        <Input
+          required
+          placeholder="Insira o título do relatório*"
+          className="p-0 rounded-none border-0 border-b border-[#B2D7EC] focus-visible:ring-0 focus-visible:border-[#B2D7EC]"
+          {...register("titulo")}
+        />
       </div>
 
       <Textarea
@@ -149,7 +205,8 @@ export default function RelatorioForm({ onSubmit }: RelatorioFormProps) {
           type="submit"
           className="w-full rounded-[30px] shadow-md bg-[#0D4F97] hover:bg-[#13447D] cursor-pointer"
         >
-          <CirclePlus/>Adicionar Relatório
+          <CirclePlus className="mr-1" />
+          Adicionar Relatório
         </Button>
       </DialogFooter>
     </form>
