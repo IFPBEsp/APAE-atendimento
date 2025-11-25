@@ -4,6 +4,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { DialogFooter } from "@/components/ui/dialog";
 import { Textarea } from "../ui/textarea";
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+
 import { Upload, CirclePlus, Info } from "lucide-react";
 
 export type RelatorioFormData = {
@@ -82,7 +91,6 @@ export default function RelatorioForm({ onSubmit }: RelatorioFormProps) {
         <Input
           id="arquivo"
           type="file"
-          accept="image/*"
           className="hidden"
           {...register("arquivo")}
         />
@@ -98,20 +106,40 @@ export default function RelatorioForm({ onSubmit }: RelatorioFormProps) {
       
       <div className="grid gap-2 flex items-center justify-between">
 
-      <Label>Gerar relatório por template <Info size={15}/></Label>
-      
-       <Label>
+        <Label>Gerar relatório por template</Label>
+
+
+        <Label>
+
           <Input
-            required
-            placeholder="Insira o título do relatório*"
-            className="p-0 rounded-none border-0 border-b border-[#B2D7EC] focus-visible:ring-0 focus-visible:border-[#B2D7EC]"
-            {...register("titulo")}
+              required
+              placeholder="Insira o título do relatório*"
+              className="p-0 rounded-none border-0 border-b border-[#B2D7EC] focus-visible:ring-0 focus-visible:border-[#B2D7EC]"
+              {...register("titulo")}
           />
+              
+          <Dialog>
+            <DialogTrigger asChild>
+              <button type="button" className="p-1">
+                <Info size={16} className="text-gray-500" />
+              </button>
+            </DialogTrigger>
+
+            <DialogContent className="rounded-2xl">
+              <DialogHeader>
+                <DialogTitle>Como funciona o template?</DialogTitle>
+                <DialogDescription>
+                  Ao gerar o relatório por template, um arquivo completo é criado automaticamente. Nele, além do conteúdo que você preencher, também são incluídos o cabeçalho e outras informações padrões do sistema, garantindo organização e padronização no documento final.
+                </DialogDescription>
+              </DialogHeader>
+            </DialogContent>
+          </Dialog>
         </Label>
       </div>
 
       <Textarea
         required
+        placeholder="Insira a descrição do relatório"
         className="min-h-[100px] w-full rounded-[30px] border border-[#B2D7EC] focus-visible:ring-0 focus-visible:border-[#B2D7EC] px-3 py-2 text-sm"
         {...register("descricao")}
       />
