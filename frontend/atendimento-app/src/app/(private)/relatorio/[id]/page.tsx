@@ -8,7 +8,7 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import RelatorioForm, { RelatorioFormData } from "@/components/forms/relatorioForm";
-import { RelatorioModal } from "@/components/modals/relatorioModal";
+import { RelatorioModal } from "@/components/modals/novoRelatorioModal";
 
 interface Relatorio {
   id: number;
