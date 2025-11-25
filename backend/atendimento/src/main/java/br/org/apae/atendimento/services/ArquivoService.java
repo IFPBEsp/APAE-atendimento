@@ -48,7 +48,6 @@ public class ArquivoService {
         Arquivo arquivo = anexoMapper.toEntityPadrao(arquivoRequest);
         arquivo.setObjectName(objectName);
         arquivo.setNomeArquivo(file.getOriginalFilename());
-        arquivo.setPresignedUrl(url);
         arquivo.setTipo(tipoArquivo);
 
         Arquivo arquivoPersistido = repository.save(arquivo);
