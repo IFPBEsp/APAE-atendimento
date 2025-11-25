@@ -10,7 +10,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Search } from "lucide-react";
-import { PacienteCard } from "@/components/pacientes/pacienteCard";
+import { PacienteCard } from "@/components/cards/pacienteCard";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -71,13 +71,13 @@ export default function PacientesPage() {
               <Input
                 type="text"
                 placeholder="Pesquisar por paciente"
-                className="bg-white border border-[#3B82F6] pl-9 pr-3 py-2 rounded-full text-sm"
+                className="bg-white border border-[#3B82F6] pl-9 pr-3 py-2 rounded-full text-sm focus-visible:ring-0 focus-visible:border-[#3B82F6]"
               />
               <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
             </div>
 
             <Select>
-              <SelectTrigger className="bg-white border border-[#3B82F6] rounded-full w-[130px] text-gray-600 text-sm">
+              <SelectTrigger className="bg-white border border-[#3B82F6] rounded-full w-[130px] text-gray-600 text-sm focus-visible:ring-0 focus-visible:border-[#3B82F6]">
                 <SelectValue placeholder="Filtrar por..." />
               </SelectTrigger>
               <SelectContent className="border border-[#3B82F6] rounded-xl">
@@ -96,6 +96,7 @@ export default function PacientesPage() {
               key={pac.id}
               {...pac}
               onViewAtendimentos={() => router.push(`/atendimento/${pac.id}`)}
+              onViewRelatorios={() => router.push(`/relatorio/${pac.id}`)}
             />
           ))}
         </section>
