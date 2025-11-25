@@ -83,7 +83,7 @@ export function RelatorioViewModal({ isOpen, onClose, data }: ViewModalProps) {
                         <img
                             src={data.imageUrl}
                             alt="Relatório pré-visualização"
-                            className="w-[308px] h-[400px] object-cover md:w-[426px] md:h-[552px] mx-auto"
+                            className="max-w-full max-h-[60vh] object-contain mx-auto"
                         />
                     ) : (
                         <div className="flex flex-col items-center text-gray-400">
