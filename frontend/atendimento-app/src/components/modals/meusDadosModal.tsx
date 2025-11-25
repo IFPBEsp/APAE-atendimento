@@ -11,8 +11,25 @@ import {
 import { Button } from "../ui/button";
 import { LogOut, X } from "lucide-react";
 
+interface UserData {
+  nome: string;
+  especialidade: string;
+  crm: string;
+  frequenciaAtendimento: string;
+  celular: string;
+  email: string;
+  endereco: {
+    rua: string;
+    cep: string;
+    cidade: string;
+    estado: string;
+  };
+}
+
 interface MeusDadosModalProps {
   trigger: React.ReactNode;
+  userData: UserData;
+  onLogout?: () => void;
 }
 
 function logout() {
@@ -20,7 +37,10 @@ function logout() {
   window.location.href = "/login";
 }
 
-export function MeusDadosModal({ trigger }: MeusDadosModalProps) {
+export function MeusDadosModal({ 
+  trigger,
+  userData
+}: MeusDadosModalProps) {
   return (
     <Dialog>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
@@ -42,10 +62,10 @@ export function MeusDadosModal({ trigger }: MeusDadosModalProps) {
           {/*cabeçalho*/}
           <div className="text-center mb-8 px-4">
             <h2 className="font-bold text-lg text-[#344054] leading-snug">
-              Fulano de Tal de Lorem Ipsum da Silva Santos
+              {userData.nome}
             </h2>
             <p className="text-[#344054] text-sm mt-1 font-regular">
-              Especialidade
+              {userData.especialidade}
             </p>
           </div>
 
@@ -53,33 +73,32 @@ export function MeusDadosModal({ trigger }: MeusDadosModalProps) {
           <div className="w-full grid grid-cols-2 gap-y-5 gap-x-4 text-left mb-8">
             <div>
               <p className="font-bold text-sm text-[#344054]">CRM</p>
-              <p className="text-[#475467] text-sm mt-1">123456/PB</p>
+              <p className="text-[#475467] text-sm mt-1">{userData.crm}</p>
             </div>
 
             <div>
               <p className="font-bold text-sm text-[#344054]">
                 Frequência de Atendimento
               </p>
-              <p className="text-[#475467] text-sm mt-1">Semanal</p>
+              <p className="text-[#475467] text-sm mt-1">{userData.frequenciaAtendimento}</p>
             </div>
 
             <div>
               <p className="font-bold text-sm text-[#344054]">Celular</p>
-              <p className="text-[#475467] text-sm mt-1">(83) 9 1234-5678</p>
+              <p className="text-[#475467] text-sm mt-1">{userData.celular}</p>
             </div>
 
             <div>
               <p className="font-bold text-sm text-[#344054]">Email</p>
               <p className="text-[#475467] text-sm mt-1 break-words">
-                fulanodetal@loremipsum.com
+                {userData.email}
               </p>
             </div>
 
             <div className="col-span-2">
               <p className="font-bold text-sm text-[#344054]">Endereço</p>
               <p className="text-[#475467] text-sm mt-1 w-[90%] leading-relaxed">
-                Rua Fulano de Tal de Lorem Ipsum da Silva<br></br>12345-000,
-                Esperança - PB
+                {userData.endereco.rua}<br></br>{userData.endereco.cep}, {userData.endereco.cidade} - {userData.endereco.estado}
               </p>
             </div>
           </div>
