@@ -33,6 +33,8 @@ public class ArquivoService {
     private PresignedUrlService urlService;
 
     private static AnexoMapper anexoMapper;
+    @Autowired
+    private AnexoMapper anexoMapper;
 
     private static final String ANEXO_PATH = "anexo";
     private static final String RELATORIO_PATH = "relatorio";
