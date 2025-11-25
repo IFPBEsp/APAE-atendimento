@@ -1,29 +1,48 @@
 "use client";
 
 import { useRouter, useParams } from "next/navigation";
-import { ArrowLeft, ClipboardPlus  } from "lucide-react";
+import { ArrowLeft, ClipboardPlus } from "lucide-react";
 import { Nunito } from "next/font/google";
 import Header from "@/components/shared/header";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import RelatorioCard from "@/components/cards/relatorioCard";
+import { RelatorioViewModal, RelatorioDeleteModal } from "@/components/modals/relatorioModal";
 
 interface Relatorio {
   id: number;
   data: string;
-  arquivo?: File;
+  fileName: string;
+  imageUrl?: string;
 }
 
 const nunitoFont = Nunito({ weight: "700" });
 
 export default function RelatorioPage() {
   const router = useRouter();
-  const { id } = useParams();
-
-  const relatorios: Relatorio[] = [];
 
   const nomePaciente = "Fulano de Tal de Lorem Ipsum Santos";
+
+  const [relatorios, setRelatorios] = useState<Relatorio[]>([]
+    /*Array.from({ length: 8 }).map((_, i) => ({
+      id: i,
+      data: "01/11/2025",
+      fileName: "nome_do_arquivo_lorem_ipsum_da_silva.jpg",
+      imageUrl: i === 0 ? "https://placehold.co/426x552/png" : undefined,
+    }))*/
+  );
+
   const [open, setOpen] = useState(false);
+  const [reportToDelete, setReportToDelete] = useState<Relatorio | null>(null);
+  const [reportToView, setReportToView] = useState<Relatorio | null>(null);
+
+  const handleDelete = () => {
+    if (reportToDelete) {
+      setRelatorios((prev) => prev.filter((r) => r.id !== reportToDelete.id))
+      setReportToDelete(null);
+    }
+  }
 
   return (
     <div className="min-h-screen w-full bg-[#F8FAFD]">
@@ -55,7 +74,7 @@ export default function RelatorioPage() {
               className="bg-white border border-[#3B82F6] rounded-full w-[150px] text-gray-600 text-sm focus-visible:ring-0 focus-visible:border-[#3B82F6]"
             />
           </div>
-         
+
         </div>
       </section>
 
@@ -69,7 +88,7 @@ export default function RelatorioPage() {
             <p
               className={` text-[#344054] text-[15px] font-medium ${nunitoFont.className}`}
             >
-              Não existem relatóris para este paciente.
+              Não existem relatórios para este paciente.
             </p>
 
             <Button
@@ -81,6 +100,22 @@ export default function RelatorioPage() {
             </Button>
           </div>
         )}
+
+        {relatorios.length > 0 && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-2">
+            {relatorios.map((item) => (
+              <RelatorioCard
+                key={item.id}
+                id={item.id}
+                data={item.data}
+                fileName={item.fileName}
+                imageUrl={item.imageUrl}
+                onView={() => setReportToView(item)}
+                onDelete={() => setReportToDelete(item)}
+              />
+            ))}
+          </div>
+        )}
       </section>
 
       <button
@@ -90,8 +125,20 @@ export default function RelatorioPage() {
               flex items-center justify-center shadow-[4px_4px_12px_rgba(0,0,0,0.25)]
               active:scale-95 md:hidden"
       >
-        <ClipboardPlus  size={28} className="text-white" />
+        <ClipboardPlus size={28} className="text-white" />
       </button>
+
+      <RelatorioDeleteModal 
+        isOpen={!!reportToDelete} 
+        onClose={() => setReportToDelete(null)} 
+        onConfirm={handleDelete} 
+      />
+
+      <RelatorioViewModal 
+        isOpen={!!reportToView} 
+        onClose={() => setReportToView(null)} 
+        data={reportToView} 
+      />
     </div>
   );
 }

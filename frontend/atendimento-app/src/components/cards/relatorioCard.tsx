@@ -1,0 +1,62 @@
+import { Trash2, Image as ImageIcon } from "lucide-react";
+
+interface RelatorioCardProps {
+  id: number;
+  data: string;
+  fileName: string;
+  imageUrl?: string;
+  onView: () => void;
+  onDelete: () => void;
+}
+
+export default function RelatorioCard({
+  data,
+  fileName,
+  imageUrl,
+  onView,
+  onDelete,
+}: RelatorioCardProps) {
+  return (
+    <div className="w-full bg-white rounded-3xl shadow-md p-4 border border-gray-100 flex flex-col h-[320px] transition-all">
+      
+      {/* cabeçalho*/}
+      <div className="flex items-center justify-between mb-3">
+        <span className="text-lg font-bold text-[#344054]">{data}</span>
+        
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onDelete();
+          }}
+          className="text-red-500 hover:bg-gray-100 p-2 rounded-full transition-colors cursor-pointer"
+          title="Excluir relatório"
+        >
+          <Trash2 size={20} />
+        </button>
+      </div>
+
+      {/* corpo*/}
+      <div 
+        onClick={onView}
+        className="flex-1 bg-gray-50 rounded-xl border border-dashed border-gray-200 flex items-center justify-center overflow-hidden cursor-pointer relative hover:opacity-90 transition-opacity mb-3"
+      >
+        {imageUrl ? (
+          <img
+            src={imageUrl}
+            alt="Pré-visualização"
+            className="w-full h-full object-contain"
+          />
+        ) : (
+          <ImageIcon className="text-gray-300 w-12 h-12" />
+        )}
+      </div>
+
+      {/*rodapé*/}
+      <div className="text-center">
+        <p className="text-xs text-[#344054] truncate font-regular">
+          {fileName}
+        </p>
+      </div>
+    </div>
+  );
+}
