@@ -94,7 +94,7 @@ export function RelatorioViewModal({ isOpen, onClose, data }: ViewModalProps) {
                 </div>
 
                 <div className="p-4 border-t border-gray-100 flex flex-col items-center gap-4">
-                    <span className="text-sm text[#344054] underline decoration-1">
+                    <span className="text-sm text-[#344054] underline decoration-1">
                         {data.fileName}
                     </span>
                     <Button className="w-full bg-[#165BAA] hover:bg-[#13447D] text-white h-12 rounded-full text-base font-semibold shadow-lg">

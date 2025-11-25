@@ -32,7 +32,7 @@ export default function RelatorioPage() {
     })
   ));
 
-  const [dataSelecionada, setDataSelecionada] = useState<string | null>(null);
+  const [dataSelecionada, setDataSelecionada] = useState<string>("");
   const [open, setOpen] = useState(false);
   const [reportToDelete, setReportToDelete] = useState<Relatorio | null>(null);
   const [reportToView, setReportToView] = useState<Relatorio | null>(null);
@@ -44,9 +44,10 @@ export default function RelatorioPage() {
     }
   };
 
-  const relatoriosFiltrados = dataSelecionada
-    ? relatorios.filter((r) => r.data === dataSelecionada)
-    : relatorios;
+  const relatoriosFiltrados = 
+    dataSelecionada
+      ? relatorios.filter((r) => r.data === dataSelecionada)
+      : relatorios;
 
   return (
     <div className="min-h-screen w-full bg-[#F8FAFD]">
@@ -73,7 +74,7 @@ export default function RelatorioPage() {
 
             <Input
               type="date"
-              defaultValue={new Date().toISOString().split("T")[0]}
+              value={dataSelecionada}
               onChange={(e) => setDataSelecionada(e.target.value)}
               className="bg-white border border-[#3B82F6] rounded-full w-[150px] text-gray-600 text-sm focus-visible:ring-0 focus-visible:border-[#3B82F6]"
             />
@@ -97,7 +98,7 @@ export default function RelatorioPage() {
             {dataSelecionada && (
               <Button
                 variant="link"
-                onClick={() => setDataSelecionada(null)}
+                onClick={() => setDataSelecionada("")}
                 className="text-[#165BAA] underline text-sm hover:opacity-80 pt-0 cursor-pointer"
               >
                 Limpar filtro
