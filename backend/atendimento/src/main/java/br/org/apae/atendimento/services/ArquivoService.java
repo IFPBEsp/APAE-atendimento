@@ -32,7 +32,6 @@ public class ArquivoService {
     @Autowired
     private PresignedUrlService urlService;
 
-    private static AnexoMapper anexoMapper;
     @Autowired
     private AnexoMapper anexoMapper;
 
@@ -53,7 +52,7 @@ public class ArquivoService {
         arquivo.setTipo(tipoArquivo);
 
         Arquivo arquivoPersistido = repository.save(arquivo);
-
+        arquivoPersistido.setPresignedUrl(url);
         return anexoMapper.toDTOPadrao(arquivoPersistido);
     }
 
