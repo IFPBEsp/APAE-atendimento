@@ -7,6 +7,8 @@ import Header from "@/components/shared/header";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import RelatorioForm, { RelatorioFormData } from "@/components/forms/relatorioForm";
+import { RelatorioModal } from "@/components/modals/novoRelatorioModal";
 import RelatorioCard from "@/components/cards/relatorioCard";
 import { RelatorioViewModal, RelatorioDeleteModal } from "@/components/modals/relatorioModal";
 
@@ -48,6 +50,16 @@ export default function RelatorioPage() {
     dataSelecionada
       ? relatorios.filter((r) => r.data === dataSelecionada)
       : relatorios;
+
+  function handleCreateRelatorio(data: RelatorioFormData) {
+      console.log("Novo relatório recebido:", data);
+  
+      // Mudar futuramente:
+      // await api.post("/rota", data);
+      // depois atualiza a lista
+  
+      setOpen(false);
+  }
 
   return (
     <div className="min-h-screen w-full bg-[#F8FAFD]">
@@ -132,6 +144,11 @@ export default function RelatorioPage() {
             ))}
           </div>
         )}
+
+        <RelatorioModal open={open} onOpenChange={setOpen}>
+          <RelatorioForm onSubmit={handleCreateRelatorio} />
+        </RelatorioModal>
+
       </section>
 
       <button
