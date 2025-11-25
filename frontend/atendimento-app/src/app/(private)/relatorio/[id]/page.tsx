@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter, useParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { ArrowLeft, ClipboardPlus } from "lucide-react";
 import { Nunito } from "next/font/google";
 import Header from "@/components/shared/header";
@@ -24,25 +24,29 @@ export default function RelatorioPage() {
 
   const nomePaciente = "Fulano de Tal de Lorem Ipsum Santos";
 
-  const [relatorios, setRelatorios] = useState<Relatorio[]>([]
-    /*Array.from({ length: 8 }).map((_, i) => ({
-      id: i,
-      data: "01/11/2025",
-      fileName: "nome_do_arquivo_lorem_ipsum_da_silva.jpg",
-      imageUrl: i === 0 ? "https://placehold.co/426x552/png" : undefined,
-    }))*/
-  );
+  const [relatorios, setRelatorios] = useState<Relatorio[]>(
+    Array.from({ length: 8 }).map((_, i) => ({ 
+      id: i, data: "2025-11-24", 
+      fileName: "nome_do_arquivo_lorem_ipsum_da_silva.jpg", 
+      imageUrl: i === 0 ? "https://placehold.co/426x552/png" : undefined, 
+    })
+  ));
 
+  const [dataSelecionada, setDataSelecionada] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
   const [reportToDelete, setReportToDelete] = useState<Relatorio | null>(null);
   const [reportToView, setReportToView] = useState<Relatorio | null>(null);
 
   const handleDelete = () => {
     if (reportToDelete) {
-      setRelatorios((prev) => prev.filter((r) => r.id !== reportToDelete.id))
+      setRelatorios((prev) => prev.filter((r) => r.id !== reportToDelete.id));
       setReportToDelete(null);
     }
-  }
+  };
+
+  const relatoriosFiltrados = dataSelecionada
+    ? relatorios.filter((r) => r.data === dataSelecionada)
+    : relatorios;
 
   return (
     <div className="min-h-screen w-full bg-[#F8FAFD]">
@@ -61,20 +65,19 @@ export default function RelatorioPage() {
           <div className="flex items-center gap-3">
             <Button
               onClick={() => setOpen(true)}
-              className="hidden cursor-pointer md:flex items-center bg-[#165BAA] hover:bg-[#13447D] text-white gap-2 px-4 h-[38px]  rounded-full text-sm shadow-sm active:scale-95"
+              className="hidden cursor-pointer md:flex items-center bg-[#165BAA] hover:bg-[#13447D] text-white gap-2 px-4 h-[38px] rounded-full text-sm shadow-sm active:scale-95"
             >
               <ClipboardPlus size={18} />
               Gerenciar relatórios
             </Button>
 
-
             <Input
               type="date"
               defaultValue={new Date().toISOString().split("T")[0]}
+              onChange={(e) => setDataSelecionada(e.target.value)}
               className="bg-white border border-[#3B82F6] rounded-full w-[150px] text-gray-600 text-sm focus-visible:ring-0 focus-visible:border-[#3B82F6]"
             />
           </div>
-
         </div>
       </section>
 
@@ -83,27 +86,39 @@ export default function RelatorioPage() {
           {nomePaciente}
         </h1>
 
-        {relatorios.length === 0 && (
+        {relatoriosFiltrados.length === 0 && (
           <div className="text-center mt-20">
             <p
-              className={` text-[#344054] text-[15px] font-medium ${nunitoFont.className}`}
+              className={`text-[#344054] text-[15px] font-medium ${nunitoFont.className}`}
             >
-              Não existem relatórios para este paciente.
+              Nenhum relatório encontrado para esta data.
             </p>
 
-            <Button
-              variant="link"
-              onClick={() => setOpen(true)}
-              className="text-[#165BAA] underline text-sm hover:opacity-80 pt-0 cursor-pointer"
-            >
-              Adicionar relatório.
-            </Button>
+            {dataSelecionada && (
+              <Button
+                variant="link"
+                onClick={() => setDataSelecionada(null)}
+                className="text-[#165BAA] underline text-sm hover:opacity-80 pt-0 cursor-pointer"
+              >
+                Limpar filtro
+              </Button>
+            )}
+
+            {!dataSelecionada && (
+              <Button
+                variant="link"
+                onClick={() => setOpen(true)}
+                className="text-[#165BAA] underline text-sm hover:opacity-80 pt-0 cursor-pointer"
+              >
+                Adicionar relatório.
+              </Button>
+            )}
           </div>
         )}
 
-        {relatorios.length > 0 && (
+        {relatoriosFiltrados.length > 0 && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-2">
-            {relatorios.map((item) => (
+            {relatoriosFiltrados.map((item) => (
               <RelatorioCard
                 key={item.id}
                 id={item.id}
@@ -121,23 +136,23 @@ export default function RelatorioPage() {
       <button
         onClick={() => setOpen(true)}
         className="
-              fixed bottom-6 right-6 w-14 h-14 rounded-full bg-[#165BAA]
-              flex items-center justify-center shadow-[4px_4px_12px_rgba(0,0,0,0.25)]
-              active:scale-95 md:hidden"
+          fixed bottom-6 right-6 w-14 h-14 rounded-full bg-[#165BAA]
+          flex items-center justify-center shadow-[4px_4px_12px_rgba(0,0,0,0.25)]
+          active:scale-95 md:hidden"
       >
         <ClipboardPlus size={28} className="text-white" />
       </button>
 
-      <RelatorioDeleteModal 
-        isOpen={!!reportToDelete} 
-        onClose={() => setReportToDelete(null)} 
-        onConfirm={handleDelete} 
+      <RelatorioDeleteModal
+        isOpen={!!reportToDelete}
+        onClose={() => setReportToDelete(null)}
+        onConfirm={handleDelete}
       />
 
-      <RelatorioViewModal 
-        isOpen={!!reportToView} 
-        onClose={() => setReportToView(null)} 
-        data={reportToView} 
+      <RelatorioViewModal
+        isOpen={!!reportToView}
+        onClose={() => setReportToView(null)}
+        data={reportToView}
       />
     </div>
   );
