@@ -23,6 +23,12 @@ public class Arquivo {
     @Column(name = "data")
     private LocalDate data;
 
+    @Column(name = "titulo")
+    private String titulo;
+
+    @Column(name = "descricao")
+    private String descricao;
+
     @ManyToOne
     @JoinColumn(name = "tipo_id")
     private TipoArquivo tipo;
@@ -103,5 +109,21 @@ public class Arquivo {
 
     public void setTipo(TipoArquivo tipo) {
         this.tipo = tipo;
+    }
+
+    public String getTitulo() {
+        return titulo;
+    }
+
+    public void setTitulo(String titulo) {
+        this.titulo = titulo;
+    }
+
+    public String getDescricao() {
+        return descricao;
+    }
+
+    public void setDescricao(String descricao) {
+        this.descricao = descricao;
     }
 }

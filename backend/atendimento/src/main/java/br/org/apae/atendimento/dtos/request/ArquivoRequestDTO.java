@@ -6,6 +6,8 @@ public record ArquivoRequestDTO(
         LocalDate data,
         Long tipoArquivo,
         UUID profissionalId,
-        UUID pacienteId
+        UUID pacienteId,
+        String titulo,
+        String descricao
         ){
 }

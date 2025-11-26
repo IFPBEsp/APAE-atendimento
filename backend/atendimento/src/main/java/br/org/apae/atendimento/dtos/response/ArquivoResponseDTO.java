@@ -5,7 +5,9 @@ import java.time.LocalDate;
 public record ArquivoResponseDTO(
         String presignedUrl,
         LocalDate data,
-        String nomeArquivo
+        String nomeArquivo,
+        String titulo,
+        String descricao
     )
 {
 }

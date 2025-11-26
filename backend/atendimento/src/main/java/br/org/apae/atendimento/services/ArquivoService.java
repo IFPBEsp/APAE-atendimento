@@ -4,7 +4,7 @@ import br.org.apae.atendimento.dtos.request.ArquivoRequestDTO;
 import br.org.apae.atendimento.dtos.response.ArquivoResponseDTO;
 import br.org.apae.atendimento.entities.Arquivo;
 import br.org.apae.atendimento.entities.TipoArquivo;
-import br.org.apae.atendimento.mappers.AnexoMapper;
+import br.org.apae.atendimento.mappers.ArquivoMapper;
 import br.org.apae.atendimento.repositories.AnexoRepository;
 import br.org.apae.atendimento.repositories.TipoArquivoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +33,7 @@ public class ArquivoService {
     private PresignedUrlService urlService;
 
     @Autowired
-    private AnexoMapper anexoMapper;
+    private ArquivoMapper anexoMapper;
 
     private static final String ANEXO_PATH = "anexo";
     private static final String RELATORIO_PATH = "relatorio";
@@ -65,30 +65,30 @@ public class ArquivoService {
     }
 
 
-    public List<ArquivoResponseDTO> listar(ArquivoRequestDTO arquivoRequest) {
+    public List<ArquivoResponseDTO> listar(UUID profissionalId, UUID pacienteId, Long tipoId) {
         List<Arquivo> arquivos = repository.findByProfissionalIdAndPacienteIdAndTipoId(
-                arquivoRequest.profissionalId(), arquivoRequest.pacienteId(), arquivoRequest.tipoArquivo()
+                profissionalId, pacienteId, tipoId
         );
 
         return arquivos.stream()
                 .map(anexo -> {
                     String url = urlService.gerarUrlPreAssinada(
-                            arquivoRequest.profissionalId().toString(), anexo.getObjectName());
+                            pacienteId.toString(), anexo.getObjectName());
 
                     anexo.setPresignedUrl(url);
                     return anexoMapper.toDTOPadrao(anexo);
                 }).collect(Collectors.toList());
     }
 
-    public List<ArquivoResponseDTO> buscarPorData(ArquivoRequestDTO arquivoRequest, LocalDate data) {
+    public List<ArquivoResponseDTO> buscarPorData(UUID profissionalId, UUID pacienteId, Long tipoId, LocalDate data) {
         List<Arquivo> arquivos = repository.findByProfissionalIdAndPacienteIdAndDataAndTipoId(
-                arquivoRequest.profissionalId(), arquivoRequest.pacienteId(), data, arquivoRequest.tipoArquivo()
+                profissionalId, pacienteId, data, tipoId
         );
 
         return arquivos.stream()
                 .map(anexo -> {
                     String url = urlService.gerarUrlPreAssinada(
-                            arquivoRequest.pacienteId().toString(), anexo.getObjectName());
+                            pacienteId.toString(), anexo.getObjectName());
                     anexo.setPresignedUrl(url);
                     return anexoMapper.toDTOPadrao(anexo);
                 }).collect(Collectors.toList());

@@ -11,10 +11,11 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/arquivo")
-public class AnexoController {
+public class ArquivoController {
     @Autowired
     private ArquivoService service;
 
@@ -25,20 +26,28 @@ public class AnexoController {
         return ResponseEntity.status(HttpStatus.CREATED).body(anexoDTO);
     }
 
-    @GetMapping("/list")
-    public ResponseEntity<List<ArquivoResponseDTO>> list(@RequestBody ArquivoRequestDTO arquivoRequest){
-        List<ArquivoResponseDTO> anexos = service.listar(arquivoRequest);
+    @GetMapping("/list/{profissionalId}/{pacienteId}/{tipoId}")
+    public ResponseEntity<List<ArquivoResponseDTO>> list(
+            @PathVariable UUID profissionalId,
+            @PathVariable UUID pacienteId,
+            @PathVariable Long tipoId
+    ){
+        List<ArquivoResponseDTO> anexos = service.listar(profissionalId, pacienteId, tipoId);
         return ResponseEntity.ok().body(anexos);
     }
 
-    @GetMapping("/list/date")
-    public ResponseEntity<List<ArquivoResponseDTO>> listByDate(@RequestBody ArquivoRequestDTO arquivoRequest,
-                                                               @RequestParam(name = "data") LocalDate data){
-        List<ArquivoResponseDTO> anexos = service.buscarPorData(arquivoRequest, data);
+    @GetMapping("/list/date/{profissionalId}/{pacienteId}/{tipoId}/{data}")
+    public ResponseEntity<List<ArquivoResponseDTO>> listByDate(
+            @PathVariable UUID profissionalId,
+            @PathVariable UUID pacienteId,
+            @PathVariable Long tipoId,
+            @PathVariable LocalDate data
+            ){
+        List<ArquivoResponseDTO> anexos = service.buscarPorData(profissionalId, pacienteId, tipoId, data);
         return ResponseEntity.ok().body(anexos);
     }
 
-    @DeleteMapping("/delete/{bucket}/")
+    @DeleteMapping("/delete/{bucket}")
     public ResponseEntity<Void> delete(@PathVariable String bucket,
                                        @RequestParam(name = "objectName") String objectName){
         service.deletar(bucket, objectName);
