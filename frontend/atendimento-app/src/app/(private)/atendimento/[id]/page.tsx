@@ -32,28 +32,32 @@ export default function AtendimentoPage() {
   const router = useRouter();
   const { id } = useParams();
 
-  const atendimentos: Atendimento[] = [];
-  /*{ id: 1, 
-    data: "01/11/2025", 
-    numeracao: 1, 
-    titulo: "Título do tópico", 
-    descricao: "Nullam varius tempor massa et iaculis. Praesent sodales orci ut ultrices tempor. 
-    Quisque ac mauris gravida, dictum ipsum sit amet, bibendum turpis...", 
-  }, 
-  { id: 2, 
-    data: "28/10/2025", 
-    numeracao: 2, 
-    titulo: "Outro atendimento", 
-    descricao: "Nullam varius tempor massa et iaculis. Praesent sodales orci ut ultrices tempor. 
-    Quisque ac mauris gravida, dictum ipsum sit amet, bibendum turpis...", 
-  }, 
-  { id: 3, 
-    data: "01/10/2025", 
-    numeracao: 3, 
-    titulo: "Título do tópico", 
-    descricao: "Nullam varius tempor massa et iaculis. Praesent sodales orci ut ultrices tempor. 
-    Quisque ac mauris gravida, dictum ipsum sit amet, bibendum turpis...", 
-  },*/
+  const atendimentos: Atendimento[] = [
+    {
+      id: 1,
+      data: "01/11/2025",
+      numeracao: 1,
+      titulo: "Título do tópico",
+      descricao:
+        "Nullam varius tempor massa et iaculis. Praesent sodales orci ut ultrices tempor.Quisque ac mauris gravida, dictum ipsum sit amet, bibendum turpis...",
+    },
+    {
+      id: 2,
+      data: "28/10/2025",
+      numeracao: 2,
+      titulo: "Outro atendimento",
+      descricao:
+        "Nullam varius tempor massa et iaculis. Praesent sodales orci ut ultrices tempor.Quisque ac mauris gravida, dictum ipsum sit amet, bibendum turpis...",
+    },
+    {
+      id: 3,
+      data: "01/10/2025",
+      numeracao: 3,
+      titulo: "Título do tópico",
+      descricao:
+        "Nullam varius tempor massa et iaculis. Praesent sodales orci ut ultrices tempor.Quisque ac mauris gravida, dictum ipsum sit amet, bibendum turpis...",
+    },
+  ];
   function agruparPorMes(lista: Atendimento[]) {
     const meses: Record<string, Atendimento[]> = {};
 
