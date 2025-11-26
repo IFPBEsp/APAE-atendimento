@@ -4,30 +4,34 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
-import java.util.UUID;
 
 
 @Entity
 @Table(name = "anexo")
-public class Anexo {
+public class Arquivo {
 
     @Id
     private String objectName;
 
-    @Column(name = "bucket")
-    private String bucket;
-
     @Transient
     private String presignedUrl;
 
-    @Column(name = "nome_anexo")
-    private String nomeAnexo;
+    @Column(name = "nome_arquivo")
+    private String nomeArquivo;
+
+
+    @Column(name = "data")
+    private LocalDate data;
+
+    @Column(name = "titulo")
+    private String titulo;
 
     @Column(name = "descricao")
     private String descricao;
 
-    @Column(name = "data")
-    private LocalDate data;
+    @ManyToOne
+    @JoinColumn(name = "tipo_id")
+    private TipoArquivo tipo;
 
     @JsonIgnore
     @ManyToOne
@@ -39,20 +43,17 @@ public class Anexo {
     @JoinColumn(name = "paciente_id")
     private Paciente paciente;
 
-    public Anexo(){}
+    public Arquivo(){}
 
-    public Anexo(String objectName) {
+    public Arquivo(String objectName, String nomeAnexo,
+                   Paciente paciente, ProfissionalSaude profissional,
+                   LocalDate data, TipoArquivo tipoArquivo, String url) {
         this.objectName = objectName;
-    }
-
-    public Anexo(String id, String bucket, String nomeAnexo, UUID pacienteId,
-                 Long profissionalId, LocalDate data, String url) {
-        this.objectName = id;
-        this.bucket = bucket;
-        this.nomeAnexo = nomeAnexo;
-        this.paciente = new Paciente(pacienteId);
-        this.profissional = new ProfissionalSaude(profissionalId);
+        this.nomeArquivo = nomeAnexo;
+        this.paciente = paciente;
+        this.profissional = profissional;
         this.data = data;
+        this.tipo = tipoArquivo;
         this.presignedUrl = url;
     }
 
@@ -64,20 +65,12 @@ public class Anexo {
         this.objectName = objectName;
     }
 
-    public String getNomeAnexo() {
-        return nomeAnexo;
+    public String getNomeArquivo() {
+        return nomeArquivo;
     }
 
-    public void setNomeAnexo(String nomeAnexo) {
-        this.nomeAnexo = nomeAnexo;
-    }
-
-    public String getDescricao() {
-        return descricao;
-    }
-
-    public void setDescricao(String descricao) {
-        this.descricao = descricao;
+    public void setNomeArquivo(String nomeArquivo) {
+        this.nomeArquivo = nomeArquivo;
     }
 
     public ProfissionalSaude getProfissional() {
@@ -95,9 +88,6 @@ public class Anexo {
     public void setPaciente(Paciente paciente) {
         this.paciente = paciente;
     }
-    public String getBucket() {
-        return bucket;
-    }
     public String getPresignedUrl() {
         return presignedUrl;
     }
@@ -111,5 +101,29 @@ public class Anexo {
 
     public void setData(LocalDate data) {
         this.data = data;
+    }
+
+    public TipoArquivo getTipo() {
+        return tipo;
+    }
+
+    public void setTipo(TipoArquivo tipo) {
+        this.tipo = tipo;
+    }
+
+    public String getTitulo() {
+        return titulo;
+    }
+
+    public void setTitulo(String titulo) {
+        this.titulo = titulo;
+    }
+
+    public String getDescricao() {
+        return descricao;
+    }
+
+    public void setDescricao(String descricao) {
+        this.descricao = descricao;
     }
 }

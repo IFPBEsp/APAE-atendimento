@@ -6,9 +6,11 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.UUID;
+
 @Repository
-public interface ProfissionalSaudeRepository extends JpaRepository<ProfissionalSaude, Long> {
+public interface ProfissionalSaudeRepository extends JpaRepository<ProfissionalSaude, UUID> {
 
     @Query("SELECT p.primeiroNome FROM ProfissionalSaude p WHERE p.id = :id")
-    String findPrimeiroNomeById(@Param("id")Long id);
+    String findPrimeiroNomeById(@Param("id")UUID id);
 }

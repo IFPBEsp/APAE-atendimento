@@ -37,6 +37,7 @@ public class MinioService {
             return urlService.gerarUrlPreAssinada(bucket, objectName);
 
         } catch (Exception e) {
+            e.printStackTrace();
             throw new MinioStorageException("Erro ao fazer upload no MinIO.", e);
         }
     }
