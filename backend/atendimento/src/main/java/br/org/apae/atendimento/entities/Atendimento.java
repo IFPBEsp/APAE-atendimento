@@ -6,14 +6,15 @@ import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
 import java.util.Map;
+import java.util.UUID;
 
 @Entity
 @Table(name = "atendimento")
 public class Atendimento {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "relatorio", columnDefinition = "json")
@@ -35,11 +36,11 @@ public class Atendimento {
 
     public Atendimento() {}
 
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 
