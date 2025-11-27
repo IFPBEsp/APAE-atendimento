@@ -26,6 +26,9 @@ public class Atendimento {
     @Column(name = "status")
     private boolean status;
 
+    @Column(name = "numeracao")
+    private Long numeracao;
+
     @ManyToOne
     @JoinColumn(name = "paciente_id")
     private Paciente paciente;
@@ -82,5 +85,13 @@ public class Atendimento {
 
     public void setProfissional(ProfissionalSaude profissional) {
         this.profissional = profissional;
+    }
+
+    public Long getNumeracao() {
+        return numeracao;
+    }
+
+    public void setNumeracao(Long numeracao) {
+        this.numeracao = numeracao;
     }
 }

@@ -24,6 +24,7 @@ public class AtendimentoMapper extends AbstractMapper<Atendimento, AtendimentoRe
        atendimento.setProfissional(profissional);
        atendimento.setPaciente(paciente);
        atendimento.setRelatorio(dtoPadraoAtendimento.relatorio());
+       atendimento.setStatus(true);
 
        return atendimento;
     }
