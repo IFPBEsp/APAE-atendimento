@@ -1,7 +1,7 @@
 @startuml
 
 class Paciente {
-    - id: Long
+    - id: UUID
     - nomeCompleto: String
     - dataDeNascimento: LocalDate
     - contato: String
@@ -12,64 +12,60 @@ class Paciente {
     - numeroCasa: Integer
     - transtornos: List<String>
     --
-    + getDetalhes(id: Long): Paciente
+    + getAtendimentos(id: UUID): List<Atendimento>
+    + getProfissionais(id: UUID): List<ProfissionalSaude>
 }
 
-class Consulta {
-    - id: Long
+class Atendimento {
+    - id: UUID
     - relatorio: Map<String, Object>
-    - dataConsulta: LocalDateTime
+    - dataAtendimento: LocalDateTime
     - status: boolean
-    --
-    + getConsultas(idPaciente: Long, idProfissionalSaude: Long): List<Consulta>
-    + addConsulta(id: Long, relatorio: Json, dataConsulta: LocalDateTime, profissionalId: Long): Consulta
-    + trocarDataConsulta(id: Long, novaData: LocalDateTime): LocalDateTime
-    + addAnexo(arquivo: File): String
+
+    +getPacientes(id: UUID): Paciente
+    +getProfissional(id: UUID): ProfissionalSaude
 }
 
 class ProfissionalSaude {
-    - id: Long
+    - id: UUID
     - primeiroNome: String
     - nomeCompleto: String
     - email: String
     - contato: String
     - crm: String
     --
-    + getPacientes(id: Long): List<Paciente>
-    + getDetalhes(id: Long): ProfissionalSaude
-    + getPrimeiroNome(id: Long): String
+    + getPacientes(id: UUID)): List<Paciente>
+    + getAtendimentos(id: UUID): List<ProfissionalSaude>
+    + getArquivos(objectName: String): List<Arquivo>
 }
 
-
-class Anexo {
-    - id: Long
-    - idArquivo: Long
-    - nomeAnexo: String
+class Arquivo {
+    - objectName: String
+    - presignedUrl: String
+    - nomeArquivo: String
+    - data: LocalDate
+    - titulo: String
     - descricao: String
-    - profissionalId: Long
-    - pacienteId: Long
-    --
-    + getPacientes(id: Long): List<Paciente>
-    + addArquivo(arquivo: File, idPaciente: Long, idProfissional: Long): Long
 
+    + getTipo(id: Long): TipoArquivo
+    + getProfissional(id: UUID): ProfissionalSaude
+    + getPacientes((id: UUID): Paciente
 }
 
-class Relatorio {
+class TipoArquivo {
     - id: Long
-    - idArquivo: Long
-    - profissionalId: Long
-    - pacienteId: Long
-    --
-    + getPacientes(id: Long): List<Paciente>
-    + addArquivo(arquivo: File, idPaciente: Long, idProfissional: Long): Long
+    - tipo: String
+
 }
 
-Paciente "1" -- "0..*" Consulta
-ProfissionalSaude "1" -- "0..*" Consulta
+
+
+
+Paciente "1" -- "0..*" Atendimento
+ProfissionalSaude "1" -- "0..*" Atendimento
 Paciente "0..*" -- "0..*" ProfissionalSaude
-Anexo "0..*" -- "1" Paciente
-Paciente "1" -- "0..*" Relatorio
-ProfissionalSaude "1" -- "0..*" Relatorio
-ProfissionalSaude "1" -- "0..*" Anexo
+TipoArquivo "0..*" -- "1" Arquivo
+Paciente "1" -- "0..*" Arquivo
+ProfissionalSaude "1" -- "0..*" Arquivo
 
 @enduml
