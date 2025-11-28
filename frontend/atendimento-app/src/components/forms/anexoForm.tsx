@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/dialog";
 
 import { useState } from "react";
-import { Upload, CirclePlus, Info } from "lucide-react";
+import { Upload, CirclePlus } from "lucide-react";
 
 export type AnexoFormData = {
   data: string;

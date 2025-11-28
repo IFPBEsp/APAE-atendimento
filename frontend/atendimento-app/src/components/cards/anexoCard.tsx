@@ -30,7 +30,7 @@ export default function AnexoCard({
             onDelete();
           }}
           className="text-red-500 hover:bg-gray-100 p-2 rounded-full transition-colors cursor-pointer"
-          title="Excluir relatório"
+          title="Excluir anexo"
         >
           <Trash2 size={20} />
         </button>

@@ -30,7 +30,7 @@ export function AnexoModal ({
             >
                 <div className="absolute right-5 top-5 z-10">
                     <DialogClose className="rounded-full p-1 hover:bg-gray-100 transition-colors outline-none">
-                        <X className="h-6 w-6 text[]" />
+                        <X className="h-6 w-6 text-gray-500" />
                     </DialogClose>
                 </div>
 
