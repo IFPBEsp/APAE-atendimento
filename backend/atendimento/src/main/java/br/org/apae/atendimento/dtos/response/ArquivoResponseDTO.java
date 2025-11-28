@@ -1,0 +1,13 @@
+package br.org.apae.atendimento.dtos.response;
+
+import java.time.LocalDate;
+
+public record ArquivoResponseDTO(
+        String presignedUrl,
+        LocalDate data,
+        String nomeArquivo,
+        String titulo,
+        String descricao
+    )
+{
+}

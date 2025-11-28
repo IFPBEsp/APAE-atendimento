@@ -1,8 +1,11 @@
 package br.org.apae.atendimento.mappers;
 
+import org.springframework.stereotype.Component;
+
 import br.org.apae.atendimento.dtos.response.ProfissionalResponseDTO;
 import br.org.apae.atendimento.entities.ProfissionalSaude;
 
+@Component
 public class ProfissionalMapper extends AbstractMapper<ProfissionalSaude, Void, ProfissionalResponseDTO>{
     
     @Override

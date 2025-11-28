@@ -1,11 +1,14 @@
 package br.org.apae.atendimento.mappers;
 
-import br.org.apae.atendimento.dtos.AtendimentoRequestDTO;
+import br.org.apae.atendimento.dtos.request.AtendimentoRequestDTO;
+import org.springframework.stereotype.Component;
+
 import br.org.apae.atendimento.dtos.response.AtendimentoResponseDTO;
 import br.org.apae.atendimento.entities.Atendimento;
 import br.org.apae.atendimento.entities.Paciente;
 import br.org.apae.atendimento.entities.ProfissionalSaude;
 
+@Component
 public class AtendimentoMapper extends AbstractMapper<Atendimento, AtendimentoRequestDTO, AtendimentoResponseDTO> {
     @Override
     public Atendimento toEntityPadrao(AtendimentoRequestDTO dtoPadraoAtendimento) {
