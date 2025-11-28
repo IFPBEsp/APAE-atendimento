@@ -9,10 +9,11 @@ import {
   SelectItem,
   SelectValue,
 } from "@/components/ui/select";
-import { Search } from "lucide-react";
+import { CalendarClock, Search } from "lucide-react";
 import { PacienteCard } from "@/components/cards/pacienteCard";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
 
 export default function PacientesPage() {
   const router = useRouter();
@@ -87,6 +88,14 @@ export default function PacientesPage() {
                 <SelectItem value="cidade">Cidade</SelectItem>
               </SelectContent>
             </Select>
+
+            <Button
+              onClick={() =>  router.push("/agenda")}
+              className="hidden cursor-pointer md:flex items-center bg-[#165BAA] hover:bg-[#13447D] text-white gap-2 px-4 h-[38px]  rounded-full text-sm shadow-sm active:scale-95"
+            >
+              <CalendarClock size={18} />
+              Agenda
+            </Button>
           </div>
         </section>
 
@@ -100,6 +109,16 @@ export default function PacientesPage() {
             />
           ))}
         </section>
+
+        <button
+          onClick={() => router.push("/agenda")}
+          className="
+              fixed bottom-6 right-6 w-14 h-14 rounded-full bg-[#165BAA]
+              flex items-center justify-center shadow-[4px_4px_12px_rgba(0,0,0,0.25)]
+              active:scale-95 md:hidden"
+        >
+          <CalendarClock size={28} className="text-white" />
+        </button>
       </main>
     </>
   );
