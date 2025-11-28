@@ -16,19 +16,21 @@ import {
 import { useState } from "react";
 import { Upload, CirclePlus, Info } from "lucide-react";
 
-export type RelatorioFormData = {
+export type AnexoFormData = {
   data: string;
   titulo: string;
   arquivo?: FileList;
   descricao: string;
 };
 
-interface RelatorioFormProps {
-  onSubmit: (data: RelatorioFormData) => void;
+interface AnexoFormProps {
+  onSubmit: (data: AnexoFormData) => void;
 }
 
-export default function RelatorioForm({ onSubmit }: RelatorioFormProps) {
-  const { register, handleSubmit, watch, setValue } = useForm<RelatorioFormData>({
+export default function AnexoForm({ 
+    onSubmit 
+}: AnexoFormProps) {
+  const { register, handleSubmit, watch, setValue } = useForm<AnexoFormData>({
     defaultValues: {
       data: new Date().toISOString().split("T")[0],
       titulo: "",
@@ -91,14 +93,14 @@ export default function RelatorioForm({ onSubmit }: RelatorioFormProps) {
         />
 
         <Input
-          placeholder="Insira o título do relatório*"
+          placeholder="Insira o título do anexo*"
           className="p-0 rounded-none border-0 border-b border-[#B2D7EC] focus-visible:ring-0 focus-visible:border-[#B2D7EC]"
           {...register("titulo")}
         />
       </div>
 
       <Textarea
-        placeholder="Insira a descrição do relatório"
+        placeholder="Insira a descrição do anexo"
         className="min-h-[100px] w-full rounded-[30px] border border-[#B2D7EC] focus-visible:ring-0 focus-visible:border-[#B2D7EC] px-5 py-3 text-sm"
         {...register("descricao")}
       />
@@ -176,48 +178,6 @@ export default function RelatorioForm({ onSubmit }: RelatorioFormProps) {
 
       </div>
 
-      <div className="flex items-center gap-3">
-        <div className="flex-1 h-[1px] bg-gray-300"></div>
-        <span className="text-sm text-gray-500">ou</span>
-        <div className="flex-1 h-[1px] bg-gray-300"></div>
-      </div>
-
-      <div className="grid gap-2">
-        <Label className="flex items-center gap-2">
-          Gerar relatório por template
-          <Dialog>
-            <DialogTrigger asChild>
-              <button type="button">
-                <Info size={16} className="text-gray-500" />
-              </button>
-            </DialogTrigger>
-
-            <DialogContent className="rounded-2xl">
-              <DialogHeader>
-                <DialogTitle>Como funciona o template?</DialogTitle>
-                <DialogDescription>
-                  Ao gerar o relatório por template, o sistema cria um arquivo
-                  padronizado automaticamente, incluindo cabeçalho e informações
-                  essenciais.
-                </DialogDescription>
-              </DialogHeader>
-            </DialogContent>
-          </Dialog>
-        </Label>
-
-        <Input
-          placeholder="Insira o título do relatório*"
-          className="p-0 rounded-none border-0 border-b border-[#B2D7EC] focus-visible:ring-0 focus-visible:border-[#B2D7EC]"
-          {...register("titulo")}
-        />
-      </div>
-
-      <Textarea
-        placeholder="Insira a descrição do relatório"
-        className="min-h-[100px] w-full rounded-[30px] border border-[#B2D7EC] focus-visible:ring-0 focus-visible:border-[#B2D7EC] px-5 py-3 text-sm"
-        {...register("descricao")}
-      />
-
       <DialogFooter>
         <Button
           type="submit"
@@ -225,7 +185,7 @@ export default function RelatorioForm({ onSubmit }: RelatorioFormProps) {
           className="w-full rounded-[30px] shadow-md bg-[#0D4F97] hover:bg-[#13447D] cursor-pointer"
         >
           <CirclePlus className="mr-1" />
-          Adicionar Relatório
+          Adicionar Anexo
         </Button>
       </DialogFooter>
     </form>

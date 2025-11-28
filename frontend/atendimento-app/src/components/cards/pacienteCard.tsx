@@ -22,6 +22,7 @@ interface PacienteCardProps {
   responsaveis: string[];
   onViewAtendimentos?: () => void;
   onViewRelatorios?: () => void;
+  onViewAnexos?: () => void;
 }
 
 export function PacienteCard({
@@ -33,7 +34,8 @@ export function PacienteCard({
   transtornos,
   responsaveis,
   onViewAtendimentos,
-  onViewRelatorios
+  onViewRelatorios,
+  onViewAnexos
 }: PacienteCardProps) {
   return (
     <Card className="w-full max-w-md md:max-w-4xl rounded-2xl shadow-md border border-[#EAECF0] bg-white relative">
@@ -60,7 +62,13 @@ export function PacienteCard({
             Criar relatório
           </DropdownMenuItem>
           
-          <DropdownMenuItem className="justify-center">Adicionar anexo</DropdownMenuItem>
+          <DropdownMenuItem 
+            className="justify-center"
+            onClick={onViewAnexos}
+          >
+            Adicionar anexo
+          </DropdownMenuItem>
+
         </DropdownMenuContent>
       </DropdownMenu>
 

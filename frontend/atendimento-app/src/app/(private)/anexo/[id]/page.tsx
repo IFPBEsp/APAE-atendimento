@@ -7,12 +7,12 @@ import Header from "@/components/shared/header";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import RelatorioForm, { RelatorioFormData } from "@/components/forms/relatorioForm";
-import { RelatorioModal } from "@/components/modals/novoRelatorioModal";
-import RelatorioCard from "@/components/cards/relatorioCard";
-import { RelatorioViewModal, RelatorioDeleteModal } from "@/components/modals/relatorioModal";
+import AnexoForm, { AnexoFormData } from "@/components/forms/anexoForm";
+import { AnexoModal } from "@/components/modals/novoAnexoModal";
+import AnexoCard from "@/components/cards/anexoCard";
+import { AnexoViewModal, AnexoDeleteModal } from "@/components/modals/anexoModal";
 
-interface Relatorio {
+interface Anexo {
   id: number;
   titulo: string;
   descricao: string;
@@ -23,12 +23,12 @@ interface Relatorio {
 
 const nunitoFont = Nunito({ weight: "700" });
 
-export default function RelatorioPage() {
+export default function AnexoPage() {
   const router = useRouter();
 
   const nomePaciente = "Fulano de Tal de Lorem Ipsum Santos";
 
-  const [relatorios, setRelatorios] = useState<Relatorio[]>(
+  const [anexos, setAnexos] = useState<Anexo[]>(
     Array.from({ length: 8 }).map((_, i) => ({
       id: i,
       titulo: "Lorem Ipsum", data: "2025-11-24",
@@ -40,43 +40,43 @@ export default function RelatorioPage() {
 
   const [dataSelecionada, setDataSelecionada] = useState<string>("");
   const [open, setOpen] = useState(false);
-  const [reportToDelete, setReportToDelete] = useState<Relatorio | null>(null);
-  const [reportToView, setReportToView] = useState<Relatorio | null>(null);
+  const [reportToDelete, setReportToDelete] = useState<Anexo | null>(null);
+  const [reportToView, setReportToView] = useState<Anexo | null>(null);
 
   const handleDelete = () => {
     if (reportToDelete) {
-      setRelatorios((prev) => prev.filter((r) => r.id !== reportToDelete.id));
+      setAnexos((prev) => prev.filter((r) => r.id !== reportToDelete.id));
       setReportToDelete(null);
     }
   };
 
-  const relatoriosFiltrados =
+  const anexosFiltrados =
     dataSelecionada
-      ? relatorios.filter((r) => r.data === dataSelecionada)
-      : relatorios;
+      ? anexos.filter((r) => r.data === dataSelecionada)
+      : anexos;
 
-  function handleCreateRelatorio(data: RelatorioFormData) {
-    console.log("Novo relatório recebido:", data);
-    const novoId = relatorios.length + 1;
+  function handleCreateAnexo(data: AnexoFormData) {
+    console.log("Novo anexo recebido:", data);
+    const novoId = anexos.length + 1;
 
     let preview = undefined;
     let fileName = "";
 
     if (data.arquivo && data.arquivo[0]) {
-      preview = URL.createObjectURL(data.arquivo[0]); // ⬅ gera URL da imagem
+      preview = URL.createObjectURL(data.arquivo[0]);
       fileName = data.arquivo[0].name;
     }
 
-    const novoRelatorio: Relatorio = {
+    const novoAnexo: Anexo = {
       id: novoId,
       titulo: data.titulo || "Sem título",
       descricao: data.descricao,
       data: data.data,
       fileName: fileName,
-      imageUrl: preview, // ⬅ salva no estado!
+      imageUrl: preview,
     };
 
-    setRelatorios((prev) => [novoRelatorio, ...prev]);
+    setAnexos((prev) => [novoAnexo, ...prev]);
 
     // Mudar futuramente:
     // await api.post("/rota", data);
@@ -105,7 +105,7 @@ export default function RelatorioPage() {
               className="hidden cursor-pointer md:flex items-center bg-[#165BAA] hover:bg-[#13447D] text-white gap-2 px-4 h-[38px] rounded-full text-sm shadow-sm active:scale-95"
             >
               <ClipboardPlus size={18} />
-              Gerenciar relatórios
+              Adicionar anexo
             </Button>
 
             <Input
@@ -123,12 +123,12 @@ export default function RelatorioPage() {
           {nomePaciente}
         </h1>
 
-        {relatoriosFiltrados.length === 0 && (
+        {anexosFiltrados.length === 0 && (
           <div className="text-center mt-20">
             <p
               className={`text-[#344054] text-[15px] font-medium ${nunitoFont.className}`}
             >
-              Nenhum relatório encontrado para esta data.
+              Nenhum anexo encontrado para esta data.
             </p>
 
             {dataSelecionada && (
@@ -147,16 +147,16 @@ export default function RelatorioPage() {
                 onClick={() => setOpen(true)}
                 className="text-[#165BAA] underline text-sm hover:opacity-80 pt-0 cursor-pointer"
               >
-                Adicionar relatório.
+                Adicionar anexo.
               </Button>
             )}
           </div>
         )}
 
-        {relatoriosFiltrados.length > 0 && (
+        {anexosFiltrados.length > 0 && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-2">
-            {relatoriosFiltrados.map((item) => (
-              <RelatorioCard
+            {anexosFiltrados.map((item) => (
+              <AnexoCard
                 key={item.id}
                 id={item.id}
                 titulo={item.titulo}
@@ -170,9 +170,14 @@ export default function RelatorioPage() {
           </div>
         )}
 
-        <RelatorioModal open={open} onOpenChange={setOpen}>
-          <RelatorioForm onSubmit={handleCreateRelatorio} />
-        </RelatorioModal>
+        <AnexoModal
+          open={open}
+          onOpenChange={setOpen}
+        >
+          <AnexoForm
+            onSubmit={handleCreateAnexo}
+          />
+        </AnexoModal>
 
       </section>
 
@@ -186,13 +191,13 @@ export default function RelatorioPage() {
         <ClipboardPlus size={28} className="text-white" />
       </button>
 
-      <RelatorioDeleteModal
+      <AnexoDeleteModal
         isOpen={!!reportToDelete}
         onClose={() => setReportToDelete(null)}
         onConfirm={handleDelete}
       />
 
-      <RelatorioViewModal
+      <AnexoViewModal
         isOpen={!!reportToView}
         onClose={() => setReportToView(null)}
         titulo={reportToView?.titulo ?? ""}
