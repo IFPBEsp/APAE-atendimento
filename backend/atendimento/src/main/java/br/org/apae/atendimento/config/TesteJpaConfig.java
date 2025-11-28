@@ -3,9 +3,11 @@ package br.org.apae.atendimento.config;
 import br.org.apae.atendimento.entities.Atendimento;
 import br.org.apae.atendimento.entities.Paciente;
 import br.org.apae.atendimento.entities.ProfissionalSaude;
+import br.org.apae.atendimento.entities.TipoArquivo;
 import br.org.apae.atendimento.repositories.AtendimentoRepository;
 import br.org.apae.atendimento.repositories.PacienteRepository;
 import br.org.apae.atendimento.repositories.ProfissionalSaudeRepository;
+import br.org.apae.atendimento.repositories.TipoArquivoRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,13 +33,16 @@ public class TesteJpaConfig {
         private final PacienteRepository pacienteRepository;
         private final ProfissionalSaudeRepository profissionalSaudeRepository;
         private final AtendimentoRepository atendimentoRepository;
+        private final TipoArquivoRepository tipoArquivoRepository;
 
         public TesteJpaService(PacienteRepository pacienteRepository,
                                ProfissionalSaudeRepository profissionalSaudeRepository,
-                               AtendimentoRepository atendimentoRepository) {
+                               AtendimentoRepository atendimentoRepository,
+                               TipoArquivoRepository tipoArquivoRepository) {
             this.pacienteRepository = pacienteRepository;
             this.profissionalSaudeRepository = profissionalSaudeRepository;
             this.atendimentoRepository = atendimentoRepository;
+            this.tipoArquivoRepository = tipoArquivoRepository;
         }
 
         @Transactional
@@ -111,6 +116,12 @@ public class TesteJpaConfig {
                         System.out.println("Profissional vinculado: " + p.getNomeCompleto())
                 );
 
+            System.out.println("\n===== INICIALIZAÇÃO DE TIPOS DE ARQUIVOS =====");
+
+            TipoArquivo tipoArquivo1 = new TipoArquivo(1L, "anexo");
+            tipoArquivoRepository.save(tipoArquivo1);
+            TipoArquivo tipoArquivo2 = new TipoArquivo(2L, "relatório");
+            tipoArquivoRepository.save(tipoArquivo2);
             System.out.println("\n===== TESTE JPA FINALIZADO COM SUCESSO =====");
         }
     }

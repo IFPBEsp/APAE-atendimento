@@ -44,5 +44,5 @@ export function AnexoModal ({
 
             </DialogContent>
         </Dialog>
-    )
+    );
 }
