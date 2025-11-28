@@ -1,6 +1,6 @@
 import { Trash2, Image as ImageIcon } from "lucide-react";
 
-interface RelatorioCardProps {
+interface AnexoCardProps {
   id: number;
   titulo: string;
   data: string;
@@ -10,14 +10,14 @@ interface RelatorioCardProps {
   onDelete: () => void;
 }
 
-export default function RelatorioCard({
+export default function AnexoCard({
   titulo,
   data,
   fileName,
   imageUrl,
   onView,
   onDelete,
-}: RelatorioCardProps) {
+}: AnexoCardProps) {
   return (
     <div className="w-full bg-white rounded-3xl shadow-md p-4 border border-gray-100 flex flex-col h-[320px] transition-all">
       
@@ -30,7 +30,7 @@ export default function RelatorioCard({
             onDelete();
           }}
           className="text-red-500 hover:bg-gray-100 p-2 rounded-full transition-colors cursor-pointer"
-          title="Excluir relatório"
+          title="Excluir anexo"
         >
           <Trash2 size={20} />
         </button>

@@ -3,7 +3,7 @@
 import { X, Trash2, Download, Image as ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-interface RelatorioData {
+interface AnexoData {
     id: number;
     titulo: string;
     data: string;
@@ -23,10 +23,10 @@ interface ViewModalProps {
     onClose: () => void;
     titulo: string;
     descricao: string;
-    data: RelatorioData | null;
+    data: AnexoData | null;
 }
 
-export function RelatorioDeleteModal({
+export function AnexoDeleteModal({
     isOpen,
     onClose,
     onConfirm
@@ -65,7 +65,7 @@ export function RelatorioDeleteModal({
     );
 }
 
-export function RelatorioViewModal({ 
+export function AnexoViewModal({ 
     isOpen, 
     onClose, 
     titulo, 
@@ -88,13 +88,13 @@ export function RelatorioViewModal({
                     </button>
                 </div>
 
-                <p className="text-[10px] md:text-[12px] font-regular text-[#344054] px-5 py-3">{data.descricao}</p>
+                <p className="text-[10px] md:text-[12px] font-regular text-[#344054] px-5 py-3 max-w-full break-words">{data.descricao}</p>
 
                 <div className="bg-gray-50 flex items-center justify-center w-full h-[400px] px-4">
                     {data.imageUrl ? (
                         <img
                             src={data.imageUrl}
-                            alt="Relatório pré-visualização"
+                            alt="Anexo pré-visualização"
                             className="w-full h-full object-contain rounded-lg"
                         />
                     ) : (
@@ -112,7 +112,7 @@ export function RelatorioViewModal({
                     </span>
                     <Button className="w-full bg-[#165BAA] hover:bg-[#13447D] text-white h-12 rounded-full text-base font-semibold shadow-lg">
                         <Download size={20} className="mr-2" />
-                        Salvar relatório
+                        Salvar anexo
                     </Button>
                 </div>
             </div>

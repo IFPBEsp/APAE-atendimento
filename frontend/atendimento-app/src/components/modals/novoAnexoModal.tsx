@@ -9,7 +9,7 @@ import { ReactNode } from "react";
 import { Nunito } from "next/font/google";
 import { X } from "lucide-react";
 
-interface RelatorioModalProps {
+interface AnexoModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   children: ReactNode;
@@ -17,11 +17,11 @@ interface RelatorioModalProps {
 
 const nunitoFont = Nunito({ weight: "700" });
 
-export function RelatorioModal ({ 
+export function AnexoModal ({ 
     open, 
     onOpenChange,
     children,
-}: RelatorioModalProps) {
+}: AnexoModalProps) {
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
@@ -30,13 +30,13 @@ export function RelatorioModal ({
             >
                 <div className="absolute right-5 top-5 z-10">
                     <DialogClose className="rounded-full p-1 hover:bg-gray-100 transition-colors outline-none">
-                        <X className="h-6 w-6 text[]" />
+                        <X className="h-6 w-6" />
                     </DialogClose>
                 </div>
 
                 <DialogHeader className="mt-4">
                   <DialogTitle className=" text-xl text-center text-[#344054] ">
-                    Gerenciar Relatórios
+                    Adicionar Anexo
                   </DialogTitle>
                 </DialogHeader>
 
@@ -44,5 +44,5 @@ export function RelatorioModal ({
 
             </DialogContent>
         </Dialog>
-    )
+    );
 }
