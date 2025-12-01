@@ -8,6 +8,8 @@ import br.org.apae.atendimento.entities.Atendimento;
 import br.org.apae.atendimento.entities.Paciente;
 import br.org.apae.atendimento.entities.ProfissionalSaude;
 
+import java.time.LocalDateTime;
+
 @Component
 public class AtendimentoMapper extends AbstractMapper<Atendimento, AtendimentoRequestDTO, AtendimentoResponseDTO> {
     @Override
@@ -20,11 +22,12 @@ public class AtendimentoMapper extends AbstractMapper<Atendimento, AtendimentoRe
        Paciente paciente = new Paciente();
        paciente.setId(dtoPadraoAtendimento.pacienteId());
 
-       atendimento.setDataAtendimento(dtoPadraoAtendimento.dataAtendimento());
+        LocalDateTime dataAtendimento = LocalDateTime.of(dtoPadraoAtendimento.data(), dtoPadraoAtendimento.hora());
+
+       atendimento.setDataAtendimento(dataAtendimento);
        atendimento.setProfissional(profissional);
        atendimento.setPaciente(paciente);
        atendimento.setRelatorio(dtoPadraoAtendimento.relatorio());
-       atendimento.setStatus(true);
 
        return atendimento;
     }
@@ -34,8 +37,8 @@ public class AtendimentoMapper extends AbstractMapper<Atendimento, AtendimentoRe
         return new AtendimentoResponseDTO(
                 entidadePadraoAtendimento.getId(),
                 entidadePadraoAtendimento.getRelatorio(),
-                entidadePadraoAtendimento.getDataAtendimento(),
-                entidadePadraoAtendimento.isStatus()
+                entidadePadraoAtendimento.getDataAtendimento().toLocalDate(),
+                entidadePadraoAtendimento.getDataAtendimento().toLocalTime()
         );
     }
 }
