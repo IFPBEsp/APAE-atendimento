@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface AgendamentoRepository extends JpaRepository<Agendamento, UUID> {
@@ -21,7 +22,7 @@ public interface AgendamentoRepository extends JpaRepository<Agendamento, UUID> 
          AND a.dataHora <  :dataFim
          AND a.paciente.id = :pacienteId
     """)
-    Agendamento findByDataHoraAndPacienteId(
+    Optional<Agendamento> findByDataHoraAndPacienteId(
             @Param("dataInicio") LocalDateTime dataInicio,
             @Param("dataFim") LocalDateTime dataFim,
             @Param("pacienteId") UUID pacienteId
