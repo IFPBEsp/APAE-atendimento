@@ -26,7 +26,8 @@ public class PacienteMapper extends AbstractMapper<Paciente, Void, PacienteRespo
                 paciente.getNumeroCasa(),
                 paciente.getResponsaveis(),
                 paciente.getTranstornos(),
-                paciente.getCidade()
+                paciente.getCidade(),
+                paciente.getCpf()
         );
     }
 }

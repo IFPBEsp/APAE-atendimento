@@ -22,6 +22,9 @@ public class Paciente {
     @Column(name = "contato")
     private String contato;
 
+    @Column(name = "cpf")
+    private String cpf;
+
     @Column(name = "responsaveis")
     private List<String> responsaveis = new ArrayList<>();
 
@@ -142,5 +145,17 @@ public class Paciente {
 
     public void setProfissionais(Set<ProfissionalSaude> profissionais) {
         this.profissionais = profissionais;
+    }
+
+    public String getCpf() {
+        return cpf;
+    }
+
+    public void setCpf(String cpf) {
+        this.cpf = cpf;
+    }
+
+    public void setCidade(String cidade) {
+        this.cidade = cidade;
     }
 }

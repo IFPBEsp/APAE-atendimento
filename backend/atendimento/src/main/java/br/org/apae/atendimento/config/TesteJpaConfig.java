@@ -1,5 +1,17 @@
 package br.org.apae.atendimento.config;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.transaction.annotation.Transactional;
+
 import br.org.apae.atendimento.entities.Atendimento;
 import br.org.apae.atendimento.entities.Paciente;
 import br.org.apae.atendimento.entities.ProfissionalSaude;
@@ -8,17 +20,6 @@ import br.org.apae.atendimento.repositories.AtendimentoRepository;
 import br.org.apae.atendimento.repositories.PacienteRepository;
 import br.org.apae.atendimento.repositories.ProfissionalSaudeRepository;
 import br.org.apae.atendimento.repositories.TipoArquivoRepository;
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 
 @Configuration
 public class TesteJpaConfig {
@@ -57,7 +58,8 @@ public class TesteJpaConfig {
             paciente.setNumeroCasa(100);
             paciente.setResponsaveis(Arrays.asList("Pai", "Mãe", "Tia"));
             paciente.setTranstornos(Arrays.asList("TDAH", "Ansiedade"));
-
+            paciente.setCpf("123.456.789-00");
+            paciente.setCidade("Rua Mariano Peixoto");
             pacienteRepository.save(paciente);
             System.out.println("Paciente salvo: " + paciente.getId());
 

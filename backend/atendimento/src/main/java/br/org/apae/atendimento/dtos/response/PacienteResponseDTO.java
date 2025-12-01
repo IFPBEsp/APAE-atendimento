@@ -13,5 +13,6 @@ public record PacienteResponseDTO(
         Integer numeroCasa,
         List<String> responsaveis,
         List<String> transtornos,
-        String cidade
+        String cidade,
+        String cpf
 ) {}
