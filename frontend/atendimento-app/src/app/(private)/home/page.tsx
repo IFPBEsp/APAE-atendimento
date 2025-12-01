@@ -76,17 +76,20 @@ export default function PacientesPage() {
         </section>
 
         <section className="w-full bg-white rounded-t-3xl p-6 flex flex-col gap-4 sm:grid sm:grid-cols-2 sm:gap-6">
-          {
-            dados.map((pac) => (
-            <PacienteCard
-              key={pac.id}
-              {...pac}
-              onViewAtendimentos={() => router.push(`/atendimento/${pac.id}`)}
-              onViewRelatorios={() => router.push(`/relatorio/${pac.id}`)}
-              onViewAnexos={() => router.push(`/anexo/${pac.id}`)}
-            />
-          ))
-          }
+          {dados.map((pac) => {
+              const {rua, cidade,bairro, numeroCasa, ...dadosPaciente} = pac;
+              const endereco: string = `${cidade}, ${rua}, ${numeroCasa}, ${bairro}`;
+              return (
+                  <PacienteCard
+                  key={pac.id}
+                  {...dadosPaciente}
+                  endereco={endereco}
+                  onViewAtendimentos={() => router.push(`/atendimento/${pac.id}`)}
+                  onViewRelatorios={() => router.push(`/relatorio/${pac.id}`)}
+                  onViewAnexos={() => router.push(`/anexo/${pac.id}`)}
+                />
+              );
+            })}
         </section>
 
         <button
