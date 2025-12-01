@@ -7,7 +7,5 @@ if(!res.ok){
     throw new Error('Erro ao buscar pacientes');
 }
 const data = await res.json(); 
-console.log(data);
 return data;
 }
-
