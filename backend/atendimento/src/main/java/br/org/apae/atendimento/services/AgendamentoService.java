@@ -48,33 +48,32 @@ public class AgendamentoService {
     }
 
     public AgendamentoResponseDTO agendar(AgendamentoRequestDTO agendamentoRequest){
-        if (!verificarAgendamentoExiste(
+        if (verificarAgendamentoExiste(
                 agendamentoRequest.profissionalId(),
-                agendamentoRequest.profissionalId(),
+                agendamentoRequest.pacienteId(),
                 agendamentoRequest.data(), agendamentoRequest.hora())){
-
-            Agendamento agendamento = agendamentoMapper.toEntityPadrao(agendamentoRequest);
-
-            ProfissionalSaude profissionalSaude = profissionalSaudeService.getProfissionalById(agendamentoRequest.profissionalId());
-            Paciente paciente = pacienteService.getPacienteById(agendamentoRequest.pacienteId());
-
-            agendamento.setProfissional(profissionalSaude);
-            agendamento.setPaciente(paciente);
-            agendamento.setNumeracao(gerarProximaNumeracao(agendamentoRequest.data(),
-                    agendamentoRequest.profissionalId(), agendamentoRequest.pacienteId()));
-
-            AgendamentoResponseDTO agendamentoPersistido = agendamentoMapper.toDTOPadrao(repository.save(agendamento));
-
-            return agendamentoPersistido;
+            throw new AgendamentoInvalidException(
+                    agendamentoRequest.data() +  " - " + agendamentoRequest.hora() + " ja possui um agendamento");
         }
-        throw new AgendamentoInvalidException(
-                agendamentoRequest.data() +  " " + agendamentoRequest.hora() + "ja possui um agendamento");
+
+        Agendamento agendamento = agendamentoMapper.toEntityPadrao(agendamentoRequest);
+
+        ProfissionalSaude profissionalSaude = profissionalSaudeService.getProfissionalById(agendamentoRequest.profissionalId());
+        Paciente paciente = pacienteService.getPacienteById(agendamentoRequest.pacienteId());
+
+        agendamento.setProfissional(profissionalSaude);
+        agendamento.setPaciente(paciente);
+        agendamento.setNumeracao(gerarProximaNumeracao(agendamentoRequest.data(),
+                agendamentoRequest.profissionalId(), agendamentoRequest.pacienteId()));
+
+        return agendamentoMapper.toDTOPadrao(repository.save(agendamento));
     }
 
     public Agendamento buscarAgendamentoPorDataEPaciente(LocalDate data, UUID pacienteId){
         LocalDateTime dataInicio = data.atStartOfDay();
         LocalDateTime dataFim = dataInicio.plusDays(1);
-        return repository.findByDataHoraAndPacienteId(dataInicio, dataFim, pacienteId);
+        return repository.findByDataHoraAndPacienteId(dataInicio, dataFim, pacienteId)
+                .orElseThrow(() -> new AgendamentoNotFoundException());
     }
 
 
