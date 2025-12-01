@@ -23,8 +23,8 @@ public class Atendimento {
     @Column(name = "data_atendimento")
     private LocalDateTime dataAtendimento;
 
-    @Column(name = "status")
-    private boolean status;
+    @Column(name = "numeracao")
+    private Long numeracao;
 
     @ManyToOne
     @JoinColumn(name = "paciente_id")
@@ -60,14 +60,6 @@ public class Atendimento {
         this.dataAtendimento = dataAtendimento;
     }
 
-    public boolean isStatus() {
-        return status;
-    }
-
-    public void setStatus(boolean status) {
-        this.status = status;
-    }
-
     public Paciente getPaciente() {
         return paciente;
     }
@@ -82,5 +74,13 @@ public class Atendimento {
 
     public void setProfissional(ProfissionalSaude profissional) {
         this.profissional = profissional;
+    }
+
+    public Long getNumeracao() {
+        return numeracao;
+    }
+
+    public void setNumeracao(Long numeracao) {
+        this.numeracao = numeracao;
     }
 }
