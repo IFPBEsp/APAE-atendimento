@@ -4,8 +4,12 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.UUID;
 
-public record AgendamentoResponseDTO(UUID pacienteId,
-                                     LocalTime time,
-                                     LocalDate data,
-                                     Long numeroAtendimento) {
+public record AgendamentoResponseDTO(
+        UUID atendimentoId,
+        UUID pacienteId,
+        String nomePaciente,
+        LocalDate data,
+        LocalTime time,
+        Long numeroAtendimento,
+        boolean status) {
 }

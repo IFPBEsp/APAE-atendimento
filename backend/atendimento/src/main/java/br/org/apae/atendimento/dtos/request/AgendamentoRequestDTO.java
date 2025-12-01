@@ -7,9 +7,10 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.UUID;
 
-public record AgendamentoRequestDTO(UUID pacientId,
-                                    UUID profissionalId,
-                                    LocalDate data,
-                                    LocalTime hora,
-                                    Long numeroAtendimento) {
+public record AgendamentoRequestDTO(
+        UUID profissionalId,
+        UUID pacienteId,
+        LocalDate data,
+        LocalTime hora,
+        Long numeroAtendimento) {
 }
