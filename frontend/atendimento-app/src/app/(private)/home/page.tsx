@@ -9,7 +9,7 @@ import {
   SelectItem,
   SelectValue,
 } from "@/components/ui/select";
-import { CalendarClock, Search } from "lucide-react";
+import { CalendarClock, Search, AlertCircle } from "lucide-react";
 import { PacienteCard } from "@/components/cards/pacienteCard";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -21,11 +21,22 @@ export default function PacientesPage() {
   const router = useRouter();
   const [medicoNome, setMedicoNome] = useState("Fulano da silva");
   const [dados, setDados] = useState<Paciente[]>([]);
+  const [erro, setErro] = useState<string>("");
+  const [carregando, setCarregando] = useState(true);
   
   useEffect(() => {
     (async () => {
-      const response = await getPacientes();
-      setDados(response);
+      try {
+        setCarregando(true);
+        setErro("");
+        const response = await getPacientes();
+        setDados(response);
+      } catch (error) {
+        setErro("Não foi possível carregar os pacientes. Tente novamente mais tarde.");
+        console.error("Erro ao buscar pacientes:", error);
+      } finally {
+        setCarregando(false);
+      }
     })();
   }, []);
   
@@ -75,18 +86,40 @@ export default function PacientesPage() {
           </div>
         </section>
 
-        <section className="w-full bg-white rounded-t-3xl p-6 flex flex-col gap-4 sm:grid sm:grid-cols-2 sm:gap-6">
-          {
+        <section className="w-full bg-white rounded-t-3xl p-6 flex flex-col gap-4 sm:grid sm:grid-cols-2 sm:gap-6 min-h-[400px]">
+          {carregando ? (
+            <div className="col-span-2 flex items-center justify-center py-12">
+              <p className="text-gray-500 text-lg">Carregando pacientes...</p>
+            </div>
+          ) : erro ? (
+            <div className="col-span-2 flex flex-col items-center justify-center py-12 gap-3">
+              <AlertCircle size={48} className="text-red-500" />
+              <p className="text-red-600 text-lg font-medium">{erro}</p>
+              <Button
+                onClick={() => window.location.reload()}
+                className="mt-2 bg-[#165BAA] hover:bg-[#13447D] text-white"
+              >
+                Tentar novamente
+              </Button>
+            </div>
+          ) : dados.length === 0 ? (
+            <div className="col-span-2 flex items-center justify-center py-12">
+              <p className="text-gray-500 text-lg">
+                Não existem pacientes para este profissional
+              </p>
+            </div>
+          ) : (
             dados.map((pac) => (
-            <PacienteCard
-              key={pac.id}
-              {...pac}
-              onViewAtendimentos={() => router.push(`/atendimento/${pac.id}`)}
-              onViewRelatorios={() => router.push(`/relatorio/${pac.id}`)}
-              onViewAnexos={() => router.push(`/anexo/${pac.id}`)}
-            />
-          ))
-          }
+              <PacienteCard
+                dataDeNascimento={""} 
+                key={pac.id}
+                {...pac}
+                onViewAtendimentos={() => router.push(`/atendimento/${pac.id}`)}
+                onViewRelatorios={() => router.push(`/relatorio/${pac.id}`)}
+                onViewAnexos={() => router.push(`/anexo/${pac.id}`)}
+              />
+            ))
+          )}
         </section>
 
         <button

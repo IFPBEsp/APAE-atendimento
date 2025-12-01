@@ -7,12 +7,9 @@ public record PacienteResponseDTO(
         UUID id,
         String nomeCompleto,
         LocalDate dataDeNascimento,
+        String endereco,
         String contato,
-        String rua,
-        String bairro,
-        Integer numeroCasa,
         List<String> responsaveis,
         List<String> transtornos,
-        String cidade,
         String cpf
 ) {}

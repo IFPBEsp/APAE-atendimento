@@ -1,12 +1,10 @@
-export interface Paciente{
-    id: string,
-    nomeCompleto: string,
-    dataNascimento: string,
-    contato: string,
-    transtornos: string[],
-    responsaveis: string[],
-    rua:string,
-    bairro: string,
-    cidade: string,
-    numeroCasa: number
+export interface Paciente {
+  id: string;
+  nomeCompleto: string;
+  cpf: string;
+  endereco: string;
+  contato: string;
+  dataNascimento: string;
+  transtornos: string[];
+  responsaveis: string[];
 }
