@@ -33,4 +33,24 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleMinioStorage(MinioStorageException ex){
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
+
+    @ExceptionHandler(RelacaoInvalidException.class)
+    public ResponseEntity<String> handleRelacaoInvalid(RelacaoInvalidException ex){
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(AgendamentoInvalidException.class)
+    public ResponseEntity<String> agendamentoInvalidException(AgendamentoInvalidException ex){
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(AgendamentoNotFoundException.class)
+    public ResponseEntity<String> handleRelacaoInvalid(AgendamentoNotFoundException ex){
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(AtendimentoInvalidException.class)
+    public ResponseEntity<String> handleRelacaoInvalid(AtendimentoInvalidException ex){
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
 }
