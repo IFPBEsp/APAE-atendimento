@@ -23,9 +23,6 @@ public class Atendimento {
     @Column(name = "data_atendimento")
     private LocalDateTime dataAtendimento;
 
-    @Column(name = "status")
-    private boolean status;
-
     @Column(name = "numeracao")
     private Long numeracao;
 
@@ -61,14 +58,6 @@ public class Atendimento {
 
     public void setDataAtendimento(LocalDateTime dataAtendimento) {
         this.dataAtendimento = dataAtendimento;
-    }
-
-    public boolean isStatus() {
-        return status;
-    }
-
-    public void setStatus(boolean status) {
-        this.status = status;
     }
 
     public Paciente getPaciente() {

@@ -3,9 +3,7 @@ package br.org.apae.atendimento.entities;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Entity
 @Table(name = "paciente")
@@ -43,10 +41,10 @@ public class Paciente {
     private List<String> transtornos = new ArrayList<>();
 
     @OneToMany(mappedBy = "paciente")
-    private List<Atendimento> atendimentos = new ArrayList<>();
+    private Set<Atendimento> atendimentos = new HashSet<>();
 
     @ManyToMany(mappedBy = "pacientes")
-    private List<ProfissionalSaude> profissionais = new ArrayList<>();
+    private Set<ProfissionalSaude> profissionais = new HashSet<>();
 
     public Paciente() {}
 
@@ -126,7 +124,7 @@ public class Paciente {
         this.transtornos = transtornos;
     }
 
-    public List<Atendimento> getAtendimentos() {
+    public Set<Atendimento> getAtendimentos() {
         return atendimentos;
     }
 
@@ -134,15 +132,15 @@ public class Paciente {
         return cidade;
     }
 
-    public void setAtendimentos(List<Atendimento> atendimentos) {
+    public void setAtendimentos(Set<Atendimento> atendimentos) {
         this.atendimentos = atendimentos;
     }
 
-    public List<ProfissionalSaude> getProfissionais() {
+    public Set<ProfissionalSaude> getProfissionais() {
         return profissionais;
     }
 
-    public void setProfissionais(List<ProfissionalSaude> profissionais) {
+    public void setProfissionais(Set<ProfissionalSaude> profissionais) {
         this.profissionais = profissionais;
     }
 }
