@@ -11,12 +11,12 @@ import br.org.apae.atendimento.repositories.PacienteRepository;
 
 @Service
 public class PacienteService {
-    private PacienteRepository pacienteRepository;
+    private PacienteRepository repository;
     private PacienteMapper pacienteMapper;
 
 
     public PacienteService (PacienteRepository pacienteRepository, PacienteMapper pacienteMapper){
-        this.pacienteRepository = pacienteRepository;
+        this.repository = pacienteRepository;
         this.pacienteMapper = pacienteMapper;
     }
 
@@ -26,9 +26,12 @@ public class PacienteService {
     }
 
     public Paciente getPacienteById(UUID id){
-        return pacienteRepository.
-        findById(id).orElseThrow(() -> new PacienteNotFoundException());
+        return repository
+                .findById(id).orElseThrow(() -> new PacienteNotFoundException());
     }
 
+    public boolean existeRelacao(UUID pacienteId, UUID profissionalId){
+        return repository.existeRelacao(pacienteId, profissionalId);
+    }
 
 }

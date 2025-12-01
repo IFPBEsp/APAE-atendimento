@@ -84,7 +84,6 @@ public class TesteJpaConfig {
             atendimento.setPaciente(paciente);
             atendimento.setProfissional(profissionalSaude);
             atendimento.setDataAtendimento(LocalDateTime.now());
-            atendimento.setStatus(true);
             atendimento.setRelatorio(Map.of(
                     "tema", "escuro",
                     "notificacoes", "true",
