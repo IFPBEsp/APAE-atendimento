@@ -14,12 +14,13 @@ import { PacienteCard } from "@/components/cards/pacienteCard";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import {getPacientes} from "../../../api/dadosPacientes";
-import {Paciente} from "@/types/Paciente";
+import { getPacientes } from "../../../api/dadosPacientes";
+import { getPrimeiroNome } from "@/api/nomeProfissional";
+import { Paciente } from "@/types/Paciente";
 
 export default function PacientesPage() {
   const router = useRouter();
-  const [medicoNome, setMedicoNome] = useState("Fulano da silva");
+  const [medicoNome, setMedicoNome] = useState<string>("");
   const [dados, setDados] = useState<Paciente[]>([]);
   const [erro, setErro] = useState<string>("");
   const [carregando, setCarregando] = useState(true);
@@ -29,11 +30,28 @@ export default function PacientesPage() {
       try {
         setCarregando(true);
         setErro("");
-        const response = await getPacientes();
-        setDados(response);
+        
+        const [nomeResult, pacientesResult] = await Promise.allSettled([
+          getPrimeiroNome(),
+          getPacientes()
+        ]);
+      
+        if (nomeResult.status === 'fulfilled') {
+          setMedicoNome(nomeResult.value);
+        } else {
+          console.error("Erro ao buscar nome do profissional:", nomeResult.reason);
+          setMedicoNome("Profissional");
+        }
+        
+        if (pacientesResult.status === 'fulfilled') {
+          setDados(pacientesResult.value);
+        } else {
+          console.error("Erro ao buscar pacientes:", pacientesResult.reason);
+          setErro("Não foi possível carregar os pacientes. Tente novamente mais tarde.");
+        }
       } catch (error) {
-        setErro("Não foi possível carregar os pacientes. Tente novamente mais tarde.");
-        console.error("Erro ao buscar pacientes:", error);
+        setErro("Erro inesperado ao carregar os dados.");
+        console.error("Erro inesperado:", error);
       } finally {
         setCarregando(false);
       }
