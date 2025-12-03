@@ -11,6 +11,8 @@ import AnexoForm, { AnexoFormData } from "@/components/forms/anexoForm";
 import { AnexoModal } from "@/components/modals/novoAnexoModal";
 import AnexoCard from "@/components/cards/anexoCard";
 import { AnexoViewModal, AnexoDeleteModal } from "@/components/modals/anexoModal";
+import { construirArquivoFormData } from "@/services/construirArquivoFormData";
+import { enviarAnexo } from "@/api/enviarAnexo";
 
 interface Anexo {
   id: number;
@@ -55,7 +57,7 @@ export default function AnexoPage() {
       ? anexos.filter((r) => r.data === dataSelecionada)
       : anexos;
 
-  function handleCreateAnexo(data: AnexoFormData) {
+  async function handleCreateAnexo(data: AnexoFormData) {
     console.log("Novo anexo recebido:", data);
     const novoId = anexos.length + 1;
 
@@ -75,14 +77,17 @@ export default function AnexoPage() {
       fileName: fileName,
       imageUrl: preview,
     };
-
+    
     setAnexos((prev) => [novoAnexo, ...prev]);
-
-    // Mudar futuramente:
-    // await api.post("/rota", data);
-    // depois atualiza a lista
-
     setOpen(false);
+
+    try{
+    const formData : FormData = construirArquivoFormData(data);
+    const response = await enviarAnexo(formData);
+     console.log("Enviado:", response);
+    }catch(error){
+ console.error("Falha no envio", error);
+    }
   }
 
   return (
