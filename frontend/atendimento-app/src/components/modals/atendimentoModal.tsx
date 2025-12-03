@@ -16,8 +16,6 @@ interface AtendimentoDetailsModalProps {
     data: string;
     numeracao: number;
     topicos?: Topico[];
-    tituloSingle?: string;
-    descricaoSingle?: string;
 }
 
 export function AtendimentoDetailsModal({
@@ -26,12 +24,8 @@ export function AtendimentoDetailsModal({
     data,
     numeracao,
     topicos,
-    tituloSingle,
-    descricaoSingle,
 }: AtendimentoDetailsModalProps) {
-    const listaTopicos = topicos || [
-        { titulo: tituloSingle || "", descricao: descricaoSingle || "" },
-    ];
+    const listaTopicos = topicos && topicos.length > 0 ? topicos : [{ titulo: "Sem título", descricao: "Sem descrição" }];
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
