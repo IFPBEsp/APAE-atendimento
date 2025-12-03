@@ -47,14 +47,14 @@ export function RelatorioDeleteModal({
                     <Button
                         variant="outline"
                         onClick={onClose}
-                        className="w-full md:flex-1 rounded-full border-[#165BAA] text-[#165BAA] hover:bg-blue-50 h-11"
+                        className="w-full md:flex-1 rounded-full border-[#165BAA] text-[#165BAA] hover:bg-blue-50 h-11 cursor-pointer"
                     >
                         <X size={18} className="mr-2" />
                         Cancelar
                     </Button>
                     <Button
                         onClick={onConfirm}
-                        className="w-full md:flex-1 rounded-full bg-[#FF5C5C] hover:bg-[#ff4040] text-white h-11"
+                        className="w-full md:flex-1 rounded-full bg-[#FF5C5C] hover:bg-[#ff4040] text-white h-11 cursor-pointer"
                     >
                         <Trash2 size={18} className="mr-2" />
                         Apagar
@@ -82,7 +82,7 @@ export function RelatorioViewModal({
                     <h3 className="text-xl font-bold text-[#344054]">{data.titulo} - {data.data}</h3>
                     <button
                         onClick={onClose}
-                        className="text-gray-500 hover:bg-gray-100 rounded-full transition-colors"
+                        className="text-gray-500 hover:bg-gray-100 rounded-full transition-colors cursor-pointer"
                     >
                         <X size={24} />
                     </button>
@@ -110,7 +110,7 @@ export function RelatorioViewModal({
                     <span className="text-sm text-[#344054] underline decoration-1">
                         {data.fileName}
                     </span>
-                    <Button className="w-full bg-[#165BAA] hover:bg-[#13447D] text-white h-12 rounded-full text-base font-semibold shadow-lg">
+                    <Button className="w-full bg-[#165BAA] hover:bg-[#13447D] text-white h-12 rounded-full text-base font-semibold shadow-lg cursor-pointer">
                         <Download size={20} className="mr-2" />
                         Salvar relatório
                     </Button>

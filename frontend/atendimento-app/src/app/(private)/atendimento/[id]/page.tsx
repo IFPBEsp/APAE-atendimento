@@ -134,7 +134,7 @@ export default function AtendimentoPage() {
         <div className="flex items-center justify-between mb-6">
           <button
             onClick={() => router.back()}
-            className="h-[38px] px-4 rounded-full flex items-center gap-2 bg-[#EDF2FB] text-sm text-gray-700"
+            className="h-[38px] px-4 rounded-full flex items-center gap-2 bg-[#EDF2FB] text-sm text-gray-700 cursor-pointer"
           >
             <ArrowLeft size={18} />
             Voltar
@@ -150,13 +150,13 @@ export default function AtendimentoPage() {
             </Button>
 
             <Select>
-              <SelectTrigger className="bg-white border border-[#3B82F6] rounded-full w-[130px] text-gray-600 text-sm focus-visible:ring-0 focus-visible:border-[#3B82F6]">
+              <SelectTrigger className="bg-white border border-[#3B82F6] rounded-full w-[130px] text-gray-600 text-sm focus-visible:ring-0 focus-visible:border-[#3B82F6] cursor-pointer">
                 <SelectValue placeholder="Filtrar por..." />
               </SelectTrigger>
               <SelectContent className="border border-[#3B82F6] rounded-xl">
-                <SelectItem value="todos">Todos</SelectItem>
-                <SelectItem value="numeracao">Numeração</SelectItem>
-                <SelectItem value="data">Data</SelectItem>
+                <SelectItem className="cursor-pointer" value="todos">Todos</SelectItem>
+                <SelectItem className="cursor-pointer" value="numeracao">Numeração</SelectItem>
+                <SelectItem className="cursor-pointer" value="data">Data</SelectItem>
               </SelectContent>
             </Select>
           </div>

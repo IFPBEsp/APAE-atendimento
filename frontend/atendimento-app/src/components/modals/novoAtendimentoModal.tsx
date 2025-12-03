@@ -30,7 +30,7 @@ export function AtendimentoModal({
       >
         <ScrollArea className="max-h-[480px] px-4 ">
           <div className="relative mb-4">
-            <DialogClose className="mt-2 absolute right-0 top-0 rounded-full p-1 hover:bg-gray-100 transition-colors outline-none">
+            <DialogClose className="mt-2 absolute right-0 top-0 rounded-full p-1 hover:bg-gray-100 transition-colors outline-none cursor-pointer">
               <X className="h-6 w-6" />
             </DialogClose>
 
