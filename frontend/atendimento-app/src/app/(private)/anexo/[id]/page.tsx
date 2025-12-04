@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft, ClipboardPlus } from "lucide-react";
 import { Nunito } from "next/font/google";
 import Header from "@/components/shared/header";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import AnexoForm, { AnexoFormData } from "@/components/forms/anexoForm";
@@ -13,33 +13,22 @@ import AnexoCard from "@/components/cards/anexoCard";
 import { AnexoViewModal, AnexoDeleteModal } from "@/components/modals/anexoModal";
 import { construirArquivoFormData } from "@/services/construirArquivoFormData";
 import { enviarAnexo } from "@/api/enviarAnexo";
+import {Anexo} from "../../../../types/Anexo";
+import { buscarAnexos } from "@/api/buscarAnexos";
 
-interface Anexo {
-  id: number;
-  titulo: string;
-  descricao: string;
-  data: string;
-  fileName: string;
-  imageUrl?: string;
-}
 
 const nunitoFont = Nunito({ weight: "700" });
 
-export default function AnexoPage() {
+export default function AnexoPage() { 
+   const nomePaciente = "Fulano de Tal de Lorem Ipsum Santos";
+    const [anexos, setAnexos] = useState<Anexo[]>([]);
+  useEffect(() => {    
+      (async () => {
+        const anexosResult = await buscarAnexos();
+        setAnexos(anexosResult);
+      })()
+  }, [])
   const router = useRouter();
-
-  const nomePaciente = "Fulano de Tal de Lorem Ipsum Santos";
-
-  const [anexos, setAnexos] = useState<Anexo[]>(
-    Array.from({ length: 8 }).map((_, i) => ({
-      id: i,
-      titulo: "Lorem Ipsum", data: "2025-11-24",
-      descricao: "Nullam varius tempor massa et iaculis. Praesent sodales orci ut ultrices tempor. Quisque ac mauris gravida, dictum ipsum sit amet, bibendum turpis. Mauris dictum orci quis quam tincidunt imperdiet. Cras auctor aliquam tortor a luctus. Morbi tincidunt lacus vulputate risus dignissim porttitor.",
-      fileName: "nome_do_arquivo_lorem_ipsum_da_silva.jpg",
-      imageUrl: i === 0 ? "https://placehold.co/426x552/png" : undefined,
-    })
-    ));
-
   const [dataSelecionada, setDataSelecionada] = useState<string>("");
   const [open, setOpen] = useState(false);
   const [reportToDelete, setReportToDelete] = useState<Anexo | null>(null);
@@ -78,16 +67,19 @@ export default function AnexoPage() {
       imageUrl: preview,
     };
     
-    setAnexos((prev) => [novoAnexo, ...prev]);
-    setOpen(false);
-
+   
     try{
     const formData : FormData = construirArquivoFormData(data);
     const response = await enviarAnexo(formData);
-     console.log("Enviado:", response);
+    novoAnexo.imageUrl = response.presignedUrl;
+
+    console.log("Enviado:", response);
     }catch(error){
  console.error("Falha no envio", error);
     }
+
+    setAnexos((prev) => [novoAnexo, ...prev]);
+    setOpen(false);
   }
 
   return (
