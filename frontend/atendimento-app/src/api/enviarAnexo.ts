@@ -11,7 +11,7 @@ export async function enviarAnexo(anexoEnvio : FormData)  {
             throw new Error("Erro ao enviar anexo");
         }
 
-        return await response.text();
+        return await response.json();
     }catch(erro){
         console.error("Erro na requisição de envio de anexo:", erro);
         throw erro;
