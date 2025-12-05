@@ -1,7 +1,9 @@
+import { Anexo } from "@/types/Anexo";
 import dados from "../../data/verificacao.json";
 
-export async function enviarAnexo(anexoEnvio : FormData)  {
+export async function enviarAnexo(anexoEnvio : FormData) : Promise<Anexo> {
     try{
+
         const response = await fetch(`${dados.urlBase}/arquivo`, {
             method: "POST",
             body: anexoEnvio
@@ -10,8 +12,20 @@ export async function enviarAnexo(anexoEnvio : FormData)  {
         if(!response.ok){
             throw new Error("Erro ao enviar anexo");
         }
+         
+        const dto = await response.json();
+        const result : Anexo = {
+             id: dto.id,
+             titulo: dto.titulo,
+             descricao: dto.descricao,
+             data: dto.data,
+             fileName: dto.fileName,
+             imageUrl: dto.presignedUrl
+        }
+        console.log(result);
 
-        return await response.json();
+        return result;
+
     }catch(erro){
         console.error("Erro na requisição de envio de anexo:", erro);
         throw erro;
