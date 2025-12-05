@@ -21,13 +21,23 @@ const nunitoFont = Nunito({ weight: "700" });
 
 export default function AnexoPage() { 
    const nomePaciente = "Fulano de Tal de Lorem Ipsum Santos";
-    const [anexos, setAnexos] = useState<Anexo[]>([]);
-  useEffect(() => {    
+
+     const [anexos, setAnexos] = useState<Anexo[]>(
+    Array.from({ length: 8 }).map((_, i) => ({
+      id: i,
+      titulo: "Lorem Ipsum", data: "2025-11-24",
+      descricao: "Nullam varius tempor massa et iaculis. Praesent sodales orci ut ultrices tempor. Quisque ac mauris gravida, dictum ipsum sit amet, bibendum turpis. Mauris dictum orci quis quam tincidunt imperdiet. Cras auctor aliquam tortor a luctus. Morbi tincidunt lacus vulputate risus dignissim porttitor.",
+      fileName: "nome_do_arquivo_lorem_ipsum_da_silva.jpg",
+      imageUrl: i === 0 ? "https://placehold.co/426x552/png" : undefined,
+    })
+    ));
+    //const [anexos, setAnexos] = useState<Anexo[]>([]);
+  /*useEffect(() => {    
       (async () => {
         const anexosResult = await buscarAnexos();
         setAnexos(anexosResult);
       })()
-  }, [])
+  }, [])*/
   const router = useRouter();
   const [dataSelecionada, setDataSelecionada] = useState<string>("");
   const [open, setOpen] = useState(false);
@@ -69,18 +79,24 @@ export default function AnexoPage() {
     
    
     try{
+
     const formData : FormData = construirArquivoFormData(data);
-    const response = await enviarAnexo(formData);
-    novoAnexo.imageUrl = response.presignedUrl;
-
-    console.log("Enviado:", response);
-    }catch(error){
- console.error("Falha no envio", error);
-    }
-
+    const response : Anexo = await enviarAnexo(formData);
+    novoAnexo.imageUrl = response.imageUrl;
     setAnexos((prev) => [novoAnexo, ...prev]);
     setOpen(false);
-  }
+    return {
+      sucesso: true,
+      mensagem: "Anexo enviado com sucesso!"
+    }
+    }catch(error){
+     return {
+      sucesso: false,
+      mensagem: "Erro ao enviar o anexo."
+    };
+    }
+
+     }
 
   return (
     <div className="min-h-screen w-full bg-[#F8FAFD]">
