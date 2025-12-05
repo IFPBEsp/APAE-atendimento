@@ -5,6 +5,7 @@ import br.org.apae.atendimento.dtos.response.ArquivoResponseDTO;
 import br.org.apae.atendimento.services.ArquivoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -19,7 +20,7 @@ public class ArquivoController {
     @Autowired
     private ArquivoService service;
 
-    @PostMapping
+    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ArquivoResponseDTO> upload(@RequestPart("file") MultipartFile file,
                                                      @RequestPart("metadata") ArquivoRequestDTO arquivoRequest){
         ArquivoResponseDTO anexoDTO = service.salvar(file, arquivoRequest);
