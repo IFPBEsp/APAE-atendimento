@@ -83,6 +83,7 @@ export default function AnexoPage() {
     const formData : FormData = construirArquivoFormData(data);
     const response : Anexo = await enviarAnexo(formData);
     novoAnexo.imageUrl = response.imageUrl;
+    novoAnexo.id = response.id;
     setAnexos((prev) => [novoAnexo, ...prev]);
     setOpen(false);
     return {
