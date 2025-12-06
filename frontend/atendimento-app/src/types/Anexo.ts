@@ -5,4 +5,5 @@ export interface Anexo {
   data: string;
   fileName: string;
   imageUrl?: string;
+  objectName?: string;
 }

@@ -1,6 +1,6 @@
 import { Anexo } from "@/types/Anexo";
 import dados from "../../data/verificacao.json";
-export async function buscarAnexos(idPaciente: string, tipoArquivo: string) : Promise<Anexo[]> {
+export async function buscarAnexos(idPaciente: string, tipoArquivo: number) : Promise<Anexo[]> {
     try{
 const res = await fetch(`${dados.urlBase}/arquivo/list/${dados.idProfissional}/${idPaciente}/${tipoArquivo}`);
 
