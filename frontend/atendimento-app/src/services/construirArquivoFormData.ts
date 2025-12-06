@@ -1,17 +1,27 @@
-import {AnexoFormData} from "../components/forms/anexoForm"
+    import {AnexoFormData} from "../components/forms/anexoForm"
+    import dados from "../../data/verificacao.json"
 
-export function construirArquivoFormData (data: AnexoFormData) : FormData {
-    const formData: FormData = new FormData();
+    export function construirArquivoFormData (data: AnexoFormData) : FormData {
+        const formData: FormData = new FormData();
 
-    formData.append("file", data.data);
-    formData.append("metadata", new Blob (
-        [JSON.stringify({
-             name: data?.arquivo?.[0]?.name,              
-             titulo: data?.titulo,
-             descricao: data.descricao
-        })]
-    ))
+        if(data?.arquivo?.[0] && data?.arquivo?.length > 0){
+          const arquivo = data.arquivo[0];
+          formData.append("file", arquivo, arquivo.name);
+        }
+        console.log(data.data)
+          const metadata = {
+                data: data.data,
+                tipoArquivo: dados.tipoArquivo,
+                profissionalId: dados.idProfissional,
+                pacienteId: dados.idPaciente,
+                titulo: data.titulo,
+                descricao: data.descricao,
+            };
+        formData.append("metadata", new Blob (
+            [JSON.stringify(metadata)],{type: "application/json"}
+        )
+    );
 
-    console.log(formData);
-    return formData;
-}
+        console.log(formData);
+        return formData;
+    }

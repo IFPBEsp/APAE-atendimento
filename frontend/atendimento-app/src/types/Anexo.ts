@@ -1,5 +1,5 @@
 export interface Anexo {
-  id: number;
+  id?: number;
   titulo: string;
   descricao: string;
   data: string;

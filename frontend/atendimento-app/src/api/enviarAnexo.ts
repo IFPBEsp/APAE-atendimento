@@ -4,7 +4,7 @@ import dados from "../../data/verificacao.json";
 export async function enviarAnexo(anexoEnvio : FormData) : Promise<Anexo> {
     try{
 
-        const response = await fetch(`${dados.urlBase}/arquivo`, {
+        const response = await fetch(`${dados.urlBase}/arquivo/upload`, {
             method: "POST",
             body: anexoEnvio
         });
@@ -15,14 +15,13 @@ export async function enviarAnexo(anexoEnvio : FormData) : Promise<Anexo> {
          
         const dto = await response.json();
         const result : Anexo = {
-             id: dto.id,
              titulo: dto.titulo,
              descricao: dto.descricao,
              data: dto.data,
-             fileName: dto.fileName,
+             fileName: dto.objectName,
              imageUrl: dto.presignedUrl
         }
-        console.log(result);
+        //console.log(result);
 
         return result;
 

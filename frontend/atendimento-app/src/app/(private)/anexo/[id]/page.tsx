@@ -24,7 +24,7 @@ export default function AnexoPage() {
 
      const [anexos, setAnexos] = useState<Anexo[]>(
     Array.from({ length: 8 }).map((_, i) => ({
-      id: i,
+      id: ++i,
       titulo: "Lorem Ipsum", data: "2025-11-24",
       descricao: "Nullam varius tempor massa et iaculis. Praesent sodales orci ut ultrices tempor. Quisque ac mauris gravida, dictum ipsum sit amet, bibendum turpis. Mauris dictum orci quis quam tincidunt imperdiet. Cras auctor aliquam tortor a luctus. Morbi tincidunt lacus vulputate risus dignissim porttitor.",
       fileName: "nome_do_arquivo_lorem_ipsum_da_silva.jpg",
@@ -57,7 +57,7 @@ export default function AnexoPage() {
       : anexos;
 
   async function handleCreateAnexo(data: AnexoFormData) {
-    console.log("Novo anexo recebido:", data);
+    //console.log("Novo anexo recebido:", data);
     const novoId = anexos.length + 1;
 
     let preview = undefined;
@@ -82,11 +82,12 @@ export default function AnexoPage() {
 
     const formData : FormData = construirArquivoFormData(data);
     const response : Anexo = await enviarAnexo(formData);
+
     novoAnexo.imageUrl = response.imageUrl;
-    novoAnexo.id = response.id;
+    console.log(novoAnexo)
     setAnexos((prev) => [novoAnexo, ...prev]);
     setOpen(false);
-    return {
+     return {
       sucesso: true,
       mensagem: "Anexo enviado com sucesso!"
     }
