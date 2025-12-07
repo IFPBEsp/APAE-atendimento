@@ -8,10 +8,20 @@ if(!res.ok){
   throw new Error('Erro ao buscar anexos');
 }
 
-const data = await res.json();
-return data;
+const dto = await res.json();
+const result : Anexo[] = dto.map(e => {
+        const {titulo, descricao, data, presignedUrl,nomeArquivo} = e;
+        return {
+             titulo,
+             descricao,
+             data,
+             fileName: nomeArquivo,
+             imageUrl: presignedUrl
+        }       
+})
+return result;
     }catch(error){
         console.error("Erro ao buscar anexos:", error);
-        return []; 
+        throw error;
     }
 }

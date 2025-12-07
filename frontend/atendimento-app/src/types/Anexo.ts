@@ -6,4 +6,5 @@ export interface Anexo {
   fileName: string;
   imageUrl?: string;
   objectName?: string;
+  presignedUrl?: string;
 }

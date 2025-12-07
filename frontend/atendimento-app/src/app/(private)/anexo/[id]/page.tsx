@@ -16,28 +16,33 @@ import { enviarAnexo } from "@/api/enviarAnexo";
 import {Anexo} from "../../../../types/Anexo";
 import { buscarAnexos } from "@/api/buscarAnexos";
 import dados from "../../../../../data/verificacao.json"
+import { validarTipoArquivo } from "@/services/validarTipoArquivo";
+import { toast } from "sonner";
+
 
 const nunitoFont = Nunito({ weight: "700" });
 
 export default function AnexoPage() { 
-   const nomePaciente = "Fulano de Tal de Lorem Ipsum Santos";
+   const [nomePaciente, setNomePaciente] = useState("Loren Ipsun");
   const [anexos, setAnexos] = useState<Anexo[]>([]);
-  useEffect(() => {    
-      (async () => {
-        
-        const anexosResult = (await buscarAnexos(dados.idPaciente, dados.tipoArquivo)).map((e, i) => {
-          const {titulo, descricao, fileName, data, objectName} = e;
-          
+
+  async function obterResultadoBuscarAnexos() : Promise<Anexo[]> {
+      return (await buscarAnexos(dados.idPaciente, dados.tipoArquivo)).map((e, i) => {
+          const {titulo, descricao, fileName, data, imageUrl} = e;
           return {
             id: ++i,
             titulo,
             descricao,
             fileName,
             data,
-            imageUrl: "https://placehold.co/426x552/png"
+            imageUrl
           }
         });
-        setAnexos(anexosResult);
+  }
+  useEffect(() => {    
+      (async () => {
+        const anexosResult = await obterResultadoBuscarAnexos();
+        setAnexos(anexosResult);  
       })()
   }, [])
   const router = useRouter();
@@ -58,6 +63,23 @@ export default function AnexoPage() {
       ? anexos.filter((r) => r.data === dataSelecionada)
       : anexos;
 
+  async function enviarArquivo(data: AnexoFormData) {
+  try {
+    const respostaCriacao = await handleCreateAnexo(data);
+    if (respostaCriacao.sucesso) {
+      toast.success(respostaCriacao.mensagem || "Anexo enviado com sucesso!");
+      return;
+    }
+
+    toast.error(respostaCriacao.mensagem || "Erro ao enviar o anexo.");
+
+  } catch (err: any) {
+    console.error("Erro inesperado:", err);
+    toast.error(err?.message || "Erro inesperado ao enviar o anexo.");
+  }
+}
+
+  
   async function handleCreateAnexo(data: AnexoFormData) {
     //console.log("Novo anexo recebido:", data);
     const novoId = anexos.length + 1;
@@ -81,7 +103,8 @@ export default function AnexoPage() {
     
    
     try{
-
+    validarTipoArquivo(data.arquivo);
+    
     const formData : FormData = construirArquivoFormData(data);
     const response : Anexo = await enviarAnexo(formData);
 
@@ -93,10 +116,15 @@ export default function AnexoPage() {
       sucesso: true,
       mensagem: "Anexo enviado com sucesso!"
     }
-    }catch(error){
+    }catch(error: unknown){
+      let mensagem = "Erro inesperado";
+
+  if (error instanceof Error) {
+    mensagem = error.message; 
+  }
      return {
       sucesso: false,
-      mensagem: "Erro ao enviar o anexo."
+      mensagem
     };
     }
 
@@ -192,7 +220,7 @@ export default function AnexoPage() {
           onOpenChange={setOpen}
         >
           <AnexoForm
-            onSubmit={handleCreateAnexo}
+            onSubmit={enviarArquivo}
           />
         </AnexoModal>
 

@@ -14,14 +14,14 @@ export async function enviarAnexo(anexoEnvio : FormData) : Promise<Anexo> {
         }
          
         const dto = await response.json();
+        const {titulo, descricao, data,objectName, presignedUrl} = dto;
         const result : Anexo = {
-             titulo: dto.titulo,
-             descricao: dto.descricao,
-             data: dto.data,
-             fileName: dto.objectName,
-             imageUrl: dto.presignedUrl
+             titulo,
+             descricao,
+             data,
+             fileName: objectName,
+             imageUrl: presignedUrl
         }
-        //console.log(result);
 
         return result;
 
