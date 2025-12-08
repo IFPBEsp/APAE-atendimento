@@ -49,6 +49,7 @@ export default function PacientesPage() {
           console.error("Erro ao buscar pacientes:", pacientesResult.reason);
           setErro("Não foi possível carregar os pacientes. Tente novamente mais tarde.");
         }
+       
       } catch (error) {
         setErro("Erro inesperado ao carregar os dados.");
         console.error("Erro inesperado:", error);

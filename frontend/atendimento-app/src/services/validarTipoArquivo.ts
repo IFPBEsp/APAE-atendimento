@@ -3,8 +3,8 @@ export function validarTipoArquivo(files: FileList | undefined){
         throw new Error("Nenhum arquivo selecionado.");
     }
     const file = files[0];
-    const allowedTypes = ["image/png", "image/jpg", "image/jpeg"];
+    const allowedTypes = ["application/pdf"];
     if(!allowedTypes.includes(file.type)){
-        throw new Error("Tipo de Arquivo inválido. Envie somente JPEG,JPG ou PNG.");
+        throw new Error("Tipo de Arquivo inválido. Envie somente PDF.");
     }
 }

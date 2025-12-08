@@ -23,6 +23,12 @@ export type AnexoFormData = {
   descricao: string;
 };
 
+export type AnexoEnvioFormData = AnexoFormData & {
+  pacienteId: string | undefined;
+  tipoArquivo: number;
+  profissionalId: string | undefined;
+}
+
 interface AnexoFormProps {
   onSubmit: (data: AnexoFormData) => void;
 }

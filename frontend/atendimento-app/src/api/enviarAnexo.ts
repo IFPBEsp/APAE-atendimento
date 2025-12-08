@@ -10,7 +10,8 @@ export async function enviarAnexo(anexoEnvio : FormData) : Promise<Anexo> {
         });
 
         if(!response.ok){
-            throw new Error("Erro ao enviar anexo");
+             const erroServidor = await response.text(); 
+             throw new Error(erroServidor || "Erro ao enviar anexo");
         }
          
         const dto = await response.json();

@@ -1,13 +1,13 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import {useRouter, useParams} from "next/navigation";
 import { ArrowLeft, ClipboardPlus } from "lucide-react";
 import { Nunito } from "next/font/google";
 import Header from "@/components/shared/header";
 import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import AnexoForm, { AnexoFormData } from "@/components/forms/anexoForm";
+import AnexoForm, { AnexoFormData, AnexoEnvioFormData } from "@/components/forms/anexoForm";
 import { AnexoModal } from "@/components/modals/novoAnexoModal";
 import AnexoCard from "@/components/cards/anexoCard";
 import { AnexoViewModal, AnexoDeleteModal } from "@/components/modals/anexoModal";
@@ -17,17 +17,23 @@ import {Anexo} from "../../../../types/Anexo";
 import { buscarAnexos } from "@/api/buscarAnexos";
 import dados from "../../../../../data/verificacao.json"
 import { validarTipoArquivo } from "@/services/validarTipoArquivo";
-import { toast } from "sonner";
+import {toast} from "sonner";
 
 
 const nunitoFont = Nunito({ weight: "700" });
 
 export default function AnexoPage() { 
-   const [nomePaciente, setNomePaciente] = useState("Loren Ipsun");
+  const [nomePaciente, setNomePaciente] = useState("Loren Ipsun");
   const [anexos, setAnexos] = useState<Anexo[]>([]);
+  const router = useRouter();
+  const params = useParams();
+  const pacienteIdStr = Array.isArray(params.id) ? params.id[0] : params.id;
+
 
   async function obterResultadoBuscarAnexos() : Promise<Anexo[]> {
-      return (await buscarAnexos(dados.idPaciente, dados.tipoArquivo)).map((e, i) => {
+    if (!pacienteIdStr) return [];
+      console.log(pacienteIdStr)
+      return (await buscarAnexos(pacienteIdStr, dados.tipoArquivo)).map((e, i) => {
           const {titulo, descricao, fileName, data, imageUrl} = e;
           return {
             id: ++i,
@@ -45,7 +51,7 @@ export default function AnexoPage() {
         setAnexos(anexosResult);  
       })()
   }, [])
-  const router = useRouter();
+  
   const [dataSelecionada, setDataSelecionada] = useState<string>("");
   const [open, setOpen] = useState(false);
   const [reportToDelete, setReportToDelete] = useState<Anexo | null>(null);
@@ -65,7 +71,13 @@ export default function AnexoPage() {
 
   async function enviarArquivo(data: AnexoFormData) {
   try {
-    const respostaCriacao = await handleCreateAnexo(data);
+    const request : AnexoEnvioFormData = {
+      ...data,
+      pacienteId: pacienteIdStr,
+      tipoArquivo: dados.tipoArquivo,
+      profissionalId: dados.idProfissional
+    }
+    const respostaCriacao = await handleCreateAnexo(request);
     if (respostaCriacao.sucesso) {
       toast.success(respostaCriacao.mensagem || "Anexo enviado com sucesso!");
       return;
@@ -80,7 +92,7 @@ export default function AnexoPage() {
 }
 
   
-  async function handleCreateAnexo(data: AnexoFormData) {
+  async function handleCreateAnexo(data: AnexoEnvioFormData) {
     //console.log("Novo anexo recebido:", data);
     const novoId = anexos.length + 1;
 
