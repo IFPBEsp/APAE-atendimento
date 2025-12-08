@@ -10,7 +10,7 @@ export type AgendamentoFormData = {
   paciente: string;
   data: string;
   horario: string;
-  numeracao: Number;
+  numeracao: number;
 };
 
 interface AgendamentoFormProps {
@@ -26,7 +26,7 @@ export default function AgendamentoForm({ onSubmit }: AgendamentoFormProps) {
         paciente: "",
         data: "",
         horario: "",
-        numeracao: "",
+        numeracao: 1,
       },
     });
 
@@ -48,7 +48,7 @@ export default function AgendamentoForm({ onSubmit }: AgendamentoFormProps) {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 gap-4">
   
         <div className="grid gap-2">
           <Label>
@@ -56,7 +56,7 @@ export default function AgendamentoForm({ onSubmit }: AgendamentoFormProps) {
           </Label>
           <Input
             type="date"
-            className="rounded-[30px] border-[#3B82F6] focus-visible:ring-0 focus-visible:border-[#B2D7EC]"
+            className="rounded-[30px] border-[#3B82F6] focus-visible:ring-0 focus-visible:border-[#3B82F6]"
             {...register("data", { required: true })}
           />
         </div>
@@ -67,7 +67,7 @@ export default function AgendamentoForm({ onSubmit }: AgendamentoFormProps) {
           </Label>
           <Input
             type="time"
-            className="rounded-[30px] border-[#3B82F6] focus-visible:ring-0 focus-visible:border-[#B2D7EC]"
+            className="rounded-[30px] border-[#3B82F6] focus-visible:ring-0 focus-visible:border-[#3B82F6]"
             {...register("horario", { required: true })}
           />
         </div>
@@ -77,6 +77,8 @@ export default function AgendamentoForm({ onSubmit }: AgendamentoFormProps) {
       <div className="grid gap-2">
         <Label>Numeração</Label>
         <input
+          type="number"
+          min={1}
           className="w-full rounded-[30px] border border-[#3B82F6] 
             focus-visible:ring-0 focus-visible:border-[#3B82F6] py-2 text-sm text-center"
           {...register("numeracao")}
