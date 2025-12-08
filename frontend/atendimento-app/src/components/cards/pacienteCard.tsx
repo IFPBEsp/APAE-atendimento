@@ -40,28 +40,31 @@ export function PacienteCard({
   return (
     <Card className="w-full max-w-md md:max-w-4xl rounded-2xl shadow-md border border-[#EAECF0] bg-white relative">
       <DropdownMenu>
-        <DropdownMenuTrigger className="absolute top-2 right-2 p-1 rounded-full hover:bg-gray-100">
+        <DropdownMenuTrigger className="absolute top-2 right-2 p-1 rounded-full hover:bg-gray-100 cursor-pointer">
           <MoreVertical className="w-5 h-5 text-gray-500" />
         </DropdownMenuTrigger>
         <DropdownMenuContent
           className="w-48 bg-white rounded-xl shadow-lg border border-gray-200 p-4"
           sideOffset={8}
         >
-          <DropdownMenuItem
-            className="justify-center"
+          <DropdownMenuItem 
+            className="justify-center cursor-pointer"
             onClick={onViewAtendimentos}
           >
             Ver Atendimentos
           </DropdownMenuItem>
 
-          <DropdownMenuItem
-            className="justify-center"
+          <DropdownMenuItem 
+            className="justify-center cursor-pointer"
             onClick={onViewRelatorios}
           >
             Criar relatório
           </DropdownMenuItem>
-
-          <DropdownMenuItem className="justify-center" onClick={onViewAnexos}>
+          
+          <DropdownMenuItem 
+            className="justify-center cursor-pointer"
+            onClick={onViewAnexos}
+          >
             Adicionar anexo
           </DropdownMenuItem>
         </DropdownMenuContent>

@@ -7,24 +7,18 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import br.org.apae.atendimento.dtos.request.AgendamentoRequestDTO;
 import br.org.apae.atendimento.dtos.request.AtendimentoRequestDTO;
-import br.org.apae.atendimento.dtos.response.AgendamentoResponseDTO;
+import br.org.apae.atendimento.dtos.request.update.AtendimentoUpdateRequestDTO;
 import br.org.apae.atendimento.dtos.response.AtendimentoResponseDTO;
-import br.org.apae.atendimento.dtos.response.DiaAgendamentoResponseDTO;
 import br.org.apae.atendimento.dtos.response.MesAnoAtendimentoResponseDTO;
 import br.org.apae.atendimento.entities.Agendamento;
 import br.org.apae.atendimento.entities.Atendimento;
-import br.org.apae.atendimento.entities.Paciente;
-import br.org.apae.atendimento.entities.ProfissionalSaude;
-import br.org.apae.atendimento.exceptions.AgendamentoNotFoundException;
-import br.org.apae.atendimento.exceptions.AtendimentoInvalidException;
-import br.org.apae.atendimento.exceptions.RelacaoInvalidException;
-import br.org.apae.atendimento.mappers.AgendamentoMapper;
+import br.org.apae.atendimento.exceptions.notfound.AgendamentoNotFoundException;
+import br.org.apae.atendimento.exceptions.invalid.AtendimentoInvalidException;
+import br.org.apae.atendimento.exceptions.invalid.RelacaoInvalidException;
+import br.org.apae.atendimento.exceptions.notfound.AtendimentoNotFoundException;
 import br.org.apae.atendimento.mappers.AtendimentoMapper;
 import br.org.apae.atendimento.repositories.AtendimentoRepository;
-import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -109,5 +103,34 @@ public class AtendimentoService {
                 data.getMonthValue(), data.getYear(), profissionalId, pacienteId);
 
         return maiorNumeracao + 1;
+    }
+
+    public AtendimentoResponseDTO editarTopicos(AtendimentoUpdateRequestDTO requestDTO){
+        Atendimento atendimento = repository.findById(requestDTO.atendimentoId())
+                .orElseThrow(AtendimentoNotFoundException::new);
+
+        String tituloAntigo = requestDTO.tituloAntigo();
+        Map<String, String> novoTopico = requestDTO.update();
+
+        if (novoTopico.size() != 1) {
+            throw new IllegalArgumentException("Envie apenas um tópico por atualização.");
+        }
+
+        String novoTitulo = novoTopico.keySet().iterator().next();
+        String novoConteudo = novoTopico.get(novoTitulo);
+
+        Map<String, Object> relatorio = atendimento.getRelatorio();
+
+        if (relatorio.containsKey(tituloAntigo)) {
+            relatorio.remove(tituloAntigo);
+            relatorio.put(novoTitulo, novoConteudo);
+        }
+        else {
+            relatorio.put(novoTitulo, novoConteudo);
+        }
+
+        Atendimento atualizado = repository.save(atendimento);
+
+        return atendimentoMapper.toDTOPadrao(atualizado);
     }
 }

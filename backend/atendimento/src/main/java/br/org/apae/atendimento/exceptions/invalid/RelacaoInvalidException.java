@@ -1,4 +1,4 @@
-package br.org.apae.atendimento.exceptions;
+package br.org.apae.atendimento.exceptions.invalid;
 
 public class RelacaoInvalidException extends RuntimeException{
     public RelacaoInvalidException() {

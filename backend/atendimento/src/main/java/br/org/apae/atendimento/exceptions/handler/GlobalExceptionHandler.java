@@ -1,5 +1,10 @@
 package br.org.apae.atendimento.exceptions.handler;
 
+import br.org.apae.atendimento.exceptions.invalid.AgendamentoInvalidException;
+import br.org.apae.atendimento.exceptions.invalid.AtendimentoInvalidException;
+import br.org.apae.atendimento.exceptions.invalid.ConsultaInvalidException;
+import br.org.apae.atendimento.exceptions.invalid.RelacaoInvalidException;
+import br.org.apae.atendimento.exceptions.notfound.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -52,5 +57,10 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(AtendimentoInvalidException.class)
     public ResponseEntity<String> handleRelacaoInvalid(AtendimentoInvalidException ex){
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(AtendimentoNotFoundException.class)
+    public ResponseEntity<String> handleRelacaoInvalid(AtendimentoNotFoundException ex){
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
     }
 }

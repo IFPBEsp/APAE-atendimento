@@ -12,7 +12,6 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-
 import { useState } from "react";
 import { Upload, CirclePlus, Info } from "lucide-react";
 
@@ -159,7 +158,7 @@ export default function RelatorioForm({ onSubmit }: RelatorioFormProps) {
                   e.stopPropagation();
                   removerArquivo();
                 }}
-                className="text-gray-500 hover:text-red-500 font-bold text-xs"
+                className="text-gray-500 hover:text-red-500 font-bold text-xs cursor-pointer"
               >
                 ✕
               </button>
@@ -186,7 +185,7 @@ export default function RelatorioForm({ onSubmit }: RelatorioFormProps) {
         <Label className="flex items-center gap-2">
           Gerar relatório por template
           <Dialog>
-            <DialogTrigger asChild>
+            <DialogTrigger asChild className="cursor-pointer">
               <button type="button">
                 <Info size={16} className="text-gray-500" />
               </button>

@@ -84,14 +84,14 @@ export default function PacientesPage() {
             </div>
 
             <Select>
-              <SelectTrigger className="bg-white border border-[#3B82F6] rounded-full w-[130px] text-gray-600 text-sm focus-visible:ring-0 focus-visible:border-[#3B82F6]">
+              <SelectTrigger className="bg-white border border-[#3B82F6] rounded-full w-[130px] text-gray-600 text-sm focus-visible:ring-0 focus-visible:border-[#3B82F6] cursor-pointer">
                 <SelectValue placeholder="Filtrar por..." />
               </SelectTrigger>
               <SelectContent className="border border-[#3B82F6] rounded-xl">
-                <SelectItem value="todos">Todos</SelectItem>
-                <SelectItem value="nome">Nome</SelectItem>
-                <SelectItem value="cpf">CPF</SelectItem>
-                <SelectItem value="cidade">Cidade</SelectItem>
+                <SelectItem className="cursor-pointer" value="todos">Todos</SelectItem>
+                <SelectItem className="cursor-pointer" value="nome">Nome</SelectItem>
+                <SelectItem className="cursor-pointer" value="cpf">CPF</SelectItem>
+                <SelectItem className="cursor-pointer" value="cidade">Cidade</SelectItem>
               </SelectContent>
             </Select>
 
