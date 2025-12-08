@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import br.org.apae.atendimento.exceptions.ProfissionalSaudeNotFoundException;
+import br.org.apae.atendimento.exceptions.notfound.ProfissionalSaudeNotFoundException;
 import br.org.apae.atendimento.mappers.PacienteMapper;
 import br.org.apae.atendimento.mappers.ProfissionalMapper;
 

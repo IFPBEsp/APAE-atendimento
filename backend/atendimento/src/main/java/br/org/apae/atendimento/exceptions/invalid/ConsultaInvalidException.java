@@ -1,4 +1,4 @@
-package br.org.apae.atendimento.exceptions;
+package br.org.apae.atendimento.exceptions.invalid;
 
 public class ConsultaInvalidException extends IllegalArgumentException{
     public ConsultaInvalidException(String motivoInvalidez){

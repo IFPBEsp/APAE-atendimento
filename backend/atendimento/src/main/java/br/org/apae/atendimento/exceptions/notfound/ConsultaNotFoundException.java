@@ -1,4 +1,4 @@
-package br.org.apae.atendimento.exceptions;
+package br.org.apae.atendimento.exceptions.notfound;
 
 public class ConsultaNotFoundException extends RuntimeException{
     ConsultaNotFoundException(){
