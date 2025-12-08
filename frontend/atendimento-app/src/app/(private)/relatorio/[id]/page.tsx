@@ -63,7 +63,7 @@ export default function RelatorioPage() {
     let fileName = "";
 
     if (data.arquivo && data.arquivo[0]) {
-      preview = URL.createObjectURL(data.arquivo[0]); // ⬅ gera URL da imagem
+      preview = URL.createObjectURL(data.arquivo[0]);
       fileName = data.arquivo[0].name;
     }
 
@@ -73,7 +73,7 @@ export default function RelatorioPage() {
       descricao: data.descricao,
       data: data.data,
       fileName: fileName,
-      imageUrl: preview, // ⬅ salva no estado!
+      imageUrl: preview, 
     };
 
     setRelatorios((prev) => [novoRelatorio, ...prev]);
@@ -93,7 +93,7 @@ export default function RelatorioPage() {
         <div className="flex items-center justify-between mb-6">
           <button
             onClick={() => router.back()}
-            className="h-[38px] px-4 rounded-full flex items-center gap-2 bg-[#EDF2FB] text-sm text-gray-700"
+            className="h-[38px] px-4 rounded-full flex items-center gap-2 bg-[#EDF2FB] text-sm text-gray-700 cursor-pointer"
           >
             <ArrowLeft size={18} />
             Voltar

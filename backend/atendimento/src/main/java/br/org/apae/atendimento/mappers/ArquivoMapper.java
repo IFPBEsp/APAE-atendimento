@@ -34,6 +34,7 @@ public class ArquivoMapper extends AbstractMapper<Arquivo, ArquivoRequestDTO, Ar
     @Override
     public ArquivoResponseDTO toDTOPadrao(Arquivo arquivo) {
         return new ArquivoResponseDTO(
+                arquivo.getObjectName(),
                 arquivo.getPresignedUrl(),
                 arquivo.getData(),
                 arquivo.getNomeArquivo(),

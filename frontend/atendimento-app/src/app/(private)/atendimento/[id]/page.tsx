@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import AtendimentoForm from "@/components/forms/atendimentoForm";
-import { AtendimentoModal } from "@/components/modals/atendimentoModal";
+import { AtendimentoModal } from "@/components/modals/novoAtendimentoModal";
 import { useState } from "react";
 import type { AtendimentoFormData } from "@/components/forms/atendimentoForm";
 
@@ -22,8 +22,7 @@ interface Atendimento {
   id: number;
   data: string;
   numeracao: number;
-  titulo: string;
-  descricao: string;
+  topicos: { titulo: string; descricao: string }[];
 }
 
 const nunitoFont = Nunito({ weight: "700" });
@@ -37,27 +36,61 @@ export default function AtendimentoPage() {
       id: 1,
       data: "01/11/2025",
       numeracao: 1,
-      titulo: "Título do tópico",
-      descricao:
-        "Nullam varius tempor massa et iaculis. Praesent sodales orci ut ultrices tempor.Quisque ac mauris gravida, dictum ipsum sit amet, bibendum turpis...",
+      topicos: [
+        {
+          titulo: "Tópico 1",
+          descricao: "Nullam varius tempor massa et iaculis. Praesent sodales orci ut ultrices tempor. Quisque ac mauris gravida, dictum ipsum sit amet, bibendum turpis. Mauris dictum orci quis quam tincidunt imperdiet. Cras auctor aliquam tortor a luctus. Morbi tincidunt lacus vulputate risus dignissim porttitor."
+        },
+        {
+          titulo: "Tópico 2",
+          descricao: "Nullam varius tempor massa et iaculis. Praesent sodales orci ut ultrices tempor. Quisque ac mauris gravida, dictum ipsum sit amet, bibendum turpis. Mauris dictum orci quis quam tincidunt imperdiet. Cras auctor aliquam tortor a luctus. Morbi tincidunt lacus vulputate risus dignissim porttitor."
+        },
+        {
+          titulo: "Tópico 3",
+          descricao: "Nullam varius tempor massa et iaculis. Praesent sodales orci ut ultrices tempor. Quisque ac mauris gravida, dictum ipsum sit amet, bibendum turpis. Mauris dictum orci quis quam tincidunt imperdiet. Cras auctor aliquam tortor a luctus. Morbi tincidunt lacus vulputate risus dignissim porttitor."
+        },
+        {
+          titulo: "Tópico 4",
+          descricao: "Nullam varius tempor massa et iaculis. Praesent sodales orci ut ultrices tempor. Quisque ac mauris gravida, dictum ipsum sit amet, bibendum turpis. Mauris dictum orci quis quam tincidunt imperdiet. Cras auctor aliquam tortor a luctus. Morbi tincidunt lacus vulputate risus dignissim porttitor."
+        },
+        {
+          titulo: "Tópico 5",
+          descricao: "Nullam varius tempor massa et iaculis. Praesent sodales orci ut ultrices tempor. Quisque ac mauris gravida, dictum ipsum sit amet, bibendum turpis. Mauris dictum orci quis quam tincidunt imperdiet. Cras auctor aliquam tortor a luctus. Morbi tincidunt lacus vulputate risus dignissim porttitor."
+        },
+        {
+          titulo: "Tópico 6",
+          descricao: "Nullam varius tempor massa et iaculis. Praesent sodales orci ut ultrices tempor. Quisque ac mauris gravida, dictum ipsum sit amet, bibendum turpis. Mauris dictum orci quis quam tincidunt imperdiet. Cras auctor aliquam tortor a luctus. Morbi tincidunt lacus vulputate risus dignissim porttitor."
+        },
+      ]
     },
     {
       id: 2,
       data: "28/10/2025",
       numeracao: 2,
-      titulo: "Outro atendimento",
-      descricao:
-        "Nullam varius tempor massa et iaculis. Praesent sodales orci ut ultrices tempor.Quisque ac mauris gravida, dictum ipsum sit amet, bibendum turpis...",
+      topicos: [
+        {
+          titulo: "Tópico 1",
+          descricao: "Nullam varius tempor massa et iaculis. Praesent sodales orci ut ultrices tempor. Quisque ac mauris gravida, dictum ipsum sit amet, bibendum turpis. Mauris dictum orci quis quam tincidunt imperdiet. Cras auctor aliquam tortor a luctus. Morbi tincidunt lacus vulputate risus dignissim porttitor."
+        },
+        {
+          titulo: "Tópico 2",
+          descricao: "Nullam varius tempor massa et iaculis. Praesent sodales orci ut ultrices tempor. Quisque ac mauris gravida, dictum ipsum sit amet, bibendum turpis. Mauris dictum orci quis quam tincidunt imperdiet. Cras auctor aliquam tortor a luctus. Morbi tincidunt lacus vulputate risus dignissim porttitor."
+        }
+      ]
     },
     {
       id: 3,
       data: "01/10/2025",
       numeracao: 3,
-      titulo: "Título do tópico",
-      descricao:
-        "Nullam varius tempor massa et iaculis. Praesent sodales orci ut ultrices tempor.Quisque ac mauris gravida, dictum ipsum sit amet, bibendum turpis...",
+      topicos: [
+        {
+          titulo: "Tópico 1",
+          descricao: "Nullam varius tempor massa et iaculis. Praesent sodales orci ut ultrices tempor. Quisque ac mauris gravida, dictum ipsum sit amet, bibendum turpis. Mauris dictum orci quis quam tincidunt imperdiet. Cras auctor aliquam tortor a luctus. Morbi tincidunt lacus vulputate risus dignissim porttitor."
+        }
+      ]
     },
   ];
+
   function agruparPorMes(lista: Atendimento[]) {
     const meses: Record<string, Atendimento[]> = {};
 
@@ -83,7 +116,6 @@ export default function AtendimentoPage() {
 
   const [open, setOpen] = useState(false);
 
-  //Recebe os dados do formulário:
   function handleCreateAtendimento(data: AtendimentoFormData) {
     console.log("Novo atendimento recebido:", data);
 
@@ -102,7 +134,7 @@ export default function AtendimentoPage() {
         <div className="flex items-center justify-between mb-6">
           <button
             onClick={() => router.back()}
-            className="h-[38px] px-4 rounded-full flex items-center gap-2 bg-[#EDF2FB] text-sm text-gray-700"
+            className="h-[38px] px-4 rounded-full flex items-center gap-2 bg-[#EDF2FB] text-sm text-gray-700 cursor-pointer"
           >
             <ArrowLeft size={18} />
             Voltar
@@ -118,13 +150,13 @@ export default function AtendimentoPage() {
             </Button>
 
             <Select>
-              <SelectTrigger className="bg-white border border-[#3B82F6] rounded-full w-[130px] text-gray-600 text-sm focus-visible:ring-0 focus-visible:border-[#3B82F6]">
+              <SelectTrigger className="bg-white border border-[#3B82F6] rounded-full w-[130px] text-gray-600 text-sm focus-visible:ring-0 focus-visible:border-[#3B82F6] cursor-pointer">
                 <SelectValue placeholder="Filtrar por..." />
               </SelectTrigger>
               <SelectContent className="border border-[#3B82F6] rounded-xl">
-                <SelectItem value="todos">Todos</SelectItem>
-                <SelectItem value="numeracao">Numeração</SelectItem>
-                <SelectItem value="data">Data</SelectItem>
+                <SelectItem className="cursor-pointer" value="todos">Todos</SelectItem>
+                <SelectItem className="cursor-pointer" value="numeracao">Numeração</SelectItem>
+                <SelectItem className="cursor-pointer" value="data">Data</SelectItem>
               </SelectContent>
             </Select>
           </div>

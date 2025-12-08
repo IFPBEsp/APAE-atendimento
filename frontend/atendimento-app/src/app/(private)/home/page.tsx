@@ -9,50 +9,55 @@ import {
   SelectItem,
   SelectValue,
 } from "@/components/ui/select";
-import { CalendarClock, Search } from "lucide-react";
+import { CalendarClock, Search, AlertCircle } from "lucide-react";
 import { PacienteCard } from "@/components/cards/pacienteCard";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { getPacientes } from "../../../api/dadosPacientes";
+import { getPrimeiroNome } from "@/api/nomeProfissional";
+import { Paciente } from "@/types/Paciente";
 
 export default function PacientesPage() {
   const router = useRouter();
-
-  const [medicoNome, setMedicoNome] = useState("Fulano da silva");
-
-  const pacientes = [
-    {
-      id: "1",
-      nome: "Fulano de Tal da Silva Santos",
-      cpf: "123.456.789-00",
-      endereco: "Esperança - PB, R. Hugo Feitosa Figueiredo, 76, Centro.",
-      contato: "(83) 9 1234-5678",
-      dataNascimento: "10/01/2001",
-      transtornos: ["Autismo", "TDAH"],
-      responsaveis: ["Fulano da Silva", "Cicrano de Tal"],
-    },
-    {
-      id: "2",
-      nome: "Maria das Dores Souza",
-      cpf: "987.654.321-00",
-      endereco: "Esperança - PB, Rua Principal, 123.",
-      contato: "(83) 9 9999-8888",
-      dataNascimento: "15/02/1998",
-      transtornos: ["Autismo", "TDAH"],
-      responsaveis: ["Fulano da Silva", "Cicrano de Tal"],
-    },
-    {
-      id: "3",
-      nome: "Ana da Silva Oliveira",
-      cpf: "987.654.321-00",
-      endereco: "Esperança - PB, Rua Principal, 123.",
-      contato: "(83) 9 9999-8888",
-      dataNascimento: "15/02/1998",
-      transtornos: ["Autismo", "TDAH"],
-      responsaveis: ["Fulano da Silva", "Cicrano de Tal"],
-    },
-  ];
-
+  const [medicoNome, setMedicoNome] = useState<string>("");
+  const [dados, setDados] = useState<Paciente[]>([]);
+  const [erro, setErro] = useState<string>("");
+  const [carregando, setCarregando] = useState(true);
+  
+  useEffect(() => {
+    (async () => {
+      try {
+        setCarregando(true);
+        setErro("");
+        
+        const [nomeResult, pacientesResult] = await Promise.allSettled([
+          getPrimeiroNome(),
+          getPacientes()
+        ]);
+      
+        if (nomeResult.status === 'fulfilled') {
+          setMedicoNome(nomeResult.value);
+        } else {
+          console.error("Erro ao buscar nome do profissional:", nomeResult.reason);
+          setMedicoNome("Profissional");
+        }
+        
+        if (pacientesResult.status === 'fulfilled') {
+          setDados(pacientesResult.value);
+        } else {
+          console.error("Erro ao buscar pacientes:", pacientesResult.reason);
+          setErro("Não foi possível carregar os pacientes. Tente novamente mais tarde.");
+        }
+      } catch (error) {
+        setErro("Erro inesperado ao carregar os dados.");
+        console.error("Erro inesperado:", error);
+      } finally {
+        setCarregando(false);
+      }
+    })();
+  }, []);
+  
   return (
     <>
       <Header />
@@ -78,14 +83,14 @@ export default function PacientesPage() {
             </div>
 
             <Select>
-              <SelectTrigger className="bg-white border border-[#3B82F6] rounded-full w-[130px] text-gray-600 text-sm focus-visible:ring-0 focus-visible:border-[#3B82F6]">
+              <SelectTrigger className="bg-white border border-[#3B82F6] rounded-full w-[130px] text-gray-600 text-sm focus-visible:ring-0 focus-visible:border-[#3B82F6] cursor-pointer">
                 <SelectValue placeholder="Filtrar por..." />
               </SelectTrigger>
               <SelectContent className="border border-[#3B82F6] rounded-xl">
-                <SelectItem value="todos">Todos</SelectItem>
-                <SelectItem value="nome">Nome</SelectItem>
-                <SelectItem value="cpf">CPF</SelectItem>
-                <SelectItem value="cidade">Cidade</SelectItem>
+                <SelectItem className="cursor-pointer" value="todos">Todos</SelectItem>
+                <SelectItem className="cursor-pointer" value="nome">Nome</SelectItem>
+                <SelectItem className="cursor-pointer" value="cpf">CPF</SelectItem>
+                <SelectItem className="cursor-pointer" value="cidade">Cidade</SelectItem>
               </SelectContent>
             </Select>
 
@@ -99,16 +104,40 @@ export default function PacientesPage() {
           </div>
         </section>
 
-        <section className="w-full bg-white rounded-t-3xl p-6 flex flex-col gap-4 sm:grid sm:grid-cols-2 sm:gap-6">
-          {pacientes.map((pac) => (
-            <PacienteCard
-              key={pac.id}
-              {...pac}
-              onViewAtendimentos={() => router.push(`/atendimento/${pac.id}`)}
-              onViewRelatorios={() => router.push(`/relatorio/${pac.id}`)}
-              onViewAnexos={() => router.push(`/anexo/${pac.id}`)}
-            />
-          ))}
+        <section className="w-full bg-white rounded-t-3xl p-6 flex flex-col gap-4 sm:grid sm:grid-cols-2 sm:gap-6 min-h-[400px]">
+          {carregando ? (
+            <div className="col-span-2 flex items-center justify-center py-12">
+              <p className="text-gray-500 text-lg">Carregando pacientes...</p>
+            </div>
+          ) : erro ? (
+            <div className="col-span-2 flex flex-col items-center justify-center py-12 gap-3">
+              <AlertCircle size={48} className="text-red-500" />
+              <p className="text-red-600 text-lg font-medium">{erro}</p>
+              <Button
+                onClick={() => window.location.reload()}
+                className="mt-2 bg-[#165BAA] hover:bg-[#13447D] text-white"
+              >
+                Tentar novamente
+              </Button>
+            </div>
+          ) : dados.length === 0 ? (
+            <div className="col-span-2 flex items-center justify-center py-12">
+              <p className="text-gray-500 text-lg">
+                Não existem pacientes para este profissional
+              </p>
+            </div>
+          ) : (
+            dados.map((pac) => (
+              <PacienteCard
+                dataDeNascimento={""} 
+                key={pac.id}
+                {...pac}
+                onViewAtendimentos={() => router.push(`/atendimento/${pac.id}`)}
+                onViewRelatorios={() => router.push(`/relatorio/${pac.id}`)}
+                onViewAnexos={() => router.push(`/anexo/${pac.id}`)}
+              />
+            ))
+          )}
         </section>
 
         <button

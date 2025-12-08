@@ -4,15 +4,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { DialogFooter } from "@/components/ui/dialog";
 import { Textarea } from "../ui/textarea";
-import {
-  Dialog,
-  DialogTrigger,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
-
 import { useState } from "react";
 import { Upload, CirclePlus } from "lucide-react";
 
@@ -161,7 +152,7 @@ export default function AnexoForm({
                   e.stopPropagation();
                   removerArquivo();
                 }}
-                className="text-gray-500 hover:text-red-500 font-bold text-xs"
+                className="text-gray-500 hover:text-red-500 font-bold text-xs cursor-pointer"
               >
                 ✕
               </button>
