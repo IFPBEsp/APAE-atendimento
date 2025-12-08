@@ -47,7 +47,7 @@ export function MeusDadosModal({
 
       <DialogContent className="max-w-[90%] sm:max-w-[500px] p-0 border-none rounded-[30px] bg-white font-sans">
         <div className="absolute right-5 top-5 z-10">
-          <DialogClose className="rounded-full p-1 hover:bg-gray-100 transition-colors outline-none">
+          <DialogClose className="rounded-full p-1 hover:bg-gray-100 transition-colors outline-none cursor-pointer">
             <X className="h-6 w-6 text[]" />
           </DialogClose>
         </div>
@@ -105,7 +105,7 @@ export function MeusDadosModal({
 
           <Button
             onClick={logout}
-            className="w-full bg-[#F45D6C] hover:bg-[#D44D54] text-white font-medium rounded-full h-12 text-base shadow-none"
+            className="w-full bg-[#F45D6C] hover:bg-[#D44D54] text-white font-medium rounded-full h-12 text-base shadow-none cursor-pointer"
           >
             <LogOut className="mr-2 h-5 w-5 rotate-180" />
             Sair
