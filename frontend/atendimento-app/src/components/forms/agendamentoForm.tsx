@@ -48,26 +48,30 @@ export default function AgendamentoForm({ onSubmit }: AgendamentoFormProps) {
         </div>
       </div>
 
-      <div className="grid gap-2">
-        <Label>
-          Data <span className="text-[#F28C38]">*</span>
-        </Label>
-        <Input
-          type="date"
-          className="rounded-[30px] border-[#3B82F6] focus-visible:ring-0 focus-visible:border-[#B2D7EC]"
-          {...register("data", { required: true })}
-        />
-      </div>
-
-      <div className="grid gap-2">
-        <Label>
-          Horário <span className="text-[#F28C38]">*</span>
-        </Label>
-        <Input
-          type="time"
-          className="rounded-[30px] border-[#3B82F6] focus-visible:ring-0 focus-visible:border-[#B2D7EC]"
-          {...register("horario", { required: true })}
-        />
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+  
+        <div className="grid gap-2">
+          <Label>
+            Data <span className="text-[#F28C38]">*</span>
+          </Label>
+          <Input
+            type="date"
+            className="rounded-[30px] border-[#3B82F6] focus-visible:ring-0 focus-visible:border-[#B2D7EC]"
+            {...register("data", { required: true })}
+          />
+        </div>
+        
+        <div className="grid gap-2">
+          <Label>
+            Horário <span className="text-[#F28C38]">*</span>
+          </Label>
+          <Input
+            type="time"
+            className="rounded-[30px] border-[#3B82F6] focus-visible:ring-0 focus-visible:border-[#B2D7EC]"
+            {...register("horario", { required: true })}
+          />
+        </div>
+        
       </div>
 
       <div className="grid gap-2">
