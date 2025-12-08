@@ -9,49 +9,55 @@ import {
   SelectItem,
   SelectValue,
 } from "@/components/ui/select";
-import { Search } from "lucide-react";
+import { CalendarClock, Search, AlertCircle } from "lucide-react";
 import { PacienteCard } from "@/components/cards/pacienteCard";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { getPacientes } from "../../../api/dadosPacientes";
+import { getPrimeiroNome } from "@/api/nomeProfissional";
+import { Paciente } from "@/types/Paciente";
 
 export default function PacientesPage() {
   const router = useRouter();
-
-  const [medicoNome, setMedicoNome] = useState("Fulano da silva");
-
-  const pacientes = [
-    {
-      id: "1",
-      nome: "Fulano de Tal da Silva Santos",
-      cpf: "123.456.789-00",
-      endereco: "Esperança - PB, R. Hugo Feitosa Figueiredo, 76, Centro.",
-      contato: "(83) 9 1234-5678",
-      dataNascimento: "10/01/2001",
-      transtornos: ["Autismo", "TDAH"],
-      responsaveis: ["Fulano da Silva", "Cicrano de Tal"],
-    },
-    {
-      id: "2",
-      nome: "Maria das Dores Souza",
-      cpf: "987.654.321-00",
-      endereco: "Esperança - PB, Rua Principal, 123.",
-      contato: "(83) 9 9999-8888",
-      dataNascimento: "15/02/1998",
-      transtornos: ["Autismo", "TDAH"],
-      responsaveis: ["Fulano da Silva", "Cicrano de Tal"],
-    },
-    {
-      id: "3",
-      nome: "Ana da Silva Oliveira",
-      cpf: "987.654.321-00",
-      endereco: "Esperança - PB, Rua Principal, 123.",
-      contato: "(83) 9 9999-8888",
-      dataNascimento: "15/02/1998",
-      transtornos: ["Autismo", "TDAH"],
-      responsaveis: ["Fulano da Silva", "Cicrano de Tal"],
-    },
-  ];
-
+  const [medicoNome, setMedicoNome] = useState<string>("");
+  const [dados, setDados] = useState<Paciente[]>([]);
+  const [erro, setErro] = useState<string>("");
+  const [carregando, setCarregando] = useState(true);
+  
+  useEffect(() => {
+    (async () => {
+      try {
+        setCarregando(true);
+        setErro("");
+        
+        const [nomeResult, pacientesResult] = await Promise.allSettled([
+          getPrimeiroNome(),
+          getPacientes()
+        ]);
+      
+        if (nomeResult.status === 'fulfilled') {
+          setMedicoNome(nomeResult.value);
+        } else {
+          console.error("Erro ao buscar nome do profissional:", nomeResult.reason);
+          setMedicoNome("Profissional");
+        }
+        
+        if (pacientesResult.status === 'fulfilled') {
+          setDados(pacientesResult.value);
+        } else {
+          console.error("Erro ao buscar pacientes:", pacientesResult.reason);
+          setErro("Não foi possível carregar os pacientes. Tente novamente mais tarde.");
+        }
+      } catch (error) {
+        setErro("Erro inesperado ao carregar os dados.");
+        console.error("Erro inesperado:", error);
+      } finally {
+        setCarregando(false);
+      }
+    })();
+  }, []);
+  
   return (
     <>
       <Header />
@@ -87,20 +93,62 @@ export default function PacientesPage() {
                 <SelectItem className="cursor-pointer" value="cidade">Cidade</SelectItem>
               </SelectContent>
             </Select>
+
+            <Button
+              onClick={() =>  router.push("/agenda")}
+              className="hidden cursor-pointer md:flex items-center bg-[#165BAA] hover:bg-[#13447D] text-white gap-2 px-4 h-[38px]  rounded-full text-sm shadow-sm active:scale-95"
+            >
+              <CalendarClock size={18} />
+              Agenda
+            </Button>
           </div>
         </section>
 
-        <section className="w-full bg-white rounded-t-3xl p-6 flex flex-col gap-4 sm:grid sm:grid-cols-2 sm:gap-6">
-          {pacientes.map((pac) => (
-            <PacienteCard
-              key={pac.id}
-              {...pac}
-              onViewAtendimentos={() => router.push(`/atendimento/${pac.id}`)}
-              onViewRelatorios={() => router.push(`/relatorio/${pac.id}`)}
-              onViewAnexos={() => router.push(`/anexo/${pac.id}`)}
-            />
-          ))}
+        <section className="w-full bg-white rounded-t-3xl p-6 flex flex-col gap-4 sm:grid sm:grid-cols-2 sm:gap-6 min-h-[400px]">
+          {carregando ? (
+            <div className="col-span-2 flex items-center justify-center py-12">
+              <p className="text-gray-500 text-lg">Carregando pacientes...</p>
+            </div>
+          ) : erro ? (
+            <div className="col-span-2 flex flex-col items-center justify-center py-12 gap-3">
+              <AlertCircle size={48} className="text-red-500" />
+              <p className="text-red-600 text-lg font-medium">{erro}</p>
+              <Button
+                onClick={() => window.location.reload()}
+                className="mt-2 bg-[#165BAA] hover:bg-[#13447D] text-white"
+              >
+                Tentar novamente
+              </Button>
+            </div>
+          ) : dados.length === 0 ? (
+            <div className="col-span-2 flex items-center justify-center py-12">
+              <p className="text-gray-500 text-lg">
+                Não existem pacientes para este profissional
+              </p>
+            </div>
+          ) : (
+            dados.map((pac) => (
+              <PacienteCard
+                dataDeNascimento={""} 
+                key={pac.id}
+                {...pac}
+                onViewAtendimentos={() => router.push(`/atendimento/${pac.id}`)}
+                onViewRelatorios={() => router.push(`/relatorio/${pac.id}`)}
+                onViewAnexos={() => router.push(`/anexo/${pac.id}`)}
+              />
+            ))
+          )}
         </section>
+
+        <button
+          onClick={() => router.push("/agenda")}
+          className="
+              fixed bottom-6 right-6 w-14 h-14 rounded-full bg-[#165BAA]
+              flex items-center justify-center shadow-[4px_4px_12px_rgba(0,0,0,0.25)]
+              active:scale-95 md:hidden"
+        >
+          <CalendarClock size={28} className="text-white" />
+        </button>
       </main>
     </>
   );
