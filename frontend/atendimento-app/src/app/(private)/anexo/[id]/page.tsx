@@ -34,14 +34,15 @@ export default function AnexoPage() {
     if (!pacienteIdStr) return [];
       console.log(pacienteIdStr)
       return (await buscarAnexos(pacienteIdStr, dados.tipoArquivo)).map((e, i) => {
-          const {titulo, descricao, fileName, data, imageUrl} = e;
+          const {titulo, descricao, fileName, data, imageUrl, objectName} = e;
           return {
             id: ++i,
             titulo,
             descricao,
             fileName,
             data,
-            imageUrl
+            imageUrl,
+            objectName
           }
         });
   }
@@ -121,7 +122,7 @@ export default function AnexoPage() {
     const response : Anexo = await enviarAnexo(formData);
 
     novoAnexo.imageUrl = response.imageUrl;
-    console.log(novoAnexo)
+   
     setAnexos((prev) => [novoAnexo, ...prev]);
     setOpen(false);
      return {

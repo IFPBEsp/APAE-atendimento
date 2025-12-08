@@ -2,15 +2,9 @@
 
 import { X, Trash2, Download, Image as ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Anexo } from "@/types/Anexo";
+import dados from "../../../data/verificacao.json";
 
-interface AnexoData {
-    id: number;
-    titulo: string;
-    data: string;
-    descricao: string;
-    fileName: string;
-    imageUrl?: string;
-}
 
 interface DeleteModalProps {
     isOpen: boolean;
@@ -23,7 +17,7 @@ interface ViewModalProps {
     onClose: () => void;
     titulo: string;
     descricao: string;
-    data: AnexoData | null;
+    data: Anexo | null;
 }
 
 export function AnexoDeleteModal({
@@ -65,6 +59,18 @@ export function AnexoDeleteModal({
     );
 }
 
+const handleDownload = (objectName: string, bucket: string | undefined) => {
+      console.log("URL GERADA PELO BOTÃO:",
+    `${dados.urlBase}/arquivo/download/${bucket}?objectName=${objectName}`
+  );
+  if (!bucket) return;
+
+  const url = `${dados.urlBase}/arquivo/download/${bucket}?objectName=${objectName}`;
+  
+  window.location.href = url;
+};
+
+
 export function AnexoViewModal({ 
     isOpen, 
     onClose, 
@@ -73,7 +79,6 @@ export function AnexoViewModal({
     descricao 
 }: ViewModalProps) {
     if (!isOpen || !data) return null;
-
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4 py-6 animate-in fade-in duration-200">
             <div className="bg-white rounded-[24px] w-full max-w-[632px] max-h-[90vh] flex flex-col shadow-2xl overflow-hidden slide-in-from-bottom-10 overflow-y-auto">
@@ -110,7 +115,14 @@ export function AnexoViewModal({
                     <span className="text-sm text-[#344054] underline decoration-1">
                         {data.fileName}
                     </span>
-                    <Button className="w-full bg-[#165BAA] hover:bg-[#13447D] text-white h-12 rounded-full text-base font-semibold shadow-lg">
+                    <Button className="w-full bg-[#165BAA] hover:bg-[#13447D] text-white h-12 rounded-full text-base font-semibold shadow-lg"
+                      
+                      
+                      onClick={() => {
+  if (!data.objectName) return;
+  handleDownload(data.objectName, dados.bucket);
+}}
+>
                         <Download size={20} className="mr-2" />
                         Salvar anexo
                     </Button>

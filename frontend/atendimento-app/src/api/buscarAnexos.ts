@@ -10,13 +10,14 @@ if(!res.ok){
 
 const dto = await res.json();
 const result : Anexo[] = dto.map(e => {
-        const {titulo, descricao, data, presignedUrl,nomeArquivo} = e;
+        const {titulo, descricao, data, presignedUrl,nomeArquivo, objectName} = e;
         return {
              titulo,
              descricao,
              data,
              fileName: nomeArquivo,
-             imageUrl: presignedUrl
+             imageUrl: presignedUrl,
+             objectName
         }       
 })
 return result;

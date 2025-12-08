@@ -7,15 +7,18 @@ import br.org.apae.atendimento.entities.TipoArquivo;
 import br.org.apae.atendimento.mappers.ArquivoMapper;
 import br.org.apae.atendimento.repositories.AnexoRepository;
 import br.org.apae.atendimento.repositories.TipoArquivoRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-
+import java.io.InputStream;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
+import org.springframework.core.io.InputStreamResource;
 
 @Service
 public class ArquivoService {
@@ -97,5 +100,9 @@ public class ArquivoService {
     public void deletar(String bucket, String objectName) {
         repository.deleteById(objectName);
         minioService.deletarArquivo(bucket, objectName);
+    }
+    public InputStreamResource download (String bucket,String objectName){
+        InputStream stream = minioService.obterArquivo(bucket, objectName);
+        return new InputStreamResource(stream);
     }
 }
