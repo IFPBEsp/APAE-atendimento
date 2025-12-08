@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 
 import br.org.apae.atendimento.dtos.response.PacienteResponseDTO;
 import br.org.apae.atendimento.entities.Paciente;
-import br.org.apae.atendimento.exceptions.PacienteNotFoundException;
+import br.org.apae.atendimento.exceptions.notfound.PacienteNotFoundException;
 import br.org.apae.atendimento.mappers.PacienteMapper;
 import br.org.apae.atendimento.repositories.PacienteRepository;
 
