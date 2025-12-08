@@ -1,17 +1,13 @@
 package br.org.apae.atendimento.controllers;
 
-import br.org.apae.atendimento.dtos.request.AgendamentoRequestDTO;
 import br.org.apae.atendimento.dtos.request.AtendimentoRequestDTO;
-import br.org.apae.atendimento.dtos.response.AgendamentoResponseDTO;
+import br.org.apae.atendimento.dtos.request.update.AtendimentoUpdateRequestDTO;
 import br.org.apae.atendimento.dtos.response.AtendimentoResponseDTO;
-import br.org.apae.atendimento.dtos.response.DiaAgendamentoResponseDTO;
 import br.org.apae.atendimento.dtos.response.MesAnoAtendimentoResponseDTO;
 import br.org.apae.atendimento.services.AtendimentoService;
 import br.org.apae.atendimento.services.PacienteService;
 import br.org.apae.atendimento.services.ProfissionalSaudeService;
 
-import jakarta.websocket.server.PathParam;
-import org.simpleframework.xml.Path;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -59,5 +55,11 @@ public class AtendimentoController {
                                                      @PathVariable UUID atendimentoId){
         atendimentoService.deletar(profissionalId, pacienteId, atendimentoId);
         return ResponseEntity.ok().body("Atendimento excluído");
+    }
+
+    @PutMapping
+    public ResponseEntity<AtendimentoResponseDTO> editarTopicos(@RequestBody AtendimentoUpdateRequestDTO updateDTO){
+        AtendimentoResponseDTO atendimentoAtualizado = atendimentoService.editarTopicos(updateDTO);
+        return ResponseEntity.ok().body(atendimentoAtualizado);
     }
 }
