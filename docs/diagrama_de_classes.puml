@@ -58,8 +58,16 @@ class TipoArquivo {
 
 }
 
+class Agendamento {
+- id: UUID
+- status: String
+- dataHora: LocalDateTime
+- numeracao: Long
 
 
++ getProfissional(id: UUID): ProfissionalSaude
++ getPacientes((id: UUID): Paciente
+}
 
 Paciente "1" -- "0..*" Atendimento
 ProfissionalSaude "1" -- "0..*" Atendimento
@@ -67,5 +75,7 @@ Paciente "0..*" -- "0..*" ProfissionalSaude
 TipoArquivo "0..*" -- "1" Arquivo
 Paciente "1" -- "0..*" Arquivo
 ProfissionalSaude "1" -- "0..*" Arquivo
+Agendamento "0..*" -- "1" ProfissionalSaude
+Agendamento "0..*" -- "1" Paciente
 
 @enduml
