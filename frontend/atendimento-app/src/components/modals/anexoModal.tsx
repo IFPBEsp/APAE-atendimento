@@ -3,7 +3,7 @@
 import { X, Trash2, Download, Image as ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Anexo } from "@/types/Anexo";
-import dados from "../../../data/verificacao.json";
+import { handleDownload } from "@/api/salvarAnexo";
 
 
 interface DeleteModalProps {
@@ -59,14 +59,6 @@ export function AnexoDeleteModal({
         </div>
     );
 }
-
-const handleDownload = (objectName: string, bucket: string) => {
-      console.log("URL GERADA PELO BOTÃO:",
-    `${dados.urlBase}/arquivo/download/${bucket}?objectName=${objectName}`
-  );
-  const url = `${dados.urlBase}/arquivo/download/${bucket}?objectName=${objectName}`;
-  window.location.href = url;
-};
 
 
 export function AnexoViewModal({ 

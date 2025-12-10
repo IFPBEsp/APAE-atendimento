@@ -18,6 +18,7 @@ import { buscarAnexos } from "@/api/buscarAnexos";
 import dados from "../../../../../data/verificacao.json"
 import { validarTipoArquivo } from "@/services/validarTipoArquivo";
 import {toast} from "sonner";
+import { formatarData } from "@/utils/formatarData";
 
 
 const nunitoFont = Nunito({ weight: "700" });
@@ -100,6 +101,8 @@ export default function AnexoPage() {
     let preview = undefined;
     let fileName = "";
 
+    data.data = formatarData(data.data);
+    
     if (data.arquivo && data.arquivo[0]) {
       preview = URL.createObjectURL(data.arquivo[0]);
       fileName = data.arquivo[0].name;

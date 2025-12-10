@@ -1,16 +1,18 @@
 package br.org.apae.atendimento.services;
 
-import br.org.apae.atendimento.exceptions.MinioStorageException;
-import io.minio.*;
+import java.io.InputStream;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.InputStream;
-import java.time.Duration;
+import br.org.apae.atendimento.exceptions.MinioStorageException;
+import io.minio.BucketExistsArgs;
+import io.minio.MakeBucketArgs;
+import io.minio.MinioClient;
+import io.minio.PutObjectArgs;
+import io.minio.RemoveObjectArgs;
 
 
 @Service
@@ -61,19 +63,16 @@ public class MinioService {
 
     private void colocarArquivo(String bucket, String objectName, MultipartFile file) {
         try (InputStream is = file.getInputStream()) {
-            String contentType = file.getContentType();
-            if (contentType == null) {
-                contentType = "application/octet-stream";
-            }
-
             client.putObject(
-                    PutObjectArgs.builder()
-                            .bucket(bucket)
-                            .object(objectName)
-                            .stream(is, file.getSize(), -1)
-                            .contentType(contentType)
-                            .build()
+                PutObjectArgs.builder()
+                    .bucket(bucket)
+                    .object(objectName)
+                    .stream(is, file.getSize(), -1)
+                    .contentType("application/octet-stream")
+                    .headers(Map.of("Content-Disposition", "attachment"))
+                    .build()
             );
+
         } catch (Exception e) {
             throw new MinioStorageException("Erro ao enviar arquivo para o bucket", e);
         }
