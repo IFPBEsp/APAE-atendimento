@@ -59,14 +59,11 @@ export function AnexoDeleteModal({
     );
 }
 
-const handleDownload = (objectName: string, bucket: string | undefined) => {
+const handleDownload = (objectName: string, bucket: string) => {
       console.log("URL GERADA PELO BOTÃO:",
     `${dados.urlBase}/arquivo/download/${bucket}?objectName=${objectName}`
   );
-  if (!bucket) return;
-
   const url = `${dados.urlBase}/arquivo/download/${bucket}?objectName=${objectName}`;
-  
   window.location.href = url;
 };
 
@@ -119,8 +116,8 @@ export function AnexoViewModal({
                       
                       
                       onClick={() => {
-  if (!data.objectName) return;
-  handleDownload(data.objectName, dados.bucket);
+  if (!data.objectName || !data.bucket) return;
+  handleDownload(data.objectName, data.bucket);
 }}
 >
                         <Download size={20} className="mr-2" />

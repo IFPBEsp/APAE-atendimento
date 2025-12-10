@@ -90,17 +90,4 @@ public class MinioService {
             throw new MinioStorageException("Erro ao apagar arquivo", e);
         }
     }
-
-    public InputStream obterArquivo(String bucket, String objectName){
-        try{
-            return client.getObject(
-                GetObjectArgs.builder()
-                    .bucket(bucket)
-                    .object(objectName)
-                    .build()
-                );
-        } catch (Exception e) {
-        throw new RuntimeException("Erro ao obter arquivo do MinIO", e);
-    }
-    }
 }

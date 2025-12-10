@@ -7,4 +7,5 @@ export interface Anexo {
   imageUrl?: string;
   objectName?: string;
   presignedUrl?: string;
+  bucket?: string;
 }

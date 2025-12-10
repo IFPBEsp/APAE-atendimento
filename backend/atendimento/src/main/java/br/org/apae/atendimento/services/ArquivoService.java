@@ -101,8 +101,5 @@ public class ArquivoService {
         repository.deleteById(objectName);
         minioService.deletarArquivo(bucket, objectName);
     }
-    public InputStreamResource download (String bucket,String objectName){
-        InputStream stream = minioService.obterArquivo(bucket, objectName);
-        return new InputStreamResource(stream);
-    }
+    
 }

@@ -65,15 +65,5 @@ public class ArquivoController {
         service.deletar(bucket, objectName);
         return ResponseEntity.noContent().build();
     }
-
-    @GetMapping("/download/{bucket}")
-    public ResponseEntity<InputStreamResource> download (@PathVariable String bucket,
-                                                         @RequestParam(name = "objectName") String objectName){
-       InputStreamResource inputStreamResource = service.download(bucket, objectName);
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + objectName + "\"")
-                .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                .body(inputStreamResource);
-
-    }
+    
 }
