@@ -5,7 +5,6 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 public record ArquivoRequestDTO(
-        @JsonFormat(pattern = "yyyy-MM-dd")
         LocalDate data,
         Long tipoArquivo,
         UUID profissionalId,

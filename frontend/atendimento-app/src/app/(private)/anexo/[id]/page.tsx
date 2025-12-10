@@ -261,6 +261,7 @@ export default function AnexoPage() {
         titulo={reportToView?.titulo ?? ""}
         data={reportToView}
         descricao={reportToView?.descricao ?? ""}
+        bucket={pacienteIdStr}
       />
     </div>
   );

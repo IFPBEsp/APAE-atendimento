@@ -18,6 +18,7 @@ interface ViewModalProps {
     titulo: string;
     descricao: string;
     data: Anexo | null;
+    bucket: string;
 }
 
 export function AnexoDeleteModal({
@@ -73,7 +74,8 @@ export function AnexoViewModal({
     onClose, 
     titulo, 
     data, 
-    descricao 
+    descricao,
+    bucket
 }: ViewModalProps) {
     if (!isOpen || !data) return null;
     return (
@@ -116,8 +118,8 @@ export function AnexoViewModal({
                       
                       
                       onClick={() => {
-  if (!data.objectName || !data.bucket) return;
-  handleDownload(data.objectName, data.bucket);
+  if (!data.objectName || !bucket) return;
+  handleDownload(data.objectName, bucket);
 }}
 >
                         <Download size={20} className="mr-2" />
