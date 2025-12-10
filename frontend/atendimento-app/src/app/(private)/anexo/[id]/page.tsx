@@ -19,6 +19,9 @@ import dados from "../../../../../data/verificacao.json"
 import { validarTipoArquivo } from "@/services/validarTipoArquivo";
 import {toast} from "sonner";
 import { formatarData } from "@/utils/formatarData";
+import { handleDownload } from "@/api/salvarAnexo";
+import { apagarAnexo } from "@/api/apagarAnexo";
+
 
 
 const nunitoFont = Nunito({ weight: "700" });
@@ -33,7 +36,6 @@ export default function AnexoPage() {
 
   async function obterResultadoBuscarAnexos() : Promise<Anexo[]> {
     if (!pacienteIdStr) return [];
-      console.log(pacienteIdStr)
       return (await buscarAnexos(pacienteIdStr, dados.tipoArquivo)).map((e, i) => {
           const {titulo, descricao, fileName, data, imageUrl, objectName} = e;
           return {
@@ -59,12 +61,18 @@ export default function AnexoPage() {
   const [reportToDelete, setReportToDelete] = useState<Anexo | null>(null);
   const [reportToView, setReportToView] = useState<Anexo | null>(null);
 
-  const handleDelete = () => {
+  const handleDelete = async (objectName: string | undefined) => {
     if (reportToDelete) {
       setAnexos((prev) => prev.filter((r) => r.id !== reportToDelete.id));
       setReportToDelete(null);
     }
+     await apagarAnexo(objectName, pacienteIdStr);
   };
+
+  const handleUpdate = async (objectName: string | undefined) => {
+    if (!objectName || !pacienteIdStr) return;
+    await handleDownload(objectName, pacienteIdStr);
+  }
 
   const anexosFiltrados =
     dataSelecionada
@@ -93,7 +101,11 @@ export default function AnexoPage() {
   }
 }
 
-  
+  async function reloadAnexos() {
+  const anexosResult = await obterResultadoBuscarAnexos();
+  setAnexos((prev) => [...anexosResult, ...prev]);
+}
+
   async function handleCreateAnexo(data: AnexoEnvioFormData) {
     //console.log("Novo anexo recebido:", data);
     const novoId = anexos.length + 1;
@@ -114,7 +126,7 @@ export default function AnexoPage() {
       descricao: data.descricao,
       data: data.data,
       fileName: fileName,
-      imageUrl: preview,
+      imageUrl: preview
     };
     
    
@@ -124,9 +136,9 @@ export default function AnexoPage() {
     const formData : FormData = construirArquivoFormData(data);
     const response : Anexo = await enviarAnexo(formData);
 
-    novoAnexo.imageUrl = response.imageUrl;
+    await reloadAnexos();
    
-    setAnexos((prev) => [novoAnexo, ...prev]);
+   
     setOpen(false);
      return {
       sucesso: true,
@@ -255,7 +267,7 @@ export default function AnexoPage() {
       <AnexoDeleteModal
         isOpen={!!reportToDelete}
         onClose={() => setReportToDelete(null)}
-        onConfirm={handleDelete}
+        onConfirm={() => handleDelete(reportToDelete?.objectName)}
       />
 
       <AnexoViewModal
@@ -264,7 +276,7 @@ export default function AnexoPage() {
         titulo={reportToView?.titulo ?? ""}
         data={reportToView}
         descricao={reportToView?.descricao ?? ""}
-        bucket={pacienteIdStr}
+        onUpdate={() => handleUpdate(reportToView?.objectName)}
       />
     </div>
   );
