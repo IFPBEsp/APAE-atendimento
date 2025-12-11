@@ -40,7 +40,9 @@ export default function AnexoCard({
         onClick={onView}
         className="flex-1 bg-gray-50 rounded-xl border border-dashed border-gray-200 flex items-center justify-center overflow-hidden cursor-pointer relative hover:opacity-90 transition-opacity mb-3"
       >
-        {imageUrl ? (
+        {    
+        imageUrl ? 
+        (
           <img
             src={imageUrl}
             alt="Pré-visualização"

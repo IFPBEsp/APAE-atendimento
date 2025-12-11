@@ -108,7 +108,7 @@ export default function AnexoPage() {
 
   async function reloadAnexos() {
   const anexosResult = await obterResultadoBuscarAnexos();
-  setAnexos((prev) => [...anexosResult, ...prev]);
+  setAnexos(anexosResult);
 }
 
   async function handleCreateAnexo(data: AnexoEnvioFormData) {
