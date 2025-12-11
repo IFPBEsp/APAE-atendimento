@@ -32,7 +32,7 @@ interface AnexoFormProps {
 export default function AnexoForm({ 
     onSubmit 
 }: AnexoFormProps) {
-  const { register, handleSubmit, watch, setValue } = useForm<AnexoFormData>({
+  const { register, handleSubmit, watch, setValue } = useForm<AnexoEnvioFormData>({
     defaultValues: {
       data: new Date().toISOString().split("T")[0],
       titulo: "",

@@ -95,9 +95,10 @@ export default function AnexoPage() {
 
     toast.error(respostaCriacao.mensagem || "Erro ao enviar o anexo.");
 
-  } catch (err: any) {
-    console.error("Erro inesperado:", err);
-    toast.error(err?.message || "Erro inesperado ao enviar o anexo.");
+  } catch (err) {
+      console.error("Erro inesperado:", err);
+  const mensagem = err instanceof Error ? err.message : String(err);
+  toast.error(mensagem || "Erro inesperado ao enviar o anexo.");
   }
 }
 

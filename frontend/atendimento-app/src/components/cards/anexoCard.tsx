@@ -1,7 +1,7 @@
 import { Trash2, Image as ImageIcon } from "lucide-react";
 
 interface AnexoCardProps {
-  id: number;
+  id?: number;
   titulo: string;
   data: string;
   fileName: string;
