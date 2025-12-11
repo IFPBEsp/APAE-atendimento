@@ -1,7 +1,7 @@
-import { Anexo } from "@/types/Anexo";
 import dados from "../../data/verificacao.json";
 import { TipoArquivo } from "@/components/forms/anexoForm";
-export async function buscarAnexos(idPaciente: string, tipoArquivo: TipoArquivo) : Promise<Anexo[]> {
+import { AnexoResponse } from "@/types/AnexoResponse";
+export async function buscarAnexos(idPaciente: string, tipoArquivo: TipoArquivo) : Promise<AnexoResponse[]> {
     try{
 const res = await fetch(`${dados.urlBase}/arquivo/list/${dados.idProfissional}/${idPaciente}/${tipoArquivo}`);
 
@@ -9,15 +9,15 @@ if(!res.ok){
   throw new Error('Erro ao buscar anexos');
 }
 
-const dto = await res.json() as Anexo[];
-const result : Anexo[] = dto.map(e => {
-        const {titulo, descricao, data, presignedUrl,fileName, objectName} = e;
+const dto = await res.json() as AnexoResponse[];
+const result : AnexoResponse[] = dto.map(e => {
+        const {titulo, descricao, data, presignedUrl,nomeArquivo, objectName} = e;
         return {
              titulo,
              descricao,
              data,
-             fileName,
-             imageUrl: presignedUrl,
+             nomeArquivo,
+             presignedUrl,
              objectName
         }       
 })

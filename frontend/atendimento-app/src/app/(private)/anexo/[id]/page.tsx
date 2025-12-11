@@ -21,6 +21,7 @@ import {toast} from "sonner";
 import { handleDownload } from "@/api/salvarAnexo";
 import { apagarAnexo } from "@/api/apagarAnexo";
 import { validarTamanhoArquivo } from "@/services/validarTamanhoArquivo";
+import { AnexoResponse } from "@/types/AnexoResponse";
 
 
 
@@ -36,19 +37,22 @@ export default function AnexoPage() {
 
   async function obterResultadoBuscarAnexos() : Promise<Anexo[]> {
     if (!pacienteIdStr) return [];
-      return (await buscarAnexos(pacienteIdStr, TipoArquivo.anexo)).map((e, i) => {
-          const {titulo, descricao, fileName, data, imageUrl, objectName} = e;
-          return {
-            id: ++i,
-            titulo,
-            descricao,
-            fileName,
-            data,
-            imageUrl,
-            objectName
-          }
-        });
-  }
+      const resposta = await buscarAnexos(
+    pacienteIdStr,
+    TipoArquivo.anexo
+  ) as AnexoResponse[];
+
+  return resposta.map((e: AnexoResponse, i) => ({
+    id: ++i,
+    titulo: e.titulo,
+    descricao: e.descricao,
+    fileName: e.nomeArquivo,
+    data: e.data,
+    imageUrl: e.presignedUrl,
+    objectName: e.objectName
+  }));
+}
+
   useEffect(() => {    
       (async () => {
         const anexosResult = await obterResultadoBuscarAnexos();
