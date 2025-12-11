@@ -16,12 +16,17 @@ export type AnexoFormData = {
 
 export type AnexoEnvioFormData = AnexoFormData & {
   pacienteId: string | undefined;
-  tipoArquivo: number;
+  tipoArquivo: TipoArquivo;
   profissionalId: string | undefined;
 }
 
+export enum TipoArquivo {
+  anexo = 1,
+  relatorio = 2
+}
+
 interface AnexoFormProps {
-  onSubmit: (data: AnexoFormData) => void;
+  onSubmit: (data: AnexoEnvioFormData) => void;
 }
 
 export default function AnexoForm({ 

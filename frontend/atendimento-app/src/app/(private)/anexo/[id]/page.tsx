@@ -7,7 +7,7 @@ import Header from "@/components/shared/header";
 import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import AnexoForm, { AnexoFormData, AnexoEnvioFormData } from "@/components/forms/anexoForm";
+import AnexoForm, {AnexoEnvioFormData, TipoArquivo } from "@/components/forms/anexoForm";
 import { AnexoModal } from "@/components/modals/novoAnexoModal";
 import AnexoCard from "@/components/cards/anexoCard";
 import { AnexoViewModal, AnexoDeleteModal } from "@/components/modals/anexoModal";
@@ -18,9 +18,9 @@ import { buscarAnexos } from "@/api/buscarAnexos";
 import dados from "../../../../../data/verificacao.json"
 import { validarTipoArquivo } from "@/services/validarTipoArquivo";
 import {toast} from "sonner";
-import { formatarData } from "@/utils/formatarData";
 import { handleDownload } from "@/api/salvarAnexo";
 import { apagarAnexo } from "@/api/apagarAnexo";
+import { validarTamanhoArquivo } from "@/services/validarTamanhoArquivo";
 
 
 
@@ -36,7 +36,7 @@ export default function AnexoPage() {
 
   async function obterResultadoBuscarAnexos() : Promise<Anexo[]> {
     if (!pacienteIdStr) return [];
-      return (await buscarAnexos(pacienteIdStr, dados.tipoArquivo)).map((e, i) => {
+      return (await buscarAnexos(pacienteIdStr, TipoArquivo.anexo)).map((e, i) => {
           const {titulo, descricao, fileName, data, imageUrl, objectName} = e;
           return {
             id: ++i,
@@ -61,7 +61,7 @@ export default function AnexoPage() {
   const [reportToDelete, setReportToDelete] = useState<Anexo | null>(null);
   const [reportToView, setReportToView] = useState<Anexo | null>(null);
 
-  const handleDelete = async (objectName: string | undefined) => {
+  const handleDelete = async (objectName: string) => {
     if (reportToDelete) {
       setAnexos((prev) => prev.filter((r) => r.id !== reportToDelete.id));
       setReportToDelete(null);
@@ -69,7 +69,7 @@ export default function AnexoPage() {
      await apagarAnexo(objectName, pacienteIdStr);
   };
 
-  const handleUpdate = async (objectName: string | undefined) => {
+  const handleUpdate = async (objectName: string) => {
     if (!objectName || !pacienteIdStr) return;
     await handleDownload(objectName, pacienteIdStr);
   }
@@ -79,12 +79,12 @@ export default function AnexoPage() {
       ? anexos.filter((r) => r.data === dataSelecionada)
       : anexos;
 
-  async function enviarArquivo(data: AnexoFormData) {
+  async function enviarArquivo(data: AnexoEnvioFormData) {
   try {
     const request : AnexoEnvioFormData = {
       ...data,
       pacienteId: pacienteIdStr,
-      tipoArquivo: dados.tipoArquivo,
+      tipoArquivo: TipoArquivo.anexo,
       profissionalId: dados.idProfissional
     }
     const respostaCriacao = await handleCreateAnexo(request);
@@ -107,38 +107,14 @@ export default function AnexoPage() {
 }
 
   async function handleCreateAnexo(data: AnexoEnvioFormData) {
-    //console.log("Novo anexo recebido:", data);
-    const novoId = anexos.length + 1;
-
-    let preview = undefined;
-    let fileName = "";
-
-    data.data = formatarData(data.data);
-    
-    if (data.arquivo && data.arquivo[0]) {
-      preview = URL.createObjectURL(data.arquivo[0]);
-      fileName = data.arquivo[0].name;
-    }
-
-    const novoAnexo: Anexo = {
-      id: novoId,
-      titulo: data.titulo || "Sem título",
-      descricao: data.descricao,
-      data: data.data,
-      fileName: fileName,
-      imageUrl: preview
-    };
-    
    
     try{
     validarTipoArquivo(data.arquivo);
-    
+    validarTamanhoArquivo(data.arquivo);
+    console.log(data)
     const formData : FormData = construirArquivoFormData(data);
-    const response : Anexo = await enviarAnexo(formData);
-
+    await enviarAnexo(formData);
     await reloadAnexos();
-   
-   
     setOpen(false);
      return {
       sucesso: true,
@@ -267,7 +243,7 @@ export default function AnexoPage() {
       <AnexoDeleteModal
         isOpen={!!reportToDelete}
         onClose={() => setReportToDelete(null)}
-        onConfirm={() => handleDelete(reportToDelete?.objectName)}
+        onConfirm={() => reportToDelete && handleDelete(reportToDelete.objectName)}
       />
 
       <AnexoViewModal
@@ -276,7 +252,7 @@ export default function AnexoPage() {
         titulo={reportToView?.titulo ?? ""}
         data={reportToView}
         descricao={reportToView?.descricao ?? ""}
-        onUpdate={() => handleUpdate(reportToView?.objectName)}
+        onUpdate={() => reportToView && handleUpdate(reportToView.objectName)}
       />
     </div>
   );

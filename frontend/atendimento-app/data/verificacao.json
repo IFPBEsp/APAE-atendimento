@@ -1,7 +1,6 @@
 {
   "codigo": "1234",
   "email": "teste@hotmail.com",
-  "idProfissional": "0ee5ccb0-e9e9-4063-9e9e-dc7d62d43b51",
-  "urlBase": "http://localhost:8080",
-  "tipoArquivo": 1
+  "idProfissional": "dc05115c-1226-46e4-b106-82436d0bf741",
+  "urlBase": "http://localhost:8080"
 }

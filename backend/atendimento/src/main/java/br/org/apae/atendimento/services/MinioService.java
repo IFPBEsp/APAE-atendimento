@@ -63,12 +63,16 @@ public class MinioService {
 
     private void colocarArquivo(String bucket, String objectName, MultipartFile file) {
         try (InputStream is = file.getInputStream()) {
+            String contentType = file.getContentType();
+            if (contentType == null) {
+                contentType = "application/octet-stream";
+            }
             client.putObject(
                 PutObjectArgs.builder()
                     .bucket(bucket)
                     .object(objectName)
                     .stream(is, file.getSize(), -1)
-                    .contentType("application/octet-stream")
+                    .contentType(contentType)
                     .headers(Map.of("Content-Disposition", "attachment"))
                     .build()
             );

@@ -1,4 +1,5 @@
-    import {AnexoEnvioFormData} from "../components/forms/anexoForm"
+    import { formatarData } from "@/utils/formatarData";
+import {AnexoEnvioFormData} from "../components/forms/anexoForm"
 
     export function construirArquivoFormData (data: AnexoEnvioFormData) : FormData {
         const formData: FormData = new FormData();
@@ -8,7 +9,7 @@
           formData.append("file", arquivo, arquivo.name);
         }
           const metadata = {
-                data: data.data,
+                data: formatarData(data.data),
                 tipoArquivo: data.tipoArquivo,
                 profissionalId: data.profissionalId,
                 pacienteId: data.pacienteId,
@@ -16,6 +17,7 @@
                 descricao: data.descricao,
             };
         formData.append("metadata", new Blob (
+            
             [JSON.stringify(metadata)],{type: "application/json"}
         )
     );
