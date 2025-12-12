@@ -4,6 +4,7 @@ import br.org.apae.atendimento.dtos.request.ArquivoRequestDTO;
 import br.org.apae.atendimento.dtos.response.ArquivoResponseDTO;
 import br.org.apae.atendimento.services.ArquivoService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,8 +27,8 @@ public class ArquivoController {
         return ResponseEntity.status(HttpStatus.CREATED).body(anexoDTO);
     }
 
-    @GetMapping("/list/{profissionalId}/{pacienteId}/{tipoId}")
-    public ResponseEntity<List<ArquivoResponseDTO>> list(
+    @GetMapping("/{profissionalId}/{pacienteId}/{tipoId}")
+    public ResponseEntity<List<ArquivoResponseDTO>> findByTipoId(
             @PathVariable UUID profissionalId,
             @PathVariable UUID pacienteId,
             @PathVariable Long tipoId
@@ -36,21 +37,21 @@ public class ArquivoController {
         return ResponseEntity.ok().body(anexos);
     }
 
-    @GetMapping("/list/date/{profissionalId}/{pacienteId}/{tipoId}/{data}")
-    public ResponseEntity<List<ArquivoResponseDTO>> listByDate(
+    @GetMapping("/date/{profissionalId}/{pacienteId}/{tipoId}/{data}")
+    public ResponseEntity<List<ArquivoResponseDTO>> findByTipoIdAndDate(
             @PathVariable UUID profissionalId,
             @PathVariable UUID pacienteId,
             @PathVariable Long tipoId,
-            @PathVariable LocalDate data
+            @PathVariable @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate data
             ){
         List<ArquivoResponseDTO> anexos = service.buscarPorData(profissionalId, pacienteId, tipoId, data);
         return ResponseEntity.ok().body(anexos);
     }
 
-    @DeleteMapping("/delete/{bucket}")
+    @DeleteMapping("/delete")
     public ResponseEntity<Void> delete(@PathVariable String bucket,
                                        @RequestParam(name = "objectName") String objectName){
-        service.deletar(bucket, objectName);
+        service.deletar(objectName);
         return ResponseEntity.noContent().build();
     }
 }
