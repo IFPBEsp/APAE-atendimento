@@ -11,15 +11,8 @@ import RelatorioForm, { RelatorioFormData } from "@/components/forms/relatorioFo
 import { RelatorioModal } from "@/components/modals/novoRelatorioModal";
 import RelatorioCard from "@/components/cards/relatorioCard";
 import { RelatorioViewModal, RelatorioDeleteModal } from "@/components/modals/relatorioModal";
+import { Relatorio } from "@/types/Relatorio";
 
-interface Relatorio {
-  id: number;
-  titulo: string;
-  descricao: string;
-  data: string;
-  fileName: string;
-  imageUrl?: string;
-}
 
 const nunitoFont = Nunito({ weight: "700" });
 
@@ -29,7 +22,7 @@ export default function RelatorioPage() {
   const nomePaciente = "Fulano de Tal de Lorem Ipsum Santos";
 
   const [relatorios, setRelatorios] = useState<Relatorio[]>(
-    Array.from({ length: 8 }).map((_, i) => ({
+    Array.from({ length: 1 }).map((_, i) => ({
       id: i,
       titulo: "Lorem Ipsum", data: "2025-11-24",
       descricao: "Nullam varius tempor massa et iaculis. Praesent sodales orci ut ultrices tempor. Quisque ac mauris gravida, dictum ipsum sit amet, bibendum turpis. Mauris dictum orci quis quam tincidunt imperdiet. Cras auctor aliquam tortor a luctus. Morbi tincidunt lacus vulputate risus dignissim porttitor.",
