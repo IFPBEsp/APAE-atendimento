@@ -12,17 +12,15 @@ import { AnexoModal } from "@/components/modals/novoAnexoModal";
 import AnexoCard from "@/components/cards/anexoCard";
 import { AnexoViewModal, AnexoDeleteModal } from "@/components/modals/anexoModal";
 import { construirArquivoFormData } from "@/services/construirArquivoFormData";
-import { enviarAnexo } from "@/api/enviarAnexo";
-import {Anexo} from "../../../../types/Anexo";
-import { buscarAnexos } from "@/api/buscarAnexos";
+import { enviarArquivo } from "@/api/enviarArquivo";
+import {Anexo, AnexoResponse} from "../../../../types/Anexo";
+import { buscarArquivos } from "@/api/buscarArquivos";
 import dados from "../../../../../data/verificacao.json"
 import { validarTipoArquivo } from "@/services/validarTipoArquivo";
 import {toast} from "sonner";
 import { handleDownload } from "@/api/salvarAnexo";
 import { apagarAnexo } from "@/api/apagarAnexo";
 import { validarTamanhoArquivo } from "@/services/validarTamanhoArquivo";
-import { AnexoResponse } from "@/types/AnexoResponse";
-
 
 
 const nunitoFont = Nunito({ weight: "700" });
@@ -37,19 +35,14 @@ export default function AnexoPage() {
 
   async function obterResultadoBuscarAnexos() : Promise<Anexo[]> {
     if (!pacienteIdStr) return [];
-      const resposta = await buscarAnexos(
+      const resposta = await buscarArquivos(
     pacienteIdStr,
     TipoArquivo.anexo
   ) as AnexoResponse[];
 
-  return resposta.map((e: AnexoResponse, i) => ({
+  return resposta.map((e: AnexoResponse , i) => ({
     id: ++i,
-    titulo: e.titulo,
-    descricao: e.descricao,
-    fileName: e.nomeArquivo,
-    data: e.data,
-    imageUrl: e.presignedUrl,
-    objectName: e.objectName
+    ...e
   }));
 }
 
@@ -83,7 +76,7 @@ export default function AnexoPage() {
       ? anexos.filter((r) => r.data === dataSelecionada)
       : anexos;
 
-  async function enviarArquivo(data: AnexoEnvioFormData) {
+  async function enviarArquivoAnexo(data: AnexoEnvioFormData) {
   try {
     const request : AnexoEnvioFormData = {
       ...data,
@@ -116,11 +109,9 @@ export default function AnexoPage() {
     try{
     validarTipoArquivo(data.arquivo);
     validarTamanhoArquivo(data.arquivo);
-    console.log(data)
     const formData : FormData = construirArquivoFormData(data);
-    await enviarAnexo(formData);
+    await enviarArquivo(formData);
     await reloadAnexos();
-    setOpen(false);
      return {
       sucesso: true,
       mensagem: "Anexo enviado com sucesso!"
@@ -135,6 +126,8 @@ export default function AnexoPage() {
       sucesso: false,
       mensagem
     };
+    }finally{
+      setOpen(false);
     }
 
      }
@@ -215,8 +208,8 @@ export default function AnexoPage() {
                 id={item.id}
                 titulo={item.titulo}
                 data={item.data}
-                fileName={item.fileName}
-                imageUrl={item.imageUrl}
+                fileName={item.nomeArquivo}
+                imageUrl={item.presignedUrl}
                 onView={() => setReportToView(item)}
                 onDelete={() => setReportToDelete(item)}
               />
@@ -229,7 +222,7 @@ export default function AnexoPage() {
           onOpenChange={setOpen}
         >
           <AnexoForm
-            onSubmit={enviarArquivo}
+            onSubmit={enviarArquivoAnexo}
           />
         </AnexoModal>
 

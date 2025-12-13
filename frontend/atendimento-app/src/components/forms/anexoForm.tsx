@@ -7,17 +7,24 @@ import { Textarea } from "../ui/textarea";
 import { useState } from "react";
 import { Upload, CirclePlus } from "lucide-react";
 
-export type AnexoFormData = {
+export type DocumentoFormData = {
   data: string;
   titulo: string;
   arquivo?: FileList;
   descricao: string;
 };
 
-export type AnexoEnvioFormData = AnexoFormData & {
-  pacienteId: string | undefined;
-  tipoArquivo: TipoArquivo;
-  profissionalId: string | undefined;
+export type DocumentoFormDataEnvio = {
+  pacienteId?: string;
+  profissionalId?: string;
+}
+
+export type AnexoEnvioFormData = DocumentoFormData & DocumentoFormDataEnvio & {
+  tipoArquivo: TipoArquivo.anexo;
+}
+
+export type RelatorioEnvioFormData = DocumentoFormData & DocumentoFormDataEnvio & {
+  tipoArquivo: TipoArquivo.relatorio;
 }
 
 export enum TipoArquivo {

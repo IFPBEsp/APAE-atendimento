@@ -1,7 +1,7 @@
     import { formatarData } from "@/utils/formatarData";
-import {AnexoEnvioFormData} from "../components/forms/anexoForm"
+import {AnexoEnvioFormData, RelatorioEnvioFormData} from "../components/forms/anexoForm"
 
-    export function construirArquivoFormData (data: AnexoEnvioFormData) : FormData {
+    export function construirArquivoFormData (data: AnexoEnvioFormData | RelatorioEnvioFormData) : FormData {
         const formData: FormData = new FormData();
 
         if(data?.arquivo?.[0] && data?.arquivo?.length > 0){

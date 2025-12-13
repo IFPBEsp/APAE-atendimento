@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { useState } from "react";
 import { Upload, CirclePlus, Info } from "lucide-react";
+import { RelatorioEnvioFormData } from "./anexoForm";
 
 export type RelatorioFormData = {
   data: string;
@@ -23,11 +24,11 @@ export type RelatorioFormData = {
 };
 
 interface RelatorioFormProps {
-  onSubmit: (data: RelatorioFormData) => void;
+  onSubmit: (data: RelatorioEnvioFormData) => void;
 }
 
 export default function RelatorioForm({ onSubmit }: RelatorioFormProps) {
-  const { register, handleSubmit, watch, setValue } = useForm<RelatorioFormData>({
+  const { register, handleSubmit, watch, setValue } = useForm<RelatorioEnvioFormData>({
     defaultValues: {
       data: new Date().toISOString().split("T")[0],
       titulo: "",

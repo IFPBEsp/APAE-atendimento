@@ -1,6 +1,6 @@
 import data from "../../data/verificacao.json";
 
-export async function apagarAnexo(objectName: string | undefined, bucket: string | undefined) {
+export async function apagarAnexo(objectName?: string, bucket?: string) {
   try {
     if (!bucket) {
       throw new Error("Erro ao apagar anexo");

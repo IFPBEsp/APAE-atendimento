@@ -1,4 +1,4 @@
-export function validarTipoArquivo(files: FileList | undefined){
+export function validarTipoArquivo(files?: FileList){
     if(!files || files.length <= 0){
         throw new Error("Nenhum arquivo selecionado.");
     }
