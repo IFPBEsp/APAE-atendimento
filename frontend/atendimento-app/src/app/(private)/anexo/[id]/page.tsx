@@ -73,9 +73,9 @@ export default function AnexoPage() {
      await apagarAnexo(objectName, pacienteIdStr);
   };
 
-  const handleUpdate = async (objectName: string) => {
+  const handleUpdate = async (objectName: string, fileName: string) => {
     if (!objectName || !pacienteIdStr) return;
-    await handleDownload(objectName, pacienteIdStr);
+    await handleDownload(objectName, pacienteIdStr, fileName);
   }
 
   const anexosFiltrados =
@@ -257,7 +257,7 @@ export default function AnexoPage() {
         titulo={reportToView?.titulo ?? ""}
         data={reportToView}
         descricao={reportToView?.descricao ?? ""}
-        onUpdate={() => reportToView && handleUpdate(reportToView.objectName)}
+        onUpdate={() => reportToView && handleUpdate(reportToView.objectName, reportToView.fileName)}
       />
     </div>
   );

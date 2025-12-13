@@ -1,4 +1,5 @@
 import { Trash2, Image as ImageIcon } from "lucide-react";
+import PdfViewer from "../pdf/PdfViewner";
 
 interface AnexoCardProps {
   id?: number;
@@ -43,11 +44,12 @@ export default function AnexoCard({
         {    
         imageUrl ? 
         (
-          <img
+          /*<img
             src={imageUrl}
             alt="Pré-visualização"
             className="w-full h-full object-contain"
-          />
+          />*/
+          <PdfViewer url={imageUrl} />
         ) : (
           <ImageIcon className="text-gray-300 w-12 h-12" />
         )}
