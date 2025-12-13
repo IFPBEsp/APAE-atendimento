@@ -1,6 +1,6 @@
 
 
-export function validarTamanhoArquivo(files: FileList | undefined){
+export function validarTamanhoArquivo(files?: FileList){
     if(!files || files.length <= 0){
         throw new Error("Nenhum arquivo selecionado.");
     }

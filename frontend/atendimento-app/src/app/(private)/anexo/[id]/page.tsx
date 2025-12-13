@@ -12,9 +12,9 @@ import { AnexoModal } from "@/components/modals/novoAnexoModal";
 import AnexoCard from "@/components/cards/anexoCard";
 import { AnexoViewModal, AnexoDeleteModal } from "@/components/modals/anexoModal";
 import { construirArquivoFormData } from "@/services/construirArquivoFormData";
-import { enviarAnexo } from "@/api/enviarAnexo";
+import { enviarArquivo } from "@/api/enviarArquivo";
 import {Anexo, AnexoResponse} from "../../../../types/Anexo";
-import { buscarAnexos } from "@/api/buscarAnexos";
+import { buscarArquivos } from "@/api/buscarArquivos";
 import dados from "../../../../../data/verificacao.json"
 import { validarTipoArquivo } from "@/services/validarTipoArquivo";
 import {toast} from "sonner";
@@ -35,26 +35,20 @@ export default function AnexoPage() {
 
   async function obterResultadoBuscarAnexos() : Promise<Anexo[]> {
     if (!pacienteIdStr) return [];
-      const resposta = await buscarAnexos(
+      const resposta = await buscarArquivos(
     pacienteIdStr,
     TipoArquivo.anexo
   ) as AnexoResponse[];
 
   return resposta.map((e: AnexoResponse , i) => ({
     id: ++i,
-    titulo: e.titulo,
-    descricao: e.descricao,
-    nomeArquivo: e.nomeArquivo,
-    data: e.data,
-    presignedUrl: e.presignedUrl,
-    objectName: e.objectName
+    ...e
   }));
 }
 
   useEffect(() => {    
       (async () => {
         const anexosResult = await obterResultadoBuscarAnexos();
-        console.log(anexosResult)
         setAnexos(anexosResult);  
       })()
   }, [])
@@ -82,7 +76,7 @@ export default function AnexoPage() {
       ? anexos.filter((r) => r.data === dataSelecionada)
       : anexos;
 
-  async function enviarArquivo(data: AnexoEnvioFormData) {
+  async function enviarArquivoAnexo(data: AnexoEnvioFormData) {
   try {
     const request : AnexoEnvioFormData = {
       ...data,
@@ -116,9 +110,8 @@ export default function AnexoPage() {
     validarTipoArquivo(data.arquivo);
     validarTamanhoArquivo(data.arquivo);
     const formData : FormData = construirArquivoFormData(data);
-    await enviarAnexo(formData);
+    await enviarArquivo(formData);
     await reloadAnexos();
-    setOpen(false);
      return {
       sucesso: true,
       mensagem: "Anexo enviado com sucesso!"
@@ -133,6 +126,8 @@ export default function AnexoPage() {
       sucesso: false,
       mensagem
     };
+    }finally{
+      setOpen(false);
     }
 
      }
@@ -227,7 +222,7 @@ export default function AnexoPage() {
           onOpenChange={setOpen}
         >
           <AnexoForm
-            onSubmit={enviarArquivo}
+            onSubmit={enviarArquivoAnexo}
           />
         </AnexoModal>
 

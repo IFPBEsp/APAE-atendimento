@@ -47,7 +47,7 @@ export function AnexoDeleteModal({
                         Cancelar
                     </Button>
                     <Button
-                        onClick={() => onConfirm()}
+                        onClick={onConfirm}
                         className="w-full md:flex-1 rounded-full bg-[#FF5C5C] hover:bg-[#ff4040] text-white h-11 cursor-pointer"
                     >
                         <Trash2 size={18} className="mr-2" />
@@ -106,7 +106,7 @@ export function AnexoViewModal({
                         {data.nomeArquivo}
                     </span>
                     <Button className="w-full bg-[#165BAA] hover:bg-[#13447D] text-white h-12 rounded-full text-base font-semibold shadow-lg"
-onClick={() => onUpdate()}
+onClick={onUpdate}
 >
                         <Download size={20} className="mr-2" />
                         Salvar anexo

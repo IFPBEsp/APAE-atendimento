@@ -2,15 +2,8 @@
 
 import { X, Trash2, Download, Image as ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Relatorio } from "@/types/Relatorio";
 
-interface RelatorioData {
-    id: number;
-    titulo: string;
-    data: string;
-    descricao: string;
-    fileName: string;
-    imageUrl?: string;
-}
 
 interface DeleteModalProps {
     isOpen: boolean;
@@ -23,7 +16,8 @@ interface ViewModalProps {
     onClose: () => void;
     titulo: string;
     descricao: string;
-    data: RelatorioData | null;
+    data: Relatorio | null;
+    onUpdate: () => void;
 }
 
 export function RelatorioDeleteModal({
@@ -70,7 +64,8 @@ export function RelatorioViewModal({
     onClose, 
     titulo, 
     data, 
-    descricao 
+    descricao,
+    onUpdate 
 }: ViewModalProps) {
     if (!isOpen || !data) return null;
 
@@ -91,9 +86,9 @@ export function RelatorioViewModal({
                 <p className="text-[10px] md:text-[12px] font-regular text-[#344054] px-5 py-3">{data.descricao}</p>
 
                 <div className="bg-gray-50 flex items-center justify-center w-full h-[400px] px-4">
-                    {data.imageUrl ? (
+                    {data.presignedUrl ? (
                         <img
-                            src={data.imageUrl}
+                            src={data.presignedUrl}
                             alt="Relatório pré-visualização"
                             className="w-full h-full object-contain rounded-lg"
                         />
@@ -108,9 +103,10 @@ export function RelatorioViewModal({
 
                 <div className="p-4 border-t border-gray-100 flex flex-col items-center gap-4">
                     <span className="text-sm text-[#344054] underline decoration-1">
-                        {data.fileName}
+                        {data.nomeArquivo}
                     </span>
-                    <Button className="w-full bg-[#165BAA] hover:bg-[#13447D] text-white h-12 rounded-full text-base font-semibold shadow-lg cursor-pointer">
+                    <Button className="w-full bg-[#165BAA] hover:bg-[#13447D] text-white h-12 rounded-full text-base font-semibold shadow-lg cursor-pointer"
+                    onClick={onUpdate}>
                         <Download size={20} className="mr-2" />
                         Salvar relatório
                     </Button>
