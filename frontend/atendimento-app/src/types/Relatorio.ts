@@ -1,8 +1,8 @@
-export interface Anexo extends AnexoBase{
-  id: number;  
+export interface Relatorio extends RelatorioBase{
+  id: number;
 }
 
-export interface AnexoBase {
+export interface RelatorioBase{
   objectName: string;
   presignedUrl: string;
   data: string;               
@@ -10,6 +10,7 @@ export interface AnexoBase {
   titulo: string;
   descricao: string;
 }
-export type AnexoResponse = AnexoBase;
+
+export type RelatorioResponse = RelatorioBase
 
 
