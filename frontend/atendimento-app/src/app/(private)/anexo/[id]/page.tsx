@@ -13,7 +13,7 @@ import AnexoCard from "@/components/cards/anexoCard";
 import { AnexoViewModal, AnexoDeleteModal } from "@/components/modals/anexoModal";
 import { construirArquivoFormData } from "@/services/construirArquivoFormData";
 import { enviarAnexo } from "@/api/enviarAnexo";
-import {Anexo} from "../../../../types/Anexo";
+import {Anexo, AnexoResponse} from "../../../../types/Anexo";
 import { buscarAnexos } from "@/api/buscarAnexos";
 import dados from "../../../../../data/verificacao.json"
 import { validarTipoArquivo } from "@/services/validarTipoArquivo";
@@ -21,8 +21,6 @@ import {toast} from "sonner";
 import { handleDownload } from "@/api/salvarAnexo";
 import { apagarAnexo } from "@/api/apagarAnexo";
 import { validarTamanhoArquivo } from "@/services/validarTamanhoArquivo";
-import { AnexoResponse } from "@/types/AnexoResponse";
-
 
 
 const nunitoFont = Nunito({ weight: "700" });
@@ -42,13 +40,13 @@ export default function AnexoPage() {
     TipoArquivo.anexo
   ) as AnexoResponse[];
 
-  return resposta.map((e: AnexoResponse, i) => ({
+  return resposta.map((e: AnexoResponse , i) => ({
     id: ++i,
     titulo: e.titulo,
     descricao: e.descricao,
-    fileName: e.nomeArquivo,
+    nomeArquivo: e.nomeArquivo,
     data: e.data,
-    imageUrl: e.presignedUrl,
+    presignedUrl: e.presignedUrl,
     objectName: e.objectName
   }));
 }
@@ -56,6 +54,7 @@ export default function AnexoPage() {
   useEffect(() => {    
       (async () => {
         const anexosResult = await obterResultadoBuscarAnexos();
+        console.log(anexosResult)
         setAnexos(anexosResult);  
       })()
   }, [])
@@ -116,7 +115,6 @@ export default function AnexoPage() {
     try{
     validarTipoArquivo(data.arquivo);
     validarTamanhoArquivo(data.arquivo);
-    console.log(data)
     const formData : FormData = construirArquivoFormData(data);
     await enviarAnexo(formData);
     await reloadAnexos();
@@ -215,8 +213,8 @@ export default function AnexoPage() {
                 id={item.id}
                 titulo={item.titulo}
                 data={item.data}
-                fileName={item.fileName}
-                imageUrl={item.imageUrl}
+                fileName={item.nomeArquivo}
+                imageUrl={item.presignedUrl}
                 onView={() => setReportToView(item)}
                 onDelete={() => setReportToDelete(item)}
               />

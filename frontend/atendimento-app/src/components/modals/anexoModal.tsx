@@ -86,9 +86,9 @@ export function AnexoViewModal({
                 <p className="text-[10px] md:text-[12px] font-regular text-[#344054] px-5 py-3 max-w-full break-words">{data.descricao}</p>
 
                 <div className="bg-gray-50 flex items-center justify-center w-full h-[400px] px-4">
-                    {data.imageUrl ? (
+                    {data.presignedUrl ? (
                         <img
-                            src={data.imageUrl}
+                            src={data.presignedUrl}
                             alt="Anexo pré-visualização"
                             className="w-full h-full object-contain rounded-lg"
                         />
@@ -103,7 +103,7 @@ export function AnexoViewModal({
 
                 <div className="p-4 border-t border-gray-100 flex flex-col items-center gap-4">
                     <span className="text-sm text-[#344054] underline decoration-1">
-                        {data.fileName}
+                        {data.nomeArquivo}
                     </span>
                     <Button className="w-full bg-[#165BAA] hover:bg-[#13447D] text-white h-12 rounded-full text-base font-semibold shadow-lg"
 onClick={() => onUpdate()}
