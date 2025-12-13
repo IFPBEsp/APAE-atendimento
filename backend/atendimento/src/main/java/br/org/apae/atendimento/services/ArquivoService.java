@@ -40,7 +40,9 @@ public class ArquivoService {
 
     @Transactional
     public ArquivoResponseDTO salvar(MultipartFile file, ArquivoRequestDTO arquivoRequest) {
-        String objectName = criarObjectName(arquivoRequest.profissionalId(), arquivoRequest.tipoArquivo());
+        String objectName = criarObjectName(arquivoRequest.pacienteId(), arquivoRequest.profissionalId(),
+                arquivoRequest.tipoArquivo());
+
         String url = minioService.uploadArquivo(objectName, file);
 
         TipoArquivo tipoArquivo = tipoRepository.getReferenceById(arquivoRequest.tipoArquivo());
@@ -55,12 +57,12 @@ public class ArquivoService {
         return anexoMapper.toDTOPadrao(arquivoPersistido);
     }
 
-    private String criarObjectName(UUID profissionalId, Long tipoArquivoId) {
+    private String criarObjectName(UUID pacienteId, UUID profissionalId, Long tipoArquivoId) {
         String objectId = UUID.randomUUID().toString();
         if (tipoArquivoId == 1L){
-            return profissionalId + "/" + ANEXO_PATH + "/" + objectId;
+            return pacienteId + "/" + profissionalId + "/" + ANEXO_PATH + "/" + objectId;
         } else {
-            return profissionalId + "/" + RELATORIO_PATH + "/" + objectId;
+            return pacienteId + "/" + profissionalId + "/" + RELATORIO_PATH + "/" + objectId;
         }
     }
 
