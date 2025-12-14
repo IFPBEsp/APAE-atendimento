@@ -75,7 +75,7 @@ export default function AnexoPage() {
 
   const handleUpdate = async (objectName: string) => {
     if (!objectName || !pacienteIdStr) return;
-    await handleDownload(objectName, pacienteIdStr);
+    await handleDownload(objectName, pacienteIdStr, reportToView?.nomeArquivo);
   }
 
   const anexosFiltrados =

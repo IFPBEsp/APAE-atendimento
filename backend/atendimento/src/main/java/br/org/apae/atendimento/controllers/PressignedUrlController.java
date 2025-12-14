@@ -23,8 +23,9 @@ public class PressignedUrlController {
 
      @GetMapping("/{bucket}")
     public ResponseEntity<String> obterUrl (@PathVariable String bucket,
-                                            @RequestParam(name = "objectName") String objectName) {
-        String url = presignedUrlService.gerarUrlPreAssinada(bucket, objectName);
+                                            @RequestParam(name = "objectName") String objectName,
+                                            @RequestParam(name = "fileName") String fileName) {
+        String url = presignedUrlService.gerarUrlPreAssinada(bucket, objectName, fileName);
         return ResponseEntity.ok(url);
     }
 
