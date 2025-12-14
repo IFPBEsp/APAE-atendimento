@@ -57,9 +57,12 @@ public class AtendimentoController {
         return ResponseEntity.ok().body("Atendimento excluído");
     }
 
-    @PutMapping
-    public ResponseEntity<AtendimentoResponseDTO> editarTopicos(@RequestBody AtendimentoUpdateRequestDTO updateDTO){
-        AtendimentoResponseDTO atendimentoAtualizado = atendimentoService.editarTopicos(updateDTO);
+    @PutMapping("/{atendimentoId}")
+    public ResponseEntity<AtendimentoResponseDTO> editarTopicos(
+            @RequestBody AtendimentoRequestDTO updateDTO,
+            @PathVariable UUID atendimentoId)
+    {
+        AtendimentoResponseDTO atendimentoAtualizado = atendimentoService.editar(updateDTO, atendimentoId);
         return ResponseEntity.ok().body(atendimentoAtualizado);
     }
 }
