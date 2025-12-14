@@ -94,14 +94,14 @@ export default function RelatorioPage() {
     const respostaCriacao = await handleCreateRelatorio(request);
 
     if(respostaCriacao.sucesso) {
-       toast.success(respostaCriacao.mensagem || "Anexo criado com sucesso!");
+       toast.success(respostaCriacao.mensagem || "Relatório criado com sucesso!");
        return;
     }
 
-    toast.error(respostaCriacao.mensagem || "Erro ao enviar o anexo.")
+    toast.error(respostaCriacao.mensagem || "Erro ao enviar o relatório.")
     }catch(error){
 const mensagem = error instanceof Error ? error.message : String(error);
-  toast.error(mensagem || "Erro inesperado ao enviar o anexo.");
+  toast.error(mensagem || "Erro inesperado ao enviar o relatório.");
     }
 
   }
@@ -119,7 +119,7 @@ const mensagem = error instanceof Error ? error.message : String(error);
     await reloadRelatorio();
     return {
       sucesso: true,
-      mensagem: "Anexo enviado com sucesso!"
+      mensagem: "Relatório enviado com sucesso!"
     }
     }catch(error){
  let mensagem = "Erro inesperado";
