@@ -1,19 +1,30 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ArrowLeft, CalendarPlus } from "lucide-react";
 import { Nunito } from "next/font/google";
 import Header from "@/components/shared/header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { AgendamentoModal } from "@/components/modals/agendamentoModal";
-import AgendamentoForm from "@/components/forms/agendamentoForm";
-import type { AgendamentoFormData } from "@/components/forms/agendamentoForm";
+import { DeletarAgendamentoModal } from "@/components/modals/deletarAgendamentoModal";
+import AgendamentoForm, {
+  AgendamentoFormData,
+} from "@/components/forms/agendamentoForm";
 import AgendamentoCard from "@/components/cards/agendamentoCard";
 
+import {
+  listarAgendamentos,
+  criarAgendamento,
+  deletarAgendamento,
+} from "@/api/agendamento";
+
+import dados from "../../../../data/verificacao.json";
+
 interface Agendamento {
-  id: number;
+  id: string;
+  pacienteId?: string;
   paciente: string;
   horario: string;
   data: string;
@@ -25,64 +36,132 @@ const nunitoFont = Nunito({ weight: "700" });
 export default function AgendaPage() {
   const router = useRouter();
 
-  const [agendamentos, setAgendamentos] = useState<Agendamento[]>([
-    {
-      id: 1,
-      paciente: "Fulano da Silva",
-      numeracao: 1,
-      data: "2025-11-24",
-      horario: "14:00",
-    },
-    {
-      id: 2,
-      paciente: "Teste da Silva",
-      numeracao: 2,
-      data: "2025-12-07",
-      horario: "16:20",
-    },
-    {
-      id: 3,
-      paciente: "Maria Oliveira",
-      numeracao: 3,
-      data: "2025-11-24",
-      horario: "15:30",
-    },
-  ]);
-
-
+  const [agendamentos, setAgendamentos] = useState<Agendamento[]>([]);
   const [dataSelecionada, setDataSelecionada] = useState<string>("");
   const [open, setOpen] = useState(false);
 
-  function agruparPorData(lista: Agendamento[]) {
-    const grupos: Record<string, Agendamento[]> = {};
+  const profissionalId = dados.idProfissional;
 
-    lista.forEach((item) => {
-      if (!grupos[item.data]) {
-        grupos[item.data] = [];
-      }
-      grupos[item.data].push(item);
-    });
+  const [openDelete, setOpenDelete] = useState(false);
+  const [agendamentoSelecionado, setAgendamentoSelecionado] =
+    useState<Agendamento | null>(null);
 
-    return grupos;
+  async function carregarAgendamentos() {
+    try {
+      const dto = await listarAgendamentos(profissionalId);
+
+      const flatten: Agendamento[] = [];
+
+      (dto || []).forEach((diaObj: any) => {
+        const dia = diaObj.dia;
+
+        (diaObj.agendamentos || []).forEach((a: any) => {
+          flatten.push({
+            id: String(a.atendimentoId),
+            pacienteId: String(a.pacienteId),
+            paciente: a.nomePaciente,
+            horario: a.time,
+            data: dia,
+            numeracao: a.numeroAtendimento ?? 0,
+          });
+        });
+      });
+
+      setAgendamentos(flatten);
+    } catch (err) {
+      console.error("Erro ao carregar agendamentos", err);
+      alert("Erro ao carregar agendamentos.");
+    }
   }
 
-  const agendamentosFiltrados = 
-  dataSelecionada
+  useEffect(() => {
+    carregarAgendamentos();
+  }, []);
+
+  const agendamentosFiltrados = dataSelecionada
     ? agendamentos.filter((a) => a.data === dataSelecionada)
     : agendamentos;
 
   const gruposParaRenderizar = dataSelecionada
     ? { [dataSelecionada]: agendamentosFiltrados }
-    : agruparPorData(agendamentos);
+    : agendamentos.reduce<Record<string, Agendamento[]>>((acc, cur) => {
+        acc[cur.data] = acc[cur.data] || [];
+        acc[cur.data].push(cur);
+        return acc;
+      }, {});
 
-  // Recebe o envio do form
-  function handleCreateAgendamento(data: AgendamentoFormData) {
-    console.log("Novo agendamento:", data);
+  async function handleCreateAgendamento(data: AgendamentoFormData) {
+    try {
+      if (!data.pacienteId) {
+        alert("Selecione um paciente válido.");
+        return;
+      }
 
-    // futuramente:
-    // await api.post("/agendamentos", data);
+      const horaCorrigida =
+        data.horario.length === 5
+          ? `${data.horario}:00`
+          : data.horario;
 
-    setOpen(false);
+      await criarAgendamento({
+        profissionalId,
+        pacienteId: data.pacienteId,
+        data: data.data,
+        hora: horaCorrigida,
+        numeroAtendimento: Number(data.numeracao),
+      });
+
+      await carregarAgendamentos();
+      setOpen(false);
+    } catch (error) {
+      console.error("Erro ao criar agendamento", error);
+    }
+
+    const payload = {
+      profissionalId,
+      pacienteId: data.pacienteId,
+      data: data.data,
+      hora:
+        data.horario.length === 5
+          ? `${data.horario}:00`
+          : data.horario,
+      numeroAtendimento: Number(data.numeracao),
+    };
+
+    console.log("Payload enviado:", payload);
+  }
+
+  async function confirmarDeleteAgendamento() {
+    if (!agendamentoSelecionado || !agendamentoSelecionado.pacienteId) return;
+
+    try {
+      await deletarAgendamento(
+        profissionalId,
+        agendamentoSelecionado.pacienteId,
+        agendamentoSelecionado.id
+      );
+
+      setOpenDelete(false);
+      setAgendamentoSelecionado(null);
+      await carregarAgendamentos();
+    } catch (err) {
+      console.error("Erro ao deletar agendamento", err);
+      alert("Erro ao cancelar agendamento.");
+    }
+  }
+
+  async function handleDeletarAgendamento(ag: Agendamento) {
+    try {
+      if (!ag.pacienteId) {
+        alert("Agendamento sem pacienteId — não foi possível deletar.");
+        return;
+      }
+
+      await deletarAgendamento(profissionalId, ag.pacienteId, ag.id);
+      await carregarAgendamentos();
+    } catch (err) {
+      console.error("Erro ao deletar agendamento", err);
+      alert("Erro ao deletar agendamento.");
+    }
   }
 
   return (
@@ -93,7 +172,7 @@ export default function AgendaPage() {
         <div className="flex items-center justify-between mb-6">
           <button
             onClick={() => router.back()}
-            className="h-[38px] px-4 rounded-full flex items-center gap-2 bg-[#EDF2FB] text-sm text-gray-700 cursor-pointer"
+            className="h-[38px] px-4 rounded-full flex items-center gap-2 bg-[#EDF2FB] text-sm text-gray-700"
           >
             <ArrowLeft size={18} />
             Voltar
@@ -102,7 +181,7 @@ export default function AgendaPage() {
           <div className="flex items-center gap-3">
             <Button
               onClick={() => setOpen(true)}
-              className="hidden cursor-pointer md:flex items-center bg-[#165BAA] hover:bg-[#13447D] text-white gap-2 px-4 h-[38px] rounded-full text-sm shadow-sm active:scale-95"
+              className="hidden md:flex items-center bg-[#165BAA] hover:bg-[#13447D] text-white gap-2 px-4 h-[38px] rounded-full text-sm"
             >
               <CalendarPlus size={18} />
               Novo agendamento
@@ -112,14 +191,16 @@ export default function AgendaPage() {
               type="date"
               value={dataSelecionada}
               onChange={(e) => setDataSelecionada(e.target.value)}
-              className="bg-white border border-[#3B82F6] rounded-full w-[150px] text-gray-600 text-sm focus-visible:ring-0 focus-visible:border-[#3B82F6]"
+              className="bg-white border border-[#3B82F6] rounded-full w-[150px] text-gray-600 text-sm"
             />
           </div>
         </div>
       </section>
 
       <section className="bg-white rounded-t-3xl p-6 min-h-screen mx-auto flex flex-col gap-4">
-        <h1 className={`text-xl text-[#344054] font-bold ${nunitoFont.className}`}>
+        <h1
+          className={`text-xl text-[#344054] font-bold ${nunitoFont.className}`}
+        >
           Agendamentos
         </h1>
 
@@ -138,6 +219,10 @@ export default function AgendaPage() {
                   paciente={item.paciente}
                   horario={item.horario}
                   numeracao={item.numeracao}
+                  onDeleteClick={() => {
+                    setAgendamentoSelecionado(item);
+                    setOpenDelete(true);
+                  }}
                 />
               ))}
             </div>
@@ -165,18 +250,23 @@ export default function AgendaPage() {
         <AgendamentoModal open={open} onOpenChange={setOpen}>
           <AgendamentoForm onSubmit={handleCreateAgendamento} />
         </AgendamentoModal>
-
       </section>
 
       <button
         onClick={() => setOpen(true)}
-        className="
-          fixed bottom-6 right-6 w-14 h-14 rounded-full bg-[#165BAA]
-          flex items-center justify-center shadow-[4px_4px_12px_rgba(0,0,0,0.25)]
-          active:scale-95 md:hidden"
+        className="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-[#165BAA] flex items-center justify-center shadow-[4px_4px_12px_rgba(0,0,0,0.25)] md:hidden"
       >
         <CalendarPlus size={28} className="text-white" />
       </button>
+
+      <DeletarAgendamentoModal
+        isOpen={openDelete}
+        onClose={() => {
+          setOpenDelete(false);
+          setAgendamentoSelecionado(null);
+        }}
+        onConfirm={confirmarDeleteAgendamento}
+      />
     </div>
   );
 }
