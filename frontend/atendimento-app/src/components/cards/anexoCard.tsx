@@ -1,5 +1,6 @@
 import { Trash2, Image as ImageIcon } from "lucide-react";
 import PdfViewer from "../pdf/PdfViewner";
+import { renderizarFormatoArquivo } from "@/utils/renderizarFormatoArquivo";
 
 interface AnexoCardProps {
   id?: number;
@@ -19,6 +20,7 @@ export default function AnexoCard({
   onView,
   onDelete,
 }: AnexoCardProps) {
+  const renderizar = renderizarFormatoArquivo(fileName.split(".").pop() || "", imageUrl || "");
   return (
     <div className="w-full bg-white rounded-3xl shadow-md p-4 border border-gray-100 flex flex-col h-[320px] transition-all">
       
@@ -44,12 +46,7 @@ export default function AnexoCard({
         {    
         imageUrl ? 
         (
-          /*<img
-            src={imageUrl}
-            alt="Pré-visualização"
-            className="w-full h-full object-contain"
-          />*/
-          <PdfViewer url={imageUrl} />
+         renderizar
         ) : (
           <ImageIcon className="text-gray-300 w-12 h-12" />
         )}

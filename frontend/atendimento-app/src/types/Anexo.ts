@@ -1,5 +1,6 @@
 export interface Anexo extends AnexoBase{
   id: number;  
+  mimetype: string
 }
 
 export interface AnexoBase {

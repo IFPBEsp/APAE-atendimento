@@ -3,6 +3,8 @@
 import { X, Trash2, Download, Image as ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Anexo } from "@/types/Anexo";
+import PdfPreview from "../pdf/PdfViewner";
+import { renderizarFormatoArquivo } from "@/utils/renderizarFormatoArquivo";
 
 
 interface DeleteModalProps {
@@ -69,6 +71,7 @@ export function AnexoViewModal({
     onUpdate
 }: ViewModalProps) {
     if (!isOpen || !data) return null;
+    const renderizar = renderizarFormatoArquivo(data.nomeArquivo.split(".").pop() || "", data.presignedUrl || "");
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4 py-6 animate-in fade-in duration-200">
             <div className="bg-white rounded-[24px] w-full max-w-[632px] max-h-[90vh] flex flex-col shadow-2xl overflow-hidden slide-in-from-bottom-10 overflow-y-auto">
@@ -87,11 +90,7 @@ export function AnexoViewModal({
 
                 <div className="bg-gray-50 flex items-center justify-center w-full h-[400px] px-4">
                     {data.presignedUrl ? (
-                        <img
-                            src={data.presignedUrl}
-                            alt="Anexo pré-visualização"
-                            className="w-full h-full object-contain rounded-lg"
-                        />
+                     renderizar
                     ) : (
                         <div className="flex flex-col items-center text-gray-400">
                             <ImageIcon size={64} />
