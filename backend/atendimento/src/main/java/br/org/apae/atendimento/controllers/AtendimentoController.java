@@ -1,7 +1,6 @@
 package br.org.apae.atendimento.controllers;
 
 import br.org.apae.atendimento.dtos.request.AtendimentoRequestDTO;
-import br.org.apae.atendimento.dtos.request.update.AtendimentoUpdateRequestDTO;
 import br.org.apae.atendimento.dtos.response.AtendimentoResponseDTO;
 import br.org.apae.atendimento.dtos.response.MesAnoAtendimentoResponseDTO;
 import br.org.apae.atendimento.services.AtendimentoService;
