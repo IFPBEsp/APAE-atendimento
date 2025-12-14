@@ -7,6 +7,8 @@ import br.org.apae.atendimento.entities.TipoArquivo;
 import br.org.apae.atendimento.mappers.ArquivoMapper;
 import br.org.apae.atendimento.repositories.AnexoRepository;
 import br.org.apae.atendimento.repositories.TipoArquivoRepository;
+import br.org.apae.atendimento.services.storage.ObjectStorageService;
+import br.org.apae.atendimento.services.storage.PresignedUrlService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,7 +29,7 @@ public class ArquivoService {
     private TipoArquivoRepository tipoRepository;
 
     @Autowired
-    private MinioService minioService;
+    private ObjectStorageService storageService;
 
     @Autowired
     private PresignedUrlService urlService;
@@ -43,7 +45,7 @@ public class ArquivoService {
         String objectName = criarObjectName(arquivoRequest.pacienteId(), arquivoRequest.profissionalId(),
                 arquivoRequest.tipoArquivo());
 
-        String url = minioService.uploadArquivo(objectName, file);
+        String url = storageService.uploadArquivo(objectName, file);
 
         TipoArquivo tipoArquivo = tipoRepository.getReferenceById(arquivoRequest.tipoArquivo());
 
@@ -95,6 +97,6 @@ public class ArquivoService {
 
     public void deletar(String objectName) {
         repository.deleteById(objectName);
-        minioService.deletarArquivo(objectName);
+        storageService.deletarArquivo(objectName);
     }
 }

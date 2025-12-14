@@ -1,24 +1,23 @@
-package br.org.apae.atendimento.services;
+package br.org.apae.atendimento.services.storage.minio;
 
 import br.org.apae.atendimento.exceptions.MinioStorageException;
+import br.org.apae.atendimento.services.storage.PresignedUrlService;
 import io.minio.GetPresignedObjectUrlArgs;
 import io.minio.MinioClient;
-import io.minio.messages.Bucket;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 @Service
-public class PresignedUrlService {
-
-    private MinioClient client;
-
+@Profile("test")
+public class MinioPresignedUrlService implements PresignedUrlService {
+    private final MinioClient client;
     @Value("${bucket.name}")
     private String BUCKET_NAME;
-    public PresignedUrlService(MinioClient minioClient) {
-        this.client = minioClient;
+    public MinioPresignedUrlService(MinioClient client) {
+        this.client = client;
     }
 
     @Cacheable(
@@ -28,8 +27,6 @@ public class PresignedUrlService {
     )
     public String gerarUrlPreAssinada(String objectName) {
         try {
-            System.out.println("🔴 CACHE MISS - Gerando NOVA URL: " + BUCKET_NAME + "/" + objectName);
-            System.out.println("   Chave: presigned:" + BUCKET_NAME + ":" + objectName);
             String url = client.getPresignedObjectUrl(
                     GetPresignedObjectUrlArgs.builder()
                             .bucket(BUCKET_NAME)
@@ -39,7 +36,6 @@ public class PresignedUrlService {
                             .build()
             );
 
-            System.out.println("✅ URL gerada (tamanho: " + url.length() + ")");
             return url;
 
         } catch (Exception e) {

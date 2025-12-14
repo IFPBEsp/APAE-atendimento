@@ -1,16 +1,20 @@
-package br.org.apae.atendimento.services;
+package br.org.apae.atendimento.services.storage.minio;
 
 import br.org.apae.atendimento.exceptions.MinioStorageException;
+import br.org.apae.atendimento.services.storage.ObjectStorageService;
+import br.org.apae.atendimento.services.storage.PresignedUrlService;
 import io.minio.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
 
 @Service
-public class MinioService {
+@Profile("test")
+public class MinioService implements ObjectStorageService {
 
     private final MinioClient client;
 
@@ -57,13 +61,13 @@ public class MinioService {
         }
     }
 
-    public void deletarArquivo(String objectName){
+    public void deletarArquivo(String objectName) {
         try {
             client.removeObject(RemoveObjectArgs.builder()
                     .bucket(BUCKET_NAME)
                     .object(objectName)
                     .build());
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             throw new MinioStorageException("Erro ao apagar arquivo", e);
         }
