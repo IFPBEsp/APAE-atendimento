@@ -26,12 +26,38 @@ interface TemplateRelatorioProps {
   descricao: string;
 }
 
+const calcularIdade = (dataNascimento: string): number => {
+  const [dia, mes, ano] = dataNascimento.split("/").map(Number);
+
+  const nascimento = new Date(ano, mes - 1, dia);
+  const hoje = new Date();
+
+  let idade = hoje.getFullYear() - nascimento.getFullYear();
+
+  const mesAtual = hoje.getMonth();
+  const mesNascimento = nascimento.getMonth();
+
+  const diaAtual = hoje.getDate();
+  const diaNascimento = nascimento.getDate();
+
+  if (
+    mesAtual < mesNascimento ||
+    (mesAtual === mesNascimento && diaAtual < diaNascimento)
+  ) {
+    idade--;
+  }
+
+  return idade;
+};
+
 export const TemplateRelatorio = ({
   paciente,
   profissional,
   titulo,
   descricao,
 }: TemplateRelatorioProps) => {
+
+  const idade = calcularIdade(paciente.dataNascimento);
 
   const dataGeracao = formatarDataExtenso(new Date());
 
@@ -59,7 +85,7 @@ export const TemplateRelatorio = ({
             </Text>
 
             <Text style={styles.field}>
-              Data de Nascimento: {paciente.dataNascimento} – Idade: anos
+              Data de Nascimento: {paciente.dataNascimento} – Idade: {idade} anos
             </Text>
 
             <Text style={styles.field}>
