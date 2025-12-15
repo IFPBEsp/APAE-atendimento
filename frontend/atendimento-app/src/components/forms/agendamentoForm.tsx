@@ -1,15 +1,22 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { DialogFooter } from "@/components/ui/dialog";
 import { Nunito } from "next/font/google";
-import { Check, Search } from "lucide-react";
-import { getPacientes } from "@/api/dadosPacientes";
-import type { Paciente } from "@/types/Paciente";
+import { Check } from "lucide-react";
+import { getPacientesPorProfissional, PacienteOption } from "../../api/pacientesOptional";
+
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export type AgendamentoFormData = {
   pacienteId: string;
@@ -37,57 +44,28 @@ export default function AgendamentoForm({ onSubmit }: AgendamentoFormProps) {
       },
     });
 
-  const pacienteNome = watch("pacienteNome", "");
-
-  const [pacientes, setPacientes] = useState<Paciente[]>([]);
-  const [filtro, setFiltro] = useState("");
-  const [mostraSugestoes, setMostraSugestoes] = useState(false);
+  const pacienteId = watch("pacienteId", "");
+  const [pacientes, setPacientes] = useState<PacienteOption[]>([]);
 
   useEffect(() => {
-    let cancelled = false;
-
-    (async () => {
+    async function carregarPacientes() {
       try {
-        const lista = await getPacientes();
-        if (!cancelled) setPacientes(lista);
-      } catch (err) {
-        console.error("Erro ao buscar pacientes para autocomplete", err);
+        const data = await getPacientesPorProfissional();
+        setPacientes(data);
+      } catch (error) {
+        console.error("Erro ao carregar pacientes", error);
       }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!pacienteNome) {
-      setFiltro("");
-      return;
     }
 
-    const t = setTimeout(
-      () => setFiltro(pacienteNome.trim().toLowerCase()),
-      200
-    );
+    carregarPacientes();
+  }, []);
 
-    return () => clearTimeout(t);
-  }, [pacienteNome]);
-
-  const sugestoes = useMemo(() => {
-    if (!filtro) return [];
-
-    return pacientes
-      .filter((p) =>
-        (p.nomeCompleto || "").toLowerCase().includes(filtro)
-      )
-      .slice(0, 8);
-  }, [filtro, pacientes]);
-
-  function handleSelectPaciente(p: Paciente) {
-    setValue("pacienteId", String(p.id));
-    setValue("pacienteNome", p.nomeCompleto ?? "");
-    setMostraSugestoes(false);
+  function handleSelectPaciente(value: string) {
+    const paciente = pacientes.find((p) => p.id === value);
+    if (paciente) {
+      setValue("pacienteId", paciente.id);
+      setValue("pacienteNome", paciente.nome);
+    }
   }
 
   return (
@@ -95,42 +73,26 @@ export default function AgendamentoForm({ onSubmit }: AgendamentoFormProps) {
       onSubmit={handleSubmit(onSubmit)}
       className={`grid gap-6 pt-5 text-[#344054] ${nunito.className}`}
     >
-      <div className="grid gap-2 relative">
+      <div className="grid gap-2">
         <Label>
           Paciente <span className="text-[#F28C38]">*</span>
         </Label>
 
-        <div>
-          <Input
-            placeholder="Digite o nome do paciente"
-            {...register("pacienteNome")}
-            onFocus={() => setMostraSugestoes(true)}
-            className="bg-white border border-[#3B82F6] rounded-full text-sm focus-visible:ring-0 focus-visible:border-[#3B82F6]"
-          />
-          <Search className="absolute right-3 top-10 h-5 w-5 text-gray-400" />
-        </div>
+        <Select value={pacienteId} onValueChange={handleSelectPaciente}>
+          <SelectTrigger className="bg-white border border-[#3B82F6] rounded-full text-sm focus:ring-0 focus:border-[#3B82F6] w-[100%]">
+            <SelectValue placeholder="Selecione o paciente" />
+          </SelectTrigger>
 
-        {mostraSugestoes && sugestoes.length > 0 && (
-          <ul className="absolute z-20 mt-1 w-full bg-white border rounded-lg shadow-md max-h-44 overflow-auto">
-            {sugestoes.map((p) => (
-              <li
-                key={p.id}
-                className="px-3 py-2 hover:bg-gray-100 cursor-pointer text-left"
-                onMouseDown={(e) => {
-                  e.preventDefault();
-                  handleSelectPaciente(p);
-                }}
-              >
+          <SelectContent>
+            {pacientes.map((p) => (
+              <SelectItem key={p.id} value={p.id} className="cursor-pointer">
                 <div className="text-sm font-medium text-[#344054]">
-                  {p.nomeCompleto}
+                  {p.nome}
                 </div>
-                <div className="text-xs text-gray-500">
-                  {p.cpf ?? p.contato ?? ""}
-                </div>
-              </li>
+              </SelectItem>
             ))}
-          </ul>
-        )}
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

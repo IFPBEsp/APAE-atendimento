@@ -188,7 +188,7 @@ export default function AtendimentoPage() {
           </div>
         )}
 
-        <AtendimentoModal open={open} onOpenChange={setOpen}>
+        <AtendimentoModal open={open} onOpenChange={setOpen} onSubmit={handleSubmit}>
           <AtendimentoForm onSubmit={handleCreateAtendimento} />
         </AtendimentoModal>
 

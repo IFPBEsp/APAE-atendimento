@@ -207,7 +207,7 @@ export default function AgendaPage() {
         {Object.entries(gruposParaRenderizar).map(([data, itens]) => (
           <div key={data} className="flex flex-col gap-4">
             <h2 className="text-sm font-semibold text-[#344054]">
-              {new Date(data).toLocaleDateString("pt-BR")}
+              {new Date(data.split('-').reverse().join('-')).toLocaleDateString("pt-BR")}
             </h2>
 
             <hr className="border-[#E5E7EB]" />
