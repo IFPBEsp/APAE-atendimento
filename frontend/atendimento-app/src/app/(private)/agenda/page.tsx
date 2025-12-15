@@ -13,6 +13,7 @@ import AgendamentoForm, {
   AgendamentoFormData,
 } from "@/components/forms/agendamentoForm";
 import AgendamentoCard from "@/components/cards/agendamentoCard";
+import { AtendimentoFormData } from "@/components/forms/atendimentoForm";
 
 import {
   listarAgendamentos,
@@ -29,6 +30,13 @@ interface Agendamento {
   horario: string;
   data: string;
   numeracao: number;
+}
+
+function handleAtendimentoCreated(
+  atendimento: AtendimentoFormData
+) {
+  console.log("Novo atendimento criado:", atendimento);
+
 }
 
 const nunitoFont = Nunito({ weight: "700" });
@@ -85,10 +93,10 @@ export default function AgendaPage() {
   const gruposParaRenderizar = dataSelecionada
     ? { [dataSelecionada]: agendamentosFiltrados }
     : agendamentos.reduce<Record<string, Agendamento[]>>((acc, cur) => {
-        acc[cur.data] = acc[cur.data] || [];
-        acc[cur.data].push(cur);
-        return acc;
-      }, {});
+      acc[cur.data] = acc[cur.data] || [];
+      acc[cur.data].push(cur);
+      return acc;
+    }, {});
 
   async function handleCreateAgendamento(data: AgendamentoFormData) {
     try {
@@ -219,10 +227,16 @@ export default function AgendaPage() {
                   paciente={item.paciente}
                   horario={item.horario}
                   numeracao={item.numeracao}
+                  data={item.data} 
                   onDeleteClick={() => {
                     setAgendamentoSelecionado(item);
                     setOpenDelete(true);
                   }}
+                  onAtendimentoCreated={(data) =>
+                    handleAtendimentoCreated({
+                      ...data
+                    })
+                  }
                 />
               ))}
             </div>
