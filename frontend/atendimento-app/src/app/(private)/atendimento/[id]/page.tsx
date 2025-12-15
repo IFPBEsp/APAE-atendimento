@@ -16,12 +16,7 @@ import { Button } from "@/components/ui/button";
 import AtendimentoForm from "@/components/forms/atendimentoForm";
 import { AtendimentoModal } from "@/components/modals/novoAtendimentoModal";
 import { useEffect, useState } from "react";
-import {
-  Atendimento,
-  AtendimentoApi,
-  GrupoAtendimentosApi,
-  Relatorio,
-} from "@/types/Atendimento";
+import { Atendimento } from "@/types/Atendimento";
 import { getAtendimentos } from "@/api/dadosAtendimentos";
 import { getPacientes } from "@/api/dadosPacientes";
 import { Paciente } from "@/types/Paciente";

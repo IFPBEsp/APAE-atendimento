@@ -18,9 +18,7 @@ interface AnexoFormProps {
   onSubmit: (data: AnexoFormData) => void;
 }
 
-export default function AnexoForm({ 
-    onSubmit 
-}: AnexoFormProps) {
+export default function AnexoForm({ onSubmit }: AnexoFormProps) {
   const { register, handleSubmit, watch, setValue } = useForm<AnexoFormData>({
     defaultValues: {
       data: new Date().toISOString().split("T")[0],
@@ -36,7 +34,8 @@ export default function AnexoForm({
   const arquivo = watch("arquivo");
 
   const existeArquivo = arquivo && arquivo.length > 0;
-  const existeTemplate = titulo?.trim().length > 0 && descricao?.trim().length > 0;
+  const existeTemplate =
+    titulo?.trim().length > 0 && descricao?.trim().length > 0;
 
   const envioValidado = existeArquivo || existeTemplate;
 
@@ -166,7 +165,6 @@ export default function AnexoForm({
           className="hidden"
           {...register("arquivo")}
         />
-
       </div>
 
       <DialogFooter>

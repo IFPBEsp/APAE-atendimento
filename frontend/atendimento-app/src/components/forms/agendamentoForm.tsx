@@ -8,7 +8,10 @@ import { Label } from "@/components/ui/label";
 import { DialogFooter } from "@/components/ui/dialog";
 import { Nunito } from "next/font/google";
 import { Check } from "lucide-react";
-import { getPacientesPorProfissional, PacienteOption } from "../../api/pacientesOptional";
+import {
+  getPacientesPorProfissional,
+  PacienteOption,
+} from "../../api/pacientesOptional";
 
 import {
   Select,
@@ -32,13 +35,19 @@ interface AgendamentoFormProps {
 
 const nunito = Nunito({ weight: "700" });
 
+function getTodayLocalDate() {
+  const now = new Date();
+  const offset = now.getTimezoneOffset() * 60000;
+  return new Date(now.getTime() - offset).toISOString().split("T")[0];
+}
+
 export default function AgendamentoForm({ onSubmit }: AgendamentoFormProps) {
   const { register, handleSubmit, setValue, watch } =
     useForm<AgendamentoFormData>({
       defaultValues: {
         pacienteId: "",
         pacienteNome: "",
-        data: new Date().toISOString().split("T")[0],
+        data: getTodayLocalDate(),
         horario: "",
         numeracao: 1,
       },

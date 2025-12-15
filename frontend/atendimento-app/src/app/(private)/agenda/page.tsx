@@ -13,7 +13,6 @@ import AgendamentoForm, {
   AgendamentoFormData,
 } from "@/components/forms/agendamentoForm";
 import AgendamentoCard from "@/components/cards/agendamentoCard";
-import { AtendimentoFormData } from "@/components/forms/atendimentoForm";
 
 import {
   listarAgendamentos,
@@ -30,13 +29,7 @@ interface Agendamento {
   horario: string;
   data: string;
   numeracao: number;
-}
-
-function handleAtendimentoCreated(
-  atendimento: AtendimentoFormData
-) {
-  console.log("Novo atendimento criado:", atendimento);
-
+  status: boolean;
 }
 
 const nunitoFont = Nunito({ weight: "700" });
@@ -71,6 +64,7 @@ export default function AgendaPage() {
             horario: a.time,
             data: dia,
             numeracao: a.numeroAtendimento ?? 0,
+            status: a.status,
           });
         });
       });
@@ -93,10 +87,10 @@ export default function AgendaPage() {
   const gruposParaRenderizar = dataSelecionada
     ? { [dataSelecionada]: agendamentosFiltrados }
     : agendamentos.reduce<Record<string, Agendamento[]>>((acc, cur) => {
-      acc[cur.data] = acc[cur.data] || [];
-      acc[cur.data].push(cur);
-      return acc;
-    }, {});
+        acc[cur.data] = acc[cur.data] || [];
+        acc[cur.data].push(cur);
+        return acc;
+      }, {});
 
   async function handleCreateAgendamento(data: AgendamentoFormData) {
     try {
@@ -106,9 +100,7 @@ export default function AgendaPage() {
       }
 
       const horaCorrigida =
-        data.horario.length === 5
-          ? `${data.horario}:00`
-          : data.horario;
+        data.horario.length === 5 ? `${data.horario}:00` : data.horario;
 
       await criarAgendamento({
         profissionalId,
@@ -128,10 +120,7 @@ export default function AgendaPage() {
       profissionalId,
       pacienteId: data.pacienteId,
       data: data.data,
-      hora:
-        data.horario.length === 5
-          ? `${data.horario}:00`
-          : data.horario,
+      hora: data.horario.length === 5 ? `${data.horario}:00` : data.horario,
       numeroAtendimento: Number(data.numeracao),
     };
 
@@ -154,21 +143,6 @@ export default function AgendaPage() {
     } catch (err) {
       console.error("Erro ao deletar agendamento", err);
       alert("Erro ao cancelar agendamento.");
-    }
-  }
-
-  async function handleDeletarAgendamento(ag: Agendamento) {
-    try {
-      if (!ag.pacienteId) {
-        alert("Agendamento sem pacienteId — não foi possível deletar.");
-        return;
-      }
-
-      await deletarAgendamento(profissionalId, ag.pacienteId, ag.id);
-      await carregarAgendamentos();
-    } catch (err) {
-      console.error("Erro ao deletar agendamento", err);
-      alert("Erro ao deletar agendamento.");
     }
   }
 
@@ -215,7 +189,9 @@ export default function AgendaPage() {
         {Object.entries(gruposParaRenderizar).map(([data, itens]) => (
           <div key={data} className="flex flex-col gap-4">
             <h2 className="text-sm font-semibold text-[#344054]">
-              {new Date(data.split('-').reverse().join('-')).toLocaleDateString("pt-BR")}
+              {new Date(data.split("-").reverse().join("-")).toLocaleDateString(
+                "pt-BR"
+              )}
             </h2>
 
             <hr className="border-[#E5E7EB]" />
@@ -227,16 +203,12 @@ export default function AgendaPage() {
                   paciente={item.paciente}
                   horario={item.horario}
                   numeracao={item.numeracao}
-                  data={item.data} 
+                  data={item.data}
+                  status={item.status}
                   onDeleteClick={() => {
                     setAgendamentoSelecionado(item);
                     setOpenDelete(true);
                   }}
-                  onAtendimentoCreated={(data) =>
-                    handleAtendimentoCreated({
-                      ...data
-                    })
-                  }
                 />
               ))}
             </div>

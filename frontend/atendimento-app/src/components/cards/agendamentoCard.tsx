@@ -1,16 +1,14 @@
 import { useState } from "react";
-import { Trash2, Plus } from "lucide-react";
+import { Trash2, Plus, X, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { AtendimentoModal } from "../modals/novoAtendimentoModal";
-import { AtendimentoFormData } from "../forms/atendimentoForm";
 
 interface AgendamentoCardProps {
   paciente: string;
   horario: string;
   numeracao: number;
-  data: string; // ⬅ data do agendamento
+  data: string;
+  status: boolean;
   onDeleteClick?: () => void;
-  onAtendimentoCreated?: (data: AtendimentoFormData) => void;
 }
 
 export default function AgendamentoCard({
@@ -18,8 +16,8 @@ export default function AgendamentoCard({
   horario,
   numeracao,
   data,
+  status,
   onDeleteClick,
-  onAtendimentoCreated,
 }: AgendamentoCardProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -54,26 +52,26 @@ export default function AgendamentoCard({
 
         <div className="flex justify-center">
           <Button
-            onClick={() => setIsModalOpen(true)}
-            className="h-8 px-2 rounded-full bg-[#165BAA] hover:bg-[#13447D] text-xs shadow-sm cursor-pointer"
+            className={`h-8 px-2 rounded-full text-xs shadow-sm ${
+              status
+                ? "bg-green-500 hover:bg-green-600"
+                : "bg-red-500 hover:bg-red-600"
+            }`}
           >
-            <Plus size={14} className="mr-1" />
-            Criar atendimento
+            {status ? (
+              <>
+                <Check size={14} className="mr-1" />
+                Concluído
+              </>
+            ) : (
+              <>
+                <X size={14} className="mr-1" />
+                Não concluído
+              </>
+            )}
           </Button>
         </div>
       </div>
-
-      <AtendimentoModal
-        open={isModalOpen}
-        onOpenChange={setIsModalOpen}
-        onSubmit={(data) => onAtendimentoCreated?.(data)}
-        initialData={{
-          pacienteNome: paciente,
-          data,
-          numeracao,
-        }}
-        lockFromAgendamento
-      />
     </>
   );
 }
