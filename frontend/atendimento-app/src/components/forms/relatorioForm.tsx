@@ -251,7 +251,6 @@ export default function RelatorioForm({ onSubmit }: RelatorioFormProps) {
             accumsan, vel ultrices ipsum commodo. Phasellus quam diam, semper eu nibh non, condimentum 
             aliquam ante. Nunc sit amet nisl feugiat, tincidunt leo ac, tristique risus. Phasellus 
             pharetra sollicitudin lacus, sed fermentum mauris vulputate vitae."
-            dataGeracao="07 de novembro de 2025"
           />
         }
         fileName="Relatorio.pdf"

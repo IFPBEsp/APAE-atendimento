@@ -6,6 +6,7 @@ import {
   Image,
 } from "@react-pdf/renderer";
 import { styles } from "./styles";
+import { formatarDataExtenso } from "@/lib/utils";
 
 interface TemplateRelatorioProps {
 
@@ -23,8 +24,6 @@ interface TemplateRelatorioProps {
 
   titulo: string;
   descricao: string;
-
-  dataGeracao: string;
 }
 
 export const TemplateRelatorio = ({
@@ -32,8 +31,10 @@ export const TemplateRelatorio = ({
   profissional,
   titulo,
   descricao,
-  dataGeracao,
 }: TemplateRelatorioProps) => {
+
+  const dataGeracao = formatarDataExtenso(new Date());
+
   return (
     <Document>
         <Page size={"A4"} style={styles.page}>

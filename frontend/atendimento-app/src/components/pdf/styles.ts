@@ -35,7 +35,6 @@ export const styles = StyleSheet.create({
 
   field: {
     marginBottom: 4,
-    marginLeft: 20,
   },
 
   title: {
