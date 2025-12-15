@@ -243,7 +243,6 @@ export default function RelatorioForm({ onSubmit }: RelatorioFormProps) {
               nome: "Dra. Ana Souza",
               crp: "13ª Região/PB – 5739"
             }}
-            cid10="F84.0"
             titulo="Relatório Psicológico"
             descricao="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla scelerisque lacus 
             scelerisque, cursus libero in, lacinia nibh. Donec vel dolor diam. Maecenas viverra pulvinar 
@@ -255,7 +254,7 @@ export default function RelatorioForm({ onSubmit }: RelatorioFormProps) {
             dataGeracao="07 de novembro de 2025"
           />
         }
-        fileName="relatorio.pdf"
+        fileName="Relatorio.pdf"
       >
         Teste PDF!
       </PDFDownloadLink>

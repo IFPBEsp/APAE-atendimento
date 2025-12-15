@@ -3,7 +3,7 @@ import { StyleSheet } from "@react-pdf/renderer";
 export const styles = StyleSheet.create({
   page: {
     padding: 30,
-    fontSize: 12,
+    fontSize: 9,
     fontFamily: "Helvetica",
   },
 
@@ -16,15 +16,16 @@ export const styles = StyleSheet.create({
     width: 100,
     height: 100,
     marginRight: 30,
-    marginTop: 30,
   },
 
   headerInfo: {
     justifyContent: "center",
+    alignItems: "center",
+    fontSize: 9,
   },
 
   apae: {
-    fontSize: 14,
+    fontSize: 11,
     fontWeight: "bold",
   },
 
@@ -34,23 +35,23 @@ export const styles = StyleSheet.create({
 
   field: {
     marginBottom: 4,
+    marginLeft: 20,
   },
 
   title: {
-    fontSize: 16,
+    fontSize: 11,
     fontWeight: "bold",
-    marginBottom: 10,
+    marginBottom: 20,
     textAlign: "center",
   },
 
   description: {
-    marginBottom: 30,
+    marginBottom: 50,
     textAlign: "justify",
-    lineHeight: 1.5,
+    lineHeight: 1,
   },
 
   footer: {
-    marginTop: "auto",
     fontSize: 10,
     textAlign: "right",
   },

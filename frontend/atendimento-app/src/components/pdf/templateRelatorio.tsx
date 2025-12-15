@@ -21,8 +21,6 @@ interface TemplateRelatorioProps {
     crp: string;
   };
 
-  cid10?: string;
-
   titulo: string;
   descricao: string;
 
@@ -32,7 +30,6 @@ interface TemplateRelatorioProps {
 export const TemplateRelatorio = ({
   paciente,
   profissional,
-  cid10,
   titulo,
   descricao,
   dataGeracao,
@@ -53,7 +50,7 @@ export const TemplateRelatorio = ({
             </View>
           </View>
 
-          <Text style={styles.apae}>SETOR DE PSICOLOGIA</Text>
+          <Text style={styles.title}>SETOR DE PSICOLOGIA</Text>
 
           <View style={styles.section}>
             <Text style={styles.field}>
@@ -81,12 +78,6 @@ export const TemplateRelatorio = ({
             <Text style={styles.field}>
               CRP: {profissional.crp}
             </Text>
-
-            {cid10 && (
-              <Text style={styles.field}>
-                CID-10: {cid10}
-              </Text>
-            )}
 
           </View>
           
