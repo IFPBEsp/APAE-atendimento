@@ -250,14 +250,8 @@ export default function RelatorioForm({
               <TemplateRelatorio
                 paciente={dadosPdf.paciente}
                 profissional={dadosPdf.profissional}
-                titulo="Relatório Psicológico"
-                descricao="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla scelerisque lacus 
-                scelerisque, cursus libero in, lacinia nibh. Donec vel dolor diam. Maecenas viverra pulvinar 
-                ligula ut bibendum. Donec rutrum, nibh ut semper euismod, dolor lectus cursus nibh, nec 
-                volutpat augue lectus laoreet enim. Proin eget fermentum metus. Quisque congue ex ut dolor 
-                accumsan, vel ultrices ipsum commodo. Phasellus quam diam, semper eu nibh non, condimentum 
-                aliquam ante. Nunc sit amet nisl feugiat, tincidunt leo ac, tristique risus. Phasellus 
-                pharetra sollicitudin lacus, sed fermentum mauris vulputate vitae."
+                titulo={titulo}
+                descricao={descricao}
               />
             }
             fileName="Relatorio.pdf"
