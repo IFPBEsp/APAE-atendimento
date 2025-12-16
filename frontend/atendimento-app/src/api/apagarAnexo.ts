@@ -1,13 +1,10 @@
 import data from "../../data/verificacao.json";
 
-export async function apagarAnexo(objectName?: string, bucket?: string) {
+export async function apagarAnexo(objectName?: string) {
   try {
-    if (!bucket) {
-      throw new Error("Erro ao apagar anexo");
-    }
-console.log(`${data.urlBase}/arquivo/delete/${bucket}?objectName=${objectName}`)
+    console.log(`${data.urlBase}/arquivo/delete?objectName=${objectName}`)
     const response = await fetch(
-      `${data.urlBase}/arquivo/delete/${bucket}?objectName=${objectName}`,
+      `${data.urlBase}/arquivo/delete?objectName=${objectName}`,
       {
         method: "DELETE",
       }

@@ -2,7 +2,7 @@ import dados from "../../data/verificacao.json";
 
 export async function enviarArquivo(relatorioEnvio : FormData)  {
     try{
-        const response = await fetch(`${dados.urlBase}/arquivo/upload`, {
+        const response = await fetch(`${dados.urlBase}/arquivo`, {
             method: "POST",
             body: relatorioEnvio
         });

@@ -70,12 +70,12 @@ export default function AnexoPage() {
       setAnexos((prev) => prev.filter((r) => r.id !== reportToDelete.id));
       setReportToDelete(null);
     }
-     await apagarAnexo(objectName, pacienteIdStr);
+     await apagarAnexo(objectName);
   };
 
   const handleUpdate = async (objectName: string) => {
-    if (!objectName || !pacienteIdStr) return;
-    await handleDownload(objectName, pacienteIdStr, reportToView?.nomeArquivo);
+    if (!objectName) return;
+    await handleDownload(objectName);
   }
 
   const anexosFiltrados =

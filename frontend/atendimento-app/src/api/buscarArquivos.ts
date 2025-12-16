@@ -4,7 +4,7 @@ import { TipoArquivo } from "@/components/forms/anexoForm";
 
 export async function buscarArquivos (idPaciente: string, tipoArquivo: TipoArquivo) : Promise<ArquivoResponse[]> {
     try{
-const res = await fetch(`${dados.urlBase}/arquivo/list/${dados.idProfissional}/${idPaciente}/${tipoArquivo}`);
+const res = await fetch(`${dados.urlBase}/arquivo/${dados.idProfissional}/${idPaciente}/${tipoArquivo}`);
 
 if(!res.ok){
   throw new Error('Erro ao buscar arquivo');
