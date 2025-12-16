@@ -15,6 +15,8 @@ import {
 import { useState } from "react";
 import { Upload, CirclePlus, Info } from "lucide-react";
 import { RelatorioEnvioFormData } from "./anexoForm";
+import { PDFDownloadLink } from "@react-pdf/renderer";
+import { TemplateRelatorio } from "../pdf/templateRelatorio";
 
 export type RelatorioFormData = {
   data: string;
@@ -228,6 +230,34 @@ export default function RelatorioForm({ onSubmit }: RelatorioFormProps) {
           Adicionar Relatório
         </Button>
       </DialogFooter>
+
+      <PDFDownloadLink
+        document={
+          <TemplateRelatorio
+            paciente={{
+              nome: "João da Silva",
+              dataNascimento: "10/05/2010",
+              endereco: "Rua Y, 456",
+              responsavel: "Maria da Silva"
+            }}
+            profissional={{
+              nome: "Dra. Ana Souza",
+              crp: "13ª Região/PB – 5739"
+            }}
+            titulo="Relatório Psicológico"
+            descricao="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla scelerisque lacus 
+            scelerisque, cursus libero in, lacinia nibh. Donec vel dolor diam. Maecenas viverra pulvinar 
+            ligula ut bibendum. Donec rutrum, nibh ut semper euismod, dolor lectus cursus nibh, nec 
+            volutpat augue lectus laoreet enim. Proin eget fermentum metus. Quisque congue ex ut dolor 
+            accumsan, vel ultrices ipsum commodo. Phasellus quam diam, semper eu nibh non, condimentum 
+            aliquam ante. Nunc sit amet nisl feugiat, tincidunt leo ac, tristique risus. Phasellus 
+            pharetra sollicitudin lacus, sed fermentum mauris vulputate vitae."
+          />
+        }
+        fileName="Relatorio.pdf"
+      >
+        Teste PDF!
+      </PDFDownloadLink>
     </form>
   );
 }
