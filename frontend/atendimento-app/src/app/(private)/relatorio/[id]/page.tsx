@@ -49,8 +49,8 @@ export default function RelatorioPage() {
 }
 
   const handleUpdate = async (objectName: string) => {
-    if (!objectName || !pacienteIdStr) return;
-    await handleDownload(objectName, pacienteIdStr);
+    if (!objectName) return;
+    await handleDownload(objectName);
   }
 
 
@@ -74,7 +74,7 @@ export default function RelatorioPage() {
       setRelatorios((prev) => prev.filter((r) => r.id !== reportToDelete.id));
       setReportToDelete(null);
     }
-    await apagarAnexo(objectName, pacienteIdStr);
+    await apagarAnexo(objectName);
   };
 
   async function enviarArquivoRelatorio (data: RelatorioEnvioFormData){
