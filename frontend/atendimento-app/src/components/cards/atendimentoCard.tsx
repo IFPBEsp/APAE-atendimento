@@ -1,21 +1,26 @@
 import { Expand } from "lucide-react";
 import { useState } from "react";
 import { AtendimentoDetailsModal } from "../modals/atendimentoModal";
-import { Relatorio } from "@/types/Atendimento";
+import { Atendimento, Relatorio } from "@/types/Atendimento";
 
 interface AtendimentoCardProps {
   id: string;
   data: string;
+  hora: string;
   numeracao: number;
   relatorio?: Relatorio[];
+  atendimentos: Atendimento[]; // 👈 novo
   onDeleted?: (id: string) => void;
+  onUpdated?: (a: Atendimento) => void;
 }
-
 export default function AtendimentoCard({
   id,
   data,
+  hora,
   numeracao,
   relatorio,
+  atendimentos,
+  onUpdated,
   onDeleted,
 }: AtendimentoCardProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -58,8 +63,11 @@ export default function AtendimentoCard({
         onClose={() => setIsModalOpen(false)}
         atendimentoId={id}
         data={data}
+        hora={hora}
         numeracao={numeracao}
         relatorios={relatorio}
+        atendimentos={atendimentos}
+        onUpdated={onUpdated!}
         onDeleted={(id) => {
           onDeleted?.(id);
           setIsModalOpen(false);

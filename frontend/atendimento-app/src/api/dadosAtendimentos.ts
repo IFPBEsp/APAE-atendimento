@@ -38,9 +38,10 @@ export async function criarAtendimento(
 }
 
 export async function editarAtendimento(
+  atendimentoId: string,
   payload: AtendimentoPayload
 ): Promise<Atendimento> {
-  const url = `${dados.urlBase}/atendimentos`;
+  const url = `${dados.urlBase}/atendimentos/${atendimentoId}`;
 
   const res = await fetch(url, {
     method: "PUT",

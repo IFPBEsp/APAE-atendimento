@@ -5,41 +5,64 @@ import { Label } from "@/components/ui/label";
 import { Plus, Check, CircleMinus } from "lucide-react";
 import { DialogFooter } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { criarAtendimento } from "@/api/dadosAtendimentos";
+import { criarAtendimento, editarAtendimento } from "@/api/dadosAtendimentos";
 import dados from "../../../data/verificacao.json";
-import { Atendimento } from "@/types/Atendimento";
+import { Atendimento, AtendimentoPayload } from "@/types/Atendimento";
 import { useParams } from "next/navigation";
 import { toast } from "sonner";
 import { useEffect } from "react";
 
 interface AtendimentoFormProps {
   atendimentos: Atendimento[];
+  atendimentoEditavel?: Atendimento;
   onCreated?: (novo: Atendimento) => void;
+  onUpdated?: (atualizado: Atendimento) => void;
+}
+
+function isoParaBR(iso: string): string {
+  if (!iso) return "";
+  const [ano, mes, dia] = iso.split("-");
+  return `${dia}-${mes}-${ano}`;
+}
+
+function brParaISO(dataBR: string): string {
+  if (!dataBR) return "";
+  const [dia, mes, ano] = dataBR.split("-");
+  return `${ano}-${mes}-${dia}`;
 }
 
 export default function AtendimentoForm({
   atendimentos,
+  atendimentoEditavel,
   onCreated,
+  onUpdated,
 }: AtendimentoFormProps) {
   const { id } = useParams();
 
   const pacienteId = typeof id === "string" ? id : undefined;
+
   function getTodayLocalDate() {
     const now = new Date();
     const offset = now.getTimezoneOffset() * 60000;
     return new Date(now.getTime() - offset).toISOString().split("T")[0];
   }
+
   const { register, handleSubmit, control, reset, watch, setValue } =
     useForm<Atendimento>({
-      defaultValues: {
-        data: new Date().toISOString().split("T")[0],
-        hora: new Date().toLocaleTimeString("pt-BR", {
-          hour: "2-digit",
-          minute: "2-digit",
-        }),
-        numeracao: 1,
-        relatorio: [{ titulo: "", descricao: "" }],
-      },
+      defaultValues: atendimentoEditavel
+        ? {
+            ...atendimentoEditavel,
+            data: brParaISO(atendimentoEditavel.data),
+          }
+        : {
+            data: getTodayLocalDate(),
+            hora: new Date().toLocaleTimeString("pt-BR", {
+              hour: "2-digit",
+              minute: "2-digit",
+            }),
+            numeracao: 1,
+            relatorio: [{ titulo: "", descricao: "" }],
+          },
     });
 
   const dataSelecionada = watch("data");
@@ -49,15 +72,27 @@ export default function AtendimentoForm({
 
     const [ano, mes] = dataSelecionada.split("-");
 
+    if (atendimentoEditavel) {
+      const dataOriginalISO = brParaISO(atendimentoEditavel.data);
+
+      if (dataSelecionada === dataOriginalISO) {
+        setValue("numeracao", atendimentoEditavel.numeracao);
+        return;
+      }
+    }
+
     const atendimentosDoMes = atendimentos.filter((a) => {
       const [diaBR, mesBR, anoBR] = a.data.split("/");
+
+      if (atendimentoEditavel && a.id === atendimentoEditavel.id) {
+        return false;
+      }
+
       return mesBR === mes && anoBR === ano;
     });
 
-    const proximaNumeracao = atendimentosDoMes.length + 1;
-
-    setValue("numeracao", proximaNumeracao);
-  }, [dataSelecionada, atendimentos, setValue]);
+    setValue("numeracao", atendimentosDoMes.length + 1);
+  }, [dataSelecionada, atendimentos, atendimentoEditavel, setValue]);
 
   const { fields, append, remove } = useFieldArray({
     control,
@@ -65,33 +100,36 @@ export default function AtendimentoForm({
   });
 
   async function onSubmit(data: Atendimento) {
-    const [ano, mes, dia] = data.data.split("-");
-    const dataBR = `${dia}-${mes}-${ano}`;
     if (!pacienteId) {
       toast.error("Paciente inválido.");
       return;
     }
-    const payload = {
+
+    const payload: AtendimentoPayload = {
       profissionalId: dados.idProfissional,
       pacienteId,
-      data: dataBR,
+      data: isoParaBR(data.data),
       hora: data.hora,
+      numeracao: data.numeracao,
       relatorio: Object.fromEntries(
         data.relatorio.map((item) => [item.titulo, item.descricao])
       ),
     };
 
     try {
-      const [ano, mes, dia] = data.data.split("-");
+      const response = atendimentoEditavel
+        ? await editarAtendimento(atendimentoEditavel.id, payload)
+        : await criarAtendimento(payload);
+
+      const [dia, mes, ano] = response.data.split("-");
       const dataBR = `${dia}/${mes}/${ano}`;
 
-      const response = await criarAtendimento(payload);
-      const novoAtendimento: Atendimento = {
+      const atendimentoFinal: Atendimento = {
         id: response.id,
         data: dataBR,
         hora: response.hora,
-        numeracao: response.numeracao ?? 1,
-        relatorio: Object.entries(response.relatorio || {}).map(
+        numeracao: response.numeracao,
+        relatorio: Object.entries(response.relatorio).map(
           ([titulo, descricao]) => ({
             titulo,
             descricao: String(descricao),
@@ -99,14 +137,20 @@ export default function AtendimentoForm({
         ),
       };
 
-      onCreated?.(novoAtendimento);
-      console.log(novoAtendimento);
-      toast.success("Atendimento criado com sucesso.");
+      atendimentoEditavel
+        ? onUpdated?.(atendimentoFinal)
+        : onCreated?.(atendimentoFinal);
+
+      toast.success(
+        atendimentoEditavel
+          ? "Atendimento atualizado com sucesso."
+          : "Atendimento criado com sucesso."
+      );
 
       reset();
     } catch (error) {
       console.error(error);
-      toast.error("Erro ao criar atendimento.");
+      toast.error("Erro ao salvar atendimento.");
     }
   }
 

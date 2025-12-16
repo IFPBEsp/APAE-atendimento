@@ -14,6 +14,7 @@ interface AtendimentoModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   children: ReactNode;
+  modo?: "create" | "edit";
 }
 
 const nunitoFont = Nunito({ weight: "700" });
@@ -22,6 +23,7 @@ export function AtendimentoModal({
   open,
   onOpenChange,
   children,
+  modo,
 }: AtendimentoModalProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -36,7 +38,9 @@ export function AtendimentoModal({
 
             <DialogHeader className="pt-6">
               <DialogTitle className="text-xl text-center text-[#344054]">
-                Adicionar novo atendimento
+                {modo === "edit"
+                  ? "Editar atendimento"
+                  : "Adicionar novo atendimento"}
               </DialogTitle>
             </DialogHeader>
           </div>
