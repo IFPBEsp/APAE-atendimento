@@ -25,7 +25,7 @@ public class PressignedUrlController {
     }
 
 
-     @GetMapping
+    @GetMapping
     public ResponseEntity<String> obterUrl (@RequestParam(name = "objectName") String objectName) {
         String url = presignedUrlService.gerarUrlPreAssinada(objectName);
         return ResponseEntity.ok(url);
