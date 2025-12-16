@@ -5,13 +5,6 @@ import { ArrowLeft, Plus } from "lucide-react";
 import { Nunito } from "next/font/google";
 import Header from "@/components/shared/header";
 import AtendimentoCard from "@/components/cards/atendimentoCard";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import AtendimentoForm from "@/components/forms/atendimentoForm";
 import { AtendimentoModal } from "@/components/modals/novoAtendimentoModal";
@@ -20,6 +13,7 @@ import { Atendimento } from "@/types/Atendimento";
 import { getAtendimentos } from "@/api/dadosAtendimentos";
 import { getPacientes } from "@/api/dadosPacientes";
 import { Paciente } from "@/types/Paciente";
+import { Input } from "@/components/ui/input";
 
 const nunitoFont = Nunito({ weight: "700" });
 
@@ -27,7 +21,7 @@ export default function AtendimentoPage() {
   const [paciente, setPaciente] = useState<Paciente | null>(null);
   const router = useRouter();
   const { id: pacienteId } = useParams();
-
+  const [dataSelecionada, setDataSelecionada] = useState<string>("");
   const [atendimentos, setAtendimentos] = useState<Atendimento[]>([]);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
@@ -101,7 +95,15 @@ export default function AtendimentoPage() {
     return meses;
   }
 
-  const atendimentosPorMes = agruparPorMes(atendimentos);
+  const dataFormatada = dataSelecionada
+    ? dataSelecionada.split("-").reverse().join("/")
+    : "";
+
+  const atendimentosFiltrados = dataSelecionada
+    ? atendimentos.filter((a) => a.data === dataFormatada)
+    : atendimentos;
+
+  const gruposParaRenderizar = agruparPorMes(atendimentosFiltrados);
 
   return (
     <div className="min-h-screen w-full bg-[#F8FAFD]">
@@ -126,22 +128,12 @@ export default function AtendimentoPage() {
               Novo atendimento
             </Button>
 
-            <Select>
-              <SelectTrigger className="bg-white border border-[#3B82F6] rounded-full w-[130px] text-gray-600 text-sm focus-visible:ring-0 focus-visible:border-[#3B82F6] cursor-pointer">
-                <SelectValue placeholder="Filtrar por..." />
-              </SelectTrigger>
-              <SelectContent className="border border-[#3B82F6] rounded-xl">
-                <SelectItem className="cursor-pointer" value="todos">
-                  Todos
-                </SelectItem>
-                <SelectItem className="cursor-pointer" value="numeracao">
-                  Numeração
-                </SelectItem>
-                <SelectItem className="cursor-pointer" value="data">
-                  Data
-                </SelectItem>
-              </SelectContent>
-            </Select>
+            <Input
+              type="date"
+              value={dataSelecionada}
+              onChange={(e) => setDataSelecionada(e.target.value)}
+              className="bg-white border border-[#3B82F6] rounded-full w-[150px] text-gray-600 text-sm focus-visible:ring-0 focus-visible:border-[#3B82F6]"
+            />
           </div>
         </div>
       </section>
@@ -159,7 +151,7 @@ export default function AtendimentoPage() {
           </p>
         )}
 
-        {!loading && atendimentos.length === 0 && (
+        {!loading && atendimentosFiltrados.length === 0 && (
           <div className="text-center mt-20">
             <p
               className={` text-[#344054] text-[15px] font-medium ${nunitoFont.className}`}
@@ -186,7 +178,7 @@ export default function AtendimentoPage() {
           />
         </AtendimentoModal>
 
-        {Object.entries(atendimentosPorMes).map(([mes, itens]) => (
+        {Object.entries(gruposParaRenderizar).map(([mes, itens]) => (
           <div key={mes} className="flex flex-col gap-4">
             <h2 className="text-lg font-bold text-[#344054] capitalize">
               {mes}
