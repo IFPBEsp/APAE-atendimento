@@ -18,6 +18,7 @@ import { RelatorioEnvioFormData } from "./anexoForm";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import { TemplateRelatorio } from "../pdf/templateRelatorio";
 import { renderizarFormatoArquivo } from "@/utils/renderizarFormatoArquivo";
+import { PacientePdfDTO, ProfissionalPdfDTO } from "@/api/dadosRelatorioPdf";
 
 export type RelatorioFormData = {
   data: string;
@@ -28,9 +29,19 @@ export type RelatorioFormData = {
 
 interface RelatorioFormProps {
   onSubmit: (data: RelatorioEnvioFormData) => void;
+  dadosPdf: {
+    paciente: PacientePdfDTO;
+    profissional: ProfissionalPdfDTO;
+  } | null;
+
+  carregandoPdf: boolean;
 }
 
-export default function RelatorioForm({ onSubmit }: RelatorioFormProps) {
+export default function RelatorioForm({ 
+  onSubmit,
+  dadosPdf,
+  carregandoPdf,
+}: RelatorioFormProps) {
   const { register, handleSubmit, watch, setValue } = useForm<RelatorioEnvioFormData>({
     defaultValues: {
       data: new Date().toISOString().split("T")[0],
@@ -230,45 +241,39 @@ export default function RelatorioForm({ onSubmit }: RelatorioFormProps) {
         </Button>
       </DialogFooter>
 
-      <div
-        className={`w-full ${
-          !podeGerarPdf ? "pointer-events-none opacity-50" : ""
-        }`}
-      >
-        <PDFDownloadLink
-          document={
-            <TemplateRelatorio
-              paciente={{
-                nome: "João da Silva",
-                dataNascimento: "10/05/2010",
-                endereco: "Rua Y, 456",
-                responsavel: "Maria da Silva",
-              }}
-              profissional={{
-                nome: "Dra. Ana Souza",
-                crp: "13ª Região/PB – 5739",
-              }}
-              titulo="Relatório Psicológico"
-              descricao="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla scelerisque lacus 
-            scelerisque, cursus libero in, lacinia nibh. Donec vel dolor diam. Maecenas viverra pulvinar 
-            ligula ut bibendum. Donec rutrum, nibh ut semper euismod, dolor lectus cursus nibh, nec 
-            volutpat augue lectus laoreet enim. Proin eget fermentum metus. Quisque congue ex ut dolor 
-            accumsan, vel ultrices ipsum commodo. Phasellus quam diam, semper eu nibh non, condimentum 
-            aliquam ante. Nunc sit amet nisl feugiat, tincidunt leo ac, tristique risus. Phasellus 
-            pharetra sollicitudin lacus, sed fermentum mauris vulputate vitae."
-            />
-          }
-          fileName="Relatorio.pdf"
-        >
-          {({ loading }) => (
-            <Button
-              type="button"
-              className="w-full rounded-[30px] shadow-md bg-[#165BAA] hover:bg-[#13447D] cursor-pointer"
-            >
-              <FileText /> {loading ? "Gerando PDF..." : "Gerar PDF"}
-            </Button>
-          )}
-        </PDFDownloadLink>
+      <div className={`w-full ${
+        !podeGerarPdf ? "pointer-events-none" : ""
+      }`}>
+        {dadosPdf && (
+          <PDFDownloadLink
+            document={
+              <TemplateRelatorio
+                paciente={dadosPdf.paciente}
+                profissional={dadosPdf.profissional}
+                titulo="Relatório Psicológico"
+                descricao="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla scelerisque lacus 
+                scelerisque, cursus libero in, lacinia nibh. Donec vel dolor diam. Maecenas viverra pulvinar 
+                ligula ut bibendum. Donec rutrum, nibh ut semper euismod, dolor lectus cursus nibh, nec 
+                volutpat augue lectus laoreet enim. Proin eget fermentum metus. Quisque congue ex ut dolor 
+                accumsan, vel ultrices ipsum commodo. Phasellus quam diam, semper eu nibh non, condimentum 
+                aliquam ante. Nunc sit amet nisl feugiat, tincidunt leo ac, tristique risus. Phasellus 
+                pharetra sollicitudin lacus, sed fermentum mauris vulputate vitae."
+              />
+            }
+            fileName="Relatorio.pdf"
+          >
+            {({ loading }) => (
+              <Button
+                type="button"
+                disabled={!podeGerarPdf || loading || carregandoPdf}
+                className="w-full rounded-[30px] bg-[#0D4F97]"
+              >
+                <FileText className="mr-2" />
+                {loading || carregandoPdf ? "Gerando PDF..." : "Baixar PDF"}
+              </Button>
+            )}
+          </PDFDownloadLink>
+        )}
       </div>
     </form>
   );

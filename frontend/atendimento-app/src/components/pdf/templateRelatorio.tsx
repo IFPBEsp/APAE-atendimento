@@ -14,12 +14,12 @@ interface TemplateRelatorioProps {
     nome: string;
     dataNascimento: string;
     endereco: string;
-    responsavel?: string;
+    responsaveis: string[];
   };
 
   profissional: {
     nome: string;
-    crp: string;
+    crm: string;
   };
 
   titulo: string;
@@ -92,9 +92,9 @@ export const TemplateRelatorio = ({
               Endereço: {paciente.endereco}
             </Text>
 
-            {paciente.responsavel && (
+            {paciente.responsaveis && paciente.responsaveis.length > 0 && (
               <Text style={styles.field}>
-                Responsável: {paciente.responsavel}
+                Responsável(is): {paciente.responsaveis.join(", ")}
               </Text>
             )}
 
@@ -103,7 +103,7 @@ export const TemplateRelatorio = ({
             </Text>
 
             <Text style={styles.field}>
-              CRP: {profissional.crp}
+              CRM: {profissional.crm}
             </Text>
 
           </View>

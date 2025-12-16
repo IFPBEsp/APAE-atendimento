@@ -21,6 +21,9 @@ import { buscarArquivos } from "@/api/buscarArquivos";
 import { enviarArquivo } from "@/api/enviarArquivo";
 import { apagarAnexo } from "@/api/apagarAnexo";
 import { handleDownload } from "@/api/salvarAnexo";
+import { buscarPacienteParaPdf, buscarProfissionalParaPdf } from "@/api/dadosRelatorioPdf";
+
+import type { PacientePdfDTO, ProfissionalPdfDTO } from "@/api/dadosRelatorioPdf";
 
 const nunitoFont = Nunito({ weight: "700" });
 
@@ -30,6 +33,39 @@ export default function RelatorioPage() {
   const params = useParams();
   const pacienteIdStr = Array.isArray(params.id) ? params.id[0] : params.id;
   const [relatorios, setRelatorios] = useState<Relatorio[]>([]);
+
+  const [dadosPdf, setDadosPdf] = useState<{
+    paciente: PacientePdfDTO;
+    profissional: ProfissionalPdfDTO;
+  } | null> (null);
+
+  const [carregandoPdf, setCarregandoPdf] = useState(false);
+
+  async function carregarDadosPdf() {
+    if (!pacienteIdStr) return;
+
+    try {
+      setCarregandoPdf(true);
+
+      const profissionalId = dados.idProfissional;
+
+      const [paciente, profissional] = await Promise.all([
+        buscarPacienteParaPdf(pacienteIdStr),
+        buscarProfissionalParaPdf(profissionalId),
+      ]);
+
+      setDadosPdf({ paciente, profissional });
+    } catch (error) {
+      console.error(error);
+      toast.error("Erro ao preparar dados do PDF");
+    } finally {
+      setCarregandoPdf(false);
+    }
+  }
+
+  useEffect(() => {
+    carregarDadosPdf();
+  }, [pacienteIdStr]);
 
   async function obterResultadoBuscarRelatorio() : Promise<Relatorio[]>{
      if (!pacienteIdStr) return [];
@@ -219,7 +255,11 @@ const mensagem = error instanceof Error ? error.message : String(error);
         )}
 
         <RelatorioModal open={open} onOpenChange={setOpen}>
-          <RelatorioForm onSubmit={enviarArquivoRelatorio} />
+          <RelatorioForm 
+          onSubmit={enviarArquivoRelatorio}
+          dadosPdf={dadosPdf}
+          carregandoPdf={carregandoPdf}
+          />
         </RelatorioModal>
 
       </section>
