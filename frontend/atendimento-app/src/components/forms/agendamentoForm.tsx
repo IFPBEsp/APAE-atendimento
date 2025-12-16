@@ -1,13 +1,29 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { DialogFooter } from "@/components/ui/dialog";
 import { Nunito } from "next/font/google";
-import { Check, Search } from "lucide-react";
+import { Check } from "lucide-react";
+import {
+  getPacientesPorProfissional,
+  PacienteOption,
+} from "../../api/pacientesOptional";
+
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export type AgendamentoFormData = {
-  paciente: string;
+  pacienteId: string;
+  pacienteNome?: string;
   data: string;
   horario: string;
   numeracao: number;
@@ -19,69 +35,106 @@ interface AgendamentoFormProps {
 
 const nunito = Nunito({ weight: "700" });
 
-export default function AgendamentoForm({ onSubmit }: AgendamentoFormProps) {
+function getTodayLocalDate() {
+  const now = new Date();
+  const offset = now.getTimezoneOffset() * 60000;
+  return new Date(now.getTime() - offset).toISOString().split("T")[0];
+}
 
-    const { register, handleSubmit } = useForm<AgendamentoFormData>({
+export default function AgendamentoForm({ onSubmit }: AgendamentoFormProps) {
+  const { register, handleSubmit, setValue, watch } =
+    useForm<AgendamentoFormData>({
       defaultValues: {
-        paciente: "",
-        data: "",
+        pacienteId: "",
+        pacienteNome: "",
+        data: getTodayLocalDate(),
         horario: "",
         numeracao: 1,
       },
     });
 
-  return  (
-    <form onSubmit={handleSubmit(onSubmit)}
-      className={`grid gap-6 pt-5 text-[#344054] ${nunito.className}`}>
-      
+  const pacienteId = watch("pacienteId", "");
+  const [pacientes, setPacientes] = useState<PacienteOption[]>([]);
+
+  useEffect(() => {
+    async function carregarPacientes() {
+      try {
+        const data = await getPacientesPorProfissional();
+        setPacientes(data);
+      } catch (error) {
+        console.error("Erro ao carregar pacientes", error);
+      }
+    }
+
+    carregarPacientes();
+  }, []);
+
+  function handleSelectPaciente(value: string) {
+    const paciente = pacientes.find((p) => p.id === value);
+    if (paciente) {
+      setValue("pacienteId", paciente.id);
+      setValue("pacienteNome", paciente.nome);
+    }
+  }
+
+  return (
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className={`grid gap-6 pt-5 text-[#344054] ${nunito.className}`}
+    >
       <div className="grid gap-2">
         <Label>
           Paciente <span className="text-[#F28C38]">*</span>
         </Label>
-        <div className="relative flex-1">
-          <Input
-            placeholder="Nome do paciente"
-            className="bg-white border border-[#3B82F6] rounded-full text-sm focus-visible:ring-0 focus-visible:border-[#3B82F6]"
-            {...register("paciente", { required: true })}
-          />
-          <Search className="absolute right-3 top-2 h-5 w-5 text-gray-500" />
-        </div>
+
+        <Select value={pacienteId} onValueChange={handleSelectPaciente}>
+          <SelectTrigger className="bg-white border border-[#3B82F6] rounded-full text-sm focus:ring-0 focus:border-[#3B82F6] w-[100%]">
+            <SelectValue placeholder="Selecione o paciente" />
+          </SelectTrigger>
+
+          <SelectContent>
+            {pacientes.map((p) => (
+              <SelectItem key={p.id} value={p.id} className="cursor-pointer">
+                <div className="text-sm font-medium text-[#344054]">
+                  {p.nome}
+                </div>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
-  
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="grid gap-2">
           <Label>
             Data <span className="text-[#F28C38]">*</span>
           </Label>
           <Input
             type="date"
-            className="rounded-[30px] border-[#3B82F6] focus-visible:ring-0 focus-visible:border-[#3B82F6]"
             {...register("data", { required: true })}
+            className="rounded-[30px] border-[#3B82F6] focus-visible:ring-0"
           />
         </div>
-        
+
         <div className="grid gap-2">
           <Label>
             Horário <span className="text-[#F28C38]">*</span>
           </Label>
           <Input
             type="time"
-            className="rounded-[30px] border-[#3B82F6] focus-visible:ring-0 focus-visible:border-[#3B82F6]"
             {...register("horario", { required: true })}
+            className="rounded-[30px] border-[#3B82F6] focus-visible:ring-0"
           />
         </div>
-        
       </div>
 
       <div className="grid gap-2">
         <Label>Numeração</Label>
-        <input
+        <Input
           type="number"
-          min={1}
-          className="w-full rounded-[30px] border border-[#3B82F6] 
-            focus-visible:ring-0 focus-visible:border-[#3B82F6] py-2 text-sm text-center"
           {...register("numeracao")}
+          min={1}
+          className="w-full rounded-[30px] border border-[#3B82F6] text-center"
         />
       </div>
 
@@ -95,5 +148,5 @@ export default function AgendamentoForm({ onSubmit }: AgendamentoFormProps) {
         </Button>
       </DialogFooter>
     </form>
-  )
+  );
 }
