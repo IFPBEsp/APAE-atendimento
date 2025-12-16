@@ -13,6 +13,7 @@ import AgendamentoForm, {
   AgendamentoFormData,
 } from "@/components/forms/agendamentoForm";
 import AgendamentoCard from "@/components/cards/agendamentoCard";
+import { toast } from "sonner";
 
 import {
   listarAgendamentos,
@@ -84,18 +85,16 @@ export default function AgendaPage() {
     ? agendamentos.filter((a) => a.data === dataSelecionada)
     : agendamentos;
 
-  const gruposParaRenderizar = dataSelecionada
-    ? { [dataSelecionada]: agendamentosFiltrados }
-    : agendamentos.reduce<Record<string, Agendamento[]>>((acc, cur) => {
-        acc[cur.data] = acc[cur.data] || [];
-        acc[cur.data].push(cur);
-        return acc;
-      }, {});
+  const gruposParaRenderizar = agruparPorData(
+    dataSelecionada
+      ? agendamentos.filter((a) => a.data === dataSelecionada)
+      : agendamentos
+  );
 
   async function handleCreateAgendamento(data: AgendamentoFormData) {
     try {
       if (!data.pacienteId) {
-        alert("Selecione um paciente válido.");
+        toast.error("Selecione um paciente válido.");
         return;
       }
 
@@ -110,21 +109,35 @@ export default function AgendaPage() {
         numeroAtendimento: Number(data.numeracao),
       });
 
+      toast.success("Agendamento criado com sucesso!");
       await carregarAgendamentos();
       setOpen(false);
-    } catch (error) {
-      console.error("Erro ao criar agendamento", error);
+    } catch (error: any) {
+      const mensagem = error?.message ?? "";
+
+      if (mensagem.includes("ja possui um agendamento")) {
+        toast.warning("Já existe um agendamento para essa data e horário.");
+      } else {
+        toast.error("Erro ao criar agendamento.");
+      }
     }
+  }
 
-    const payload = {
-      profissionalId,
-      pacienteId: data.pacienteId,
-      data: data.data,
-      hora: data.horario.length === 5 ? `${data.horario}:00` : data.horario,
-      numeroAtendimento: Number(data.numeracao),
-    };
+  function agruparPorData(lista: Agendamento[]) {
+    const grupos: Record<string, Agendamento[]> = {};
 
-    console.log("Payload enviado:", payload);
+    lista.forEach((item) => {
+      const [ano, mes, dia] = item.data.split("-");
+      const dataFormatada = `${ano}/${mes}/${dia}`;
+
+      if (!grupos[dataFormatada]) {
+        grupos[dataFormatada] = [];
+      }
+
+      grupos[dataFormatada].push(item);
+    });
+
+    return grupos;
   }
 
   async function confirmarDeleteAgendamento() {
@@ -154,7 +167,7 @@ export default function AgendaPage() {
         <div className="flex items-center justify-between mb-6">
           <button
             onClick={() => router.back()}
-            className="h-[38px] px-4 rounded-full flex items-center gap-2 bg-[#EDF2FB] text-sm text-gray-700"
+            className="h-[38px] px-4 rounded-full flex items-center gap-2 bg-[#EDF2FB] text-sm text-gray-700 cursor-pointer"
           >
             <ArrowLeft size={18} />
             Voltar
@@ -163,7 +176,7 @@ export default function AgendaPage() {
           <div className="flex items-center gap-3">
             <Button
               onClick={() => setOpen(true)}
-              className="hidden md:flex items-center bg-[#165BAA] hover:bg-[#13447D] text-white gap-2 px-4 h-[38px] rounded-full text-sm"
+              className="hidden md:flex items-center bg-[#165BAA] hover:bg-[#13447D] text-white gap-2 px-4 h-[38px] rounded-full text-sm cursor-pointer"
             >
               <CalendarPlus size={18} />
               Novo agendamento
@@ -186,12 +199,10 @@ export default function AgendaPage() {
           Agendamentos
         </h1>
 
-        {Object.entries(gruposParaRenderizar).map(([data, itens]) => (
-          <div key={data} className="flex flex-col gap-4">
+        {Object.entries(gruposParaRenderizar).map(([dataCompleta, itens]) => (
+          <div key={dataCompleta} className="flex flex-col gap-4">
             <h2 className="text-sm font-semibold text-[#344054]">
-              {new Date(data.split("-").reverse().join("-")).toLocaleDateString(
-                "pt-BR"
-              )}
+              {dataCompleta}
             </h2>
 
             <hr className="border-[#E5E7EB]" />

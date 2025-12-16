@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { Trash2, Plus, X, Check } from "lucide-react";
+import { Trash2, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface AgendamentoCardProps {
@@ -19,8 +18,6 @@ export default function AgendamentoCard({
   status,
   onDeleteClick,
 }: AgendamentoCardProps) {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
   return (
     <>
       <div className="bg-white border border-[#E5E7EB] rounded-2xl shadow-sm p-4 flex flex-col justify-between min-h-[250px]">
@@ -52,10 +49,10 @@ export default function AgendamentoCard({
 
         <div className="flex justify-center">
           <Button
-            className={`h-8 px-2 rounded-full text-xs shadow-sm ${
+            className={`h-8 px-3 rounded-full text-xs shadow-sm ${
               status
                 ? "bg-green-500 hover:bg-green-600"
-                : "bg-red-500 hover:bg-red-600"
+                : "bg-white border border-[#3B82F6] hover:bg-[#F8FAFD] text-[#344054]"
             }`}
           >
             {status ? (
@@ -64,10 +61,7 @@ export default function AgendamentoCard({
                 Concluído
               </>
             ) : (
-              <>
-                <X size={14} className="mr-1" />
-                Não concluído
-              </>
+              <>Não concluído</>
             )}
           </Button>
         </div>
