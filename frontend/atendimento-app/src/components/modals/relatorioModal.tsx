@@ -2,15 +2,9 @@
 
 import { X, Trash2, Download, Image as ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Relatorio } from "@/types/Relatorio";
+import { renderizarFormatoArquivo } from "@/utils/renderizarFormatoArquivo";
 
-interface RelatorioData {
-    id: number;
-    titulo: string;
-    data: string;
-    descricao: string;
-    fileName: string;
-    imageUrl?: string;
-}
 
 interface DeleteModalProps {
     isOpen: boolean;
@@ -23,7 +17,8 @@ interface ViewModalProps {
     onClose: () => void;
     titulo: string;
     descricao: string;
-    data: RelatorioData | null;
+    data: Relatorio | null;
+    onUpdate: () => void;
 }
 
 export function RelatorioDeleteModal({
@@ -70,10 +65,11 @@ export function RelatorioViewModal({
     onClose, 
     titulo, 
     data, 
-    descricao 
+    descricao,
+    onUpdate 
 }: ViewModalProps) {
     if (!isOpen || !data) return null;
-
+    const renderizar = renderizarFormatoArquivo(data.nomeArquivo.split(".").pop() || "", data.presignedUrl || "");
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4 py-6 animate-in fade-in duration-200">
             <div className="bg-white rounded-[24px] w-full max-w-[632px] max-h-[90vh] flex flex-col shadow-2xl overflow-hidden slide-in-from-bottom-10 overflow-y-auto">
@@ -90,13 +86,9 @@ export function RelatorioViewModal({
 
                 <p className="text-[10px] md:text-[12px] font-regular text-[#344054] px-5 py-3">{data.descricao}</p>
 
-                <div className="bg-gray-50 flex items-center justify-center w-full h-[400px] px-4">
-                    {data.imageUrl ? (
-                        <img
-                            src={data.imageUrl}
-                            alt="Relatório pré-visualização"
-                            className="w-full h-full object-contain rounded-lg"
-                        />
+                <div className=" bg-white rounded-[24px] w-full max-w-[632px] max-h-[90vh] flex flex-col shadow-2xl slide-in-from-bottom-10 overflow-y-auto">
+                    {data.presignedUrl ? (
+                     renderizar
                     ) : (
                         <div className="flex flex-col items-center text-gray-400">
                             <ImageIcon size={64} />
@@ -108,9 +100,10 @@ export function RelatorioViewModal({
 
                 <div className="p-4 border-t border-gray-100 flex flex-col items-center gap-4">
                     <span className="text-sm text-[#344054] underline decoration-1">
-                        {data.fileName}
+                        {data.nomeArquivo}
                     </span>
-                    <Button className="w-full bg-[#165BAA] hover:bg-[#13447D] text-white h-12 rounded-full text-base font-semibold shadow-lg cursor-pointer">
+                    <Button className="w-full bg-[#165BAA] hover:bg-[#13447D] text-white h-12 rounded-full text-base font-semibold shadow-lg cursor-pointer"
+                    onClick={onUpdate}>
                         <Download size={20} className="mr-2" />
                         Salvar relatório
                     </Button>

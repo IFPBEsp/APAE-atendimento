@@ -14,6 +14,8 @@ import {
 } from "@/components/ui/dialog";
 import { useState } from "react";
 import { Upload, CirclePlus, Info } from "lucide-react";
+import { RelatorioEnvioFormData } from "./anexoForm";
+import { renderizarFormatoArquivo } from "@/utils/renderizarFormatoArquivo";
 
 export type RelatorioFormData = {
   data: string;
@@ -23,11 +25,11 @@ export type RelatorioFormData = {
 };
 
 interface RelatorioFormProps {
-  onSubmit: (data: RelatorioFormData) => void;
+  onSubmit: (data: RelatorioEnvioFormData) => void;
 }
 
 export default function RelatorioForm({ onSubmit }: RelatorioFormProps) {
-  const { register, handleSubmit, watch, setValue } = useForm<RelatorioFormData>({
+  const { register, handleSubmit, watch, setValue } = useForm<RelatorioEnvioFormData>({
     defaultValues: {
       data: new Date().toISOString().split("T")[0],
       titulo: "",
@@ -45,8 +47,8 @@ export default function RelatorioForm({ onSubmit }: RelatorioFormProps) {
   const existeTemplate = titulo?.trim().length > 0 && descricao?.trim().length > 0;
 
   const envioValidado = existeArquivo || existeTemplate;
-
   const previewUrl = arquivo?.[0] ? URL.createObjectURL(arquivo[0]) : null;
+  const renderizar = (previewUrl && arquivo) && renderizarFormatoArquivo(arquivo[0].type, previewUrl);
 
   const removerArquivo = () => setValue("arquivo", undefined);
 
@@ -116,13 +118,9 @@ export default function RelatorioForm({ onSubmit }: RelatorioFormProps) {
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
         >
-          {previewUrl ? (
-            <img
-              src={previewUrl}
-              alt="Prévia"
-              className="w-[200px] h-full object-cover pointer-events-none"
-            />
-          ) : (
+          {previewUrl ? 
+            (renderizar)
+          : (
             <>
               <Label
                 htmlFor="arquivo"

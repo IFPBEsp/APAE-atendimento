@@ -1,89 +1,136 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import {useRouter, useParams} from "next/navigation";
 import { ArrowLeft, ClipboardPlus } from "lucide-react";
 import { Nunito } from "next/font/google";
 import Header from "@/components/shared/header";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import AnexoForm, { AnexoFormData } from "@/components/forms/anexoForm";
+import AnexoForm, {AnexoEnvioFormData, TipoArquivo } from "@/components/forms/anexoForm";
 import { AnexoModal } from "@/components/modals/novoAnexoModal";
 import AnexoCard from "@/components/cards/anexoCard";
 import { AnexoViewModal, AnexoDeleteModal } from "@/components/modals/anexoModal";
+import { construirArquivoFormData } from "@/services/construirArquivoFormData";
+import { enviarArquivo } from "@/api/enviarArquivo";
+import {Anexo, AnexoResponse} from "../../../../types/Anexo";
+import { buscarArquivos } from "@/api/buscarArquivos";
+import dados from "../../../../../data/verificacao.json"
+import { validarTipoArquivo } from "@/services/validarTipoArquivo";
+import {toast} from "sonner";
+import { handleDownload } from "@/api/salvarAnexo";
+import { apagarAnexo } from "@/api/apagarAnexo";
+import { validarTamanhoArquivo } from "@/services/validarTamanhoArquivo";
 
-interface Anexo {
-  id: number;
-  titulo: string;
-  descricao: string;
-  data: string;
-  fileName: string;
-  imageUrl?: string;
-}
 
 const nunitoFont = Nunito({ weight: "700" });
 
-export default function AnexoPage() {
+export default function AnexoPage() { 
+  const [nomePaciente, setNomePaciente] = useState("Loren Ipsun");
+  const [anexos, setAnexos] = useState<Anexo[]>([]);
   const router = useRouter();
+  const params = useParams();
+  const pacienteIdStr = Array.isArray(params.id) ? params.id[0] : params.id;
 
-  const nomePaciente = "Fulano de Tal de Lorem Ipsum Santos";
 
-  const [anexos, setAnexos] = useState<Anexo[]>(
-    Array.from({ length: 8 }).map((_, i) => ({
-      id: i,
-      titulo: "Lorem Ipsum", data: "2025-11-24",
-      descricao: "Nullam varius tempor massa et iaculis. Praesent sodales orci ut ultrices tempor. Quisque ac mauris gravida, dictum ipsum sit amet, bibendum turpis. Mauris dictum orci quis quam tincidunt imperdiet. Cras auctor aliquam tortor a luctus. Morbi tincidunt lacus vulputate risus dignissim porttitor.",
-      fileName: "nome_do_arquivo_lorem_ipsum_da_silva.jpg",
-      imageUrl: i === 0 ? "https://placehold.co/426x552/png" : undefined,
-    })
-    ));
+  async function obterResultadoBuscarAnexos() : Promise<Anexo[]> {
+    if (!pacienteIdStr) return [];
+      const resposta = await buscarArquivos(
+    pacienteIdStr,
+    TipoArquivo.anexo
+  ) as AnexoResponse[];
 
+  return resposta.map((e: AnexoResponse , i) => ({
+    id: ++i,
+    ...e
+  }));
+}
+
+  useEffect(() => {    
+      (async () => {
+        const anexosResult = await obterResultadoBuscarAnexos();
+        setAnexos(anexosResult);  
+      })()
+  }, [])
+  
   const [dataSelecionada, setDataSelecionada] = useState<string>("");
   const [open, setOpen] = useState(false);
   const [reportToDelete, setReportToDelete] = useState<Anexo | null>(null);
   const [reportToView, setReportToView] = useState<Anexo | null>(null);
 
-  const handleDelete = () => {
+  const handleDelete = async (objectName: string) => {
     if (reportToDelete) {
       setAnexos((prev) => prev.filter((r) => r.id !== reportToDelete.id));
       setReportToDelete(null);
     }
+     await apagarAnexo(objectName);
   };
+
+  const handleUpdate = async (objectName: string) => {
+    if (!objectName) return;
+    await handleDownload(objectName);
+  }
 
   const anexosFiltrados =
     dataSelecionada
       ? anexos.filter((r) => r.data === dataSelecionada)
       : anexos;
 
-  function handleCreateAnexo(data: AnexoFormData) {
-    console.log("Novo anexo recebido:", data);
-    const novoId = anexos.length + 1;
-
-    let preview = undefined;
-    let fileName = "";
-
-    if (data.arquivo && data.arquivo[0]) {
-      preview = URL.createObjectURL(data.arquivo[0]);
-      fileName = data.arquivo[0].name;
+  async function enviarArquivoAnexo(data: AnexoEnvioFormData) {
+  try {
+    const request : AnexoEnvioFormData = {
+      ...data,
+      pacienteId: pacienteIdStr,
+      tipoArquivo: TipoArquivo.anexo,
+      profissionalId: dados.idProfissional
+    }
+    const respostaCriacao = await handleCreateAnexo(request);
+    if (respostaCriacao.sucesso) {
+      toast.success(respostaCriacao.mensagem || "Anexo enviado com sucesso!");
+      return;
     }
 
-    const novoAnexo: Anexo = {
-      id: novoId,
-      titulo: data.titulo || "Sem título",
-      descricao: data.descricao,
-      data: data.data,
-      fileName: fileName,
-      imageUrl: preview,
-    };
+    toast.error(respostaCriacao.mensagem || "Erro ao enviar o anexo.");
 
-    setAnexos((prev) => [novoAnexo, ...prev]);
-
-    // Mudar futuramente:
-    // await api.post("/rota", data);
-    // depois atualiza a lista
-
-    setOpen(false);
+  } catch (err) {
+      console.error("Erro inesperado:", err);
+  const mensagem = err instanceof Error ? err.message : String(err);
+  toast.error(mensagem || "Erro inesperado ao enviar o anexo.");
   }
+}
+
+  async function reloadAnexos() {
+  const anexosResult = await obterResultadoBuscarAnexos();
+  setAnexos(anexosResult);
+}
+
+  async function handleCreateAnexo(data: AnexoEnvioFormData) {
+   
+    try{
+    validarTipoArquivo(data.arquivo);
+    validarTamanhoArquivo(data.arquivo);
+    const formData : FormData = construirArquivoFormData(data);
+    await enviarArquivo(formData);
+    await reloadAnexos();
+     return {
+      sucesso: true,
+      mensagem: "Anexo enviado com sucesso!"
+    }
+    }catch(error: unknown){
+      let mensagem = "Erro inesperado";
+
+  if (error instanceof Error) {
+    mensagem = error.message; 
+  }
+     return {
+      sucesso: false,
+      mensagem
+    };
+    }finally{
+      setOpen(false);
+    }
+
+     }
 
   return (
     <div className="min-h-screen w-full bg-[#F8FAFD]">
@@ -161,8 +208,8 @@ export default function AnexoPage() {
                 id={item.id}
                 titulo={item.titulo}
                 data={item.data}
-                fileName={item.fileName}
-                imageUrl={item.imageUrl}
+                fileName={item.nomeArquivo}
+                imageUrl={item.presignedUrl}
                 onView={() => setReportToView(item)}
                 onDelete={() => setReportToDelete(item)}
               />
@@ -175,7 +222,7 @@ export default function AnexoPage() {
           onOpenChange={setOpen}
         >
           <AnexoForm
-            onSubmit={handleCreateAnexo}
+            onSubmit={enviarArquivoAnexo}
           />
         </AnexoModal>
 
@@ -194,7 +241,7 @@ export default function AnexoPage() {
       <AnexoDeleteModal
         isOpen={!!reportToDelete}
         onClose={() => setReportToDelete(null)}
-        onConfirm={handleDelete}
+        onConfirm={() => reportToDelete && handleDelete(reportToDelete.objectName)}
       />
 
       <AnexoViewModal
@@ -203,6 +250,7 @@ export default function AnexoPage() {
         titulo={reportToView?.titulo ?? ""}
         data={reportToView}
         descricao={reportToView?.descricao ?? ""}
+        onUpdate={() => reportToView && handleUpdate(reportToView.objectName)}
       />
     </div>
   );
