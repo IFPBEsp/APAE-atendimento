@@ -1,22 +1,18 @@
 "use client";
 
+
 import { useRouter, useParams } from "next/navigation";
 import { ArrowLeft, Plus } from "lucide-react";
 import { Nunito } from "next/font/google";
 import Header from "@/components/shared/header";
 import AtendimentoCard from "@/components/cards/atendimentoCard";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import AtendimentoForm from "@/components/forms/atendimentoForm";
 import { AtendimentoModal } from "@/components/modals/novoAtendimentoModal";
 import { useState } from "react";
 import type { AtendimentoFormData } from "@/components/forms/atendimentoForm";
+import { Input } from "@/components/ui/input";
+
 
 interface Atendimento {
   id: number;
@@ -25,11 +21,14 @@ interface Atendimento {
   topicos: { titulo: string; descricao: string }[];
 }
 
+
 const nunitoFont = Nunito({ weight: "700" });
+
 
 export default function AtendimentoPage() {
   const router = useRouter();
   const { id } = useParams();
+  const [dataSelecionada, setDataSelecionada] = useState<string>("");
 
   const atendimentos: Atendimento[] = [
     {
@@ -90,45 +89,70 @@ export default function AtendimentoPage() {
       ]
     },
   ];
-
+ 
   function agruparPorMes(lista: Atendimento[]) {
     const meses: Record<string, Atendimento[]> = {};
 
-    lista.forEach((item) => {
-      const [, mes, ano] = item.data.split("/");
 
-      const nomeMes = new Date(Number(ano), Number(mes) - 1).toLocaleString(
-        "pt-BR",
-        { month: "long" }
-      );
+    lista.forEach((item) => {
+      const parts = item.data.split("/");
+
+
+      const dia = Number(parts[0]);
+      const mes = Number(parts[1]);
+      const ano = Number(parts[2]);
+
+
+      const nomeMes = new Date(ano, mes - 1, dia).toLocaleString("pt-BR", {
+        month: "long",
+      });
+
 
       const chave = `${nomeMes} ${ano}`;
+
 
       if (!meses[chave]) meses[chave] = [];
       meses[chave].push(item);
     });
 
+
     return meses;
   }
 
-  const atendimentosPorMes = agruparPorMes(atendimentos);
+
+  const dataFormatada = dataSelecionada ? dataSelecionada.split("-").reverse().join("/") : "";
+
+
+  const listaFinal = dataSelecionada ? atendimentos.filter((a) => a.data === dataFormatada) : atendimentos;
+
+
+  const atendimentosFiltrados = dataSelecionada ? atendimentos.filter((a) => a.data === dataSelecionada) : atendimentos;
+
+
+  const gruposParaRenderizar = agruparPorMes(listaFinal);
   const nomePaciente = "Fulano de Tal de Lorem Ipsum da Silva Santos";
+
 
   const [open, setOpen] = useState(false);
 
+
   function handleCreateAtendimento(data: AtendimentoFormData) {
     console.log("Novo atendimento recebido:", data);
+
 
     // Mudar futuramente:
     // await api.post("/rota", data);
     // depois atualiza a lista
 
+
     setOpen(false);
   }
+
 
   return (
     <div className="min-h-screen w-full bg-[#F8FAFD]">
       <Header />
+
 
       <section className="px-5 pt-4 mx-auto w-full">
         <div className="flex items-center justify-between mb-6">
@@ -140,6 +164,7 @@ export default function AtendimentoPage() {
             Voltar
           </button>
 
+
           <div className="flex items-center gap-3">
             <Button
               onClick={() => setOpen(true)}
@@ -148,20 +173,17 @@ export default function AtendimentoPage() {
               <Plus size={18} />
               Novo atendimento
             </Button>
-
-            <Select>
-              <SelectTrigger className="bg-white border border-[#3B82F6] rounded-full w-[130px] text-gray-600 text-sm focus-visible:ring-0 focus-visible:border-[#3B82F6] cursor-pointer">
-                <SelectValue placeholder="Filtrar por..." />
-              </SelectTrigger>
-              <SelectContent className="border border-[#3B82F6] rounded-xl">
-                <SelectItem className="cursor-pointer" value="todos">Todos</SelectItem>
-                <SelectItem className="cursor-pointer" value="numeracao">Numeração</SelectItem>
-                <SelectItem className="cursor-pointer" value="data">Data</SelectItem>
-              </SelectContent>
-            </Select>
+           
+            <Input
+              type="date"
+              value={dataSelecionada}
+              onChange={(e) => setDataSelecionada(e.target.value)}
+              className="bg-white border border-[#3B82F6] rounded-full w-[150px] text-gray-600 text-sm focus-visible:ring-0 focus-visible:border-[#3B82F6]"
+            />
           </div>
         </div>
       </section>
+
 
       <section className="bg-white rounded-t-3xl p-6 min-h-screen mx-auto flex flex-col gap-4">
         <h1
@@ -170,13 +192,15 @@ export default function AtendimentoPage() {
           {nomePaciente}
         </h1>
 
-        {atendimentos.length === 0 && (
+
+        {atendimentosFiltrados.length === 0 && (
           <div className="text-center mt-20">
             <p
               className={` text-[#344054] text-[15px] font-medium ${nunitoFont.className}`}
             >
               Não existem atendimentos para este paciente.
             </p>
+
 
             <Button
               variant="link"
@@ -188,15 +212,18 @@ export default function AtendimentoPage() {
           </div>
         )}
 
+
         <AtendimentoModal open={open} onOpenChange={setOpen}>
           <AtendimentoForm onSubmit={handleCreateAtendimento} />
         </AtendimentoModal>
 
-        {Object.entries(atendimentosPorMes).map(([mes, itens]) => (
+
+        {Object.entries(gruposParaRenderizar).map(([mes, itens]) => (
           <div key={mes} className="flex flex-col gap-4">
             <h2 className="text-lg font-bold text-[#344054] capitalize">
               {mes}
             </h2>
+
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {itens.map((a) => (
@@ -206,6 +233,7 @@ export default function AtendimentoPage() {
           </div>
         ))}
       </section>
+
 
       <button
         onClick={() => setOpen(true)}
@@ -219,3 +247,5 @@ export default function AtendimentoPage() {
     </div>
   );
 }
+
+
