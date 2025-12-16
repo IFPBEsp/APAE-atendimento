@@ -72,6 +72,12 @@
 			<groupId>com.github.ben-manes.caffeine</groupId>
 			<artifactId>caffeine</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>software.amazon.awssdk</groupId>
+			<artifactId>s3</artifactId>
+			<version>2.40.8</version>
+			<scope>compile</scope>
+		</dependency>
 
 	</dependencies>
 
