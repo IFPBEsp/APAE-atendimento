@@ -1,20 +1,23 @@
-package br.org.apae.atendimento.services;
+package br.org.apae.atendimento.services.storage.minio;
 
 import br.org.apae.atendimento.exceptions.MinioStorageException;
+import br.org.apae.atendimento.services.storage.PresignedUrlService;
 import io.minio.GetPresignedObjectUrlArgs;
 import io.minio.MinioClient;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 @Service
-public class PresignedUrlService {
-
-    private MinioClient client;
-
-    public PresignedUrlService(MinioClient minioClient) {
-        this.client = minioClient;
+@Profile("test")
+public class MinioPresignedUrlService implements PresignedUrlService {
+    private final MinioClient client;
+    @Value("${bucket.name}")
+    private String BUCKET_NAME;
+    public MinioPresignedUrlService(MinioClient client) {
+        this.client = client;
     }
 
     @Cacheable(
@@ -22,20 +25,17 @@ public class PresignedUrlService {
             key = "'presigned:' + #bucket + ':' + #objectName",  // ← CHAVE EXPLÍCITA
             unless = "#result == null"
     )
-    public String gerarUrlPreAssinada(String bucket, String objectName) {
+    public String gerarUrlPreAssinada(String objectName) {
         try {
-            System.out.println("🔴 CACHE MISS - Gerando NOVA URL: " + bucket + "/" + objectName);
-            System.out.println("   Chave: presigned:" + bucket + ":" + objectName);
             String url = client.getPresignedObjectUrl(
                     GetPresignedObjectUrlArgs.builder()
-                            .bucket(bucket)
+                            .bucket(BUCKET_NAME)
                             .object(objectName)
                             .method(io.minio.http.Method.GET)
                             .expiry(60 * 60)
                             .build()
             );
 
-            System.out.println("✅ URL gerada (tamanho: " + url.length() + ")");
             return url;
 
         } catch (Exception e) {
@@ -44,7 +44,7 @@ public class PresignedUrlService {
     }
 
     @CacheEvict(value = "presignedUrls", key = "'presigned:' + #bucket + ':' + #objectName")
-    public void evictUrlFromCache(String bucket, String objectName) {
-        System.out.println("🗑️ Removendo do cache: presigned:" + bucket + ":" + objectName);
+    public void evictUrlFromCache(String objectName) {
+        System.out.println("🗑️ Removendo do cache: presigned:" + BUCKET_NAME + ":" + objectName);
     }
 }
