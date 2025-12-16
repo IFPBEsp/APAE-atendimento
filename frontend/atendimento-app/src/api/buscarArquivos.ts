@@ -7,13 +7,13 @@ export async function buscarArquivos (idPaciente: string, tipoArquivo: TipoArqui
 const res = await fetch(`${dados.urlBase}/arquivo/${dados.idProfissional}/${idPaciente}/${tipoArquivo}`);
 
 if(!res.ok){
-  throw new Error('Erro ao buscar anexos');
+  throw new Error('Erro ao buscar arquivo');
 }
 
 const dto = await res.json() as ArquivoResponse[];
 return dto;
     }catch(error){
-        console.error("Erro ao buscar anexos:", error);
+        console.error("Erro ao buscar arquivo:", error);
         throw error;
     }
 }

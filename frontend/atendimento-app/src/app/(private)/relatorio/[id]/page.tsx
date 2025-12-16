@@ -21,6 +21,7 @@ import { buscarArquivos } from "@/api/buscarArquivos";
 import { enviarArquivo } from "@/api/enviarArquivo";
 import { apagarAnexo } from "@/api/apagarAnexo";
 import { handleDownload } from "@/api/salvarAnexo";
+import { obterNomePaciente } from "@/api/nomePaciente";
 
 const nunitoFont = Nunito({ weight: "700" });
 
@@ -54,14 +55,18 @@ export default function RelatorioPage() {
   }
 
 
-  useEffect(() => 
-    {
-    (async ()=>{
-    const relatoriosResponse = await obterResultadoBuscarRelatorio();
-    setRelatorios(relatoriosResponse);
-  })()
-  }, [])
-
+  useEffect(() => {    
+        (async () => {
+          try{
+   const [relatoriosResponse, nomePaciente] = await Promise.all([await obterResultadoBuscarRelatorio(), await obterNomePaciente(pacienteIdStr)]);
+          setNomePaciente(nomePaciente);
+          setRelatorios(relatoriosResponse);
+          }catch(error){
+            const mensagem = error instanceof Error ? error.message : "Erro inesperado";
+            toast.error(mensagem);
+          }
+        })()
+    }, [])
  
 
   const [dataSelecionada, setDataSelecionada] = useState<string>("");
@@ -89,14 +94,14 @@ export default function RelatorioPage() {
     const respostaCriacao = await handleCreateRelatorio(request);
 
     if(respostaCriacao.sucesso) {
-       toast.success(respostaCriacao.mensagem || "Anexo criado com sucesso!");
+       toast.success(respostaCriacao.mensagem || "Relatório criado com sucesso!");
        return;
     }
 
-    toast.error(respostaCriacao.mensagem || "Erro ao enviar o anexo.")
+    toast.error(respostaCriacao.mensagem || "Erro ao enviar o relatório.")
     }catch(error){
 const mensagem = error instanceof Error ? error.message : String(error);
-  toast.error(mensagem || "Erro inesperado ao enviar o anexo.");
+  toast.error(mensagem || "Erro inesperado ao enviar o relatório.");
     }
 
   }
@@ -114,7 +119,7 @@ const mensagem = error instanceof Error ? error.message : String(error);
     await reloadRelatorio();
     return {
       sucesso: true,
-      mensagem: "Anexo enviado com sucesso!"
+      mensagem: "Relatório enviado com sucesso!"
     }
     }catch(error){
  let mensagem = "Erro inesperado";

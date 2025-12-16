@@ -21,6 +21,7 @@ import {toast} from "sonner";
 import { handleDownload } from "@/api/salvarAnexo";
 import { apagarAnexo } from "@/api/apagarAnexo";
 import { validarTamanhoArquivo } from "@/services/validarTamanhoArquivo";
+import { obterNomePaciente } from "@/api/nomePaciente";
 
 
 const nunitoFont = Nunito({ weight: "700" });
@@ -48,8 +49,14 @@ export default function AnexoPage() {
 
   useEffect(() => {    
       (async () => {
-        const anexosResult = await obterResultadoBuscarAnexos();
+        try{
+ const [anexosResult, nomePaciente] = await Promise.all([await obterResultadoBuscarAnexos(), await obterNomePaciente(pacienteIdStr)]);
+        setNomePaciente(nomePaciente);
         setAnexos(anexosResult);  
+        }catch(error){
+          const mensagem = error instanceof Error ? error.message : "Erro inesperado";
+          toast.error(mensagem);
+        }
       })()
   }, [])
   

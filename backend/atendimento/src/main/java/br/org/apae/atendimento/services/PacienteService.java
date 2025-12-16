@@ -34,4 +34,7 @@ public class PacienteService {
         return repository.existeRelacao(pacienteId, profissionalId);
     }
 
+    public String getNomeCompletoPacienteById(UUID id){
+        return repository.findNomeCompletoById(id);
+    }
 }

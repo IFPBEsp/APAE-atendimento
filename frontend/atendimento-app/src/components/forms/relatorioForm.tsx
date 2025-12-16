@@ -205,14 +205,12 @@ export default function RelatorioForm({ onSubmit }: RelatorioFormProps) {
         <Input
           placeholder="Insira o título do relatório*"
           className="p-0 rounded-none border-0 border-b border-[#B2D7EC] focus-visible:ring-0 focus-visible:border-[#B2D7EC]"
-          {...register("titulo")}
         />
       </div>
 
       <Textarea
         placeholder="Insira a descrição do relatório"
         className="min-h-[100px] w-full rounded-[30px] border border-[#B2D7EC] focus-visible:ring-0 focus-visible:border-[#B2D7EC] px-5 py-3 text-sm"
-        {...register("descricao")}
       />
 
       <DialogFooter>
