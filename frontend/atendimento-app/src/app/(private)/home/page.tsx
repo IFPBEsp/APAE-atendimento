@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { getPacientes } from "../../../api/dadosPacientes";
 import { getPrimeiroNome } from "@/api/nomeProfissional";
 import { Paciente } from "@/types/Paciente";
+import { getTokenFromCookie } from "@/utils/auth";
 
 export default function PacientesPage() {
   const router = useRouter();
@@ -24,16 +25,24 @@ export default function PacientesPage() {
   const [dados, setDados] = useState<Paciente[]>([]);
   const [erro, setErro] = useState<string>("");
   const [carregando, setCarregando] = useState(true);
+  const [token, setToken] = useState<string | null>(null);
   
   useEffect(() => {
+    const token = getTokenFromCookie();
+
+    if (!token) {
+      console.log("Token ainda não disponível.");
+      return;
+    }
+
     (async () => {
       try {
         setCarregando(true);
         setErro("");
         
         const [nomeResult, pacientesResult] = await Promise.allSettled([
-          getPrimeiroNome(),
-          getPacientes()
+          getPrimeiroNome(token),
+          getPacientes(token)
         ]);
       
         if (nomeResult.status === 'fulfilled') {
@@ -56,7 +65,7 @@ export default function PacientesPage() {
         setCarregando(false);
       }
     })();
-  }, []);
+  }, [token]);
   
   return (
     <>

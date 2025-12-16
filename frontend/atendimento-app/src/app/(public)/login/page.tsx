@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import { Mail } from "lucide-react";
 import { Nunito, Baloo_2 } from "next/font/google";
@@ -11,11 +11,20 @@ import {
   InputGroupAddon,
   InputGroupInput,
 } from "@/components/ui/input-group";
-
-import dados from "../../../../data/verificacao.json";
+import { 
+  isSignInWithEmailLink, 
+  signInWithEmailLink, 
+  sendSignInLinkToEmail, 
+  GoogleAuthProvider, 
+  signInWithPopup, 
+  deleteUser, 
+  getAdditionalUserInfo 
+} from "firebase/auth";
+import { auth } from "@/lib/firebase";
 
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+
 const nunitoFont = Nunito({
   weight: "700",
 });
@@ -28,19 +37,85 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
   const router = useRouter();
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const finalizarLoginComLink = async () => {
+      if (isSignInWithEmailLink(auth, window.location.href)) {
+        let emailSalvo = window.localStorage.getItem("emailForSignIn");
+
+        if (!emailSalvo) {
+          emailSalvo = window.prompt("Confirme seu e-mail para continuar") || "";
+        }
+
+        try {
+          const result = await signInWithEmailLink(
+            auth,
+            emailSalvo,
+            window.location.href
+          );
+
+          const token = await result.user.getIdToken();
+          document.cookie = `token=${token}; path=/;`;
+
+          window.localStorage.removeItem("emailForSignIn");
+
+          router.push("/home");
+        } catch (err: any) {
+          tratarErroFirebase(err.code);
+        }
+      }
+    };
+
+    finalizarLoginComLink();
+  }, []);
+
   const isValidEmail = (value: string) =>
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const tratarErroFirebase = (code: string) => {
+    switch (code) {
+      case "auth/user-not-found":
+        setError("E-mail não cadastrado.");
+        break;
+      case "auth/wrong-password":
+        setError("Senha incorreta.");
+        break;
+      case "auth/invalid-email":
+        setError("E-mail inválido.");
+        break;
+      case "auth/popup-closed-by-user":
+        setError("Login cancelado pelo usuário.");
+        break;
+      default:
+        setError("Erro ao efetuar login.");
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (email !== dados.email) {
-      setError("E-mail inválido.");
+
+    if (!isValidEmail(email)) {
+      setError("Formato de e-mail inválido.");
       return;
     }
-    if (!isValidEmail(email)) return;
-    document.cookie = "verified=true; path=/;";
-    router.push("/login/verificacao");
-  };
+
+    try {
+      const actionCodeSettings = {
+        url: "http://localhost:3000/login",
+        handleCodeInApp: true,
+      };
+
+      console.log("Enviando link de login para:", email);
+      await sendSignInLinkToEmail(auth, email, actionCodeSettings);
+      console.log("Link de login enviado para:", email);
+      window.localStorage.setItem("emailForSignIn", email);
+      setError("Enviamos um link de acesso para seu e-mail.");
+    } catch (error: any) {
+      tratarErroFirebase(error.code);
+    };
+  }
 
   return (
     <div className="h-screen w-screen bg-[url('/background-login-apae.svg')] relative bg-no-repeat bg-cover bg-center flex items-center justify-center">
@@ -105,10 +180,28 @@ export default function LoginPage() {
               </div>
 
               <Button
-                onClick={() => router.push("/home")}
                 type="button"
-                className={` active:scale-[0.98] w-full h-[46px] rounded-full border border-[#B2D7EC] bg-white  text-gray-700 text-[18px] hover:cursor-pointer hover:bg-[#F8FAFD] ${baloo2Font.className}`}
-                style={{ boxShadow: "4px 4px 10px rgba(0, 0, 0, 0.25)" }}
+                onClick={async () => {
+                  try {
+                    const provider = new GoogleAuthProvider();
+                    const result = await signInWithPopup(auth, provider);
+                    const details = getAdditionalUserInfo(result);
+
+                    if (details?.isNewUser) {
+                      await deleteUser(result.user);
+                      setError("Este e-mail não está autorizado.");
+                      return;
+                    }
+
+                    const token = await result.user.getIdToken();
+                    document.cookie = `token=${token}; path=/;`;
+                    router.push("/home");
+
+                  } catch (err: any) {
+                    tratarErroFirebase(err.code);
+                  }
+                }}
+                className={`active:scale-[0.98] w-full h-[46px] rounded-full border border-[#B2D7EC] bg-white text-gray-700 text-[18px] hover:cursor-pointer`}
               >
                 <img
                   src="/google-icon.svg"
@@ -123,4 +216,4 @@ export default function LoginPage() {
       </div>
     </div>
   );
-}
+};

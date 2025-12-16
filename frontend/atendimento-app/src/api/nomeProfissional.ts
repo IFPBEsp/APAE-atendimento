@@ -1,12 +1,18 @@
 import dados from "../../data/verificacao.json";
 
-export async function getPrimeiroNome(): Promise<string> {
+export async function getPrimeiroNome(token: string): Promise<string> {
   const res = await fetch(
-    `${dados.urlBase}/profissionais/${dados.idProfissional}/primeiro-nome`
+    `${dados.urlBase}/profissionais/${dados.idProfissional}/primeiro-nome`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
   );
+
   if (!res.ok) {
-    throw new Error("Erro ao capturar o nome do profissional");
+    throw new Error("Erro ao capturar nome");
   }
-  const data = await res.text();
-  return data;
+
+  return res.text();
 }

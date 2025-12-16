@@ -2,14 +2,14 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 export function middleware(request: NextRequest) {
-  const verified = request.cookies.get("verified")?.value;
+  const token = request.cookies.get("token")?.value;
 
   const publicRoutes = ["/login"];
   const pathname = request.nextUrl.pathname;
 
-  const isPublic = publicRoutes.includes(pathname);
+  const isPublic = publicRoutes.some(route => pathname.startsWith(route));
 
-  if (!isPublic && !verified) {
+  if (!isPublic && !token) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
@@ -17,5 +17,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/home", "/login/verificacao"],
+  matcher: ["/home", "/agenda", "/atendimento/:path*", "/relatorio/:path*"],
 };
