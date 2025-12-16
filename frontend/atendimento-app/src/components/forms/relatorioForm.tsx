@@ -13,7 +13,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { useState } from "react";
-import { Upload, CirclePlus, Info } from "lucide-react";
+import { Upload, CirclePlus, Info, FileText } from "lucide-react";
 import { RelatorioEnvioFormData } from "./anexoForm";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import { TemplateRelatorio } from "../pdf/templateRelatorio";
@@ -48,7 +48,9 @@ export default function RelatorioForm({ onSubmit }: RelatorioFormProps) {
   const existeArquivo = arquivo && arquivo.length > 0;
   const existeTemplate = titulo?.trim().length > 0 && descricao?.trim().length > 0;
 
-  const envioValidado = existeArquivo || existeTemplate;
+  const podeEnviarAnexo = existeArquivo;
+  const podeGerarPdf = !existeArquivo && existeTemplate;
+
   const previewUrl = arquivo?.[0] ? URL.createObjectURL(arquivo[0]) : null;
   const renderizar = (previewUrl && arquivo) && renderizarFormatoArquivo(arquivo[0].type, previewUrl);
 
@@ -220,7 +222,7 @@ export default function RelatorioForm({ onSubmit }: RelatorioFormProps) {
       <DialogFooter>
         <Button
           type="submit"
-          disabled={!envioValidado}
+          disabled={!podeEnviarAnexo}
           className="w-full rounded-[30px] shadow-md bg-[#0D4F97] hover:bg-[#13447D] cursor-pointer"
         >
           <CirclePlus className="mr-1" />
@@ -228,33 +230,46 @@ export default function RelatorioForm({ onSubmit }: RelatorioFormProps) {
         </Button>
       </DialogFooter>
 
-      <PDFDownloadLink
-        document={
-          <TemplateRelatorio
-            paciente={{
-              nome: "João da Silva",
-              dataNascimento: "10/05/2010",
-              endereco: "Rua Y, 456",
-              responsavel: "Maria da Silva"
-            }}
-            profissional={{
-              nome: "Dra. Ana Souza",
-              crp: "13ª Região/PB – 5739"
-            }}
-            titulo="Relatório Psicológico"
-            descricao="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla scelerisque lacus 
+      <div
+        className={`w-full ${
+          !podeGerarPdf ? "pointer-events-none opacity-50" : ""
+        }`}
+      >
+        <PDFDownloadLink
+          document={
+            <TemplateRelatorio
+              paciente={{
+                nome: "João da Silva",
+                dataNascimento: "10/05/2010",
+                endereco: "Rua Y, 456",
+                responsavel: "Maria da Silva",
+              }}
+              profissional={{
+                nome: "Dra. Ana Souza",
+                crp: "13ª Região/PB – 5739",
+              }}
+              titulo="Relatório Psicológico"
+              descricao="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla scelerisque lacus 
             scelerisque, cursus libero in, lacinia nibh. Donec vel dolor diam. Maecenas viverra pulvinar 
             ligula ut bibendum. Donec rutrum, nibh ut semper euismod, dolor lectus cursus nibh, nec 
             volutpat augue lectus laoreet enim. Proin eget fermentum metus. Quisque congue ex ut dolor 
             accumsan, vel ultrices ipsum commodo. Phasellus quam diam, semper eu nibh non, condimentum 
             aliquam ante. Nunc sit amet nisl feugiat, tincidunt leo ac, tristique risus. Phasellus 
             pharetra sollicitudin lacus, sed fermentum mauris vulputate vitae."
-          />
-        }
-        fileName="Relatorio.pdf"
-      >
-        Teste PDF!
-      </PDFDownloadLink>
+            />
+          }
+          fileName="Relatorio.pdf"
+        >
+          {({ loading }) => (
+            <Button
+              type="button"
+              className="w-full rounded-[30px] shadow-md bg-[#165BAA] hover:bg-[#13447D] cursor-pointer"
+            >
+              <FileText /> {loading ? "Gerando PDF..." : "Gerar PDF"}
+            </Button>
+          )}
+        </PDFDownloadLink>
+      </div>
     </form>
   );
 }
