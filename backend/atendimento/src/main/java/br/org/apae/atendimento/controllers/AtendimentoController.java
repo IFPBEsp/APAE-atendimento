@@ -1,7 +1,6 @@
 package br.org.apae.atendimento.controllers;
 
 import br.org.apae.atendimento.dtos.request.AtendimentoRequestDTO;
-import br.org.apae.atendimento.dtos.request.update.AtendimentoUpdateRequestDTO;
 import br.org.apae.atendimento.dtos.response.AtendimentoResponseDTO;
 import br.org.apae.atendimento.dtos.response.MesAnoAtendimentoResponseDTO;
 import br.org.apae.atendimento.services.AtendimentoService;
@@ -57,9 +56,10 @@ public class AtendimentoController {
         return ResponseEntity.ok().body("Atendimento excluído");
     }
 
-    @PutMapping
-    public ResponseEntity<AtendimentoResponseDTO> editarTopicos(@RequestBody AtendimentoUpdateRequestDTO updateDTO){
-        AtendimentoResponseDTO atendimentoAtualizado = atendimentoService.editarTopicos(updateDTO);
+    @PutMapping("/{atendimentoId}")
+    public ResponseEntity<AtendimentoResponseDTO> editarTopicos(@RequestBody AtendimentoRequestDTO updateDTO,
+                                                                @PathVariable UUID atendimentoId){
+        AtendimentoResponseDTO atendimentoAtualizado = atendimentoService.editar(updateDTO, atendimentoId);
         return ResponseEntity.ok().body(atendimentoAtualizado);
     }
 }
