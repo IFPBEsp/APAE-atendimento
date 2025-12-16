@@ -24,7 +24,11 @@ export default function AtendimentoForm({
   const { id } = useParams();
 
   const pacienteId = typeof id === "string" ? id : undefined;
-
+  function getTodayLocalDate() {
+    const now = new Date();
+    const offset = now.getTimezoneOffset() * 60000;
+    return new Date(now.getTime() - offset).toISOString().split("T")[0];
+  }
   const { register, handleSubmit, control, reset, watch, setValue } =
     useForm<Atendimento>({
       defaultValues: {
