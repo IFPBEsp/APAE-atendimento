@@ -1,5 +1,6 @@
 package br.org.apae.atendimento.repositories;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -26,4 +27,13 @@ public interface PacienteRepository extends JpaRepository<Paciente, UUID> {
         WHERE p.id = :pacienteId
         """)
     String findNomeCompletoById(@Param("pacienteId") UUID pacienteId);
+
+    @Query("""
+        SELECT p
+        FROM Paciente p
+        WHERE (:nome IS NULL OR LOWER(p.nomeCompleto) LIKE LOWER(CONCAT('%', :nome, '%')))
+        AND (:cpf IS NULL OR p.cpf LIKE CONCAT('%', :cpf, '%'))
+        AND (:cidade IS NULL OR LOWER(p.cidade) LIKE LOWER(CONCAT('%', :cidade, '%')))
+        """)
+    List<Paciente> buscarPaciente(@Param("nome") String nome, @Param("cpf") String cpf, @Param("cidade") String cidade);
 }

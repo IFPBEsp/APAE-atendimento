@@ -24,32 +24,56 @@ export default function PacientesPage() {
   const [dados, setDados] = useState<Paciente[]>([]);
   const [erro, setErro] = useState<string>("");
   const [carregando, setCarregando] = useState(true);
-  
+  const [busca, setBusca] = useState("");
+  const [filtro, setFiltro] = useState<"nome" | "cpf" | "cidade" | "">("");
+
+  useEffect(() => {
+    if (!busca || !filtro) {
+      getPacientes().then(setDados);
+      return;
+    }
+
+    const timeout = setTimeout(async () => {
+      try {
+        const params: any = {};
+        params[filtro] = busca;
+
+        const response = await getPacientes(params);
+        setDados(response);
+      } catch {
+        setErro("Erro ao buscar pacientes");
+      }
+    }, 300); 
+
+    return () => clearTimeout(timeout);
+  }, [busca, filtro]);
+
+
   useEffect(() => {
     (async () => {
       try {
         setCarregando(true);
         setErro("");
-        
+
         const [nomeResult, pacientesResult] = await Promise.allSettled([
           getPrimeiroNome(),
           getPacientes()
         ]);
-      
+
         if (nomeResult.status === 'fulfilled') {
           setMedicoNome(nomeResult.value);
         } else {
           console.error("Erro ao buscar nome do profissional:", nomeResult.reason);
           setMedicoNome("Profissional");
         }
-        
+
         if (pacientesResult.status === 'fulfilled') {
           setDados(pacientesResult.value);
         } else {
           console.error("Erro ao buscar pacientes:", pacientesResult.reason);
           setErro("Não foi possível carregar os pacientes. Tente novamente mais tarde.");
         }
-       
+
       } catch (error) {
         setErro("Erro inesperado ao carregar os dados.");
         console.error("Erro inesperado:", error);
@@ -58,7 +82,7 @@ export default function PacientesPage() {
       }
     })();
   }, []);
-  
+
   return (
     <>
       <Header />
@@ -78,17 +102,18 @@ export default function PacientesPage() {
               <Input
                 type="text"
                 placeholder="Pesquisar por paciente"
+                value={busca}
+                onChange={(e) => setBusca(e.target.value)}
                 className="bg-white border border-[#3B82F6] pl-9 pr-3 py-2 rounded-full text-sm focus-visible:ring-0 focus-visible:border-[#3B82F6]"
               />
               <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
             </div>
 
-            <Select>
+            <Select onValueChange={(value) => setFiltro(value as any)}>
               <SelectTrigger className="bg-white border border-[#3B82F6] rounded-full w-[130px] text-gray-600 text-sm focus-visible:ring-0 focus-visible:border-[#3B82F6] cursor-pointer">
                 <SelectValue placeholder="Filtrar por..." />
               </SelectTrigger>
               <SelectContent className="border border-[#3B82F6] rounded-xl">
-                <SelectItem className="cursor-pointer" value="todos">Todos</SelectItem>
                 <SelectItem className="cursor-pointer" value="nome">Nome</SelectItem>
                 <SelectItem className="cursor-pointer" value="cpf">CPF</SelectItem>
                 <SelectItem className="cursor-pointer" value="cidade">Cidade</SelectItem>
@@ -96,7 +121,7 @@ export default function PacientesPage() {
             </Select>
 
             <Button
-              onClick={() =>  router.push("/agenda")}
+              onClick={() => router.push("/agenda")}
               className="hidden cursor-pointer md:flex items-center bg-[#165BAA] hover:bg-[#13447D] text-white gap-2 px-4 h-[38px]  rounded-full text-sm shadow-sm active:scale-95"
             >
               <CalendarClock size={18} />
@@ -130,7 +155,7 @@ export default function PacientesPage() {
           ) : (
             dados.map((pac) => (
               <PacienteCard
-                dataDeNascimento={""} 
+                dataDeNascimento={""}
                 key={pac.id}
                 {...pac}
                 onViewAtendimentos={() => router.push(`/atendimento/${pac.id}`)}
