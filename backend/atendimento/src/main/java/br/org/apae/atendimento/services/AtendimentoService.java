@@ -1,7 +1,9 @@
 package br.org.apae.atendimento.services;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.YearMonth;
+import java.time.temporal.TemporalAccessor;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -18,6 +20,7 @@ import br.org.apae.atendimento.exceptions.invalid.RelacaoInvalidException;
 import br.org.apae.atendimento.exceptions.notfound.AtendimentoNotFoundException;
 import br.org.apae.atendimento.mappers.AtendimentoMapper;
 import br.org.apae.atendimento.repositories.AtendimentoRepository;
+import jakarta.persistence.NonUniqueResultException;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -56,6 +59,7 @@ public class AtendimentoService {
         }
 
         return atendimentoMapper.toDTOPadrao(dadosPersistidos);
+
     }
 
     private void verificarRelatorio(Map<String, Object> relatorio) {
@@ -77,7 +81,7 @@ public class AtendimentoService {
     public List<MesAnoAtendimentoResponseDTO> getAtendimentosAgrupadosPorMes(UUID pacienteId, UUID profissionalId) {
 
         List<Atendimento> atendimentos = repository
-                .findByPacienteIdAndProfissionalIdOrderByDataAtendimentoDesc(pacienteId, profissionalId);
+                .findByPacienteIdAndProfissionalIdOrderByDataAtendimento(pacienteId, profissionalId);
 
         return atendimentos.stream()
                 .collect(Collectors.groupingBy(
@@ -112,10 +116,10 @@ public class AtendimentoService {
         Atendimento atendimento = repository.findById(atendimentoId).orElseThrow(() -> new AtendimentoNotFoundException());
         atendimento.setRelatorio(requestDTO.relatorio());
 
-        if (requestDTO.data() != atendimento.getDataAtendimento().toLocalDate()){
+        if (!requestDTO.data().equals(atendimento.getDataAtendimento().toLocalDate())){
             atendimento.setNumeracao(gerarProximaNumeracao(
-                    requestDTO.data(), requestDTO.profissionalId(), requestDTO.pacienteId()
-            ));
+                    requestDTO.data(), requestDTO.profissionalId(), requestDTO.pacienteId()));
+            atendimento.setDataAtendimento(LocalDateTime.of(requestDTO.data(), requestDTO.hora()));
         }
 
         return atendimentoMapper.toDTOPadrao(repository.save(atendimento));
