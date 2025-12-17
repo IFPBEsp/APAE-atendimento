@@ -244,7 +244,7 @@ export default function AtendimentoForm({
           className="w-full flex-1 sm:w-auto rounded-[30px] shadow-md bg-[#0D4F97] hover:bg-[#13447D] cursor-pointer"
         >
           <Check className="mr-2 h-4 w-4" />
-          Criar atendimento
+          {atendimentoEditavel?"Salvar alterações":"Criar atendimento"}
         </Button>
       </DialogFooter>
     </form>
