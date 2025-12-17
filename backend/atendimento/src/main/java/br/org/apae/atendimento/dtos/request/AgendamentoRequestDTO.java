@@ -11,7 +11,9 @@ import java.util.UUID;
 public record AgendamentoRequestDTO(
         UUID profissionalId,
         UUID pacienteId,
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
         LocalDate data,
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm:ss")
         LocalTime hora,
         Long numeroAtendimento) {
 }
