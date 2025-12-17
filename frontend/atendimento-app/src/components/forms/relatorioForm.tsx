@@ -15,7 +15,7 @@ import {
 import { useState } from "react";
 import { Upload, CirclePlus, Info, FileText } from "lucide-react";
 import { RelatorioEnvioFormData } from "./anexoForm";
-import { PDFDownloadLink } from "@react-pdf/renderer";
+import { pdf} from "@react-pdf/renderer";
 import { TemplateRelatorio } from "../pdf/templateRelatorio";
 import { renderizarFormatoArquivo } from "@/utils/renderizarFormatoArquivo";
 import { PacientePdfDTO, ProfissionalPdfDTO } from "@/api/dadosRelatorioPdf";
@@ -59,8 +59,33 @@ export default function RelatorioForm({
   const existeArquivo = arquivo && arquivo.length > 0;
   const existeTemplate = titulo?.trim().length > 0 && descricao?.trim().length > 0;
 
-  const podeEnviarAnexo = existeArquivo;
+  const podeEnviarAnexo = existeArquivo && existeTemplate;
   const podeGerarPdf = !existeArquivo && existeTemplate;
+
+  const gerarPdfEAnexar = async () => {
+    if (!dadosPdf) return;
+
+    const blob = await pdf(
+      <TemplateRelatorio
+        paciente={dadosPdf.paciente}
+        profissional={dadosPdf.profissional}
+        titulo={titulo}
+        descricao={descricao}
+      />
+    ).toBlob();
+
+    const file = new File(
+      [blob], `Relatorio-${titulo || "relatorio"}.pdf`, { type: "application/pdf"}
+    );
+
+    const fileList = {
+      0: file,
+      length: 1,
+      item: () => file,
+    } as unknown as FileList;
+
+    setValue("arquivo", fileList, { shouldValidate: true});
+  };
 
   const previewUrl = arquivo?.[0] ? URL.createObjectURL(arquivo[0]) : null;
   const renderizar = (previewUrl && arquivo) && renderizarFormatoArquivo(arquivo[0].type, previewUrl);
@@ -106,11 +131,34 @@ export default function RelatorioForm({
           {...register("data", { required: true })}
         />
 
-        <Input
-          placeholder="Insira o título do relatório*"
-          className="p-0 rounded-none border-0 border-b border-[#B2D7EC] focus-visible:ring-0 focus-visible:border-[#B2D7EC]"
-          {...register("titulo")}
-        />
+        <div>
+          <Input
+            placeholder="Insira o título do relatório*"
+            className="p-0 rounded-none border-0 border-b border-[#B2D7EC] focus-visible:ring-0 focus-visible:border-[#B2D7EC]"
+            {...register("titulo")}
+          />
+
+          <Dialog>
+            <DialogTrigger asChild className="cursor-pointer">
+              <button type="button">
+                <Info size={16} className="text-gray-500" />
+              </button>
+            </DialogTrigger>
+
+            <DialogContent className="rounded-2xl">
+              <DialogHeader>
+                <DialogTitle>Como funciona o template?</DialogTitle>
+                <DialogDescription>
+                  Ao gerar o relatório por template, o sistema cria um arquivo
+                  padronizado automaticamente, incluindo cabeçalho e informações
+                  essenciais.
+                </DialogDescription>
+              </DialogHeader>
+            </DialogContent>
+          </Dialog>
+
+        </div>
+
       </div>
 
       <Textarea
@@ -188,46 +236,6 @@ export default function RelatorioForm({
 
       </div>
 
-      <div className="flex items-center gap-3">
-        <div className="flex-1 h-[1px] bg-gray-300"></div>
-        <span className="text-sm text-gray-500">ou</span>
-        <div className="flex-1 h-[1px] bg-gray-300"></div>
-      </div>
-
-      <div className="grid gap-2">
-        <Label className="flex items-center gap-2">
-          Gerar relatório por template
-          <Dialog>
-            <DialogTrigger asChild className="cursor-pointer">
-              <button type="button">
-                <Info size={16} className="text-gray-500" />
-              </button>
-            </DialogTrigger>
-
-            <DialogContent className="rounded-2xl">
-              <DialogHeader>
-                <DialogTitle>Como funciona o template?</DialogTitle>
-                <DialogDescription>
-                  Ao gerar o relatório por template, o sistema cria um arquivo
-                  padronizado automaticamente, incluindo cabeçalho e informações
-                  essenciais.
-                </DialogDescription>
-              </DialogHeader>
-            </DialogContent>
-          </Dialog>
-        </Label>
-
-        <Input
-          placeholder="Insira o título do relatório*"
-          className="p-0 rounded-none border-0 border-b border-[#B2D7EC] focus-visible:ring-0 focus-visible:border-[#B2D7EC]"
-        />
-      </div>
-
-      <Textarea
-        placeholder="Insira a descrição do relatório"
-        className="min-h-[100px] w-full rounded-[30px] border border-[#B2D7EC] focus-visible:ring-0 focus-visible:border-[#B2D7EC] px-5 py-3 text-sm"
-      />
-
       <DialogFooter>
         <Button
           type="submit"
@@ -239,33 +247,17 @@ export default function RelatorioForm({
         </Button>
       </DialogFooter>
 
-      <div className={`w-full ${
-        !podeGerarPdf ? "pointer-events-none" : ""
-      }`}>
-        {dadosPdf && (
-          <PDFDownloadLink
-            document={
-              <TemplateRelatorio
-                paciente={dadosPdf.paciente}
-                profissional={dadosPdf.profissional}
-                titulo={titulo}
-                descricao={descricao}
-              />
-            }
-            fileName="Relatorio.pdf"
-          >
-            {({ loading }) => (
-              <Button
-                type="button"
-                disabled={!podeGerarPdf || loading || carregandoPdf}
-                className="w-full rounded-[30px] bg-[#0D4F97]"
-              >
-                <FileText className="mr-2" />
-                {loading || carregandoPdf ? "Gerando PDF..." : "Baixar PDF"}
-              </Button>
-            )}
-          </PDFDownloadLink>
-        )}
+
+      <div className="w-full">
+        <Button
+          type="button"
+          onClick={gerarPdfEAnexar}
+          disabled={!podeGerarPdf || carregandoPdf}
+          className="w-full rounded-[30px] bg-[#0D4F97]"
+        >
+          <FileText className="mr-2"/>
+          {carregandoPdf ? "Gerando PDF..." : "Gerar PDF"}
+        </Button>
       </div>
     </form>
   );
