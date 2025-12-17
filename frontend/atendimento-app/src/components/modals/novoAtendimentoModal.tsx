@@ -8,7 +8,7 @@ import {
 import { ReactNode } from "react";
 import { Nunito } from "next/font/google";
 import { X } from "lucide-react";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface AtendimentoModalProps {
   open: boolean;

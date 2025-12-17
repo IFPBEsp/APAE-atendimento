@@ -22,6 +22,7 @@ import {
 } from "@/api/agendamento";
 
 import dados from "../../../../data/verificacao.json";
+import { AgendamentoResponse, DiaAgendamento } from "@/types/Agendamento";
 
 interface Agendamento {
   id: string;
@@ -48,22 +49,24 @@ export default function AgendaPage() {
   const [agendamentoSelecionado, setAgendamentoSelecionado] =
     useState<Agendamento | null>(null);
 
+  useEffect(() => {
+    carregarAgendamentos();
+  }, []);
+
   async function carregarAgendamentos() {
     try {
       const dto = await listarAgendamentos(profissionalId);
 
       const flatten: Agendamento[] = [];
 
-      (dto || []).forEach((diaObj: any) => {
-        const dia = diaObj.dia;
-
-        (diaObj.agendamentos || []).forEach((a: any) => {
+      (dto || []).forEach((diaObj: DiaAgendamento) => {
+        (diaObj.agendamentos || []).forEach((a: AgendamentoResponse) => {
           flatten.push({
-            id: String(a.atendimentoId),
-            pacienteId: String(a.pacienteId),
+            id: a.atendimentoId,
+            pacienteId: a.pacienteId,
             paciente: a.nomePaciente,
             horario: a.time,
-            data: dia,
+            data: a.data,
             numeracao: a.numeroAtendimento ?? 0,
             status: a.status,
           });
@@ -76,10 +79,6 @@ export default function AgendaPage() {
       alert("Erro ao carregar agendamentos.");
     }
   }
-
-  useEffect(() => {
-    carregarAgendamentos();
-  }, []);
 
   const agendamentosFiltrados = dataSelecionada
     ? agendamentos.filter((a) => a.data === dataSelecionada)
@@ -112,14 +111,15 @@ export default function AgendaPage() {
       toast.success("Agendamento criado com sucesso!");
       await carregarAgendamentos();
       setOpen(false);
-    } catch (error: any) {
-      const mensagem = error?.message ?? "";
-
-      if (mensagem.includes("ja possui um agendamento")) {
-        toast.warning("Já existe um agendamento para essa data e horário.");
-      } else {
-        toast.error("Erro ao criar agendamento.");
+    } catch (error) {
+      if (error instanceof Error) {
+        if (error.message.includes("ja possui um agendamento")) {
+          toast.warning("Já existe um agendamento para essa data e horário.");
+          return;
+        }
       }
+
+      toast.error("Erro ao criar agendamento.");
     }
   }
 

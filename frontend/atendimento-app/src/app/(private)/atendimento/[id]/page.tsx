@@ -189,17 +189,12 @@ export default function AtendimentoPage() {
                 <AtendimentoCard
                   key={a.id}
                   {...a}
-                  atendimentos={atendimentos} // 👈 AQUI
+                  atendimentos={atendimentos}
                   onUpdated={(atualizado) => {
                     setAtendimentos((prev) =>
                       prev.map((item) =>
                         item.id === atualizado.id ? atualizado : item
                       )
-                    );
-                  }}
-                  onDeleted={(id) => {
-                    setAtendimentos((prev) =>
-                      prev.filter((item) => item.id !== id)
                     );
                   }}
                 />

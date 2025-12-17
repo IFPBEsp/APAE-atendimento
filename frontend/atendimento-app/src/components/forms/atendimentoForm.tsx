@@ -82,7 +82,7 @@ export default function AtendimentoForm({
     }
 
     const atendimentosDoMes = atendimentos.filter((a) => {
-      const [diaBR, mesBR, anoBR] = a.data.split("/");
+      const [, mesBR, anoBR] = a.data.split("/");
 
       if (atendimentoEditavel && a.id === atendimentoEditavel.id) {
         return false;
@@ -165,6 +165,7 @@ export default function AtendimentoForm({
             Data <span className="text-[#F28C38]">*</span>
           </Label>
           <Input
+            required
             type="date"
             className="rounded-[30px] border-[#B2D7EC] focus-visible:ring-0 focus-visible:border-[#B2D7EC]"
             {...register("data", { required: true })}
@@ -176,6 +177,7 @@ export default function AtendimentoForm({
             Horário <span className="text-[#F28C38]">*</span>
           </Label>
           <Input
+            required
             type="time"
             className="rounded-[30px] border-[#B2D7EC] focus-visible:ring-0 focus-visible:border-[#B2D7EC]"
             {...register("hora", { required: true })}
@@ -185,6 +187,7 @@ export default function AtendimentoForm({
         <div className="grid gap-2">
           <Label htmlFor="numeracao">Numeração</Label>
           <Input
+            required
             disabled
             className="rounded-[30px] border-[#B2D7EC] focus-visible:ring-0 focus-visible:border-[#B2D7EC] text-center"
             {...register("numeracao", { valueAsNumber: true })}
@@ -244,7 +247,7 @@ export default function AtendimentoForm({
           className="w-full flex-1 sm:w-auto rounded-[30px] shadow-md bg-[#0D4F97] hover:bg-[#13447D] cursor-pointer"
         >
           <Check className="mr-2 h-4 w-4" />
-          {atendimentoEditavel?"Salvar alterações":"Criar atendimento"}
+          {atendimentoEditavel ? "Salvar alterações" : "Criar atendimento"}
         </Button>
       </DialogFooter>
     </form>

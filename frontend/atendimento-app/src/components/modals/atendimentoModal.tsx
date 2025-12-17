@@ -1,9 +1,6 @@
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { X, Trash2, PencilLine } from "lucide-react";
+import { X, PencilLine } from "lucide-react";
 import { Atendimento, Relatorio } from "@/types/Atendimento";
-import { deletarAtendimento } from "@/api/dadosAtendimentos";
-import dados from "../../../data/verificacao.json";
-import { useParams } from "next/navigation";
 import { useState } from "react";
 import { AtendimentoModal } from "./novoAtendimentoModal";
 import AtendimentoForm from "../forms/atendimentoForm";
@@ -18,7 +15,6 @@ interface AtendimentoDetailsModalProps {
   relatorios?: Relatorio[];
   atendimentos: Atendimento[];
   onUpdated: (a: Atendimento) => void;
-  onDeleted: (id: string) => void;
 }
 
 export function AtendimentoDetailsModal({
@@ -31,34 +27,8 @@ export function AtendimentoDetailsModal({
   relatorios,
   atendimentos,
   onUpdated,
-  onDeleted,
 }: AtendimentoDetailsModalProps) {
-  const { id: pacienteId } = useParams();
   const [editOpen, setEditOpen] = useState(false);
-
-  async function handleDelete() {
-    if (!pacienteId) return;
-
-    const confirmacao = confirm(
-      "Tem certeza que deseja excluir este atendimento?"
-    );
-
-    if (!confirmacao) return;
-
-    try {
-      await deletarAtendimento(
-        dados.idProfissional,
-        String(pacienteId),
-        atendimentoId
-      );
-
-      onDeleted(atendimentoId);
-      onClose();
-    } catch (err) {
-      console.error(err);
-      alert("Erro ao excluir atendimento");
-    }
-  }
 
   const listaRelatorios =
     relatorios && relatorios.length > 0
@@ -76,13 +46,6 @@ export function AtendimentoDetailsModal({
               <span className="w-8 h-8 rounded-full bg-[#165BAA] text-white text-sm flex items-center justify-center font-bold">
                 {String(numeracao).padStart(2, "0")}
               </span>
-
-              <button
-                onClick={handleDelete}
-                className="text-red-500 hover:cursor-pointer hover:bg-gray-100 p-1 rounded-full transition"
-              >
-                <Trash2 size={24} />
-              </button>
 
               <button
                 onClick={() => setEditOpen(true)}

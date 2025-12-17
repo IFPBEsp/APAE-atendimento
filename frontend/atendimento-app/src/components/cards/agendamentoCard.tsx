@@ -14,7 +14,6 @@ export default function AgendamentoCard({
   paciente,
   horario,
   numeracao,
-  data,
   status,
   onDeleteClick,
 }: AgendamentoCardProps) {
