@@ -28,7 +28,7 @@ public class JacksonConfig {
             builder.deserializers(
                     new LocalDateDeserializer(DateTimeFormatter.ofPattern("dd-MM-yyyy")));
             builder.serializers(
-                    new LocalTimeSerializer(DateTimeFormatter.ofPattern("HH:mm")));
+                    new LocalTimeSerializer(DateTimeFormatter.ofPattern("HH:mm:ss")));
             builder.deserializers(
                     new LocalTimeDeserializer(DateTimeFormatter.ofPattern("HH:mm")));
         };
