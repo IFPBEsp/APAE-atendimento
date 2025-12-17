@@ -30,6 +30,8 @@ public interface PacienteRepository extends JpaRepository<Paciente, UUID> {
         """)
     String findNomeCompletoById(@Param("pacienteId") UUID pacienteId);
 
+
+    List<Paciente>findByProfissionais_Id(UUID profissionalId);
     @Query("""
         SELECT p
         FROM Paciente p
