@@ -5,6 +5,7 @@ interface AgendamentoCardProps {
   paciente: string;
   horario: string;
   numeracao: number;
+  data: string;
   status: boolean;
   onDeleteClick?: () => void;
 }

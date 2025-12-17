@@ -87,11 +87,7 @@ export default function AgendamentoForm({ onSubmit }: AgendamentoFormProps) {
           Paciente <span className="text-[#F28C38]">*</span>
         </Label>
 
-        <Select
-          required
-          value={pacienteId}
-          onValueChange={handleSelectPaciente}
-        >
+        <Select value={pacienteId} onValueChange={handleSelectPaciente}>
           <SelectTrigger className="bg-white border border-[#3B82F6] rounded-full text-sm focus:ring-0 focus:border-[#3B82F6] w-[100%]">
             <SelectValue placeholder="Selecione o paciente" />
           </SelectTrigger>

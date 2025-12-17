@@ -5,9 +5,10 @@ export type PacienteOption = {
   nome: string;
 };
 
-export async function getPacientesPorProfissional(): Promise<PacienteOption[]> {
+export async function getPacientesPorProfissional(
+): Promise<PacienteOption[]> {
   const response = await fetch(
-    `${dados.urlBase}/profissionais/${dados.idProfissional}/pacientes-option`,
+    `http://localhost:8080/profissionais/${dados.idProfissional}/pacientes-option`,
     {
       method: "GET",
       headers: {

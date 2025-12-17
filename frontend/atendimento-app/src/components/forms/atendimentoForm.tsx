@@ -52,7 +52,7 @@ export default function AtendimentoForm({
       defaultValues: atendimentoEditavel
         ? {
             ...atendimentoEditavel,
-            data: brParaISO(atendimentoEditavel.data.replace(/\//g, "-")),
+            data: brParaISO(atendimentoEditavel.data),
           }
         : {
             data: getTodayLocalDate(),
