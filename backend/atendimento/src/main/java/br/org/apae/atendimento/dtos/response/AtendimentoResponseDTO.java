@@ -9,6 +9,7 @@ public record AtendimentoResponseDTO(
     UUID id,
     Map<String, Object> relatorio,
     LocalDate data,
-    LocalTime hora
+    LocalTime hora,
+    Long numeracao
 ) {
 }

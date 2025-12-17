@@ -4,10 +4,12 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import br.org.apae.atendimento.dtos.response.PacienteOptionDTO;
 import br.org.apae.atendimento.exceptions.notfound.ProfissionalSaudeNotFoundException;
 import br.org.apae.atendimento.mappers.PacienteMapper;
 import br.org.apae.atendimento.mappers.ProfissionalMapper;
 
+import br.org.apae.atendimento.repositories.PacienteRepository;
 import org.springframework.stereotype.Service;
 
 import br.org.apae.atendimento.dtos.response.PacienteResponseDTO;
@@ -22,13 +24,16 @@ public class ProfissionalSaudeService {
     private final ProfissionalSaudeRepository repository;
     private final ProfissionalMapper profissionalMapper;
     private final PacienteMapper pacienteMapper;
+    private final PacienteRepository pacienteRepository;
 
     public ProfissionalSaudeService(ProfissionalSaudeRepository profissionalSaudeRepository,
                                     ProfissionalMapper profissionalMapper,
-                                    PacienteMapper pacienteMapper) {
+                                    PacienteMapper pacienteMapper,
+                                    PacienteRepository pacienteRepository) {
         this.repository = profissionalSaudeRepository;
         this.pacienteMapper = pacienteMapper;
         this.profissionalMapper = profissionalMapper;
+        this.pacienteRepository = pacienteRepository;
     }
 
     public ProfissionalResponseDTO getProfissionalByIdDTO(UUID id){
@@ -53,6 +58,13 @@ public class ProfissionalSaudeService {
         return pacientes
                 .stream()
                 .map(paciente -> pacienteMapper.toDTOPadrao(paciente))
+                .collect(Collectors.toList());
+    }
+
+    public List<PacienteOptionDTO> getPacienteOption(UUID profissionalId){
+        List<Paciente> pacientes = pacienteRepository.findByProfissionais_Id(profissionalId);
+        return pacientes.stream()
+                .map(paciente -> pacienteMapper.toOptionDTO(paciente))
                 .collect(Collectors.toList());
     }
 

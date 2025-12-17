@@ -57,10 +57,8 @@ public class AtendimentoController {
     }
 
     @PutMapping("/{atendimentoId}")
-    public ResponseEntity<AtendimentoResponseDTO> editarTopicos(
-            @RequestBody AtendimentoRequestDTO updateDTO,
-            @PathVariable UUID atendimentoId)
-    {
+    public ResponseEntity<AtendimentoResponseDTO> editarTopicos(@RequestBody AtendimentoRequestDTO updateDTO,
+                                                                @PathVariable UUID atendimentoId){
         AtendimentoResponseDTO atendimentoAtualizado = atendimentoService.editar(updateDTO, atendimentoId);
         return ResponseEntity.ok().body(atendimentoAtualizado);
     }

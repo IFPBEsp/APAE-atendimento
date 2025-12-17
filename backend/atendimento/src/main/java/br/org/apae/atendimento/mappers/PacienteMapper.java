@@ -1,5 +1,6 @@
 package br.org.apae.atendimento.mappers;
 
+import br.org.apae.atendimento.dtos.response.PacienteOptionDTO;
 import org.springframework.stereotype.Component;
 
 import br.org.apae.atendimento.dtos.response.PacienteResponseDTO;
@@ -38,5 +39,9 @@ public class PacienteMapper extends AbstractMapper<Paciente, Void, PacienteRespo
                 paciente.getTranstornos(),
                 paciente.getCpf()
         );
+    }
+
+    public PacienteOptionDTO toOptionDTO(Paciente paciente){
+        return new PacienteOptionDTO(paciente.getId(), paciente.getNomeCompleto());
     }
 }
