@@ -131,7 +131,7 @@ export default function RelatorioForm({
           {...register("data", { required: true })}
         />
 
-        <div>
+        <div className="flex">
           <Input
             placeholder="Insira o título do relatório*"
             className="p-0 rounded-none border-0 border-b border-[#B2D7EC] focus-visible:ring-0 focus-visible:border-[#B2D7EC]"
@@ -147,16 +147,38 @@ export default function RelatorioForm({
 
             <DialogContent className="rounded-2xl">
               <DialogHeader>
-                <DialogTitle>Como funciona o template?</DialogTitle>
-                <DialogDescription>
-                  Ao gerar o relatório por template, o sistema cria um arquivo
-                  padronizado automaticamente, incluindo cabeçalho e informações
-                  essenciais.
+                <DialogTitle>Como criar um relatório?</DialogTitle>
+                <DialogDescription asChild>
+                  <div className="space-y-4 text-sm">
+                      Você pode criar um relatório de duas formas:
+                    <br/>
+                    <br/>
+                    <strong>1. Gerar relatório por template</strong>
+                    <br />
+                    <br />
+                    <ul className="list-disc pl-5 space-y-1">
+                      <li>Preencha <strong>Título</strong> e <strong>Descrição</strong>.</li>
+                      <li>O botão <strong>Gerar PDF</strong> será habilitado.</li>
+                      <li>Ao clicar, o sistema gera o PDF e o anexa automaticamente.</li>
+                      <li>Depois, clique em <strong>Adicionar Relatório</strong> para salvar.</li>
+                    </ul>
+                    <br />
+                    <strong>2. Enviar um arquivo</strong>
+                    <br />
+                    <br />
+                    <ul className="list-disc pl-5 space-y-1">
+                      <li>Preencha <strong>Título</strong> e <strong>Descrição</strong>.</li>
+                      <li>Anexe um arquivo.</li>
+                      <li>O botão <strong>Adicionar Relatório</strong> será habilitado.</li>
+                      <li>Você deve clicar-lo para salvar.</li>
+                    </ul>
+                    <br />
+                  </div>
+                  
                 </DialogDescription>
               </DialogHeader>
             </DialogContent>
           </Dialog>
-
         </div>
 
       </div>
