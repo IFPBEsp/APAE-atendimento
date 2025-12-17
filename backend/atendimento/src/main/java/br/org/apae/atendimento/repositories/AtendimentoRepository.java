@@ -16,15 +16,15 @@ public interface AtendimentoRepository extends JpaRepository<Atendimento, UUID> 
     @Query("""
     SELECT COALESCE(MAX(a.numeracao), 0)
     FROM Atendimento a
-    WHERE FUNCTION('MONTH', a.dataAtendimento) = :mes
-      AND FUNCTION('YEAR', a.dataAtendimento) = :ano
+    WHERE EXTRACT(MONTH FROM a.dataAtendimento) = :mes
+      AND EXTRACT(YEAR FROM a.dataAtendimento) = :ano
       AND a.profissional.id = :profissionalId
       AND a.paciente.id = :pacienteId
     """)
     Long findMaxNumeracaoByMesAndAno(
-            int mes,
-            int ano,
-            UUID profissionalId,
-            UUID pacienteId
+            @Param("mes") int mes,
+            @Param("ano") int ano,
+            @Param("profissionalId") UUID profissionalId,
+            @Param("pacienteId") UUID pacienteId
     );
 }
