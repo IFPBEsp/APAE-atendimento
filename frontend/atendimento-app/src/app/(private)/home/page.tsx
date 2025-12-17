@@ -35,7 +35,7 @@ export default function PacientesPage() {
 
     const timeout = setTimeout(async () => {
       try {
-        const params: any = {};
+        const params: Partial<Record<'nome' | 'cpf' | 'cidade', string>> = {};
         params[filtro] = busca;
 
         const response = await getPacientes(params);
@@ -109,7 +109,7 @@ export default function PacientesPage() {
               <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
             </div>
 
-            <Select onValueChange={(value) => setFiltro(value as any)}>
+            <Select onValueChange={(value) => setFiltro(value as "nome" | "cpf" | "cidade" | "")}>
               <SelectTrigger className="bg-white border border-[#3B82F6] rounded-full w-[130px] text-gray-600 text-sm focus-visible:ring-0 focus-visible:border-[#3B82F6] cursor-pointer">
                 <SelectValue placeholder="Filtrar por..." />
               </SelectTrigger>
