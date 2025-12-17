@@ -55,7 +55,8 @@ export default function AnexoForm({
   const arquivo = watch("arquivo");
 
   const existeArquivo = arquivo && arquivo.length > 0;
-  const existeTemplate = titulo?.trim().length > 0 && descricao?.trim().length > 0;
+  const existeTemplate =
+    titulo?.trim().length > 0 && descricao?.trim().length > 0;
 
   const envioValidado = existeArquivo || existeTemplate;
 
@@ -182,7 +183,6 @@ export default function AnexoForm({
           className="hidden"
           {...register("arquivo")}
         />
-
       </div>
 
       <DialogFooter>

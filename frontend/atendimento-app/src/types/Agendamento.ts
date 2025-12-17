@@ -1,0 +1,24 @@
+export interface Agendamento {
+  id: string;
+  pacienteId?: string;
+  paciente: string;
+  horario: string;
+  data: string;
+  numeracao: number;
+  status: boolean;
+}
+
+export interface AgendamentoResponse {
+  atendimentoId: string;
+  pacienteId: string;
+  nomePaciente: string;
+  data: string;
+  time: string;
+  numeroAtendimento: number;
+  status: boolean;
+}
+
+export interface DiaAgendamento {
+  data: string;
+  agendamentos: AgendamentoResponse[];
+}

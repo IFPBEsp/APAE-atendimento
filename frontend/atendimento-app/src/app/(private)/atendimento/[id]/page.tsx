@@ -5,91 +5,73 @@ import { ArrowLeft, Plus } from "lucide-react";
 import { Nunito } from "next/font/google";
 import Header from "@/components/shared/header";
 import AtendimentoCard from "@/components/cards/atendimentoCard";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import AtendimentoForm from "@/components/forms/atendimentoForm";
 import { AtendimentoModal } from "@/components/modals/novoAtendimentoModal";
-import { useState } from "react";
-import type { AtendimentoFormData } from "@/components/forms/atendimentoForm";
-
-interface Atendimento {
-  id: number;
-  data: string;
-  numeracao: number;
-  topicos: { titulo: string; descricao: string }[];
-}
+import { useEffect, useState } from "react";
+import { Atendimento } from "@/types/Atendimento";
+import { getAtendimentos } from "@/api/dadosAtendimentos";
+import { getPacientes } from "@/api/dadosPacientes";
+import { Paciente } from "@/types/Paciente";
+import { Input } from "@/components/ui/input";
 
 const nunitoFont = Nunito({ weight: "700" });
 
 export default function AtendimentoPage() {
+  const [paciente, setPaciente] = useState<Paciente | null>(null);
   const router = useRouter();
-  const { id } = useParams();
+  const { id: pacienteId } = useParams();
+  const [dataSelecionada, setDataSelecionada] = useState<string>("");
+  const [atendimentos, setAtendimentos] = useState<Atendimento[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [open, setOpen] = useState(false);
 
-  const atendimentos: Atendimento[] = [
-    {
-      id: 1,
-      data: "01/11/2025",
-      numeracao: 1,
-      topicos: [
-        {
-          titulo: "Tópico 1",
-          descricao: "Nullam varius tempor massa et iaculis. Praesent sodales orci ut ultrices tempor. Quisque ac mauris gravida, dictum ipsum sit amet, bibendum turpis. Mauris dictum orci quis quam tincidunt imperdiet. Cras auctor aliquam tortor a luctus. Morbi tincidunt lacus vulputate risus dignissim porttitor."
-        },
-        {
-          titulo: "Tópico 2",
-          descricao: "Nullam varius tempor massa et iaculis. Praesent sodales orci ut ultrices tempor. Quisque ac mauris gravida, dictum ipsum sit amet, bibendum turpis. Mauris dictum orci quis quam tincidunt imperdiet. Cras auctor aliquam tortor a luctus. Morbi tincidunt lacus vulputate risus dignissim porttitor."
-        },
-        {
-          titulo: "Tópico 3",
-          descricao: "Nullam varius tempor massa et iaculis. Praesent sodales orci ut ultrices tempor. Quisque ac mauris gravida, dictum ipsum sit amet, bibendum turpis. Mauris dictum orci quis quam tincidunt imperdiet. Cras auctor aliquam tortor a luctus. Morbi tincidunt lacus vulputate risus dignissim porttitor."
-        },
-        {
-          titulo: "Tópico 4",
-          descricao: "Nullam varius tempor massa et iaculis. Praesent sodales orci ut ultrices tempor. Quisque ac mauris gravida, dictum ipsum sit amet, bibendum turpis. Mauris dictum orci quis quam tincidunt imperdiet. Cras auctor aliquam tortor a luctus. Morbi tincidunt lacus vulputate risus dignissim porttitor."
-        },
-        {
-          titulo: "Tópico 5",
-          descricao: "Nullam varius tempor massa et iaculis. Praesent sodales orci ut ultrices tempor. Quisque ac mauris gravida, dictum ipsum sit amet, bibendum turpis. Mauris dictum orci quis quam tincidunt imperdiet. Cras auctor aliquam tortor a luctus. Morbi tincidunt lacus vulputate risus dignissim porttitor."
-        },
-        {
-          titulo: "Tópico 6",
-          descricao: "Nullam varius tempor massa et iaculis. Praesent sodales orci ut ultrices tempor. Quisque ac mauris gravida, dictum ipsum sit amet, bibendum turpis. Mauris dictum orci quis quam tincidunt imperdiet. Cras auctor aliquam tortor a luctus. Morbi tincidunt lacus vulputate risus dignissim porttitor."
-        },
-      ]
-    },
-    {
-      id: 2,
-      data: "28/10/2025",
-      numeracao: 2,
-      topicos: [
-        {
-          titulo: "Tópico 1",
-          descricao: "Nullam varius tempor massa et iaculis. Praesent sodales orci ut ultrices tempor. Quisque ac mauris gravida, dictum ipsum sit amet, bibendum turpis. Mauris dictum orci quis quam tincidunt imperdiet. Cras auctor aliquam tortor a luctus. Morbi tincidunt lacus vulputate risus dignissim porttitor."
-        },
-        {
-          titulo: "Tópico 2",
-          descricao: "Nullam varius tempor massa et iaculis. Praesent sodales orci ut ultrices tempor. Quisque ac mauris gravida, dictum ipsum sit amet, bibendum turpis. Mauris dictum orci quis quam tincidunt imperdiet. Cras auctor aliquam tortor a luctus. Morbi tincidunt lacus vulputate risus dignissim porttitor."
+  useEffect(() => {
+    async function fetchData() {
+      if (typeof pacienteId !== "string") return;
+      try {
+        const pacientes = await getPacientes();
+        const nomePaciente = pacientes.find(
+          (p) => String(p.id) === String(pacienteId)
+        );
+
+        if (nomePaciente) {
+          setPaciente(nomePaciente);
         }
-      ]
-    },
-    {
-      id: 3,
-      data: "01/10/2025",
-      numeracao: 3,
-      topicos: [
-        {
-          titulo: "Tópico 1",
-          descricao: "Nullam varius tempor massa et iaculis. Praesent sodales orci ut ultrices tempor. Quisque ac mauris gravida, dictum ipsum sit amet, bibendum turpis. Mauris dictum orci quis quam tincidunt imperdiet. Cras auctor aliquam tortor a luctus. Morbi tincidunt lacus vulputate risus dignissim porttitor."
-        }
-      ]
-    },
-  ];
+
+        const raw = await getAtendimentos(pacienteId);
+
+        const todos = raw.flatMap((grupo) => grupo.atendimentos);
+
+        const convertidos: Atendimento[] = todos.map((item) => {
+          const [dia, mes, ano] = item.data.split("-");
+          const dataBR = `${dia}/${mes}/${ano}`;
+
+          const [hora, minuto] = item.hora.split(":");
+          const horaFormatada = `${hora}:${minuto}`;
+
+          return {
+            id: item.id,
+            data: dataBR,
+            hora: horaFormatada,
+            numeracao: item.numeracao ?? 1,
+            relatorio: Object.entries(item.relatorio ?? {}).map(
+              ([titulo, descricao]) => ({
+                titulo,
+                descricao,
+              })
+            ),
+          };
+        });
+        setAtendimentos(convertidos);
+      } catch (err) {
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchData();
+  }, [pacienteId]);
 
   function agruparPorMes(lista: Atendimento[]) {
     const meses: Record<string, Atendimento[]> = {};
@@ -111,20 +93,15 @@ export default function AtendimentoPage() {
     return meses;
   }
 
-  const atendimentosPorMes = agruparPorMes(atendimentos);
-  const nomePaciente = "Fulano de Tal de Lorem Ipsum da Silva Santos";
+  const dataFormatada = dataSelecionada
+    ? dataSelecionada.split("-").reverse().join("/")
+    : "";
 
-  const [open, setOpen] = useState(false);
+  const atendimentosFiltrados = dataSelecionada
+    ? atendimentos.filter((a) => a.data === dataFormatada)
+    : atendimentos;
 
-  function handleCreateAtendimento(data: AtendimentoFormData) {
-    console.log("Novo atendimento recebido:", data);
-
-    // Mudar futuramente:
-    // await api.post("/rota", data);
-    // depois atualiza a lista
-
-    setOpen(false);
-  }
+  const gruposParaRenderizar = agruparPorMes(atendimentosFiltrados);
 
   return (
     <div className="min-h-screen w-full bg-[#F8FAFD]">
@@ -143,22 +120,18 @@ export default function AtendimentoPage() {
           <div className="flex items-center gap-3">
             <Button
               onClick={() => setOpen(true)}
-              className="hidden cursor-pointer md:flex items-center bg-[#165BAA] hover:bg-[#13447D] text-white gap-2 px-4 h-[38px]  rounded-full text-sm shadow-sm active:scale-95"
+              className="hidden cursor-pointer md:flex items-center bg-[#165BAA] hover:bg-[#13447D] text-white gap-2 px-4 h-[38px] rounded-full text-sm shadow-sm active:scale-95"
             >
               <Plus size={18} />
               Novo atendimento
             </Button>
 
-            <Select>
-              <SelectTrigger className="bg-white border border-[#3B82F6] rounded-full w-[130px] text-gray-600 text-sm focus-visible:ring-0 focus-visible:border-[#3B82F6] cursor-pointer">
-                <SelectValue placeholder="Filtrar por..." />
-              </SelectTrigger>
-              <SelectContent className="border border-[#3B82F6] rounded-xl">
-                <SelectItem className="cursor-pointer" value="todos">Todos</SelectItem>
-                <SelectItem className="cursor-pointer" value="numeracao">Numeração</SelectItem>
-                <SelectItem className="cursor-pointer" value="data">Data</SelectItem>
-              </SelectContent>
-            </Select>
+            <Input
+              type="date"
+              value={dataSelecionada}
+              onChange={(e) => setDataSelecionada(e.target.value)}
+              className="bg-white border border-[#3B82F6] rounded-full w-[150px] text-gray-600 text-sm focus-visible:ring-0 focus-visible:border-[#3B82F6]"
+            />
           </div>
         </div>
       </section>
@@ -167,17 +140,22 @@ export default function AtendimentoPage() {
         <h1
           className={`text-xl text-[#344054] font-bold ${nunitoFont.className}`}
         >
-          {nomePaciente}
+          {paciente?.nomeCompleto}
         </h1>
 
-        {atendimentos.length === 0 && (
+        {loading && (
+          <p className="text-center text-gray-500 mt-20">
+            Carregando atendimentos...
+          </p>
+        )}
+
+        {!loading && atendimentosFiltrados.length === 0 && (
           <div className="text-center mt-20">
             <p
               className={` text-[#344054] text-[15px] font-medium ${nunitoFont.className}`}
             >
               Não existem atendimentos para este paciente.
             </p>
-
             <Button
               variant="link"
               onClick={() => setOpen(true)}
@@ -189,10 +167,16 @@ export default function AtendimentoPage() {
         )}
 
         <AtendimentoModal open={open} onOpenChange={setOpen}>
-          <AtendimentoForm onSubmit={handleCreateAtendimento} />
+          <AtendimentoForm
+            atendimentos={atendimentos}
+            onCreated={(novo) => {
+              setAtendimentos((prev) => [novo, ...prev]);
+              setOpen(false);
+            }}
+          />
         </AtendimentoModal>
 
-        {Object.entries(atendimentosPorMes).map(([mes, itens]) => (
+        {Object.entries(gruposParaRenderizar).map(([mes, itens]) => (
           <div key={mes} className="flex flex-col gap-4">
             <h2 className="text-lg font-bold text-[#344054] capitalize">
               {mes}
@@ -200,7 +184,18 @@ export default function AtendimentoPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {itens.map((a) => (
-                <AtendimentoCard key={a.id} {...a} />
+                <AtendimentoCard
+                  key={a.id}
+                  {...a}
+                  atendimentos={atendimentos}
+                  onUpdated={(atualizado) => {
+                    setAtendimentos((prev) =>
+                      prev.map((item) =>
+                        item.id === atualizado.id ? atualizado : item
+                      )
+                    );
+                  }}
+                />
               ))}
             </div>
           </div>
@@ -209,10 +204,7 @@ export default function AtendimentoPage() {
 
       <button
         onClick={() => setOpen(true)}
-        className="
-            fixed bottom-6 right-6 w-14 h-14 rounded-full bg-[#165BAA]
-            flex items-center justify-center shadow-[4px_4px_12px_rgba(0,0,0,0.25)]
-            active:scale-95 md:hidden"
+        className="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-[#165BAA] flex items-center justify-center shadow-[4px_4px_12px_rgba(0,0,0,0.25)] active:scale-95 md:hidden"
       >
         <Plus size={28} className="text-white" />
       </button>

@@ -1,9 +1,11 @@
 package br.org.apae.atendimento.controllers;
 
+import br.org.apae.atendimento.dtos.response.PacienteOptionDTO;
 import br.org.apae.atendimento.dtos.response.PacienteResponseDTO;
 import br.org.apae.atendimento.dtos.response.ProfissionalResponseDTO;
 import br.org.apae.atendimento.entities.Paciente;
 import br.org.apae.atendimento.services.ProfissionalSaudeService;
+import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -33,5 +35,10 @@ public class ProfissionalSaudeController {
     public ResponseEntity<String> obterPrimeiroNome(@PathVariable UUID id) {
         String nome = profissionalSaudeService.getPrimeiroNome(id);
         return ResponseEntity.ok().body(nome);
+    }
+
+    @GetMapping("/{id}/pacientes-option")
+    public ResponseEntity<List<PacienteOptionDTO>> pacientesOption(@PathVariable UUID id){
+        return ResponseEntity.ok().body(profissionalSaudeService.getPacienteOption(id));
     }
 }
