@@ -13,17 +13,9 @@ import { LogOut, X } from "lucide-react";
 
 interface UserData {
   nome: string;
-  especialidade: string;
   crm: string;
-  frequenciaAtendimento: string;
   celular: string;
   email: string;
-  endereco: {
-    rua: string;
-    cep: string;
-    cidade: string;
-    estado: string;
-  };
 }
 
 interface MeusDadosModalProps {
@@ -37,10 +29,7 @@ function logout() {
   window.location.href = "/login";
 }
 
-export function MeusDadosModal({ 
-  trigger,
-  userData
-}: MeusDadosModalProps) {
+export function MeusDadosModal({ trigger, userData }: MeusDadosModalProps) {
   return (
     <Dialog>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
@@ -48,7 +37,7 @@ export function MeusDadosModal({
       <DialogContent className="max-w-[90%] sm:max-w-[500px] p-0 border-none rounded-[30px] bg-white font-sans">
         <div className="absolute right-5 top-5 z-10">
           <DialogClose className="rounded-full p-1 hover:bg-gray-100 transition-colors outline-none cursor-pointer">
-            <X className="h-6 w-6 text[]" />
+            <X className="h-6 w-6" />
           </DialogClose>
         </div>
 
@@ -59,28 +48,16 @@ export function MeusDadosModal({
             </DialogTitle>
           </DialogHeader>
 
-          {/*cabeçalho*/}
           <div className="text-center mb-8 px-4">
             <h2 className="font-bold text-lg text-[#344054] leading-snug">
               {userData.nome}
             </h2>
-            <p className="text-[#344054] text-sm mt-1 font-regular">
-              {userData.especialidade}
-            </p>
           </div>
 
-          {/*grid de dados */}
           <div className="w-full grid grid-cols-2 gap-y-5 gap-x-4 text-left mb-8">
             <div>
               <p className="font-bold text-sm text-[#344054]">CRM</p>
               <p className="text-[#475467] text-sm mt-1">{userData.crm}</p>
-            </div>
-
-            <div>
-              <p className="font-bold text-sm text-[#344054]">
-                Frequência de Atendimento
-              </p>
-              <p className="text-[#475467] text-sm mt-1">{userData.frequenciaAtendimento}</p>
             </div>
 
             <div>
@@ -92,13 +69,6 @@ export function MeusDadosModal({
               <p className="font-bold text-sm text-[#344054]">Email</p>
               <p className="text-[#475467] text-sm mt-1 break-words">
                 {userData.email}
-              </p>
-            </div>
-
-            <div className="col-span-2">
-              <p className="font-bold text-sm text-[#344054]">Endereço</p>
-              <p className="text-[#475467] text-sm mt-1 w-[90%] leading-relaxed">
-                {userData.endereco.rua}<br></br>{userData.endereco.cep}, {userData.endereco.cidade} - {userData.endereco.estado}
               </p>
             </div>
           </div>
