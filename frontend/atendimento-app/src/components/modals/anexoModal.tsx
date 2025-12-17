@@ -15,8 +15,6 @@ interface DeleteModalProps {
 interface ViewModalProps {
   isOpen: boolean;
   onClose: () => void;
-  titulo: string;
-  descricao: string;
   data: Anexo | null;
   onUpdate: () => void;
 }
@@ -60,14 +58,7 @@ export function AnexoDeleteModal({
   );
 }
 
-export function AnexoViewModal({
-  isOpen,
-  onClose,
-  titulo,
-  data,
-  descricao,
-  onUpdate,
-}: ViewModalProps) {
+export function AnexoViewModal({ isOpen, onClose, data }: ViewModalProps) {
   if (!isOpen || !data) return null;
   const renderizar = renderizarFormatoArquivo(
     data.nomeArquivo.split(".").pop() || "",
