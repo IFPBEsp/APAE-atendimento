@@ -63,10 +63,8 @@ export default function AtendimentoPage() {
             ),
           };
         });
-        console.log(convertidos);
         setAtendimentos(convertidos);
       } catch (err) {
-        console.error(err);
       } finally {
         setLoading(false);
       }

@@ -9,8 +9,8 @@ interface AtendimentoCardProps {
   hora: string;
   numeracao: number;
   relatorio?: Relatorio[];
-  atendimentos: Atendimento[]; // 👈 novo
-  onUpdated?: (a: Atendimento) => void;
+  atendimentos: Atendimento[];
+  onUpdated: (a: Atendimento) => void;
 }
 export default function AtendimentoCard({
   id,

@@ -75,8 +75,7 @@ export default function AgendaPage() {
 
       setAgendamentos(flatten);
     } catch (err) {
-      console.error("Erro ao carregar agendamentos", err);
-      alert("Erro ao carregar agendamentos.");
+      toast.error("Erro ao carregar agendamentos.");
     }
   }
 
@@ -155,7 +154,7 @@ export default function AgendaPage() {
       await carregarAgendamentos();
     } catch (err) {
       console.error("Erro ao deletar agendamento", err);
-      alert("Erro ao cancelar agendamento.");
+      toast.error("Erro ao cancelar agendamento.");
     }
   }
 
@@ -214,7 +213,6 @@ export default function AgendaPage() {
                   paciente={item.paciente}
                   horario={item.horario}
                   numeracao={item.numeracao}
-                  data={item.data}
                   status={item.status}
                   onDeleteClick={() => {
                     setAgendamentoSelecionado(item);
