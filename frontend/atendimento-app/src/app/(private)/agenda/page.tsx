@@ -44,7 +44,6 @@ export default function AgendaPage() {
   const [open, setOpen] = useState(false);
 
   const profissionalId = dados.idProfissional;
-
   const [openDelete, setOpenDelete] = useState(false);
   const [agendamentoSelecionado, setAgendamentoSelecionado] =
     useState<Agendamento | null>(null);
