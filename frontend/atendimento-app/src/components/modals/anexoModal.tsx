@@ -2,15 +2,9 @@
 
 import { X, Trash2, Download, Image as ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
-interface AnexoData {
-  id: number;
-  titulo: string;
-  data: string;
-  descricao: string;
-  fileName: string;
-  imageUrl?: string;
-}
+import { Anexo } from "@/types/Anexo";
+import PdfPreview from "../pdf/PdfViewner";
+import { renderizarFormatoArquivo } from "@/utils/renderizarFormatoArquivo";
 
 interface DeleteModalProps {
   isOpen: boolean;
@@ -23,7 +17,8 @@ interface ViewModalProps {
   onClose: () => void;
   titulo: string;
   descricao: string;
-  data: AnexoData | null;
+  data: Anexo | null;
+  onUpdate: () => void;
 }
 
 export function AnexoDeleteModal({
@@ -65,9 +60,19 @@ export function AnexoDeleteModal({
   );
 }
 
-export function AnexoViewModal({ isOpen, onClose, data }: ViewModalProps) {
+export function AnexoViewModal({
+  isOpen,
+  onClose,
+  titulo,
+  data,
+  descricao,
+  onUpdate,
+}: ViewModalProps) {
   if (!isOpen || !data) return null;
-
+  const renderizar = renderizarFormatoArquivo(
+    data.nomeArquivo.split(".").pop() || "",
+    data.presignedUrl || ""
+  );
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4 py-6 animate-in fade-in duration-200">
       <div className="bg-white rounded-[24px] w-full max-w-[632px] max-h-[90vh] flex flex-col shadow-2xl overflow-hidden slide-in-from-bottom-10 overflow-y-auto">
@@ -88,12 +93,8 @@ export function AnexoViewModal({ isOpen, onClose, data }: ViewModalProps) {
         </p>
 
         <div className="bg-gray-50 flex items-center justify-center w-full h-[400px] px-4">
-          {data.imageUrl ? (
-            <img
-              src={data.imageUrl}
-              alt="Anexo pré-visualização"
-              className="w-full h-full object-contain rounded-lg"
-            />
+          {data.presignedUrl ? (
+            renderizar
           ) : (
             <div className="flex flex-col items-center text-gray-400">
               <ImageIcon size={64} />
@@ -104,12 +105,20 @@ export function AnexoViewModal({ isOpen, onClose, data }: ViewModalProps) {
 
         <div className="p-4 border-t border-gray-100 flex flex-col items-center gap-4">
           <span className="text-sm text-[#344054] underline decoration-1">
-            {data.fileName}
+            {data.nomeArquivo}
           </span>
-          <Button className="w-full bg-[#165BAA] hover:bg-[#13447D] text-white h-12 rounded-full text-base font-semibold shadow-lg cursor-pointer">
-            <Download size={20} className="mr-2" />
-            Salvar anexo
-          </Button>
+          <a
+            href={data.presignedUrl}
+            download={data.nomeArquivo}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full"
+          >
+            <Button className="w-full bg-[#165BAA] hover:bg-[#13447D] text-white h-12 rounded-full text-base font-semibold shadow-lg">
+              <Download size={20} className="mr-2" />
+              Salvar anexo
+            </Button>
+          </a>
         </div>
       </div>
     </div>

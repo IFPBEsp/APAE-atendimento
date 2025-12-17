@@ -1,5 +1,8 @@
 package br.org.apae.atendimento.services;
+
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
@@ -15,23 +18,34 @@ public class PacienteService {
     private PacienteMapper pacienteMapper;
 
 
-    public PacienteService (PacienteRepository pacienteRepository, PacienteMapper pacienteMapper){
+    public PacienteService(PacienteRepository pacienteRepository, PacienteMapper pacienteMapper) {
         this.repository = pacienteRepository;
         this.pacienteMapper = pacienteMapper;
     }
 
-    public PacienteResponseDTO getPaciente(UUID id){
+    public PacienteResponseDTO getPaciente(UUID id) {
         Paciente paciente = getPacienteById(id);
         return this.pacienteMapper.toDTOPadrao(paciente);
     }
 
-    public Paciente getPacienteById(UUID id){
+    public Paciente getPacienteById(UUID id) {
         return repository
                 .findById(id).orElseThrow(() -> new PacienteNotFoundException());
     }
 
-    public boolean existeRelacao(UUID pacienteId, UUID profissionalId){
+    public boolean existeRelacao(UUID pacienteId, UUID profissionalId) {
         return repository.existeRelacao(pacienteId, profissionalId);
     }
 
+    public String getNomeCompletoPacienteById(UUID id) {
+        return repository.findNomeCompletoById(id);
+    }
+
+
+    public List<PacienteResponseDTO> buscarPaciente(String nome, String cpf, String cidade) {
+        return repository.buscarPaciente(nome, cpf, cidade)
+                .stream()
+                .map(pacienteMapper::toDTOPadrao)
+                .collect(Collectors.toList());
+    }
 }
