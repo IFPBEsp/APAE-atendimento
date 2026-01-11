@@ -1,5 +1,6 @@
 package br.org.apae.atendimento.exceptions.handler;
 
+import br.org.apae.atendimento.exceptions.invalid.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -7,10 +8,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 import br.org.apae.atendimento.exceptions.MinioStorageException;
-import br.org.apae.atendimento.exceptions.invalid.AgendamentoInvalidException;
-import br.org.apae.atendimento.exceptions.invalid.AtendimentoInvalidException;
-import br.org.apae.atendimento.exceptions.invalid.ConsultaInvalidException;
-import br.org.apae.atendimento.exceptions.invalid.RelacaoInvalidException;
 import br.org.apae.atendimento.exceptions.notfound.AgendamentoNotFoundException;
 import br.org.apae.atendimento.exceptions.notfound.AtendimentoNotFoundException;
 import br.org.apae.atendimento.exceptions.notfound.ConsultaNotFoundException;
@@ -75,5 +72,8 @@ public class GlobalExceptionHandler {
                 .body("{\"error\":\"O arquivo enviado é muito grande. Tente um menor.\"}");
     }
 
-    
+  @ExceptionHandler(TopicoInvalidException.class)
+    public ResponseEntity<String> handleTopicInvalid(TopicoInvalidException ex){
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+  }
 }

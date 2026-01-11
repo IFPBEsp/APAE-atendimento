@@ -6,6 +6,7 @@ import java.time.YearMonth;
 import java.time.temporal.TemporalAccessor;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -14,6 +15,8 @@ import br.org.apae.atendimento.dtos.response.AtendimentoResponseDTO;
 import br.org.apae.atendimento.dtos.response.MesAnoAtendimentoResponseDTO;
 import br.org.apae.atendimento.entities.Agendamento;
 import br.org.apae.atendimento.entities.Atendimento;
+import br.org.apae.atendimento.entities.Topico;
+import br.org.apae.atendimento.exceptions.invalid.TopicoInvalidException;
 import br.org.apae.atendimento.exceptions.notfound.AgendamentoNotFoundException;
 import br.org.apae.atendimento.exceptions.invalid.AtendimentoInvalidException;
 import br.org.apae.atendimento.exceptions.invalid.RelacaoInvalidException;
@@ -62,9 +65,14 @@ public class AtendimentoService {
 
     }
 
-    private void verificarRelatorio(Map<String, Object> relatorio) {
-        if (relatorio.isEmpty()){
+    private void verificarRelatorio(Set<Topico> relatorio) {
+        if (relatorio == null || relatorio.isEmpty()){
             throw new AtendimentoInvalidException("Atendimento sem qualquer tópico");
+        }
+        for (Topico topico : relatorio){
+            if (topico.getTitulo().isEmpty() || topico.getDescricao().isEmpty()){
+                throw new TopicoInvalidException("Topico sem titulo ou descrição");
+            }
         }
     }
 
@@ -114,7 +122,10 @@ public class AtendimentoService {
         }
 
         Atendimento atendimento = repository.findById(atendimentoId).orElseThrow(() -> new AtendimentoNotFoundException());
-        atendimento.setRelatorio(requestDTO.relatorio());
+        verificarRelatorio(requestDTO.relatorio());
+
+        atendimento.getRelatorio().clear();
+        atendimento.getRelatorio().addAll(requestDTO.relatorio());
 
         if (!requestDTO.data().equals(atendimento.getDataAtendimento().toLocalDate())){
             atendimento.setNumeracao(gerarProximaNumeracao(
