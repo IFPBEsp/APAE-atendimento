@@ -1,11 +1,15 @@
 import { api } from "@/services/axios";
 import dados from "../../../../data/verificacao.json";
-import { Atendimento, AtendimentoPayload, AtendimentoApi } from "../types";
+import {
+  Atendimento,
+  AtendimentoPayload,
+  AtendimentoGroupResponse,
+} from "../types";
 
 export async function getAtendimentos(
   pacienteId: string
-): Promise<AtendimentoApi[]> {
-  const { data } = await api.get<AtendimentoApi[]>(
+): Promise<AtendimentoGroupResponse[]> {
+  const { data } = await api.get<AtendimentoGroupResponse[]>(
     `/atendimentos/${dados.idProfissional}/${pacienteId}`
   );
 

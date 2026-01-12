@@ -26,7 +26,7 @@ export function useAtendimentos(pacienteId: string) {
       const todos = raw.flatMap((grupo) => grupo.atendimentos);
 
       const atendimentos: Atendimento[] = todos.map((item) => {
-        const [hora, minuto] = item.hora.split(":");
+        const [hora, minuto] = (item.hora ?? "00:00").split(":");
 
         return {
           id: item.id,

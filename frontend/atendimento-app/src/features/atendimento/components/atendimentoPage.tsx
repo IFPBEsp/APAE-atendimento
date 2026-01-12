@@ -17,7 +17,8 @@ const nunitoFont = Nunito({ weight: "700" });
 
 export default function AtendimentoPage() {
   const router = useRouter();
-  const { id: pacienteId } = useParams();
+  const params = useParams();
+  const pacienteId = typeof params.id === "string" ? params.id : "";
 
   const {
     paciente,
@@ -29,7 +30,7 @@ export default function AtendimentoPage() {
     atendimentosAgrupados,
     open,
     setOpen,
-  } = useAtendimentos(pacienteId as string);
+  } = useAtendimentos(pacienteId);
 
   const gruposParaRenderizar = atendimentosAgrupados;
 
