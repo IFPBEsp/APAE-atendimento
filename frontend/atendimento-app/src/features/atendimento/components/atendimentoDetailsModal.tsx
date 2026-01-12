@@ -3,7 +3,7 @@ import { X, PencilLine } from "lucide-react";
 import { Atendimento, Relatorio } from "../types";
 import { useState } from "react";
 import { AtendimentoModal } from "./atendimentoNovoModal";
-import AtendimentoForm from "../components/atendimentoForm";
+import AtendimentoForm from "./atendimentoForm";
 
 interface AtendimentoDetailsModalProps {
   isOpen: boolean;
@@ -16,7 +16,6 @@ interface AtendimentoDetailsModalProps {
   atendimentos: Atendimento[];
   onUpdated: (a: Atendimento) => void;
 }
-
 export function AtendimentoDetailsModal({
   isOpen,
   onClose,
@@ -26,7 +25,6 @@ export function AtendimentoDetailsModal({
   numeracao,
   relatorios,
   atendimentos,
-  onUpdated,
 }: AtendimentoDetailsModalProps) {
   const [editOpen, setEditOpen] = useState(false);
 
@@ -97,8 +95,7 @@ export function AtendimentoDetailsModal({
             numeracao,
             relatorio: relatorios ?? [],
           }}
-          onUpdated={(atualizado) => {
-            onUpdated(atualizado);
+          onClose={() => {
             setEditOpen(false);
             onClose();
           }}

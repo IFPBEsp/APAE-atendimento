@@ -11,6 +11,7 @@ import { AtendimentoModal } from "@/features/atendimento/components/atendimentoN
 import AtendimentoCard from "../components/atendimentoCard";
 import AtendimentoForm from "@/features/atendimento/components/atendimentoForm";
 import { useAtendimentos } from "../hooks/useAtendimentos";
+import { useQueryClient } from "@tanstack/react-query";
 
 const nunitoFont = Nunito({ weight: "700" });
 
@@ -26,13 +27,16 @@ export default function AtendimentoPage() {
     setDataSelecionada,
     atendimentosFiltrados,
     atendimentosAgrupados,
-    adicionarAtendimento,
-    atualizarAtendimento,
     open,
     setOpen,
   } = useAtendimentos(pacienteId as string);
 
   const gruposParaRenderizar = atendimentosAgrupados;
+
+  const queryClient = useQueryClient();
+  function handleAtendimentoUpdated() {
+    queryClient.invalidateQueries({ queryKey: ["atendimentos", pacienteId] });
+  }
 
   return (
     <div className="min-h-screen w-full bg-[#F8FAFD]">
@@ -100,10 +104,7 @@ export default function AtendimentoPage() {
         <AtendimentoModal open={open} onOpenChange={setOpen}>
           <AtendimentoForm
             atendimentos={atendimentos}
-            onCreated={(payload) => {
-              adicionarAtendimento(payload);
-              setOpen(false);
-            }}
+            onClose={() => setOpen(false)}
           />
         </AtendimentoModal>
 
@@ -119,7 +120,7 @@ export default function AtendimentoPage() {
                   key={a.id}
                   {...a}
                   atendimentos={atendimentos}
-                  onUpdated={atualizarAtendimento}
+                  onUpdated={handleAtendimentoUpdated}
                 />
               ))}
             </div>

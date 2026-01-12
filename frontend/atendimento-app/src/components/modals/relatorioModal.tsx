@@ -59,14 +59,7 @@ export function RelatorioDeleteModal({
   );
 }
 
-export function RelatorioViewModal({
-  isOpen,
-  onClose,
-  titulo,
-  data,
-  descricao,
-  onUpdate,
-}: ViewModalProps) {
+export function RelatorioViewModal({ isOpen, onClose, data }: ViewModalProps) {
   if (!isOpen || !data) return null;
   const renderizar = renderizarFormatoArquivo(
     data.nomeArquivo.split(".").pop() || "",

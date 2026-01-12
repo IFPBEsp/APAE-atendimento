@@ -1,6 +1,6 @@
 import { Expand } from "lucide-react";
 import { useState } from "react";
-import { AtendimentoDetailsModal } from "../components/atendimentoModal";
+import { AtendimentoDetailsModal } from "./atendimentoDetailsModal";
 import { Atendimento, Relatorio } from "../types";
 
 interface AtendimentoCardProps {

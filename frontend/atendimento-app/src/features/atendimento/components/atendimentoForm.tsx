@@ -14,12 +14,12 @@ import { Atendimento, AtendimentoPayload } from "../types";
 import { useParams } from "next/navigation";
 import { toast } from "sonner";
 import { useEffect } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 interface AtendimentoFormProps {
   atendimentos: Atendimento[];
   atendimentoEditavel?: Atendimento;
-  onCreated?: (novo: Atendimento) => void;
-  onUpdated?: (atualizado: Atendimento) => void;
+  onClose: () => void;
 }
 
 interface AtendimentoFormValues {
@@ -47,11 +47,9 @@ function brParaISO(dataBR: string): string {
 export default function AtendimentoForm({
   atendimentos,
   atendimentoEditavel,
-  onCreated,
-  onUpdated,
+  onClose,
 }: AtendimentoFormProps) {
   const { id } = useParams();
-
   const pacienteId = typeof id === "string" ? id : undefined;
 
   function getTodayLocalDate() {
@@ -59,6 +57,8 @@ export default function AtendimentoForm({
     const offset = now.getTimezoneOffset() * 60000;
     return new Date(now.getTime() - offset).toISOString().split("T")[0];
   }
+
+  const queryClient = useQueryClient();
 
   const { register, handleSubmit, control, reset, watch, setValue } =
     useForm<AtendimentoFormValues>({
@@ -82,6 +82,38 @@ export default function AtendimentoForm({
             relatorio: [{ titulo: "", descricao: "" }],
           },
     });
+
+  const createMutation = useMutation({
+    mutationFn: criarAtendimento,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["atendimentos"] });
+      toast.success("Atendimento criado com sucesso.");
+      reset();
+      onClose();
+    },
+    onError: () => {
+      toast.error("Erro ao criar atendimento.");
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: ({
+      id,
+      payload,
+    }: {
+      id: string;
+      payload: AtendimentoPayload;
+    }) => editarAtendimento(id, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["atendimentos"] });
+      toast.success("Atendimento atualizado com sucesso.");
+      reset();
+      onClose();
+    },
+    onError: () => {
+      toast.error("Erro ao atualizar atendimento.");
+    },
+  });
 
   const dataSelecionada = watch("data");
 
@@ -117,7 +149,7 @@ export default function AtendimentoForm({
     name: "relatorio",
   });
 
-  async function onSubmit(data: AtendimentoFormValues) {
+  function onSubmit(data: AtendimentoFormValues) {
     if (!pacienteId) {
       toast.error("Paciente inválido.");
       return;
@@ -129,42 +161,16 @@ export default function AtendimentoForm({
       data: isoParaBR(data.data),
       hora: data.hora,
       numeracao: data.numeracao,
-      relatorio: data.relatorio.map((item) => ({
-        titulo: item.titulo,
-        descricao: item.descricao,
-      })),
+      relatorio: data.relatorio,
     };
 
-    try {
-      const response = atendimentoEditavel
-        ? await editarAtendimento(atendimentoEditavel.id, payload)
-        : await criarAtendimento(payload);
-
-      const [dia, mes, ano] = response.data.split("-");
-      const dataBR = `${dia}/${mes}/${ano}`;
-
-      const atendimentoFinal: Atendimento = {
-        id: response.id,
-        data: dataBR,
-        hora: response.hora,
-        numeracao: response.numeracao,
-        relatorio: response.relatorio,
-      };
-
-      atendimentoEditavel
-        ? onUpdated?.(atendimentoFinal)
-        : onCreated?.(atendimentoFinal);
-
-      toast.success(
-        atendimentoEditavel
-          ? "Atendimento atualizado com sucesso."
-          : "Atendimento criado com sucesso."
-      );
-
-      reset();
-    } catch (error) {
-      console.error(error);
-      toast.error("Erro ao salvar atendimento.");
+    if (atendimentoEditavel) {
+      updateMutation.mutate({
+        id: atendimentoEditavel.id,
+        payload,
+      });
+    } else {
+      createMutation.mutate(payload);
     }
   }
 
