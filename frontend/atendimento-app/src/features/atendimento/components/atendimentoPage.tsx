@@ -100,7 +100,10 @@ export default function AtendimentoPage() {
         <AtendimentoModal open={open} onOpenChange={setOpen}>
           <AtendimentoForm
             atendimentos={atendimentos}
-            onCreated={adicionarAtendimento}
+            onCreated={(payload) => {
+              adicionarAtendimento(payload);
+              setOpen(false);
+            }}
           />
         </AtendimentoModal>
 
