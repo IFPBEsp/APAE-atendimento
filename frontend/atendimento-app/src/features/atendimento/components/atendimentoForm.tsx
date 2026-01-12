@@ -5,9 +5,12 @@ import { Label } from "@/components/ui/label";
 import { Plus, Check, CircleMinus } from "lucide-react";
 import { DialogFooter } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { criarAtendimento, editarAtendimento } from "@/api/dadosAtendimentos";
-import dados from "../../../data/verificacao.json";
-import { Atendimento, AtendimentoPayload } from "@/types/Atendimento";
+import {
+  criarAtendimento,
+  editarAtendimento,
+} from "../services/atendimentoService";
+import dados from "../../../../data/verificacao.json";
+import { Atendimento, AtendimentoPayload } from "../types";
 import { useParams } from "next/navigation";
 import { toast } from "sonner";
 import { useEffect } from "react";
@@ -17,6 +20,16 @@ interface AtendimentoFormProps {
   atendimentoEditavel?: Atendimento;
   onCreated?: (novo: Atendimento) => void;
   onUpdated?: (atualizado: Atendimento) => void;
+}
+
+interface AtendimentoFormValues {
+  data: string;
+  hora: string;
+  numeracao: number;
+  relatorio: {
+    titulo: string;
+    descricao: string;
+  }[];
 }
 
 function isoParaBR(iso: string): string {
@@ -48,11 +61,16 @@ export default function AtendimentoForm({
   }
 
   const { register, handleSubmit, control, reset, watch, setValue } =
-    useForm<Atendimento>({
+    useForm<AtendimentoFormValues>({
       defaultValues: atendimentoEditavel
         ? {
-            ...atendimentoEditavel,
             data: brParaISO(atendimentoEditavel.data.replace(/\//g, "-")),
+            hora: atendimentoEditavel.hora,
+            numeracao: atendimentoEditavel.numeracao,
+            relatorio: atendimentoEditavel.relatorio.map((r) => ({
+              titulo: r.titulo,
+              descricao: r.descricao,
+            })),
           }
         : {
             data: getTodayLocalDate(),
@@ -99,7 +117,7 @@ export default function AtendimentoForm({
     name: "relatorio",
   });
 
-  async function onSubmit(data: Atendimento) {
+  async function onSubmit(data: AtendimentoFormValues) {
     if (!pacienteId) {
       toast.error("Paciente inválido.");
       return;
@@ -111,9 +129,10 @@ export default function AtendimentoForm({
       data: isoParaBR(data.data),
       hora: data.hora,
       numeracao: data.numeracao,
-      relatorio: Object.fromEntries(
-        data.relatorio.map((item) => [item.titulo, item.descricao])
-      ),
+      relatorio: data.relatorio.map((item) => ({
+        titulo: item.titulo,
+        descricao: item.descricao,
+      })),
     };
 
     try {
@@ -129,12 +148,7 @@ export default function AtendimentoForm({
         data: dataBR,
         hora: response.hora,
         numeracao: response.numeracao,
-        relatorio: Object.entries(response.relatorio).map(
-          ([titulo, descricao]) => ({
-            titulo,
-            descricao: String(descricao),
-          })
-        ),
+        relatorio: response.relatorio,
       };
 
       atendimentoEditavel

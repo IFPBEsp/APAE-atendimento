@@ -1,9 +1,9 @@
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { X, PencilLine } from "lucide-react";
-import { Atendimento, Relatorio } from "@/types/Atendimento";
+import { Atendimento, Relatorio } from "../types";
 import { useState } from "react";
-import { AtendimentoModal } from "./novoAtendimentoModal";
-import AtendimentoForm from "../forms/atendimentoForm";
+import { AtendimentoModal } from "./atendimentoNovoModal";
+import AtendimentoForm from "../components/atendimentoForm";
 
 interface AtendimentoDetailsModalProps {
   isOpen: boolean;
