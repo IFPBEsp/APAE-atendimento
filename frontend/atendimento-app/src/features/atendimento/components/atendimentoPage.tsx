@@ -32,8 +32,6 @@ export default function AtendimentoPage() {
     setOpen,
   } = useAtendimentos(pacienteId);
 
-  const gruposParaRenderizar = atendimentosAgrupados;
-
   const queryClient = useQueryClient();
   function handleAtendimentoUpdated() {
     queryClient.invalidateQueries({ queryKey: ["atendimentos", pacienteId] });
@@ -109,7 +107,7 @@ export default function AtendimentoPage() {
           />
         </AtendimentoModal>
 
-        {Object.entries(gruposParaRenderizar).map(([mes, itens]) => (
+        {Object.entries(atendimentosAgrupados).map(([mes, itens]) => (
           <div key={mes} className="flex flex-col gap-4">
             <h2 className="text-lg font-bold text-[#344054] capitalize">
               {mes}

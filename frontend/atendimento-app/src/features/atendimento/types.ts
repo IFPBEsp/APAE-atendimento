@@ -21,6 +21,6 @@ export interface AtendimentoPayload {
   relatorio: Omit<Relatorio, "id">[];
 }
 
-export interface AtendimentoGroupResponse extends Atendimento {
+export interface AtendimentoGroupResponse {
   atendimentos: Atendimento[];
 }

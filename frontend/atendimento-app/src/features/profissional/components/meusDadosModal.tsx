@@ -13,13 +13,6 @@ import { LogOut, X } from "lucide-react";
 
 import { useProfissional } from "../hooks/useProfissional";
 
-interface UserData {
-  nome: string;
-  crm: string;
-  celular: string;
-  email: string;
-}
-
 interface MeusDadosModalProps {
   trigger: React.ReactNode;
 }
@@ -30,7 +23,7 @@ function logout() {
 }
 
 export function MeusDadosModal({ trigger }: MeusDadosModalProps) {
-  const {data: profissional, isLoading } = useProfissional();
+  const { data: profissional, isLoading } = useProfissional();
 
   if (isLoading || !profissional) return null;
 
@@ -66,7 +59,9 @@ export function MeusDadosModal({ trigger }: MeusDadosModalProps) {
 
             <div>
               <p className="font-bold text-sm text-[#344054]">Contato</p>
-              <p className="text-[#475467] text-sm mt-1">{profissional.contato}</p>
+              <p className="text-[#475467] text-sm mt-1">
+                {profissional.contato}
+              </p>
             </div>
 
             <div>
