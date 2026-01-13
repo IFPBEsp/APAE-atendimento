@@ -27,7 +27,7 @@ export default function VerificacaoPage() {
     setTimeout(() => {
       document.cookie = "verified=true; path=/;";
       router.push("/home");
-    }, 1200);
+    }, 700);
   };
 
   const borderColor =
