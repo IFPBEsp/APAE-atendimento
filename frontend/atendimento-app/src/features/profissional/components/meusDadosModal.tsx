@@ -7,9 +7,11 @@ import {
   DialogTitle,
   DialogTrigger,
   DialogClose,
-} from "../ui/dialog";
-import { Button } from "../ui/button";
+} from "../../../components/ui/dialog";
+import { Button } from "../../../components/ui/button";
 import { LogOut, X } from "lucide-react";
+
+import { useProfissional } from "../hooks/useProfissional";
 
 interface UserData {
   nome: string;
@@ -20,8 +22,6 @@ interface UserData {
 
 interface MeusDadosModalProps {
   trigger: React.ReactNode;
-  userData: UserData;
-  onLogout?: () => void;
 }
 
 function logout() {
@@ -29,7 +29,11 @@ function logout() {
   window.location.href = "/login";
 }
 
-export function MeusDadosModal({ trigger, userData }: MeusDadosModalProps) {
+export function MeusDadosModal({ trigger }: MeusDadosModalProps) {
+  const {data: profissional, isLoading } = useProfissional();
+
+  if (isLoading || !profissional) return null;
+
   return (
     <Dialog>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
@@ -50,25 +54,25 @@ export function MeusDadosModal({ trigger, userData }: MeusDadosModalProps) {
 
           <div className="text-center mb-8 px-4">
             <h2 className="font-bold text-lg text-[#344054] leading-snug">
-              {userData.nome}
+              {profissional.nomeCompleto}
             </h2>
           </div>
 
           <div className="w-full grid grid-cols-2 gap-y-5 gap-x-4 text-left mb-8">
             <div>
               <p className="font-bold text-sm text-[#344054]">CRM</p>
-              <p className="text-[#475467] text-sm mt-1">{userData.crm}</p>
+              <p className="text-[#475467] text-sm mt-1">{profissional.crm}</p>
             </div>
 
             <div>
-              <p className="font-bold text-sm text-[#344054]">Celular</p>
-              <p className="text-[#475467] text-sm mt-1">{userData.celular}</p>
+              <p className="font-bold text-sm text-[#344054]">Contato</p>
+              <p className="text-[#475467] text-sm mt-1">{profissional.contato}</p>
             </div>
 
             <div>
               <p className="font-bold text-sm text-[#344054]">Email</p>
               <p className="text-[#475467] text-sm mt-1 break-words">
-                {userData.email}
+                {profissional.email}
               </p>
             </div>
           </div>
