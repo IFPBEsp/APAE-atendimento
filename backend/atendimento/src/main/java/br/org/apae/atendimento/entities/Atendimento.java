@@ -5,7 +5,9 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -16,9 +18,9 @@ public class Atendimento {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @JdbcTypeCode(SqlTypes.JSON)
-    @Column(name = "relatorio", columnDefinition = "json")
-    private Map<String, Object> relatorio;
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "atendimeto_id")
+    private Set<Topico> relatorio = new HashSet<>();
 
     @Column(name = "data_atendimento")
     private LocalDateTime dataAtendimento;
@@ -44,11 +46,11 @@ public class Atendimento {
         this.id = id;
     }
 
-    public Map<String, Object> getRelatorio() {
+    public Set<Topico> getRelatorio() {
         return relatorio;
     }
 
-    public void setRelatorio(Map<String, Object> relatorio) {
+    public void setRelatorio(Set<Topico> relatorio) {
         this.relatorio = relatorio;
     }
 

@@ -1,4 +1,5 @@
 export interface Relatorio {
+  id?: string;
   titulo: string;
   descricao: string;
 }
@@ -17,18 +18,9 @@ export interface AtendimentoPayload {
   data: string;
   hora: string;
   numeracao?: number;
-  relatorio: Record<string, string>;
+  relatorio: Omit<Relatorio, "id">[];
 }
 
-export interface AtendimentoApi {
-  id: string;
-  data: string;
-  hora: string;
-  numeracao: number;
-  relatorio: Record<string, string>;
-}
-
-export interface GrupoAtendimentosApi {
-  mesAno: string;
-  atendimentos: AtendimentoApi[];
+export interface AtendimentoGroupResponse extends Atendimento {
+  atendimentos: Atendimento[];
 }
