@@ -1,4 +1,4 @@
-import { getPacientes } from "@/api/dadosPacientes";
+import { getPacientes } from "../../home/services/homeService";
 import { formatarData } from "@/utils/formatarData";
 import { getAtendimentos } from "../services/atendimentoService";
 import { Atendimento } from "../types";
