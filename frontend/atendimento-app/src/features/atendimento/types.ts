@@ -24,3 +24,13 @@ export interface AtendimentoPayload {
 export interface AtendimentoGroupResponse {
   atendimentos: Atendimento[];
 }
+
+export interface AtendimentoFormValues {
+  data: string;
+  hora: string;
+  numeracao: number;
+  relatorio: {
+    titulo: string;
+    descricao: string;
+  }[];
+}

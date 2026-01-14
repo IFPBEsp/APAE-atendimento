@@ -10,26 +10,21 @@ import {
   editarAtendimento,
 } from "../services/atendimentoService";
 import dados from "../../../../data/verificacao.json";
-import { Atendimento, AtendimentoPayload } from "../types";
+import {
+  Atendimento,
+  AtendimentoFormValues,
+  AtendimentoPayload,
+} from "../types";
 import { useParams } from "next/navigation";
 import { toast } from "sonner";
 import { useEffect } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { AxiosError, AxiosResponse } from "axios";
 
 interface AtendimentoFormProps {
   atendimentos: Atendimento[];
   atendimentoEditavel?: Atendimento;
   onClose: () => void;
-}
-
-interface AtendimentoFormValues {
-  data: string;
-  hora: string;
-  numeracao: number;
-  relatorio: {
-    titulo: string;
-    descricao: string;
-  }[];
 }
 
 function isoParaBR(iso: string): string {
@@ -91,7 +86,8 @@ export default function AtendimentoForm({
       reset();
       onClose();
     },
-    onError: () => {
+    onError: (error: AxiosError) => {
+      console.log(error.status);
       toast.error("Erro ao criar atendimento.");
     },
   });
