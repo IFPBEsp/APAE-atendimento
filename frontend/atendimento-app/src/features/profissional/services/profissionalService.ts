@@ -9,3 +9,11 @@ export async function getProfissional(): Promise<Profissional> {
 
   return data;
 }
+
+export async function getPrimeiroNomeProfissional(): Promise<string> {
+  const { data } = await api.get<string>(
+    `/profissionais/${dados.idProfissional}/primeiro-nome`
+  );
+
+  return data;
+}
