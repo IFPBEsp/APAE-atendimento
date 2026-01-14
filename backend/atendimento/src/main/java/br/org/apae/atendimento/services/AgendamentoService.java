@@ -101,7 +101,7 @@ public class AgendamentoService {
         Agendamento agendamento = repository.findById(agendamentoId).orElseThrow(() -> new AgendamentoNotFoundException());
         agendamento.setStatus(true);
 
-        System.out.println(agendamentoId + " - status: " + agendamento.isStatus() );
+        System.out.println(agendamentoId + " - status: " + agendamento.isStatus());
 
         repository.save(agendamento);
     }
@@ -112,7 +112,7 @@ public class AgendamentoService {
         }
 
         agendamento.setStatus(true);
-        System.out.println(agendamento.getId() + " - status: " + agendamento.isStatus() );
+        System.out.println(agendamento.getId() + " - status: " + agendamento.isStatus());
 
         repository.save(agendamento);
     }

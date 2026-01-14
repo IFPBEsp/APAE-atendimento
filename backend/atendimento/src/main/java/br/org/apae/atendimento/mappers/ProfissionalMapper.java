@@ -20,8 +20,7 @@ public class ProfissionalMapper extends AbstractMapper<ProfissionalSaude, Void, 
                 profissional.getPrimeiroNome(),
                 profissional.getNomeCompleto(),
                 profissional.getEmail(),
-                profissional.getContato(),
-                profissional.getCrm()
+                profissional.getContato()
         );
     }
 
