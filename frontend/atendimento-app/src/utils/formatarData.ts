@@ -1,4 +1,4 @@
 export function formatarData(data: string): string {
-  const [dia, mes, ano] = data.split("-");
-  return `${dia}/${mes}/${ano}`;
+  const [ano, mes, dia] = data.split("-");
+  return `${dia}-${mes}-${ano}`;
 }

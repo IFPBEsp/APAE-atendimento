@@ -17,7 +17,7 @@ export default function RelatorioCard({
   fileName,
   imageUrl,
   onView,
-  onDelete,
+  onDelete
 }: RelatorioCardProps) {
   const renderizar = renderizarFormatoArquivo(fileName.split(".").pop() || "", imageUrl || "");
   return (

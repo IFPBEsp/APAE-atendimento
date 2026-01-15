@@ -1,3 +1,6 @@
+import {PacientePdfDTO, ProfissionalPdfDTO } from "@/api/dadosRelatorioPdf";
+
+
 export interface Relatorio extends RelatorioBase{
   id: number;
 }
@@ -14,3 +17,7 @@ export interface RelatorioBase{
 export type RelatorioResponse = RelatorioBase
 
 
+export type RelatorioPDFData = {
+  paciente: PacientePdfDTO;
+  profissional: ProfissionalPdfDTO;
+};

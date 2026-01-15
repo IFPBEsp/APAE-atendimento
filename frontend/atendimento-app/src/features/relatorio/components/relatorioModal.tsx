@@ -2,13 +2,14 @@
 
 import { X, Trash2, Download, Image as ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Relatorio } from "@/types/Relatorio";
+import { Relatorio } from "@/features/relatorio/types";
 import { renderizarFormatoArquivo } from "@/utils/renderizarFormatoArquivo";
 
 interface DeleteModalProps {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: () => void;
+  disabled: boolean;
 }
 
 interface ViewModalProps {
@@ -18,12 +19,14 @@ interface ViewModalProps {
   descricao: string;
   data: Relatorio | null;
   onUpdate: () => void;
+  disabled: boolean;
 }
 
 export function RelatorioDeleteModal({
   isOpen,
   onClose,
   onConfirm,
+  disabled
 }: DeleteModalProps) {
   if (!isOpen) return null;
 
@@ -48,6 +51,7 @@ export function RelatorioDeleteModal({
           </Button>
           <Button
             onClick={onConfirm}
+            disabled={disabled}
             className="w-full md:flex-1 rounded-full bg-[#FF5C5C] hover:bg-[#ff4040] text-white h-11 cursor-pointer"
           >
             <Trash2 size={18} className="mr-2" />
@@ -59,7 +63,7 @@ export function RelatorioDeleteModal({
   );
 }
 
-export function RelatorioViewModal({ isOpen, onClose, data }: ViewModalProps) {
+export function RelatorioViewModal({ isOpen, onClose, data, onUpdate, disabled}: ViewModalProps) {
   if (!isOpen || !data) return null;
   const renderizar = renderizarFormatoArquivo(
     data.nomeArquivo.split(".").pop() || "",
@@ -106,7 +110,10 @@ export function RelatorioViewModal({ isOpen, onClose, data }: ViewModalProps) {
             rel="noopener noreferrer"
             className="w-full"
           >
-            <Button className="w-full bg-[#165BAA] hover:bg-[#13447D] text-white h-12 rounded-full text-base font-semibold shadow-lg">
+            <Button className="w-full bg-[#165BAA] hover:bg-[#13447D] text-white h-12 rounded-full text-base font-semibold shadow-lg"
+              onClick={onUpdate}
+              disabled={disabled}
+            >
               <Download size={20} className="mr-2" />
               Salvar anexo
             </Button>
