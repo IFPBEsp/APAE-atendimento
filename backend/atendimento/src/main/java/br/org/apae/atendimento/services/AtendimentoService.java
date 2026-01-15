@@ -51,7 +51,7 @@ public class AtendimentoService {
                 LocalDateTime.of(atendimentoRequestDTO.data(), atendimentoRequestDTO.hora())
 
         )){
-            throw new AtendimentoInvalidException("Já existe um atendimento para este horário.");
+            throw new AtendimentoInvalidException("Já existe um atendimento para este horário");
         }
 
         Atendimento dadosConvertidos = atendimentoMapper.toEntityPadrao(atendimentoRequestDTO);
