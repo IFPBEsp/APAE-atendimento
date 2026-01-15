@@ -46,6 +46,14 @@ public class AtendimentoService {
     }
 
     public AtendimentoResponseDTO addAtendimento(AtendimentoRequestDTO atendimentoRequestDTO, UUID agendamentoId){
+        if (repository.existsByPacienteIdAndProfissionalIdAndDataAtendimento(atendimentoRequestDTO.pacienteId(),
+                atendimentoRequestDTO.profissionalId(),
+                LocalDateTime.of(atendimentoRequestDTO.data(), atendimentoRequestDTO.hora())
+
+        )){
+            throw new AtendimentoInvalidException("Já existe um atendimento para este horário.");
+        }
+
         Atendimento dadosConvertidos = atendimentoMapper.toEntityPadrao(atendimentoRequestDTO);
 
         verificarRelatorio(dadosConvertidos.getRelatorio());
@@ -55,6 +63,7 @@ public class AtendimentoService {
         ));
 
         Atendimento dadosPersistidos = repository.save(dadosConvertidos);
+
         try {
             tratarAgendamento(agendamentoId, atendimentoRequestDTO.pacienteId(), atendimentoRequestDTO.data());
         }
