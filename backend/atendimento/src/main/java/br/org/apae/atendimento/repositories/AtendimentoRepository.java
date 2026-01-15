@@ -27,4 +27,10 @@ public interface AtendimentoRepository extends JpaRepository<Atendimento, UUID> 
             UUID profissionalId,
             UUID pacienteId
     );
+
+    boolean existsByPacienteIdAndProfissionalIdAndDataAtendimento(
+            UUID pacienteId,
+            UUID profissionalId,
+            LocalDateTime dataAtendimento
+    );
 }
