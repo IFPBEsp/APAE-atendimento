@@ -1,10 +1,12 @@
-import { Relatorio, RelatorioResponse } from "@/features/relatorio/types";
-import { TipoArquivo } from "@/components/forms/anexoForm";
+import { RelatorioResponse } from "@/features/relatorio/types";
+
 import {
   enviarArquivo,
   getArquivos,
 } from "@/features/arquivo/services/arquivoService";
 import { AxiosError } from "axios";
+import { TipoArquivo } from "@/features/arquivo/types";
+
 
 export async function getRelatorios(pacienteId: string): Promise<RelatorioResponse[]> {
   try {

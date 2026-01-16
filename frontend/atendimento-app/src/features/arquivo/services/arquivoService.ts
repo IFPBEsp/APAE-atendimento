@@ -1,8 +1,8 @@
 import {api} from "@/services/axios";
 import dados from "@/../data/verificacao.json"
-import { ArquivoResponse } from "@/types/Arquivo";
-import { TipoArquivo } from "@/components/forms/anexoForm";
+
 import { AxiosError } from "axios";
+import { ArquivoResponse, TipoArquivo } from "../types";
 
 export async function getArquivos (idPaciente: string, tipoArquivo: TipoArquivo) : Promise<ArquivoResponse[]> {
     try{

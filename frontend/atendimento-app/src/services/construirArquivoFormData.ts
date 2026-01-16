@@ -1,5 +1,6 @@
+    import { RelatorioEnvioFormData } from "@/features/relatorio/types";
     import { formatarData } from "@/utils/formatarData";
-import {AnexoEnvioFormData, RelatorioEnvioFormData} from "../components/forms/anexoForm"
+
 
     export function construirArquivoFormData (data: AnexoEnvioFormData | RelatorioEnvioFormData) : FormData {
         const formData: FormData = new FormData();
@@ -24,3 +25,6 @@ import {AnexoEnvioFormData, RelatorioEnvioFormData} from "../components/forms/an
 
         return formData;
     }
+
+
+    
