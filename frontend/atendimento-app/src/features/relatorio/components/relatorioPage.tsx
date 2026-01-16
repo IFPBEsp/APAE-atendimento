@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useRouter, useParams } from "next/navigation";
@@ -7,7 +6,7 @@ import { Nunito } from "next/font/google";
 import Header from "@/components/shared/header";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import RelatorioForm from "@/components/forms/relatorioForm";
+import RelatorioForm from "@/features/relatorio/components/relatorioForm";
 import { RelatorioModal } from "@/features/relatorio/components/novoRelatorioModal";
 import RelatorioCard from "@/features/relatorio/components/relatorioCard";
 import {
@@ -19,18 +18,17 @@ import { useRelatorioPDF } from "../hooks/useRelatorioPDF";
 const nunitoFont = Nunito({ weight: "700" });
 
 export default function RelatorioPage() {
-
   const router = useRouter();
   const params = useParams();
   const pacienteId = typeof params.id === "string" ? params.id : "";
-  
+
   const {
     relatorios,
     loading,
     dataSelecionada,
     open,
     reportToDelete,
-    reportToView, 
+    reportToView,
     setDataSelecionada,
     setReportToView,
     setReportToDelete,
@@ -39,20 +37,16 @@ export default function RelatorioPage() {
     deletarRelatorio,
     baixarRelatorio,
     enviando,
-    deletando
+    deletando,
   } = useRelatorios(pacienteId);
 
-  const {
-    isLoadingPDF, 
-    dadosPDF
-} = useRelatorioPDF(pacienteId);
-  
+  const { isLoadingPDF, dadosPDF } = useRelatorioPDF(pacienteId);
+
   const relatoriosFiltrados = dataSelecionada
     ? relatorios.filter((r) => r.data === dataSelecionada)
     : relatorios;
 
-
- return (
+  return (
     <div className="min-h-screen w-full bg-[#F8FAFD]">
       <Header />
 
@@ -89,7 +83,9 @@ export default function RelatorioPage() {
         <h1
           className={`text-xl text-[#344054] font-bold ${nunitoFont.className}`}
         >
-          {isLoadingPDF || !dadosPDF ? "Carregando nome paciente..." : dadosPDF?.paciente.nome}
+          {isLoadingPDF || !dadosPDF
+            ? "Carregando nome paciente..."
+            : dadosPDF?.paciente.nome}
         </h1>
 
         {loading && (
@@ -179,10 +175,11 @@ export default function RelatorioPage() {
         titulo={reportToView?.titulo ?? ""}
         data={reportToView}
         descricao={reportToView?.descricao ?? ""}
-        onUpdate={() => reportToView && baixarRelatorio(reportToView.objectName)}
+        onUpdate={() =>
+          reportToView && baixarRelatorio(reportToView.objectName)
+        }
         disabled={enviando}
       />
     </div>
   );
 }
-  

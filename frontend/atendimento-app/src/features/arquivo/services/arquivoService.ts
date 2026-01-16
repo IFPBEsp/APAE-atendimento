@@ -1,8 +1,7 @@
 import { api } from "@/services/axios";
 import dados from "@/../data/verificacao.json";
-import { ArquivoResponse } from "@/types/Arquivo";
-import { TipoArquivo } from "@/features/anexo/components/anexoForm";
 import { AxiosError } from "axios";
+import { ArquivoResponse, TipoArquivo } from "../types";
 
 export async function getArquivos(
   idPaciente: string,

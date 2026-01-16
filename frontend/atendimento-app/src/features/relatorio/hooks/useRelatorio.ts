@@ -1,10 +1,7 @@
 "use client";
 
-import { Relatorio, RelatorioResponse } from "@/features/relatorio/types";
-import {
-  RelatorioEnvioFormData,
-  TipoArquivo,
-} from "@/features/anexo/components/anexoForm";
+import { Relatorio, RelatorioEnvioFormData, RelatorioResponse } from "@/features/relatorio/types";
+
 import dados from "@/../data/verificacao.json";
 import { toast } from "sonner";
 import { validarTamanhoArquivo } from "@/services/validarTamanhoArquivo";
@@ -18,7 +15,9 @@ import {
 } from "@/features/relatorio/services/relatorioService";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
+import { TipoArquivo } from "@/features/arquivo/types";
 import { handleDownload } from "@/features/arquivo/services/arquivoService";
+
 
 export function useRelatorios(pacienteId: string) {
   const [dataSelecionada, setDataSelecionada] = useState<string>("");

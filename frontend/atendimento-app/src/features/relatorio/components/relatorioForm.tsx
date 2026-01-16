@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { DialogFooter } from "@/components/ui/dialog";
-import { Textarea } from "../ui/textarea";
+import { Textarea } from "../../../components/ui/textarea";
 import {
   Dialog,
   DialogTrigger,
@@ -14,11 +14,12 @@ import {
 } from "@/components/ui/dialog";
 import { useState } from "react";
 import { Upload, CirclePlus, Info, FileText } from "lucide-react";
-import { RelatorioEnvioFormData } from "./anexoForm";
-import { pdf} from "@react-pdf/renderer";
-import { TemplateRelatorio } from "../pdf/templateRelatorio";
+import { pdf } from "@react-pdf/renderer";
+import { TemplateRelatorio } from "../../../components/pdf/templateRelatorio";
 import { renderizarFormatoArquivo } from "@/utils/renderizarFormatoArquivo";
 import { PacientePdfDTO, ProfissionalPdfDTO } from "@/api/dadosRelatorioPdf";
+import { RelatorioEnvioFormData } from "../types";
+
 
 export type RelatorioFormData = {
   data: string;
@@ -37,18 +38,19 @@ interface RelatorioFormProps {
   carregandoPdf: boolean;
 }
 
-export default function RelatorioForm({ 
+export default function RelatorioForm({
   onSubmit,
   dadosPdf,
   carregandoPdf,
 }: RelatorioFormProps) {
-  const { register, handleSubmit, watch, setValue } = useForm<RelatorioEnvioFormData>({
-    defaultValues: {
-      data: new Date().toISOString().split("T")[0],
-      titulo: "",
-      descricao: "",
-    },
-  });
+  const { register, handleSubmit, watch, setValue } =
+    useForm<RelatorioEnvioFormData>({
+      defaultValues: {
+        data: new Date().toISOString().split("T")[0],
+        titulo: "",
+        descricao: "",
+      },
+    });
 
   const [isDragging, setIsDragging] = useState(false);
 
@@ -57,7 +59,8 @@ export default function RelatorioForm({
   const arquivo = watch("arquivo");
 
   const existeArquivo = arquivo && arquivo.length > 0;
-  const existeTemplate = titulo?.trim().length > 0 && descricao?.trim().length > 0;
+  const existeTemplate =
+    titulo?.trim().length > 0 && descricao?.trim().length > 0;
 
   const podeEnviarAnexo = existeArquivo && existeTemplate;
   const podeGerarPdf = !existeArquivo && existeTemplate;
@@ -74,9 +77,9 @@ export default function RelatorioForm({
       />
     ).toBlob();
 
-    const file = new File(
-      [blob], `Relatorio-${titulo || "relatorio"}.pdf`, { type: "application/pdf"}
-    );
+    const file = new File([blob], `Relatorio-${titulo || "relatorio"}.pdf`, {
+      type: "application/pdf",
+    });
 
     const fileList = {
       0: file,
@@ -84,11 +87,14 @@ export default function RelatorioForm({
       item: () => file,
     } as unknown as FileList;
 
-    setValue("arquivo", fileList, { shouldValidate: true});
+    setValue("arquivo", fileList, { shouldValidate: true });
   };
 
   const previewUrl = arquivo?.[0] ? URL.createObjectURL(arquivo[0]) : null;
-  const renderizar = (previewUrl && arquivo) && renderizarFormatoArquivo(arquivo[0].type, previewUrl);
+  const renderizar =
+    previewUrl &&
+    arquivo &&
+    renderizarFormatoArquivo(arquivo[0].type, previewUrl);
 
   const removerArquivo = () => setValue("arquivo", undefined);
 
@@ -150,37 +156,52 @@ export default function RelatorioForm({
                 <DialogTitle>Como criar um relatório?</DialogTitle>
                 <DialogDescription asChild>
                   <div className="space-y-4 text-sm">
-                      Você pode criar um relatório de duas formas:
-                    <br/>
-                    <br/>
+                    Você pode criar um relatório de duas formas:
+                    <br />
+                    <br />
                     <strong>1. Gerar relatório por template</strong>
                     <br />
                     <br />
                     <ul className="list-disc pl-5 space-y-1">
-                      <li>Preencha <strong>Título</strong> e <strong>Descrição</strong>.</li>
-                      <li>O botão <strong>Gerar PDF</strong> será habilitado.</li>
-                      <li>Ao clicar, o sistema gera o PDF e o anexa automaticamente.</li>
-                      <li>Depois, clique em <strong>Adicionar Relatório</strong> para salvar.</li>
+                      <li>
+                        Preencha <strong>Título</strong> e{" "}
+                        <strong>Descrição</strong>.
+                      </li>
+                      <li>
+                        O botão <strong>Gerar PDF</strong> será habilitado.
+                      </li>
+                      <li>
+                        Ao clicar, o sistema gera o PDF e o anexa
+                        automaticamente.
+                      </li>
+                      <li>
+                        Depois, clique em <strong>Adicionar Relatório</strong>{" "}
+                        para salvar.
+                      </li>
                     </ul>
                     <br />
                     <strong>2. Enviar um arquivo</strong>
                     <br />
                     <br />
                     <ul className="list-disc pl-5 space-y-1">
-                      <li>Preencha <strong>Título</strong> e <strong>Descrição</strong>.</li>
+                      <li>
+                        Preencha <strong>Título</strong> e{" "}
+                        <strong>Descrição</strong>.
+                      </li>
                       <li>Anexe um arquivo.</li>
-                      <li>O botão <strong>Adicionar Relatório</strong> será habilitado.</li>
+                      <li>
+                        O botão <strong>Adicionar Relatório</strong> será
+                        habilitado.
+                      </li>
                       <li>Você deve clicar-lo para salvar.</li>
                     </ul>
                     <br />
                   </div>
-                  
                 </DialogDescription>
               </DialogHeader>
             </DialogContent>
           </Dialog>
         </div>
-
       </div>
 
       <Textarea
@@ -203,9 +224,9 @@ export default function RelatorioForm({
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
         >
-          {previewUrl ? 
-            (renderizar)
-          : (
+          {previewUrl ? (
+            renderizar
+          ) : (
             <>
               <Label
                 htmlFor="arquivo"
@@ -255,7 +276,6 @@ export default function RelatorioForm({
           className="hidden"
           {...register("arquivo")}
         />
-
       </div>
 
       <DialogFooter>
@@ -269,7 +289,6 @@ export default function RelatorioForm({
         </Button>
       </DialogFooter>
 
-
       <div className="w-full">
         <Button
           type="button"
@@ -277,7 +296,7 @@ export default function RelatorioForm({
           disabled={!podeGerarPdf || carregandoPdf}
           className="w-full rounded-[30px] bg-[#0D4F97]"
         >
-          <FileText className="mr-2"/>
+          <FileText className="mr-2" />
           {carregandoPdf ? "Gerando PDF..." : "Gerar PDF"}
         </Button>
       </div>

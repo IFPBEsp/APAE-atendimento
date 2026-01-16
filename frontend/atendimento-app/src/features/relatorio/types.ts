@@ -1,4 +1,5 @@
 import {PacientePdfDTO, ProfissionalPdfDTO } from "@/api/dadosRelatorioPdf";
+import { DocumentoFormData, DocumentoFormDataEnvio, TipoArquivo } from "../arquivo/types";
 
 
 export interface Relatorio extends RelatorioBase{
@@ -21,3 +22,12 @@ export type RelatorioPDFData = {
   paciente: PacientePdfDTO;
   profissional: ProfissionalPdfDTO;
 };
+
+
+export type RelatorioEnvioFormData = DocumentoFormData & DocumentoFormDataEnvio & {
+  tipoArquivo: TipoArquivo.relatorio;
+}
+
+
+
+

@@ -4,9 +4,10 @@ import {
   getArquivos,
 } from "@/features/arquivo/services/arquivoService";
 import { AxiosError } from "axios";
-import { Anexo, AnexoResponse } from "@/types/Anexo";
+
 import { api } from "@/services/axios";
 import data from "@/../data/verificacao.json";
+import { Anexo, AnexoResponse } from "../types";
 
 export async function getAnexos(pacienteId: string): Promise<Anexo[]> {
   try {

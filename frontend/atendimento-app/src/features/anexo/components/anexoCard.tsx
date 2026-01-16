@@ -1,5 +1,4 @@
 import { Trash2, Image as ImageIcon } from "lucide-react";
-import PdfViewer from "../../../components/pdf/PdfViewner";
 import { renderizarFormatoArquivo } from "@/utils/renderizarFormatoArquivo";
 
 interface AnexoCardProps {

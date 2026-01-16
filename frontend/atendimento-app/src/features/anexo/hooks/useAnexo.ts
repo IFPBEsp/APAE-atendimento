@@ -1,4 +1,4 @@
-import { Anexo, AnexoResponse } from "@/types/Anexo";
+
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { apagarAnexo, enviarAnexo, getAnexos } from "../services/anexoService";
@@ -13,6 +13,7 @@ import { validarTipoArquivo } from "@/services/validarTipoArquivo";
 import { validarTamanhoArquivo } from "@/services/validarTamanhoArquivo";
 import { construirArquivoFormData } from "@/services/construirArquivoFormData";
 import { handleDownload } from "@/features/arquivo/services/arquivoService";
+import { Anexo, AnexoResponse } from "../types";
 
 export function useAnexos(pacienteId: string) {
   const [dataSelecionada, setDataSelecionada] = useState<string>("");

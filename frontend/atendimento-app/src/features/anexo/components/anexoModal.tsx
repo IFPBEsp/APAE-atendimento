@@ -2,9 +2,8 @@
 
 import { X, Trash2, Download, Image as ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Anexo } from "@/types/Anexo";
-import PdfPreview from "../../../components/pdf/PdfViewner";
 import { renderizarFormatoArquivo } from "@/utils/renderizarFormatoArquivo";
+import { Anexo } from "../types";
 
 interface DeleteModalProps {
   isOpen: boolean;

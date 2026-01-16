@@ -1,10 +1,11 @@
-import { Relatorio, RelatorioResponse } from "@/features/relatorio/types";
-import { TipoArquivo } from "@/features/anexo/components/anexoForm";
+import {RelatorioResponse } from "@/features/relatorio/types";
 import {
   enviarArquivo,
   getArquivos,
 } from "@/features/arquivo/services/arquivoService";
 import { AxiosError } from "axios";
+import { TipoArquivo } from "@/features/arquivo/types";
+
 
 export async function getRelatorios(
   pacienteId: string
