@@ -6,7 +6,6 @@ import { Input } from "@/components/ui/input";
 import { ArrowLeft, Plus } from "lucide-react";
 import { Nunito } from "next/font/google";
 import { useRouter, useParams } from "next/navigation";
-
 import { AtendimentoModal } from "@/features/atendimento/components/atendimentoNovoModal";
 import AtendimentoCard from "../components/atendimentoCard";
 import AtendimentoForm from "@/features/atendimento/components/atendimentoForm";
@@ -29,14 +28,15 @@ export default function AtendimentoPage() {
     atendimentosFiltrados,
     atendimentosAgrupados,
     open,
-    setOpen,
+    setOpen
   } = useAtendimentos(pacienteId);
 
   const gruposParaRenderizar = atendimentosAgrupados;
 
   const queryClient = useQueryClient();
+
   function handleAtendimentoUpdated() {
-    queryClient.invalidateQueries({ queryKey: ["atendimentos", pacienteId] });
+     queryClient.invalidateQueries({ queryKey: ["atendimentos", pacienteId] });
   }
 
   return (

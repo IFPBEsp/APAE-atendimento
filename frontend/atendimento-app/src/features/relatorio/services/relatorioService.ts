@@ -1,12 +1,14 @@
 import { Relatorio, RelatorioResponse } from "@/features/relatorio/types";
-import { TipoArquivo } from "@/components/forms/anexoForm";
+import { TipoArquivo } from "@/features/anexo/components/anexoForm";
 import {
   enviarArquivo,
   getArquivos,
 } from "@/features/arquivo/services/arquivoService";
 import { AxiosError } from "axios";
 
-export async function getRelatorios(pacienteId: string): Promise<RelatorioResponse[]> {
+export async function getRelatorios(
+  pacienteId: string
+): Promise<RelatorioResponse[]> {
   try {
     if (!pacienteId) return [];
     const resposta = (await getArquivos(
@@ -36,7 +38,7 @@ export async function enviarRelatorio(formData: FormData) {
         axiosError.message ||
         "Erro ao enviar relatório"
     );
-   
+
     throw new Error(mensagem);
   }
 }

@@ -4,13 +4,13 @@ import { Relatorio, RelatorioResponse } from "@/features/relatorio/types";
 import {
   RelatorioEnvioFormData,
   TipoArquivo,
-} from "@/components/forms/anexoForm";
+} from "@/features/anexo/components/anexoForm";
 import dados from "@/../data/verificacao.json";
 import { toast } from "sonner";
 import { validarTamanhoArquivo } from "@/services/validarTamanhoArquivo";
 import { construirArquivoFormData } from "@/services/construirArquivoFormData";
 import { apagarAnexo } from "@/api/apagarAnexo";
-import { handleDownload } from "@/api/salvarAnexo";
+
 import { AxiosError } from "axios";
 import {
   enviarRelatorio,
@@ -18,9 +18,9 @@ import {
 } from "@/features/relatorio/services/relatorioService";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
+import { handleDownload } from "@/features/arquivo/services/arquivoService";
 
 export function useRelatorios(pacienteId: string) {
- 
   const [dataSelecionada, setDataSelecionada] = useState<string>("");
   const [open, setOpen] = useState(false);
   const [reportToDelete, setReportToDelete] = useState<Relatorio | null>(null);
@@ -40,11 +40,9 @@ export function useRelatorios(pacienteId: string) {
           ...e,
         })
       );
-      return {relatorios};
+      return { relatorios };
     },
   });
-
- 
 
   const enviarRelatorioMutation = useMutation({
     mutationFn: enviarRelatorio,
@@ -61,7 +59,7 @@ export function useRelatorios(pacienteId: string) {
           : error instanceof Error
           ? error.message
           : String(error);
-         
+
       toast.error(mensagem || "Erro ao enviar relatório");
     },
     onSettled() {
@@ -82,11 +80,7 @@ export function useRelatorios(pacienteId: string) {
     },
   });
 
-  
-
-  function criarArquivoRelatorio(
-    data: RelatorioEnvioFormData
-  ): FormData {
+  function criarArquivoRelatorio(data: RelatorioEnvioFormData): FormData {
     const request: RelatorioEnvioFormData = {
       ...data,
       pacienteId,
@@ -98,9 +92,7 @@ export function useRelatorios(pacienteId: string) {
     return construirArquivoFormData(request);
   }
 
-  async function construirEnviarArquivoRelatorio(
-    data: RelatorioEnvioFormData
-  ) {
+  async function construirEnviarArquivoRelatorio(data: RelatorioEnvioFormData) {
     const relatorio = criarArquivoRelatorio(data);
     enviarRelatorioMutation.mutate(relatorio);
   }
@@ -114,9 +106,6 @@ export function useRelatorios(pacienteId: string) {
     await handleDownload(objectName);
   };
 
-  
-
-  
   return {
     // dados-estados
     relatorios: data?.relatorios ?? [],

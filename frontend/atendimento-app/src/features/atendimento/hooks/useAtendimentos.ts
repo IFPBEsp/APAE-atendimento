@@ -62,6 +62,6 @@ export function useAtendimentos(pacienteId: string) {
     atendimentosFiltrados,
     atendimentosAgrupados: agruparPorMes(atendimentosFiltrados),
     open,
-    setOpen,
+    setOpen
   };
 }
