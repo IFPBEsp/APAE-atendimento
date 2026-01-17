@@ -1,14 +1,17 @@
 package br.org.apae.atendimento.services.storage.minio;
 
-import br.org.apae.atendimento.exceptions.MinioStorageException;
-import br.org.apae.atendimento.services.storage.PresignedUrlService;
-import io.minio.GetPresignedObjectUrlArgs;
-import io.minio.MinioClient;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
+
+import br.org.apae.atendimento.exceptions.MinioStorageException;
+import br.org.apae.atendimento.services.storage.PresignedUrlService;
+import io.minio.GetPresignedObjectUrlArgs;
+import io.minio.MinioClient;
 
 @Service
 @Profile("test")
@@ -33,6 +36,12 @@ public class MinioPresignedUrlService implements PresignedUrlService {
                     GetPresignedObjectUrlArgs.builder()
                             .bucket(BUCKET_NAME)
                             .object(objectName)
+                            .extraQueryParams(
+            Map.of(
+                "response-content-disposition",
+                "attachment; filename=" + objectName
+            )
+        )
                             .method(io.minio.http.Method.GET)
                             .expiry(60 * 60)
                             .build()

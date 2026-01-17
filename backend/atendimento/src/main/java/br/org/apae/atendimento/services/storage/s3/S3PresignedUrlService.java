@@ -33,6 +33,9 @@ public class S3PresignedUrlService implements PresignedUrlService {
             GetObjectRequest getObjectRequest = GetObjectRequest.builder()
                     .bucket(BUCKET_NAME)
                     .key(objectName)
+                    .responseContentDisposition(
+        "attachment; filename=\"" + objectName + "\""
+    )
                     .build();
 
             GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
