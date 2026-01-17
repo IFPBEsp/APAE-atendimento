@@ -10,16 +10,9 @@ import {
   AvatarImage,
   AvatarFallback
 } from "@/components/ui/avatar";
+import { Paciente } from "../types";
 
-interface PacienteCardProps {
-  id?: string;
-  nomeCompleto: string;
-  cpf: string;
-  endereco: string;
-  contato: string;
-  dataDeNascimento: string;
-  transtornos: string[];
-  responsaveis: string[];
+interface PacienteCardProps extends Paciente {
   onViewAtendimentos?: () => void;
   onViewRelatorios?: () => void;
   onViewAnexos?: () => void;
@@ -30,7 +23,7 @@ export function PacienteCard({
   cpf,
   endereco,
   contato,
-  dataDeNascimento,
+  dataNascimento,
   transtornos,
   responsaveis,
   onViewAtendimentos,
@@ -92,24 +85,12 @@ export function PacienteCard({
           </h2>
 
           <div className="text-left text-sm text-[#344054] leading-relaxed space-y-1">
-            <p>
-              <strong>CPF:</strong> {cpf}
-            </p>
-            <p>
-              <strong>Endereço:</strong> {endereco}
-            </p>
-            <p>
-              <strong>Contato:</strong> {contato}
-            </p>
-            <p>
-              <strong>Data de nascimento:</strong> {dataDeNascimento}
-            </p>
-            <p>
-              <strong>Transtornos:</strong> {transtornos.join(", ")}
-            </p>
-            <p>
-              <strong>Responsáveis:</strong> {responsaveis.join(", ")}
-            </p>
+            <p><strong>CPF:</strong> {cpf}</p>
+            <p><strong>Endereço:</strong> {endereco}</p>
+            <p><strong>Contato:</strong> {contato}</p>
+            <p><strong>Data de nascimento:</strong> {dataNascimento}</p>
+            <p><strong>Transtornos:</strong> {transtornos.join(", ")}</p>
+            <p><strong>Responsáveis:</strong> {responsaveis.join(", ")}</p>
           </div>
         </div>
       </CardContent>
