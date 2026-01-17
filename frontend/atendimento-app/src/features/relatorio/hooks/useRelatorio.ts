@@ -6,7 +6,7 @@ import dados from "@/../data/verificacao.json";
 import { toast } from "sonner";
 import { validarTamanhoArquivo } from "@/services/validarTamanhoArquivo";
 import { construirArquivoFormData } from "@/services/construirArquivoFormData";
-import { apagarAnexo } from "@/api/apagarAnexo";
+import { apagarAnexo } from "@/features/anexo/services/anexoService";
 
 import { AxiosError } from "axios";
 import {
