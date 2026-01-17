@@ -13,6 +13,7 @@ import {
 } from "@/features/anexo/components/anexoModal";
 import { useAnexos } from "../hooks/useAnexo";
 import AnexoForm from "./anexoForm";
+import { useRelatorioPDF } from "@/features/relatorio/hooks/useRelatorioPDF";
 
 
 const nunitoFont = Nunito({ weight: "700" });
@@ -39,7 +40,7 @@ export default function AnexoPage() {
       deletando
     } = useAnexos(pacienteId);
 
-
+const { isLoadingPDF, dadosPDF } = useRelatorioPDF(pacienteId);
 
       const anexosFiltrados = dataSelecionada
     ? anexos.filter((r) => r.data === dataSelecionada)
@@ -84,7 +85,10 @@ export default function AnexoPage() {
         <h1
           className={`text-xl text-[#344054] font-bold ${nunitoFont.className}`}
         >
-         
+          {isLoadingPDF || !dadosPDF
+              ? "Carregando nome paciente..."
+              : dadosPDF?.paciente.nome}
+              
         </h1>
 
         {loading && (
