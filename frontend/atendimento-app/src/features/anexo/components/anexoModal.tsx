@@ -18,7 +18,6 @@ interface ViewModalProps {
   titulo: string;
   descricao: string;
   data: Anexo | null;
-  onUpdate: () => void;
   disabled: boolean;
 }
 
@@ -50,7 +49,11 @@ export function AnexoDeleteModal({
             Cancelar
           </Button>
           <Button
-            onClick={onConfirm}
+            onClick={() => {
+              onConfirm()
+              onClose()
+            }
+          }
             disabled={disabled}
             className="w-full md:flex-1 rounded-full bg-[#FF5C5C] hover:bg-[#ff4040] text-white h-11 cursor-pointer"
           >
@@ -69,7 +72,6 @@ export function AnexoViewModal({
   titulo,
   data,
   descricao,
-  onUpdate,
   disabled
 }: ViewModalProps) {
   if (!isOpen || !data) return null;
@@ -120,7 +122,6 @@ export function AnexoViewModal({
           >
             <Button className="w-full bg-[#165BAA] hover:bg-[#13447D] text-white h-12 rounded-full text-base font-semibold shadow-lg"
             disabled={disabled}
-            onClick={onUpdate}
             >
               <Download size={20} className="mr-2" />
               Salvar anexo

@@ -42,35 +42,3 @@ export async function enviarArquivo(relatorioEnvio: FormData) {
     throw new Error(mensagem);
   }
 }
-
-export async function handleDownload(objectName: string): Promise<void> {
-  if (!objectName) {
-    throw new Error("Nome do arquivo não informado");
-  }
-
-  try {
-    const response = await api.get<string>(`${dados.urlBase}/pressigned/`, {
-      params: { objectName },
-      responseType: "text",
-    });
-
-    const presignedUrl = response.data;
-
-    if (!presignedUrl) {
-      throw new Error("URL de download inválida");
-    }
-
-    window.location.href = presignedUrl;
-  } catch (error) {
-    if (error instanceof AxiosError) {
-      const mensagem =
-        typeof error.response?.data === "string"
-          ? error.response.data
-          : error.message;
-
-      throw new Error(mensagem || "Erro ao gerar link de download");
-    }
-
-    throw error;
-  }
-}

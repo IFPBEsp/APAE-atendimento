@@ -16,7 +16,6 @@ import {
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { TipoArquivo } from "@/features/arquivo/types";
-import { handleDownload } from "@/features/arquivo/services/arquivoService";
 
 
 export function useRelatorios(pacienteId: string) {
@@ -100,10 +99,6 @@ export function useRelatorios(pacienteId: string) {
     deletarRelatorioMutation.mutate(objectName);
   };
 
-  const handleUpdate = async (objectName: string) => {
-    if (!objectName) return;
-    await handleDownload(objectName);
-  };
 
   return {
     // dados-estados
@@ -123,10 +118,9 @@ export function useRelatorios(pacienteId: string) {
     // ações-ativas
     enviarRelatorio: construirEnviarArquivoRelatorio,
     deletarRelatorio: handleDelete,
-    baixarRelatorio: handleUpdate,
 
     // intenções
     enviando: enviarRelatorioMutation.isPending,
-    deletando: deletarRelatorioMutation.isPending,
+    deletando: deletarRelatorioMutation.isPending
   };
 }

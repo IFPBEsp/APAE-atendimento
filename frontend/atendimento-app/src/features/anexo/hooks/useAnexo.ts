@@ -12,7 +12,6 @@ import dados from "@/../data/verificacao.json";
 import { validarTipoArquivo } from "@/services/validarTipoArquivo";
 import { validarTamanhoArquivo } from "@/services/validarTamanhoArquivo";
 import { construirArquivoFormData } from "@/services/construirArquivoFormData";
-import { handleDownload } from "@/features/arquivo/services/arquivoService";
 import { Anexo, AnexoResponse } from "../types";
 
 export function useAnexos(pacienteId: string) {
@@ -95,10 +94,6 @@ export function useAnexos(pacienteId: string) {
     deletarAnexoMutation.mutate(objectName);
   };
 
-  const handleUpdate = async (objectName: string) => {
-    if (!objectName) return;
-    await handleDownload(objectName);
-  };
 
   return {
     // dados-estados
@@ -118,7 +113,7 @@ export function useAnexos(pacienteId: string) {
     // ações-ativas
     enviarAnexo: construirEnviarArquivoAnexo,
     deletarAnexo: handleDelete,
-    baixarAnexo: handleUpdate,
+    
 
     // intenções
     enviando: enviarAnexoMutation.isPending,
