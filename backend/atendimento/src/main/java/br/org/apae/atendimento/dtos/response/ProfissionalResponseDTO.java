@@ -7,6 +7,5 @@ public record ProfissionalResponseDTO(
         String primeiroNome,
         String nomeCompleto,
         String email,
-        String contato,
-        String crm
+        String contato
 ){};
