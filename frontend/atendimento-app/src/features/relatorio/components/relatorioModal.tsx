@@ -2,14 +2,14 @@
 
 import { X, Trash2, Download, Image as ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Anexo } from "@/types/Anexo";
-import PdfPreview from "../pdf/PdfViewner";
+import { Relatorio } from "@/features/relatorio/types";
 import { renderizarFormatoArquivo } from "@/utils/renderizarFormatoArquivo";
 
 interface DeleteModalProps {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: () => void;
+  disabled: boolean;
 }
 
 interface ViewModalProps {
@@ -17,14 +17,15 @@ interface ViewModalProps {
   onClose: () => void;
   titulo: string;
   descricao: string;
-  data: Anexo | null;
-  onUpdate: () => void;
+  data: Relatorio | null;
+  disabled: boolean;
 }
 
-export function AnexoDeleteModal({
+export function RelatorioDeleteModal({
   isOpen,
   onClose,
   onConfirm,
+  disabled
 }: DeleteModalProps) {
   if (!isOpen) return null;
 
@@ -48,7 +49,12 @@ export function AnexoDeleteModal({
             Cancelar
           </Button>
           <Button
-            onClick={onConfirm}
+            onClick={() => {
+              onConfirm()
+              onClose()
+            }
+            }
+            disabled={disabled}
             className="w-full md:flex-1 rounded-full bg-[#FF5C5C] hover:bg-[#ff4040] text-white h-11 cursor-pointer"
           >
             <Trash2 size={18} className="mr-2" />
@@ -60,14 +66,7 @@ export function AnexoDeleteModal({
   );
 }
 
-export function AnexoViewModal({
-  isOpen,
-  onClose,
-  titulo,
-  data,
-  descricao,
-  onUpdate,
-}: ViewModalProps) {
+export function RelatorioViewModal({ isOpen, onClose, data, disabled}: ViewModalProps) {
   if (!isOpen || !data) return null;
   const renderizar = renderizarFormatoArquivo(
     data.nomeArquivo.split(".").pop() || "",
@@ -88,11 +87,11 @@ export function AnexoViewModal({
           </button>
         </div>
 
-        <p className="text-[10px] md:text-[12px] font-regular text-[#344054] px-5 py-3 max-w-full break-words">
+        <p className="text-[10px] md:text-[12px] font-regular text-[#344054] px-5 py-3">
           {data.descricao}
         </p>
 
-        <div className="bg-gray-50 flex items-center justify-center w-full h-[400px] px-4">
+        <div className=" bg-white rounded-[24px] w-full max-w-[632px] max-h-[90vh] flex flex-col shadow-2xl slide-in-from-bottom-10 overflow-y-auto">
           {data.presignedUrl ? (
             renderizar
           ) : (
@@ -114,7 +113,9 @@ export function AnexoViewModal({
             rel="noopener noreferrer"
             className="w-full"
           >
-            <Button className="w-full bg-[#165BAA] hover:bg-[#13447D] text-white h-12 rounded-full text-base font-semibold shadow-lg">
+            <Button className="w-full bg-[#165BAA] hover:bg-[#13447D] text-white h-12 rounded-full text-base font-semibold shadow-lg"
+              disabled={disabled}
+            >
               <Download size={20} className="mr-2" />
               Salvar anexo
             </Button>

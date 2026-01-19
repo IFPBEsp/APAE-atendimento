@@ -41,6 +41,6 @@ export function useAtendimentos(pacienteId: string) {
     setDataSelecionada,
 
     open,
-    setOpen,
+    setOpen
   };
 }
