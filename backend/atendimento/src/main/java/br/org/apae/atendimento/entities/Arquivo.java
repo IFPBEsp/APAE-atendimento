@@ -19,7 +19,6 @@ public class Arquivo {
     @Column(name = "nome_arquivo")
     private String nomeArquivo;
 
-
     @Column(name = "data")
     private LocalDate data;
 
