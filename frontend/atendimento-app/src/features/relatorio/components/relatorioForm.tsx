@@ -19,17 +19,9 @@ import { TemplateRelatorio } from "../../../components/pdf/templateRelatorio";
 import { renderizarFormatoArquivo } from "@/utils/renderizarFormatoArquivo";
 import { PacientePdfDTO, ProfissionalPdfDTO } from "@/api/dadosRelatorioPdf";
 import { RelatorioEnvioFormData } from "../types";
-
-
-export type RelatorioFormData = {
-  data: string;
-  titulo: string;
-  arquivo?: FileList;
-  descricao: string;
-};
+import { brParaISO, isoParaBR } from "@/utils/formatarData";
 
 interface RelatorioFormProps {
-  onSubmit: (data: RelatorioEnvioFormData) => void;
   dadosPdf: {
     paciente: PacientePdfDTO;
     profissional: ProfissionalPdfDTO;
@@ -39,10 +31,11 @@ interface RelatorioFormProps {
 }
 
 export default function RelatorioForm({
-  onSubmit,
   dadosPdf,
   carregandoPdf,
 }: RelatorioFormProps) {
+  function onSubmit(data: RelatorioEnvioFormData) {}
+
   const { register, handleSubmit, watch, setValue } =
     useForm<RelatorioEnvioFormData>({
       defaultValues: {
@@ -74,7 +67,7 @@ export default function RelatorioForm({
         profissional={dadosPdf.profissional}
         titulo={titulo}
         descricao={descricao}
-      />
+      />,
     ).toBlob();
 
     const file = new File([blob], `Relatorio-${titulo || "relatorio"}.pdf`, {
@@ -121,9 +114,18 @@ export default function RelatorioForm({
     setValue("arquivo", fileList);
   };
 
+  function handleFormSubmit(data: RelatorioEnvioFormData) {
+    const payload: RelatorioEnvioFormData = {
+      ...data,
+      data: isoParaBR(data.data),
+    };
+
+    onSubmit(payload);
+  }
+
   return (
     <form
-      onSubmit={handleSubmit(onSubmit)}
+      onSubmit={handleSubmit(handleFormSubmit)}
       className="grid gap-6 pt-5 text-[#344054]"
     >
       <div className="grid gap-2">
