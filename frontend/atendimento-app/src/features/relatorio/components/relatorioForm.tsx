@@ -18,10 +18,12 @@ import { pdf } from "@react-pdf/renderer";
 import { TemplateRelatorio } from "../../../components/pdf/templateRelatorio";
 import { renderizarFormatoArquivo } from "@/utils/renderizarFormatoArquivo";
 import { PacientePdfDTO, ProfissionalPdfDTO } from "@/api/dadosRelatorioPdf";
-import { RelatorioEnvioFormData } from "../types";
+import { RelatorioBase, RelatorioEnvioFormData } from "../types";
 import { brParaISO, isoParaBR } from "@/utils/formatarData";
+import { DocumentoFormData, TipoArquivo } from "@/features/arquivo/types";
 
 interface RelatorioFormProps {
+  onSubmit: (data: RelatorioEnvioFormData) => void;
   dadosPdf: {
     paciente: PacientePdfDTO;
     profissional: ProfissionalPdfDTO;
@@ -31,11 +33,10 @@ interface RelatorioFormProps {
 }
 
 export default function RelatorioForm({
+  onSubmit,
   dadosPdf,
   carregandoPdf,
 }: RelatorioFormProps) {
-  function onSubmit(data: RelatorioEnvioFormData) {}
-
   const { register, handleSubmit, watch, setValue } =
     useForm<RelatorioEnvioFormData>({
       defaultValues: {
@@ -44,7 +45,6 @@ export default function RelatorioForm({
         descricao: "",
       },
     });
-
   const [isDragging, setIsDragging] = useState(false);
 
   const titulo = watch("titulo");
@@ -115,12 +115,10 @@ export default function RelatorioForm({
   };
 
   function handleFormSubmit(data: RelatorioEnvioFormData) {
-    const payload: RelatorioEnvioFormData = {
+    onSubmit({
       ...data,
-      data: isoParaBR(data.data),
-    };
-
-    onSubmit(payload);
+      data: data.data,
+    });
   }
 
   return (
