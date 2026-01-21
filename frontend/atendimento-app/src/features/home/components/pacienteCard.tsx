@@ -1,16 +1,14 @@
 import { User, MoreVertical } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { 
-  DropdownMenu, 
-  DropdownMenuTrigger, 
-  DropdownMenuContent, 
-  DropdownMenuItem} from "@/components/ui/dropdown-menu";
 import {
-  Avatar,
-  AvatarImage,
-  AvatarFallback
-} from "@/components/ui/avatar";
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Paciente } from "../types";
+import { formatarData } from "@/utils/formatarData";
 
 interface PacienteCardProps extends Paciente {
   onViewAtendimentos?: () => void;
@@ -23,7 +21,7 @@ export function PacienteCard({
   cpf,
   endereco,
   contato,
-  dataNascimento,
+  dataDeNascimento,
   transtornos,
   responsaveis,
   onViewAtendimentos,
@@ -31,7 +29,7 @@ export function PacienteCard({
   onViewAnexos,
 }: PacienteCardProps) {
   return (
-    <Card className="w-full max-w-md md:max-w-4xl rounded-2xl shadow-md border border-[#EAECF0] bg-white relative">
+    <Card className="w-full max-w-md md:max-w-4xl md:h-fit rounded-2xl shadow-md border border-[#EAECF0] bg-white relative">
       <DropdownMenu>
         <DropdownMenuTrigger className="absolute top-2 right-2 p-1 rounded-full hover:bg-gray-100 cursor-pointer">
           <MoreVertical className="w-5 h-5 text-gray-500" />
@@ -40,21 +38,21 @@ export function PacienteCard({
           className="w-48 bg-white rounded-xl shadow-lg border border-gray-200 p-4"
           sideOffset={8}
         >
-          <DropdownMenuItem 
+          <DropdownMenuItem
             className="justify-center cursor-pointer"
             onClick={onViewAtendimentos}
           >
             Ver Atendimentos
           </DropdownMenuItem>
 
-          <DropdownMenuItem 
+          <DropdownMenuItem
             className="justify-center cursor-pointer"
             onClick={onViewRelatorios}
           >
             Criar relatório
           </DropdownMenuItem>
-          
-          <DropdownMenuItem 
+
+          <DropdownMenuItem
             className="justify-center cursor-pointer"
             onClick={onViewAnexos}
           >
@@ -63,7 +61,7 @@ export function PacienteCard({
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <CardContent className="p-4 flex flex-col md:flex-row md:gap-6">
+      <CardContent className="p-4 flex flex-col md:flex-row md:gap-6 ">
         <div className="flex items-center gap-3 md:flex-col md:items-start md:gap-4 md:w-40 pb-2">
           <Avatar className="w-12 h-12 rounded-full bg-[#F2F4F7] flex items-center justify-center md:w-40 md:h-50 md:rounded-xl">
             <AvatarImage src="" />
@@ -85,12 +83,25 @@ export function PacienteCard({
           </h2>
 
           <div className="text-left text-sm text-[#344054] leading-relaxed space-y-1">
-            <p><strong>CPF:</strong> {cpf}</p>
-            <p><strong>Endereço:</strong> {endereco}</p>
-            <p><strong>Contato:</strong> {contato}</p>
-            <p><strong>Data de nascimento:</strong> {dataNascimento}</p>
-            <p><strong>Transtornos:</strong> {transtornos.join(", ")}</p>
-            <p><strong>Responsáveis:</strong> {responsaveis.join(", ")}</p>
+            <p>
+              <strong>CPF:</strong> {cpf}
+            </p>
+            <p>
+              <strong>Endereço:</strong> {endereco}
+            </p>
+            <p>
+              <strong>Contato:</strong> {contato}
+            </p>
+            <p>
+              <strong>Data de nascimento:</strong>{" "}
+              {formatarData(dataDeNascimento)}
+            </p>
+            <p>
+              <strong>Transtornos:</strong> {transtornos.join(", ")}
+            </p>
+            <p>
+              <strong>Responsáveis:</strong> {responsaveis.join(", ")}
+            </p>
           </div>
         </div>
       </CardContent>
