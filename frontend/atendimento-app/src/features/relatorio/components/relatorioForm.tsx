@@ -18,9 +18,7 @@ import { pdf } from "@react-pdf/renderer";
 import { TemplateRelatorio } from "../../../components/pdf/templateRelatorio";
 import { renderizarFormatoArquivo } from "@/utils/renderizarFormatoArquivo";
 import { PacientePdfDTO, ProfissionalPdfDTO } from "@/api/dadosRelatorioPdf";
-import { RelatorioBase, RelatorioEnvioFormData } from "../types";
-import { brParaISO, isoParaBR } from "@/utils/formatarData";
-import { DocumentoFormData, TipoArquivo } from "@/features/arquivo/types";
+import { RelatorioEnvioFormData } from "../types";
 
 interface RelatorioFormProps {
   onSubmit: (data: RelatorioEnvioFormData) => void;
@@ -114,16 +112,9 @@ export default function RelatorioForm({
     setValue("arquivo", fileList);
   };
 
-  function handleFormSubmit(data: RelatorioEnvioFormData) {
-    onSubmit({
-      ...data,
-      data: data.data,
-    });
-  }
-
   return (
     <form
-      onSubmit={handleSubmit(handleFormSubmit)}
+      onSubmit={handleSubmit(onSubmit)}
       className="grid gap-6 pt-5 text-[#344054]"
     >
       <div className="grid gap-2">
