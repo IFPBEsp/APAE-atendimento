@@ -51,6 +51,11 @@ export default function AgendaPage() {
   useEffect(() => {
     carregarAgendamentos();
   }, []);
+  
+  function isoToDDMMYYYY(date: string) {
+    const [year, month, day] = date.split("-");
+    return `${day}-${month}-${year}`;
+  }
 
   async function carregarAgendamentos() {
     try {
@@ -65,7 +70,7 @@ export default function AgendaPage() {
             pacienteId: a.pacienteId,
             paciente: a.nomePaciente,
             horario: a.time,
-            data: a.data,
+            data: isoToDDMMYYYY(a.data),
             numeracao: a.numeroAtendimento ?? 0,
             status: a.status,
           });
@@ -95,14 +100,13 @@ export default function AgendaPage() {
         return;
       }
 
-      const horaCorrigida =
-        data.horario.length === 5 ? `${data.horario}:00` : data.horario;
+      const dataFormatada = isoToDDMMYYYY(data.data)
 
       await criarAgendamento({
         profissionalId,
         pacienteId: data.pacienteId,
-        data: data.data,
-        hora: horaCorrigida,
+        data: dataFormatada,
+        hora: data.horario,
         numeroAtendimento: Number(data.numeracao),
       });
 
@@ -125,14 +129,14 @@ export default function AgendaPage() {
     const grupos: Record<string, Agendamento[]> = {};
 
     lista.forEach((item) => {
-      const [ano, mes, dia] = item.data.split("-");
-      const dataFormatada = `${ano}/${mes}/${dia}`;
+      const [year, month, day] = item.data.split("-");
+      const label = `${day}/${month}/${year}`; // EXIBIÇÃO
 
-      if (!grupos[dataFormatada]) {
-        grupos[dataFormatada] = [];
+      if (!grupos[label]) {
+        grupos[label] = [];
       }
 
-      grupos[dataFormatada].push(item);
+      grupos[label].push(item);
     });
 
     return grupos;
