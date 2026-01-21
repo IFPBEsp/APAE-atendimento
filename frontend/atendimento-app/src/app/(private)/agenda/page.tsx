@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { ArrowLeft, CalendarPlus } from "lucide-react";
 import { Nunito } from "next/font/google";
 import Header from "@/components/shared/header";
@@ -47,10 +47,6 @@ export default function AgendaPage() {
   const [openDelete, setOpenDelete] = useState(false);
   const [agendamentoSelecionado, setAgendamentoSelecionado] =
     useState<Agendamento | null>(null);
-
-  useEffect(() => {
-    carregarAgendamentos();
-  }, []);
   
   function isoToDDMMYYYY(date: string) {
     const [year, month, day] = date.split("-");
@@ -78,7 +74,7 @@ export default function AgendaPage() {
       });
 
       setAgendamentos(flatten);
-    } catch (err) {
+    } catch {
       toast.error("Erro ao carregar agendamentos.");
     }
   }
@@ -90,7 +86,7 @@ export default function AgendaPage() {
   const gruposParaRenderizar = agruparPorData(
     dataSelecionada
       ? agendamentos.filter((a) => a.data === dataSelecionada)
-      : agendamentos
+      : agendamentos,
   );
 
   async function handleCreateAgendamento(data: AgendamentoFormData) {
@@ -149,7 +145,7 @@ export default function AgendaPage() {
       await deletarAgendamento(
         profissionalId,
         agendamentoSelecionado.pacienteId,
-        agendamentoSelecionado.id
+        agendamentoSelecionado.id,
       );
 
       setOpenDelete(false);

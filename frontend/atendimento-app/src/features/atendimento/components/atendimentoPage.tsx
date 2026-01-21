@@ -28,13 +28,13 @@ export default function AtendimentoPage() {
     atendimentosFiltrados,
     atendimentosAgrupados,
     open,
-    setOpen
+    setOpen,
   } = useAtendimentos(pacienteId);
 
   const queryClient = useQueryClient();
 
   function handleAtendimentoUpdated() {
-     queryClient.invalidateQueries({ queryKey: ["atendimentos", pacienteId] });
+    queryClient.invalidateQueries({ queryKey: ["atendimentos", pacienteId] });
   }
 
   return (

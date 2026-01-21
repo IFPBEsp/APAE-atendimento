@@ -20,6 +20,7 @@ import {
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { TipoArquivo } from "@/features/arquivo/types";
+import { filtroData } from "@/utils/filtroData";
 
 export function useRelatorios(pacienteId: string) {
   const [dataSelecionada, setDataSelecionada] = useState<string>("");
@@ -45,17 +46,17 @@ export function useRelatorios(pacienteId: string) {
     },
   });
 
-  const dataFormatada = dataSelecionada
-    ? dataSelecionada.split("-").reverse().join("/")
-    : "";
-
   const relatoriosFiltrados = useMemo(() => {
     if (!data?.relatorios) return [];
 
-    return dataSelecionada
-      ? data.relatorios.filter((a) => a.data === dataFormatada)
-      : data.relatorios;
-  }, [data, dataSelecionada, dataFormatada]);
+    if (!dataSelecionada) {
+      return data.relatorios;
+    }
+
+    return data.relatorios.filter((relatorio) =>
+      filtroData(dataSelecionada, relatorio.data),
+    );
+  }, [data, dataSelecionada]);
 
   const enviarRelatorioMutation = useMutation({
     mutationFn: enviarRelatorio,
