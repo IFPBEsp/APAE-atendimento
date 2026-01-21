@@ -1,11 +1,11 @@
-import { formatarData } from "@/utils/formatarData";
+import { isoParaBR } from "@/utils/formatarData";
 import {
   AnexoEnvioFormData,
   RelatorioEnvioFormData,
 } from "../features/anexo/components/anexoForm";
 
 export function construirArquivoFormData(
-  data: AnexoEnvioFormData | RelatorioEnvioFormData
+  data: AnexoEnvioFormData | RelatorioEnvioFormData,
 ): FormData {
   const formData: FormData = new FormData();
 
@@ -14,7 +14,7 @@ export function construirArquivoFormData(
     formData.append("file", arquivo, arquivo.name);
   }
   const metadata = {
-    data: formatarData(data.data),
+    data: isoParaBR(data.data),
     tipoArquivo: data.tipoArquivo,
     profissionalId: data.profissionalId,
     pacienteId: data.pacienteId,
@@ -23,7 +23,7 @@ export function construirArquivoFormData(
   };
   formData.append(
     "metadata",
-    new Blob([JSON.stringify(metadata)], { type: "application/json" })
+    new Blob([JSON.stringify(metadata)], { type: "application/json" }),
   );
 
   return formData;

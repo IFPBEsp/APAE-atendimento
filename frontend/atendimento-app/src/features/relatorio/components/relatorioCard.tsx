@@ -1,5 +1,6 @@
 import { Trash2, Image as ImageIcon } from "lucide-react";
 import { renderizarFormatoArquivo } from "@/utils/renderizarFormatoArquivo";
+import { formatarData } from "@/utils/formatarData";
 
 interface RelatorioCardProps {
   id: number;
@@ -17,15 +18,19 @@ export default function RelatorioCard({
   fileName,
   imageUrl,
   onView,
-  onDelete
+  onDelete,
 }: RelatorioCardProps) {
-  const renderizar = renderizarFormatoArquivo(fileName.split(".").pop() || "", imageUrl || "");
+  const renderizar = renderizarFormatoArquivo(
+    fileName.split(".").pop() || "",
+    imageUrl || "",
+  );
   return (
     <div className="w-full bg-white rounded-3xl shadow-md p-4 border border-gray-100 flex flex-col h-[320px] transition-all">
-      
       <div className="flex items-center justify-between mb-3">
-        <span className="text-lg font-bold text-[#344054]">{titulo} - {data}</span>
-        
+        <span className="text-lg font-bold text-[#344054]">
+          {titulo} - {formatarData(data)}
+        </span>
+
         <button
           onClick={(e) => {
             e.stopPropagation();
@@ -38,14 +43,13 @@ export default function RelatorioCard({
         </button>
       </div>
 
-      <div 
+      <div
         onClick={onView}
         className="flex-1 bg-gray-50 rounded-xl border border-dashed border-gray-200 flex items-center justify-center overflow-hidden cursor-pointer relative hover:opacity-90 transition-opacity mb-3"
       >
-        {imageUrl ? 
-        (
-         renderizar
-        )  : (
+        {imageUrl ? (
+          renderizar
+        ) : (
           <ImageIcon className="text-gray-300 w-12 h-12" />
         )}
       </div>
