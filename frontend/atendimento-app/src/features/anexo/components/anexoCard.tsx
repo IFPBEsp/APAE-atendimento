@@ -1,5 +1,6 @@
 import { Trash2, Image as ImageIcon } from "lucide-react";
 import { renderizarFormatoArquivo } from "@/utils/renderizarFormatoArquivo";
+import { formatarData } from "@/utils/formatarData";
 
 interface AnexoCardProps {
   id?: number;
@@ -21,13 +22,13 @@ export default function AnexoCard({
 }: AnexoCardProps) {
   const renderizar = renderizarFormatoArquivo(
     fileName.split(".").pop() || "",
-    imageUrl || ""
+    imageUrl || "",
   );
   return (
     <div className="w-full bg-white rounded-3xl shadow-md p-4 border border-gray-100 flex flex-col h-[320px] transition-all">
       <div className="flex items-center justify-between mb-3">
         <span className="text-lg font-bold text-[#344054]">
-          {titulo} - {data}
+          {titulo} - {formatarData(data)}
         </span>
 
         <button
