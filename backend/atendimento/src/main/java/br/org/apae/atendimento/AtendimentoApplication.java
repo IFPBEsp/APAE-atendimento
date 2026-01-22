@@ -10,4 +10,4 @@ public class AtendimentoApplication {
 		SpringApplication.run(AtendimentoApplication.class, args);
 	}
 
-}
+}	

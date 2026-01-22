@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState, useEffect } from "react";
-import { Avatar, AvatarImage } from "@/components/ui/avatar";
+
 
 const PACIENTE_ID = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
 
@@ -22,6 +22,8 @@ export default function AvatarUploadTeste() {
     setFile(selectedFile);
     setPreview(URL.createObjectURL(selectedFile));
   }
+
+  
 
   async function handleUpload() {
     if (!file) return;
@@ -67,15 +69,7 @@ export default function AvatarUploadTeste() {
       />
 
       {/* AVATAR */}
-      <Avatar
-        onClick={handleAvatarClick}
-        className="cursor-pointer w-40 h-40 rounded-xl bg-[#F2F4F7]"
-      >
-        <AvatarImage
-          src={preview ?? "/avatar-placeholder.png"}
-          alt="Avatar"
-        />
-      </Avatar>
+    
 
       {/* BOTÃO ENVIAR */}
       {file && (

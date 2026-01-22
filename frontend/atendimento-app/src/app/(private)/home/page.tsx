@@ -27,6 +27,7 @@ export default function PacientesPage() {
   const [busca, setBusca] = useState("");
   const [filtro, setFiltro] = useState<"nome" | "cpf" | "cidade" | "">("");
 
+ 
   useEffect(() => {
     if (!busca || !filtro) {
       getPacientes().then(setDados);
@@ -73,11 +74,10 @@ export default function PacientesPage() {
           console.error("Erro ao buscar pacientes:", pacientesResult.reason);
           setErro("Não foi possível carregar os pacientes. Tente novamente mais tarde.");
         }
-
       } catch (error) {
         setErro("Erro inesperado ao carregar os dados.");
         console.error("Erro inesperado:", error);
-      } finally {
+      } finally { 
         setCarregando(false);
       }
     })();
@@ -165,7 +165,7 @@ export default function PacientesPage() {
             ))
           )}
         </section>
-
+        
         <button
           onClick={() => router.push("/agenda")}
           className="

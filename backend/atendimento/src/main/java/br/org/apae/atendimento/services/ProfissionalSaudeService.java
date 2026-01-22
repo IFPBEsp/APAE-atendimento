@@ -8,10 +8,11 @@ import br.org.apae.atendimento.dtos.response.PacienteOptionDTO;
 import br.org.apae.atendimento.exceptions.notfound.ProfissionalSaudeNotFoundException;
 import br.org.apae.atendimento.mappers.PacienteMapper;
 import br.org.apae.atendimento.mappers.ProfissionalMapper;
-
+import br.org.apae.atendimento.repositories.AnexoRepository;
 import br.org.apae.atendimento.repositories.PacienteRepository;
-import br.org.apae.atendimento.services.storage.ObjectStorageService;
 import br.org.apae.atendimento.services.storage.PresignedUrlService;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import br.org.apae.atendimento.dtos.response.PacienteResponseDTO;
@@ -28,8 +29,9 @@ public class ProfissionalSaudeService {
     private final PacienteMapper pacienteMapper;
     private final PacienteRepository pacienteRepository;
     private final PresignedUrlService urlService;
+    @Autowired
+    private AnexoRepository arquivoRepository;
 
-    private static String FOTO_PATH = "foto/";
 
     public ProfissionalSaudeService(ProfissionalSaudeRepository profissionalSaudeRepository,
                                     ProfissionalMapper profissionalMapper,
@@ -63,9 +65,13 @@ public class ProfissionalSaudeService {
         List<Paciente> pacientes = profissionalSaude.getPacientes();
 
         return pacientes.stream()
-                .map(paciente -> {
-                    String url = urlService.gerarUrlPreAssinada(FOTO_PATH + paciente.getId());
+                    .map(paciente -> {
+                        arquivoRepository
+                .findByPacienteIdAndTipoId(paciente.getId(), 3L)
+                .ifPresent(arquivo -> {
+                    String url = urlService.gerarUrlPreAssinada(arquivo.getObjectName());
                     paciente.setFotoPreAssinada(url);
+                });
                     return pacienteMapper.toDTOPadrao(paciente);
                 }).collect(Collectors.toList());
     }
