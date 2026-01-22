@@ -30,14 +30,14 @@ public class UploadAutomaticoConfig {
     public ApplicationRunner uploadAutomaticoRunner() {
         return args -> {
             try {
-                // 1. Escolhe imagem aleatória
+                
                 String imageUrl = IMAGENS.get(new Random().nextInt(IMAGENS.size()));
 
-                // 2. Baixa a imagem
+               
                 byte[] imagem = restTemplate.getForObject(imageUrl, byte[].class);
                 if (imagem == null) return;
 
-                // 3. Monta multipart
+                
                 MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
 
                 body.add("foto", new ByteArrayResource(imagem) {
@@ -53,7 +53,7 @@ public class UploadAutomaticoConfig {
                 HttpEntity<MultiValueMap<String, Object>> request =
                         new HttpEntity<>(body, headers);
 
-                // 4. Envia
+                
                 restTemplate.postForEntity(
                     "http://localhost:8080/pacientes/" + PACIENTE_ID,
                     request,
@@ -61,7 +61,6 @@ public class UploadAutomaticoConfig {
                 );
 
             } catch (Exception e) {
-                // 5. Ignora erro completamente
                 System.out.println("Erro no upload automático, seguindo fluxo...");
             }
         };
