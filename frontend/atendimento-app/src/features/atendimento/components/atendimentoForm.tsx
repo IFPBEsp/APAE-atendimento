@@ -15,6 +15,7 @@ import { useParams } from "next/navigation";
 import { toast } from "sonner";
 import { useEffect } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { brParaISO, isoParaBR } from "@/utils/formatarData";
 
 interface AtendimentoFormProps {
   atendimentos: Atendimento[];
@@ -30,18 +31,6 @@ interface AtendimentoFormValues {
     titulo: string;
     descricao: string;
   }[];
-}
-
-function isoParaBR(iso: string): string {
-  if (!iso) return "";
-  const [ano, mes, dia] = iso.split("-");
-  return `${dia}-${mes}-${ano}`;
-}
-
-function brParaISO(dataBR: string): string {
-  if (!dataBR) return "";
-  const [dia, mes, ano] = dataBR.split("-");
-  return `${ano}-${mes}-${dia}`;
 }
 
 export default function AtendimentoForm({

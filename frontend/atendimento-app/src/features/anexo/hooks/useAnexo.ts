@@ -1,6 +1,5 @@
-
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { apagarAnexo, enviarAnexo, getAnexos } from "../services/anexoService";
 import { toast } from "sonner";
 import { AxiosError } from "axios";
@@ -13,6 +12,7 @@ import { validarTipoArquivo } from "@/services/validarTipoArquivo";
 import { validarTamanhoArquivo } from "@/services/validarTamanhoArquivo";
 import { construirArquivoFormData } from "@/services/construirArquivoFormData";
 import { Anexo, AnexoResponse } from "../types";
+import { filtroData } from "@/utils/filtroData";
 
 export function useAnexos(pacienteId: string) {
   const [dataSelecionada, setDataSelecionada] = useState<string>("");
@@ -36,6 +36,18 @@ export function useAnexos(pacienteId: string) {
     },
   });
 
+  const anexosFiltrados = useMemo(() => {
+    if (!data?.anexos) return [];
+
+    if (!dataSelecionada) {
+      return data.anexos;
+    }
+
+    return data.anexos.filter((anexos) =>
+      filtroData(dataSelecionada, anexos.data),
+    );
+  }, [data, dataSelecionada]);
+
   const enviarAnexoMutation = useMutation({
     mutationFn: enviarAnexo,
     onSuccess: () => {
@@ -49,8 +61,8 @@ export function useAnexos(pacienteId: string) {
         error instanceof AxiosError
           ? error.response?.data || error.message
           : error instanceof Error
-          ? error.message
-          : String(error);
+            ? error.message
+            : String(error);
 
       toast.error(mensagem || "Erro ao enviar anexo");
     },
@@ -94,7 +106,6 @@ export function useAnexos(pacienteId: string) {
     deletarAnexoMutation.mutate(objectName);
   };
 
-
   return {
     // dados-estados
     anexos: data?.anexos ?? [],
@@ -103,6 +114,7 @@ export function useAnexos(pacienteId: string) {
     open,
     reportToDelete,
     reportToView,
+    anexosFiltrados,
 
     // ações-passivas
     setDataSelecionada,
@@ -113,7 +125,6 @@ export function useAnexos(pacienteId: string) {
     // ações-ativas
     enviarAnexo: construirEnviarArquivoAnexo,
     deletarAnexo: handleDelete,
-    
 
     // intenções
     enviando: enviarAnexoMutation.isPending,

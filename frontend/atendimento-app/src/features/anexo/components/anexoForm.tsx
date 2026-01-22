@@ -61,11 +61,6 @@ export default function AnexoForm({ onSubmit }: AnexoFormProps) {
 
   const envioValidado = existeArquivo || existeTemplate;
 
-  console.log(
-    arquivo,
-    arquivo?.[0],
-    arquivo?.[0] && URL.createObjectURL(arquivo?.[0])
-  );
   const previewUrl = arquivo?.[0] ? URL.createObjectURL(arquivo[0]) : null;
   const renderizar =
     previewUrl &&

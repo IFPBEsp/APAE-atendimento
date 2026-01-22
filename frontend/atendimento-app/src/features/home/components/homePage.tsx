@@ -15,25 +15,16 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { useHome } from "../hooks/useHome";
 
-
 export default function HomePage() {
   const router = useRouter();
 
-  const {
-    medicoNome,
-    pacientes,
-    loading,
-    erro,
-    busca,
-    setBusca,
-    filtro,
-    setFiltro,
-  } = useHome();
+  const { medicoNome, pacientes, loading, erro, busca, setBusca, setFiltro } =
+    useHome();
 
   return (
     <>
       <Header />
-      
+
       <main className="bg-[#F8FAFD] flex flex-col items-center text-center">
         <section className="w-full px-4 sm:px-8 mt-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between pb-5">
           <div className="text-center flex flex-col items-center sm:flex-row sm:items-center sm:gap-2 sm:text-left">
@@ -57,14 +48,24 @@ export default function HomePage() {
               <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
             </div>
 
-            <Select onValueChange={(value) => setFiltro(value as "nome" | "cpf" | "cidade" | "")}>
+            <Select
+              onValueChange={(value) =>
+                setFiltro(value as "nome" | "cpf" | "cidade" | "")
+              }
+            >
               <SelectTrigger className="bg-white border border-[#3B82F6] rounded-full w-[130px] text-gray-600 text-sm focus-visible:ring-0 focus-visible:border-[#3B82F6] cursor-pointer">
                 <SelectValue placeholder="Filtrar por..." />
               </SelectTrigger>
               <SelectContent className="border border-[#3B82F6] rounded-xl">
-                <SelectItem className="cursor-pointer" value="nome">Nome</SelectItem>
-                <SelectItem className="cursor-pointer" value="cpf">CPF</SelectItem>
-                <SelectItem className="cursor-pointer" value="cidade">Cidade</SelectItem>
+                <SelectItem className="cursor-pointer" value="nome">
+                  Nome
+                </SelectItem>
+                <SelectItem className="cursor-pointer" value="cpf">
+                  CPF
+                </SelectItem>
+                <SelectItem className="cursor-pointer" value="cidade">
+                  Cidade
+                </SelectItem>
               </SelectContent>
             </Select>
 
@@ -79,14 +80,18 @@ export default function HomePage() {
         </section>
 
         <section className="w-full bg-white rounded-t-3xl p-6 flex flex-col gap-4 sm:grid sm:grid-cols-2 sm:gap-6 min-h-[400px]">
-          {loading && 
-            <p className="col-span-2 flex flex-col items-center justify-center text-lg font-medium text-gray-600">Carregando pacientes...</p>
-          } 
-          
+          {loading && (
+            <p className="col-span-2 flex flex-col items-center justify-center text-lg font-medium text-gray-600">
+              Carregando pacientes...
+            </p>
+          )}
+
           {erro && (
             <div className="col-span-2 flex flex-col items-center justify-center py-12 gap-3">
               <AlertCircle size={48} className="text-red-500" />
-              <p className="text-red-600 text-lg font-medium">Erro ao carregar pacientes</p>
+              <p className="text-red-600 text-lg font-medium">
+                Erro ao carregar pacientes
+              </p>
               <Button
                 onClick={() => window.location.reload()}
                 className="mt-2 bg-[#165BAA] hover:bg-[#13447D] text-white"
@@ -101,17 +106,17 @@ export default function HomePage() {
               Nenhum paciente encontrado
             </p>
           )}
-          
+
           {!loading &&
             !erro &&
             pacientes.map((pac) => (
-                <PacienteCard
-                    key={pac.id}
-                    {...pac}
-                    onViewAtendimentos={() => router.push(`/atendimento/${pac.id}`)}
-                    onViewRelatorios={() => router.push(`/relatorio/${pac.id}`)}
-                    onViewAnexos={() => router.push(`/anexo/${pac.id}`)}
-                />
+              <PacienteCard
+                key={pac.id}
+                {...pac}
+                onViewAtendimentos={() => router.push(`/atendimento/${pac.id}`)}
+                onViewRelatorios={() => router.push(`/relatorio/${pac.id}`)}
+                onViewAnexos={() => router.push(`/anexo/${pac.id}`)}
+              />
             ))}
         </section>
 

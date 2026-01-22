@@ -4,6 +4,7 @@ import { X, Trash2, Download, Image as ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Relatorio } from "@/features/relatorio/types";
 import { renderizarFormatoArquivo } from "@/utils/renderizarFormatoArquivo";
+import { formatarData } from "@/utils/formatarData";
 
 interface DeleteModalProps {
   isOpen: boolean;
@@ -25,7 +26,7 @@ export function RelatorioDeleteModal({
   isOpen,
   onClose,
   onConfirm,
-  disabled
+  disabled,
 }: DeleteModalProps) {
   if (!isOpen) return null;
 
@@ -50,10 +51,9 @@ export function RelatorioDeleteModal({
           </Button>
           <Button
             onClick={() => {
-              onConfirm()
-              onClose()
-            }
-            }
+              onConfirm();
+              onClose();
+            }}
             disabled={disabled}
             className="w-full md:flex-1 rounded-full bg-[#FF5C5C] hover:bg-[#ff4040] text-white h-11 cursor-pointer"
           >
@@ -66,18 +66,23 @@ export function RelatorioDeleteModal({
   );
 }
 
-export function RelatorioViewModal({ isOpen, onClose, data, disabled}: ViewModalProps) {
+export function RelatorioViewModal({
+  isOpen,
+  onClose,
+  data,
+  disabled,
+}: ViewModalProps) {
   if (!isOpen || !data) return null;
   const renderizar = renderizarFormatoArquivo(
     data.nomeArquivo.split(".").pop() || "",
-    data.presignedUrl || ""
+    data.presignedUrl || "",
   );
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4 py-6 animate-in fade-in duration-200">
       <div className="bg-white rounded-[24px] w-full max-w-[632px] max-h-[90vh] flex flex-col shadow-2xl overflow-hidden slide-in-from-bottom-10 overflow-y-auto">
         <div className="flex items-center justify-between p-4 border-b border-gray-100">
           <h3 className="text-xl font-bold text-[#344054]">
-            {data.titulo} - {data.data}
+            {data.titulo} - {formatarData(data.data)}
           </h3>
           <button
             onClick={onClose}
@@ -113,7 +118,8 @@ export function RelatorioViewModal({ isOpen, onClose, data, disabled}: ViewModal
             rel="noopener noreferrer"
             className="w-full"
           >
-            <Button className="w-full bg-[#165BAA] hover:bg-[#13447D] text-white h-12 rounded-full text-base font-semibold shadow-lg"
+            <Button
+              className="w-full bg-[#165BAA] hover:bg-[#13447D] text-white h-12 rounded-full text-base font-semibold shadow-lg"
               disabled={disabled}
             >
               <Download size={20} className="mr-2" />

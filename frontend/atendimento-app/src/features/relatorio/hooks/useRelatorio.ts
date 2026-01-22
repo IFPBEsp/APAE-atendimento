@@ -1,6 +1,10 @@
 "use client";
 
-import { Relatorio, RelatorioEnvioFormData, RelatorioResponse } from "@/features/relatorio/types";
+import {
+  Relatorio,
+  RelatorioEnvioFormData,
+  RelatorioBase,
+} from "@/features/relatorio/types";
 
 import dados from "@/../data/verificacao.json";
 import { toast } from "sonner";
@@ -14,9 +18,9 @@ import {
   getRelatorios,
 } from "@/features/relatorio/services/relatorioService";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { TipoArquivo } from "@/features/arquivo/types";
-
+import { filtroData } from "@/utils/filtroData";
 
 export function useRelatorios(pacienteId: string) {
   const [dataSelecionada, setDataSelecionada] = useState<string>("");
@@ -33,14 +37,26 @@ export function useRelatorios(pacienteId: string) {
       ]);
 
       const relatorios: Relatorio[] = relatoriosResponse.map(
-        (e: RelatorioResponse, i) => ({
+        (e: RelatorioBase, i) => ({
           id: ++i,
           ...e,
-        })
+        }),
       );
       return { relatorios };
     },
   });
+
+  const relatoriosFiltrados = useMemo(() => {
+    if (!data?.relatorios) return [];
+
+    if (!dataSelecionada) {
+      return data.relatorios;
+    }
+
+    return data.relatorios.filter((relatorio) =>
+      filtroData(dataSelecionada, relatorio.data),
+    );
+  }, [data, dataSelecionada]);
 
   const enviarRelatorioMutation = useMutation({
     mutationFn: enviarRelatorio,
@@ -55,8 +71,8 @@ export function useRelatorios(pacienteId: string) {
         error instanceof AxiosError
           ? error.response?.data || error.message
           : error instanceof Error
-          ? error.message
-          : String(error);
+            ? error.message
+            : String(error);
 
       toast.error(mensagem || "Erro ao enviar relatório");
     },
@@ -99,15 +115,14 @@ export function useRelatorios(pacienteId: string) {
     deletarRelatorioMutation.mutate(objectName);
   };
 
-
   return {
     // dados-estados
-    relatorios: data?.relatorios ?? [],
     loading: isLoading,
     dataSelecionada,
     open,
     reportToDelete,
     reportToView,
+    relatoriosFiltrados,
 
     // ações-passivas
     setDataSelecionada,
@@ -121,6 +136,6 @@ export function useRelatorios(pacienteId: string) {
 
     // intenções
     enviando: enviarRelatorioMutation.isPending,
-    deletando: deletarRelatorioMutation.isPending
+    deletando: deletarRelatorioMutation.isPending,
   };
 }

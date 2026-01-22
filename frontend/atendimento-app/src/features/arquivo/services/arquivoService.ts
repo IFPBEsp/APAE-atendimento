@@ -5,11 +5,11 @@ import { ArquivoResponse, TipoArquivo } from "../types";
 
 export async function getArquivos(
   idPaciente: string,
-  tipoArquivo: TipoArquivo
+  tipoArquivo: TipoArquivo,
 ): Promise<ArquivoResponse[]> {
   try {
     const { data } = await api.get<ArquivoResponse[]>(
-      `${dados.urlBase}/arquivo/${dados.idProfissional}/${idPaciente}/${tipoArquivo}`
+      `${dados.urlBase}/arquivo/${dados.idProfissional}/${idPaciente}/${tipoArquivo}`,
     );
     return data;
   } catch (error) {
@@ -17,7 +17,7 @@ export async function getArquivos(
     const mensagem = String(
       axiosError.response?.data ||
         axiosError.message ||
-        "Erro ao buscar arquivo"
+        "Erro ao buscar arquivo",
     );
     throw new Error(mensagem);
   }
@@ -29,15 +29,10 @@ export async function enviarArquivo(relatorioEnvio: FormData) {
     return data;
   } catch (error) {
     const axiosError = error as AxiosError;
-    console.log(
-      axiosError.response?.data,
-      axiosError.message,
-      axiosError.cause
-    );
     const mensagem = String(
       axiosError.response?.data ||
         axiosError.message ||
-        "Erro ao enviar arquivo"
+        "Erro ao enviar arquivo",
     );
     throw new Error(mensagem);
   }
