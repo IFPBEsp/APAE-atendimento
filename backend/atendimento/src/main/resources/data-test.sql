@@ -7,4 +7,9 @@ INSERT INTO paciente (id, nome_completo, data_de_nascimento, contato, cpf, respo
 );
 
 INSERT INTO profissional_paciente (profissional_id, paciente_id) VALUES
-('11111111-1111-1111-1111-111111111111', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa')
+('11111111-1111-1111-1111-111111111111', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa');
+
+INSERT INTO tipo_arquivo (id, tipo) VALUES
+(1, 'Anexo'),
+(2, 'Relatorio'),
+(3, 'Foto');

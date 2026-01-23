@@ -2,8 +2,10 @@ package br.org.apae.atendimento.entities;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
-@Entity(name = "tipo_arquivo")
+@Entity
+@Table(name = "tipo_arquivo")
 public class TipoArquivo {
     @Id
     private Long id;
