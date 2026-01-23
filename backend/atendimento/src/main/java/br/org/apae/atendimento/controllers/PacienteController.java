@@ -3,8 +3,10 @@ package br.org.apae.atendimento.controllers;
 import br.org.apae.atendimento.dtos.response.PacienteResponseDTO;
 import br.org.apae.atendimento.services.PacienteService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.UUID;
@@ -37,5 +39,12 @@ public class PacienteController {
 
        List<PacienteResponseDTO> paciente = pacienteService.buscarPaciente(nome, cpf, cidade);
        return ResponseEntity.ok(paciente);
+   }
+
+   @PostMapping("/{pacienteId}")
+   public ResponseEntity<String> adicionarFoto(@RequestPart("foto") MultipartFile foto, @PathVariable UUID pacienteId){
+        String urlFoto = pacienteService.adicionarFoto(foto, pacienteId);
+
+        return  ResponseEntity.status(HttpStatus.CREATED).body(urlFoto);
    }
 }

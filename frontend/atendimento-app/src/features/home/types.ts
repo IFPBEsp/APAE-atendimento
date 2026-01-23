@@ -4,7 +4,8 @@ export interface Paciente {
   cpf: string;
   endereco: string;
   contato: string;
-  dataDeNascimento: string;
+  dataNascimento: string;
   transtornos: string[];
   responsaveis: string[];
+  fotoPreAssinada: string;
 }

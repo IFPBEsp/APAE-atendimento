@@ -11,5 +11,6 @@ public record PacienteResponseDTO(
         String contato,
         List<String> responsaveis,
         List<String> transtornos,
-        String cpf
+        String cpf,
+        String fotoPreAssinada
 ) {}
