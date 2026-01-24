@@ -48,9 +48,6 @@ export default function AgendaPage() {
   const [agendamentoSelecionado, setAgendamentoSelecionado] =
     useState<Agendamento | null>(null);
 
-  useEffect(() => {
-    carregarAgendamentos();
-  }, []);
   
   function isoToDDMMYYYY(date: string) {
     const [year, month, day] = date.split("-");
