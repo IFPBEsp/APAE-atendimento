@@ -27,7 +27,7 @@ export function useAtendimentos(pacienteId: string) {
 
   const atendimentosAgrupados = useMemo(
     () => agruparPorMes(atendimentosFiltrados),
-    [atendimentosFiltrados]
+    [atendimentosFiltrados],
   );
 
   return {
@@ -41,6 +41,6 @@ export function useAtendimentos(pacienteId: string) {
     setDataSelecionada,
 
     open,
-    setOpen
+    setOpen,
   };
 }

@@ -8,7 +8,7 @@ export default function agruparPorMes(lista: Atendimento[]) {
 
     const nomeMes = new Date(Number(ano), Number(mes) - 1).toLocaleString(
       "pt-BR",
-      { month: "long" }
+      { month: "long" },
     );
 
     const chave = `${nomeMes} ${ano}`;

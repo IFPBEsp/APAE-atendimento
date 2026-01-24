@@ -7,4 +7,5 @@ export interface Paciente {
   dataNascimento: string;
   transtornos: string[];
   responsaveis: string[];
+  fotoPreAssinada: string;
 }

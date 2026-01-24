@@ -26,9 +26,6 @@ public class ProfissionalSaude {
     @Column(name = "contato")
     private String contato;
 
-    @Column(name = "crm")
-    private String crm;
-
     @ManyToMany()
     @JoinTable(
             name = "profissional_paciente",
@@ -79,14 +76,6 @@ public class ProfissionalSaude {
 
     public void setEmail(String email) {
         this.email = email;
-    }
-
-    public String getCrm() {
-        return crm;
-    }
-
-    public void setCrm(String crm) {
-        this.crm = crm;
     }
 
     public String getContato() {

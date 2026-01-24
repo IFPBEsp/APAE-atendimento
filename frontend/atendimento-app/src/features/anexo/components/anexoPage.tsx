@@ -15,7 +15,6 @@ import { useAnexos } from "../hooks/useAnexo";
 import AnexoForm from "./anexoForm";
 import { useRelatorioPDF } from "@/features/relatorio/hooks/useRelatorioPDF";
 
-
 const nunitoFont = Nunito({ weight: "700" });
 
 export default function AnexoPage() {
@@ -23,31 +22,25 @@ export default function AnexoPage() {
   const params = useParams();
   const pacienteId = typeof params.id === "string" ? params.id : "";
 
-    const {
-      anexos,
-      loading,
-      dataSelecionada,
-      open,
-      reportToDelete,
-      reportToView, 
-      setDataSelecionada,
-      setReportToView,
-      setReportToDelete,
-      setOpen,
-      enviarAnexo,
-      deletarAnexo,
-      enviando,
-      deletando
-    } = useAnexos(pacienteId);
+  const {
+    anexosFiltrados,
+    loading,
+    dataSelecionada,
+    open,
+    reportToDelete,
+    reportToView,
+    setDataSelecionada,
+    setReportToView,
+    setReportToDelete,
+    setOpen,
+    enviarAnexo,
+    deletarAnexo,
+    enviando,
+    deletando,
+  } = useAnexos(pacienteId);
 
-const { isLoadingPDF, dadosPDF } = useRelatorioPDF(pacienteId);
+  const { isLoadingPDF, dadosPDF } = useRelatorioPDF(pacienteId);
 
-      const anexosFiltrados = dataSelecionada
-    ? anexos.filter((r) => r.data === dataSelecionada)
-    : anexos;
-
-
-    
   return (
     <div className="min-h-screen w-full bg-[#F8FAFD]">
       <Header />
@@ -86,9 +79,8 @@ const { isLoadingPDF, dadosPDF } = useRelatorioPDF(pacienteId);
           className={`text-xl text-[#344054] font-bold ${nunitoFont.className}`}
         >
           {isLoadingPDF || !dadosPDF
-              ? "Carregando nome paciente..."
-              : dadosPDF?.paciente.nome}
-              
+            ? "Carregando nome paciente..."
+            : dadosPDF?.paciente.nome}
         </h1>
 
         {loading && (

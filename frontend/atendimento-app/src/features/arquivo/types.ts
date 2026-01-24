@@ -1,12 +1,11 @@
-
 import { AnexoResponse } from "../anexo/types";
-import { RelatorioResponse } from "../relatorio/types";
+import { RelatorioBase } from "../relatorio/types";
 
-export type ArquivoResponse = AnexoResponse | RelatorioResponse;
+export type ArquivoResponse = AnexoResponse | RelatorioBase;
 
 export enum TipoArquivo {
   anexo = 1,
-  relatorio = 2
+  relatorio = 2,
 }
 
 export type DocumentoFormData = {
@@ -19,4 +18,4 @@ export type DocumentoFormData = {
 export type DocumentoFormDataEnvio = {
   pacienteId?: string;
   profissionalId?: string;
-}
+};

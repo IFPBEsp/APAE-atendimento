@@ -20,14 +20,6 @@ import { renderizarFormatoArquivo } from "@/utils/renderizarFormatoArquivo";
 import { PacientePdfDTO, ProfissionalPdfDTO } from "@/api/dadosRelatorioPdf";
 import { RelatorioEnvioFormData } from "../types";
 
-
-export type RelatorioFormData = {
-  data: string;
-  titulo: string;
-  arquivo?: FileList;
-  descricao: string;
-};
-
 interface RelatorioFormProps {
   onSubmit: (data: RelatorioEnvioFormData) => void;
   dadosPdf: {
@@ -51,7 +43,6 @@ export default function RelatorioForm({
         descricao: "",
       },
     });
-
   const [isDragging, setIsDragging] = useState(false);
 
   const titulo = watch("titulo");
@@ -74,7 +65,7 @@ export default function RelatorioForm({
         profissional={dadosPdf.profissional}
         titulo={titulo}
         descricao={descricao}
-      />
+      />,
     ).toBlob();
 
     const file = new File([blob], `Relatorio-${titulo || "relatorio"}.pdf`, {

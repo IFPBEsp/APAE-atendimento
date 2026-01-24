@@ -40,6 +40,9 @@ public class Paciente {
     @Column(name = "numero_casa")
     private Integer numeroCasa;
 
+    @Transient
+    private String fotoPreAssinada;
+
     @Column(name = "transtornos")
     private List<String> transtornos = new ArrayList<>();
 
@@ -157,5 +160,13 @@ public class Paciente {
 
     public void setCidade(String cidade) {
         this.cidade = cidade;
+    }
+
+    public String getFotoPreAssinada() {
+        return fotoPreAssinada;
+    }
+
+    public void setFotoPreAssinada(String fotoPreAssinada) {
+        this.fotoPreAssinada = fotoPreAssinada;
     }
 }

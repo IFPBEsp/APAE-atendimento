@@ -21,7 +21,7 @@ export function AnexoModal ({
     open, 
     onOpenChange,
     children,
-}: AnexoModalProps) {
+} : AnexoModalProps) {
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>

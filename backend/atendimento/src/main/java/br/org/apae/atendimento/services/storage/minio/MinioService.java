@@ -57,6 +57,7 @@ public class MinioService implements ObjectStorageService {
                             .build()
             );
         } catch (Exception e) {
+            e.printStackTrace();
             throw new MinioStorageException("Erro ao enviar arquivo para o bucket", e);
         }
     }
