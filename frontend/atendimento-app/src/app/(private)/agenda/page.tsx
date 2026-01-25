@@ -34,7 +34,10 @@ interface Agendamento {
   status: boolean;
 }
 
-const nunitoFont = Nunito({ weight: "700" });
+const nunitoFont = Nunito({
+  weight: "700",
+  subsets: ["latin"],
+});
 
 export default function AgendaPage() {
   const router = useRouter();

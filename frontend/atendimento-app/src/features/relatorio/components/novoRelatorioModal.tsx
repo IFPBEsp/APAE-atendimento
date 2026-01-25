@@ -15,7 +15,10 @@ interface RelatorioModalProps {
   children: ReactNode;
 }
 
-const nunitoFont = Nunito({ weight: "700" });
+const nunitoFont = Nunito({ 
+    weight: "700",
+    subsets: ["latin"],
+});
 
 export function RelatorioModal ({ 
     open, 

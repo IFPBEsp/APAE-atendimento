@@ -15,7 +15,10 @@ interface AgendamentoModalProps {
   children: ReactNode;
 }
 
-const nunitoFont = Nunito({ weight: "700" });
+const nunitoFont = Nunito({ 
+    weight: "700",
+    subsets: ["latin"], 
+});
 
 export function AgendamentoModal ({
     open,

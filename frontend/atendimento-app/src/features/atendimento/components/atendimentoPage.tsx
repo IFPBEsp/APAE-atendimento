@@ -12,7 +12,10 @@ import AtendimentoForm from "@/features/atendimento/components/atendimentoForm";
 import { useAtendimentos } from "../hooks/useAtendimentos";
 import { useQueryClient } from "@tanstack/react-query";
 
-const nunitoFont = Nunito({ weight: "700" });
+const nunitoFont = Nunito({ 
+  weight: "700",
+  subsets: ["latin"],
+});
 
 export default function AtendimentoPage() {
   const router = useRouter();

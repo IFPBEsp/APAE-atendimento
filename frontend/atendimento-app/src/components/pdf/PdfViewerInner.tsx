@@ -1,26 +1,35 @@
-// components/PDFThumbnailSimple.tsx
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Document, Page, pdfjs } from 'react-pdf';
-import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
-import 'react-pdf/dist/esm/Page/TextLayer.css';
+import { useState, useEffect } from "react";
+import dynamic from "next/dynamic";
 
-// Configuração do worker - Método mais confiável
-pdfjs.GlobalWorkerOptions.workerSrc = 
-  `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
+const Document = dynamic(
+  () => import("react-pdf").then((mod) => mod.Document),
+  { ssr: false }
+);
+
+const Page = dynamic(
+  () => import("react-pdf").then((mod) => mod.Page),
+  { ssr: false }
+);
 
 interface PDFThumbnailProps {
   pdfUrl: string;
   width?: number;
 }
 
-export default function PDFThumbnailSimple({ 
-  pdfUrl, 
-  width = 300 
+export default function PDFThumbnailSimple({
+  pdfUrl,
+  width = 300,
 }: PDFThumbnailProps) {
   const [numPages, setNumPages] = useState<number | null>(null);
   const [pageNumber] = useState<number>(1);
+
+  useEffect(() => {
+    import("react-pdf").then(({ pdfjs }) => {
+      pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
+    });
+  }, []);
 
   function onDocumentLoadSuccess({ numPages }: { numPages: number }) {
     setNumPages(numPages);
@@ -33,17 +42,17 @@ export default function PDFThumbnailSimple({
         onLoadSuccess={onDocumentLoadSuccess}
         loading={<div>Carregando PDF...</div>}
         error={<div>Erro ao carregar PDF</div>}
-      >                                                             
-        <Page 
-          pageNumber={pageNumber} 
-          width={width}                                                             
+      >
+        <Page
+          pageNumber={pageNumber}
+          width={width}
           renderTextLayer={false}
           renderAnnotationLayer={false}
         />
       </Document>
-      
+
       {numPages && (
-        <p style={{ fontSize: '0.875rem', color: '#666', marginTop: '8px' }}>
+        <p style={{ fontSize: "0.875rem", color: "#666", marginTop: "8px" }}>
           Página {pageNumber} de {numPages}
         </p>
       )}
