@@ -4,21 +4,20 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import br.org.apae.atendimento.dtos.response.PacienteOptionDTO;
-import br.org.apae.atendimento.exceptions.notfound.ProfissionalSaudeNotFoundException;
-import br.org.apae.atendimento.mappers.PacienteMapper;
-import br.org.apae.atendimento.mappers.ProfissionalMapper;
-
-import br.org.apae.atendimento.repositories.PacienteRepository;
-import br.org.apae.atendimento.services.storage.ObjectStorageService;
-import br.org.apae.atendimento.services.storage.PresignedUrlService;
 import org.springframework.stereotype.Service;
 
+import br.org.apae.atendimento.dtos.response.PacienteOptionDTO;
 import br.org.apae.atendimento.dtos.response.PacienteResponseDTO;
 import br.org.apae.atendimento.dtos.response.ProfissionalResponseDTO;
 import br.org.apae.atendimento.entities.Paciente;
 import br.org.apae.atendimento.entities.ProfissionalSaude;
+import br.org.apae.atendimento.exceptions.notfound.ProfissionalSaudeNotFoundException;
+import br.org.apae.atendimento.mappers.PacienteMapper;
+import br.org.apae.atendimento.mappers.ProfissionalMapper;
+import br.org.apae.atendimento.repositories.PacienteRepository;
 import br.org.apae.atendimento.repositories.ProfissionalSaudeRepository;
+import br.org.apae.atendimento.services.storage.PresignedUrlService;
+import br.org.apae.atendimento.utils.PacienteImagemUtil;
 
 @Service
 public class ProfissionalSaudeService {
@@ -64,7 +63,7 @@ public class ProfissionalSaudeService {
 
         return pacientes.stream()
                 .map(paciente -> {
-                    String url = urlService.gerarUrlPreAssinada(FOTO_PATH + paciente.getId());
+                    String url = PacienteImagemUtil.obterImagem(paciente.getId());
                     paciente.setFotoPreAssinada(url);
                     return pacienteMapper.toDTOPadrao(paciente);
                 }).collect(Collectors.toList());
