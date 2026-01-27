@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { ArrowLeft, CalendarPlus } from "lucide-react";
 import { Nunito } from "next/font/google";
 import Header from "@/components/shared/header";
@@ -47,10 +47,11 @@ export default function AgendaPage() {
   const [openDelete, setOpenDelete] = useState(false);
   const [agendamentoSelecionado, setAgendamentoSelecionado] =
     useState<Agendamento | null>(null);
-
-  useEffect(() => {
-    carregarAgendamentos();
-  }, []);
+  
+  function isoToDDMMYYYY(date: string) {
+    const [year, month, day] = date.split("-");
+    return `${day}-${month}-${year}`;
+  }
 
   async function carregarAgendamentos() {
     try {
@@ -65,7 +66,7 @@ export default function AgendaPage() {
             pacienteId: a.pacienteId,
             paciente: a.nomePaciente,
             horario: a.time,
-            data: a.data,
+            data: isoToDDMMYYYY(a.data),
             numeracao: a.numeroAtendimento ?? 0,
             status: a.status,
           });
@@ -73,7 +74,7 @@ export default function AgendaPage() {
       });
 
       setAgendamentos(flatten);
-    } catch (err) {
+    } catch {
       toast.error("Erro ao carregar agendamentos.");
     }
   }
@@ -85,7 +86,7 @@ export default function AgendaPage() {
   const gruposParaRenderizar = agruparPorData(
     dataSelecionada
       ? agendamentos.filter((a) => a.data === dataSelecionada)
-      : agendamentos
+      : agendamentos,
   );
 
   async function handleCreateAgendamento(data: AgendamentoFormData) {
@@ -95,14 +96,13 @@ export default function AgendaPage() {
         return;
       }
 
-      const horaCorrigida =
-        data.horario.length === 5 ? `${data.horario}:00` : data.horario;
+      const dataFormatada = isoToDDMMYYYY(data.data)
 
       await criarAgendamento({
         profissionalId,
         pacienteId: data.pacienteId,
-        data: data.data,
-        hora: horaCorrigida,
+        data: dataFormatada,
+        hora: data.horario,
         numeroAtendimento: Number(data.numeracao),
       });
 
@@ -125,14 +125,14 @@ export default function AgendaPage() {
     const grupos: Record<string, Agendamento[]> = {};
 
     lista.forEach((item) => {
-      const [ano, mes, dia] = item.data.split("-");
-      const dataFormatada = `${ano}/${mes}/${dia}`;
+      const [year, month, day] = item.data.split("-");
+      const label = `${day}/${month}/${year}`; // EXIBIÇÃO
 
-      if (!grupos[dataFormatada]) {
-        grupos[dataFormatada] = [];
+      if (!grupos[label]) {
+        grupos[label] = [];
       }
 
-      grupos[dataFormatada].push(item);
+      grupos[label].push(item);
     });
 
     return grupos;
@@ -145,7 +145,7 @@ export default function AgendaPage() {
       await deletarAgendamento(
         profissionalId,
         agendamentoSelecionado.pacienteId,
-        agendamentoSelecionado.id
+        agendamentoSelecionado.id,
       );
 
       setOpenDelete(false);
