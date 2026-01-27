@@ -22,6 +22,7 @@ export function PacienteCard({
   endereco,
   contato,
   dataDeNascimento,
+  fotoPreAssinada,
   transtornos,
   responsaveis,
   onViewAtendimentos,
@@ -63,11 +64,14 @@ export function PacienteCard({
 
       <CardContent className="p-4 flex flex-col md:flex-row md:gap-6 ">
         <div className="flex items-center gap-3 md:flex-col md:items-start md:gap-4 md:w-40 pb-2">
-          <Avatar className="w-12 h-12 rounded-full bg-[#F2F4F7] flex items-center justify-center md:w-40 md:h-50 md:rounded-xl">
-            <AvatarImage src="" />
-            <AvatarFallback>
-              <User className="w-6 h-6 text-gray-500 md:w-10 md:h-10" />
-            </AvatarFallback>
+          <Avatar className="w-40 h-40 rounded-xl bg-[#F2F4F7]">
+            {fotoPreAssinada ? (
+              <AvatarImage src={fotoPreAssinada} alt="Avatar" />
+            ) : (
+              <AvatarFallback>
+                <User className="w-6 h-6 text-gray-500 md:w-10 md:h-10" />
+              </AvatarFallback>
+            )}
           </Avatar>
 
           {/* Nome visível SOMENTE no mobile*/}
