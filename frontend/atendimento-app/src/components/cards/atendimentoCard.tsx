@@ -1,23 +1,30 @@
 import { Expand } from "lucide-react";
 import { useState } from "react";
 import { AtendimentoDetailsModal } from "../modals/atendimentoModal";
+import { Atendimento, Relatorio } from "@/types/Atendimento";
 
 interface AtendimentoCardProps {
+  id: string;
   data: string;
+  hora: string;
   numeracao: number;
-  topicos?: {
-    titulo: string;
-    descricao: string;
-  }[];
+  relatorio?: Relatorio[];
+  atendimentos: Atendimento[];
+  onUpdated: (a: Atendimento) => void;
 }
-
 export default function AtendimentoCard({
+  id,
   data,
+  hora,
   numeracao,
-  topicos,
+  relatorio,
+  atendimentos,
+  onUpdated,
 }: AtendimentoCardProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const primeiroTopico = topicos && topicos.length > 0 ? topicos[0] : null;
+
+  const primeiroRelatorio =
+    relatorio && relatorio.length > 0 ? relatorio[0] : null;
 
   return (
     <>
@@ -33,7 +40,6 @@ export default function AtendimentoCard({
             <button
               onClick={() => setIsModalOpen(true)}
               className="text-[#344054] hover:cursor-pointer hover:bg-gray-100 p-1 rounded-full transition-colors"
-              title="Expandir detalhes"
             >
               <Expand size={22} />
             </button>
@@ -43,19 +49,23 @@ export default function AtendimentoCard({
         <div className="w-full h-[2px] bg-[#E8EEF7] mb-3"></div>
 
         <h2 className="text-[15px] font-semibold text-[#344054] mb-1">
-          {primeiroTopico?.titulo}
+          {primeiroRelatorio?.titulo}
         </h2>
         <p className="text-sm text-[#222222] leading-relaxed">
-          {primeiroTopico?.descricao}
+          {primeiroRelatorio?.descricao}
         </p>
       </div>
-      
+
       <AtendimentoDetailsModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
+        atendimentoId={id}
         data={data}
+        hora={hora}
         numeracao={numeracao}
-        topicos={topicos}
+        relatorios={relatorio}
+        atendimentos={atendimentos}
+        onUpdated={onUpdated!}
       />
     </>
   );

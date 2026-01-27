@@ -35,6 +35,4 @@ build/
 
 # Maven
 target/
-
-# Firebase
-src/main/resources/firebase-service-account.json
+/.env

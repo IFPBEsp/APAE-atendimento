@@ -4,24 +4,43 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { DialogFooter } from "@/components/ui/dialog";
 import { Textarea } from "../ui/textarea";
-import { useState } from "react";
+import {useState } from "react";
 import { Upload, CirclePlus } from "lucide-react";
+import { renderizarFormatoArquivo } from "@/utils/renderizarFormatoArquivo";
 
-export type AnexoFormData = {
+export type DocumentoFormData = {
   data: string;
   titulo: string;
   arquivo?: FileList;
   descricao: string;
 };
 
+export type DocumentoFormDataEnvio = {
+  pacienteId?: string;
+  profissionalId?: string;
+}
+
+export type AnexoEnvioFormData = DocumentoFormData & DocumentoFormDataEnvio & {
+  tipoArquivo: TipoArquivo.anexo;
+}
+
+export type RelatorioEnvioFormData = DocumentoFormData & DocumentoFormDataEnvio & {
+  tipoArquivo: TipoArquivo.relatorio;
+}
+
+export enum TipoArquivo {
+  anexo = 1,
+  relatorio = 2
+}
+
 interface AnexoFormProps {
-  onSubmit: (data: AnexoFormData) => void;
+  onSubmit: (data: AnexoEnvioFormData) => void;
 }
 
 export default function AnexoForm({ 
     onSubmit 
 }: AnexoFormProps) {
-  const { register, handleSubmit, watch, setValue } = useForm<AnexoFormData>({
+  const { register, handleSubmit, watch, setValue } = useForm<AnexoEnvioFormData>({
     defaultValues: {
       data: new Date().toISOString().split("T")[0],
       titulo: "",
@@ -36,12 +55,14 @@ export default function AnexoForm({
   const arquivo = watch("arquivo");
 
   const existeArquivo = arquivo && arquivo.length > 0;
-  const existeTemplate = titulo?.trim().length > 0 && descricao?.trim().length > 0;
+  const existeTemplate =
+    titulo?.trim().length > 0 && descricao?.trim().length > 0;
 
   const envioValidado = existeArquivo || existeTemplate;
 
+  console.log(arquivo, arquivo?.[0], arquivo?.[0] && URL.createObjectURL(arquivo?.[0]))
   const previewUrl = arquivo?.[0] ? URL.createObjectURL(arquivo[0]) : null;
-
+  const renderizar = (previewUrl && arquivo) && renderizarFormatoArquivo(arquivo[0].type, previewUrl);
   const removerArquivo = () => setValue("arquivo", undefined);
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -110,13 +131,9 @@ export default function AnexoForm({
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
         >
-          {previewUrl ? (
-            <img
-              src={previewUrl}
-              alt="Prévia"
-              className="w-[200px] h-full object-cover pointer-events-none"
-            />
-          ) : (
+          {previewUrl ? 
+            (renderizar)
+          : (
             <>
               <Label
                 htmlFor="arquivo"
@@ -166,7 +183,6 @@ export default function AnexoForm({
           className="hidden"
           {...register("arquivo")}
         />
-
       </div>
 
       <DialogFooter>

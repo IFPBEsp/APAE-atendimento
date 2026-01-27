@@ -15,7 +15,6 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
-@Profile("prod")
 @RestController
 @RequestMapping("/arquivo")
 public class ArquivoController {

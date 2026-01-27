@@ -22,7 +22,7 @@ public class AtendimentoMapper extends AbstractMapper<Atendimento, AtendimentoRe
        Paciente paciente = new Paciente();
        paciente.setId(dtoPadraoAtendimento.pacienteId());
 
-        LocalDateTime dataAtendimento = LocalDateTime.of(dtoPadraoAtendimento.data(), dtoPadraoAtendimento.hora());
+       LocalDateTime dataAtendimento = LocalDateTime.of(dtoPadraoAtendimento.data(), dtoPadraoAtendimento.hora());
 
        atendimento.setDataAtendimento(dataAtendimento);
        atendimento.setProfissional(profissional);
@@ -38,7 +38,8 @@ public class AtendimentoMapper extends AbstractMapper<Atendimento, AtendimentoRe
                 entidadePadraoAtendimento.getId(),
                 entidadePadraoAtendimento.getRelatorio(),
                 entidadePadraoAtendimento.getDataAtendimento().toLocalDate(),
-                entidadePadraoAtendimento.getDataAtendimento().toLocalTime()
+                entidadePadraoAtendimento.getDataAtendimento().toLocalTime(),
+                entidadePadraoAtendimento.getNumeracao()
         );
     }
 }

@@ -3,19 +3,21 @@ import type { NextRequest } from "next/server";
 
 export function middleware(request: NextRequest) {
   const token = request.cookies.get("token")?.value;
-
-  const publicRoutes = ["/login"];
   const pathname = request.nextUrl.pathname;
 
-  const isPublic = publicRoutes.some(route => pathname.startsWith(route));
+  const isPublicRoute = pathname.startsWith("/login");
 
-  if (!isPublic && !token) {
+  if (!isPublicRoute && !token) {
     return NextResponse.redirect(new URL("/login", request.url));
+  }
+
+  if (isPublicRoute && token) {
+    return NextResponse.redirect(new URL("/home", request.url));
   }
 
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/home", "/agenda", "/atendimento/:path*", "/relatorio/:path*"],
+  matcher: ["/home/:path*"],
 };

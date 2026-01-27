@@ -12,7 +12,7 @@ import java.util.UUID;
 
 @Repository
 public interface AtendimentoRepository extends JpaRepository<Atendimento, UUID> {
-    List<Atendimento> findByPacienteIdAndProfissionalIdOrderByDataAtendimentoDesc(UUID pacienteId, UUID profissionalId);
+    List<Atendimento> findByPacienteIdAndProfissionalIdOrderByDataAtendimento(UUID pacienteId, UUID profissionalId);
     @Query("""
     SELECT COALESCE(MAX(a.numeracao), 0)
     FROM Atendimento a
@@ -26,5 +26,11 @@ public interface AtendimentoRepository extends JpaRepository<Atendimento, UUID> 
             int ano,
             UUID profissionalId,
             UUID pacienteId
+    );
+
+    boolean existsByPacienteIdAndProfissionalIdAndDataAtendimento(
+            UUID pacienteId,
+            UUID profissionalId,
+            LocalDateTime dataAtendimento
     );
 }
