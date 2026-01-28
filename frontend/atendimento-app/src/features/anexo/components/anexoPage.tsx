@@ -15,7 +15,10 @@ import { useAnexos } from "../hooks/useAnexo";
 import AnexoForm from "./anexoForm";
 import { useRelatorioPDF } from "@/features/relatorio/hooks/useRelatorioPDF";
 
-const nunitoFont = Nunito({ weight: "700" });
+const nunitoFont = Nunito({ 
+  weight: "700",
+  subsets: ["latin"],
+});
 
 export default function AnexoPage() {
   const router = useRouter();

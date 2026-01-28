@@ -17,7 +17,10 @@ interface AtendimentoModalProps {
   modo?: "create" | "edit";
 }
 
-const nunitoFont = Nunito({ weight: "700" });
+const nunitoFont = Nunito({ 
+  weight: "700",
+  subsets: ["latin"],
+});
 
 export function AtendimentoModal({
   open,

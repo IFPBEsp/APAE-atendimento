@@ -33,7 +33,10 @@ interface AgendamentoFormProps {
   onSubmit: (data: AgendamentoFormData) => void;
 }
 
-const nunito = Nunito({ weight: "700" });
+const nunito = Nunito({ 
+  weight: "700",
+  subsets: ["latin"],
+});
 
 function getTodayLocalDate() {
   const now = new Date();

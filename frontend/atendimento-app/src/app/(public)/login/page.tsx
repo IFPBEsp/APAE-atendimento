@@ -16,12 +16,15 @@ import dados from "../../../../data/verificacao.json";
 
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+
 const nunitoFont = Nunito({
   weight: "700",
+  subsets: ["latin"],
 });
 
 const baloo2Font = Baloo_2({
   weight: "500",
+  subsets: ["latin"],
 });
 
 export default function LoginPage() {

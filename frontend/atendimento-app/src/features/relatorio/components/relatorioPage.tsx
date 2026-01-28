@@ -15,7 +15,11 @@ import {
 } from "@/features/relatorio/components/relatorioModal";
 import { useRelatorios } from "@/features/relatorio/hooks/useRelatorio";
 import { useRelatorioPDF } from "../hooks/useRelatorioPDF";
-const nunitoFont = Nunito({ weight: "700" });
+
+const nunitoFont = Nunito({ 
+  weight: "700",
+  subsets: ["latin"],
+});
 
 export default function RelatorioPage() {
   const router = useRouter();

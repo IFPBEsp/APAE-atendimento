@@ -1,3 +1,5 @@
+"use client";
+
 import PdfPreview from "@/components/pdf/PdfViewner";
 import { JSX } from "react";
 
