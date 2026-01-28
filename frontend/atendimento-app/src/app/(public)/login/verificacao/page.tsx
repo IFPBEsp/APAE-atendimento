@@ -7,11 +7,11 @@ import { useRouter } from "next/navigation";
 import { Check, Loader2 } from "lucide-react";
 
 import { confirmMagicLink } from "@/services/authService";
-import { setAuthToken } from "@/services/apiClient";
+import { ProfissionalStorage } from "@/auth/authStorage";
 
 export default function VerificacaoPage() {
   const [status, setStatus] = useState<"loading" | "success" | "error">(
-    "loading"
+    "loading",
   );
   const router = useRouter();
 
@@ -25,7 +25,28 @@ export default function VerificacaoPage() {
           return;
         }
 
-        setAuthToken(token);
+        const response = await fetch("http://localhost:8080/auth/me", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error("Usuário não autorizado");
+        }
+
+        const data = await response.json();
+
+        const profissional: ProfissionalStorage = {
+          id: data.id,
+        };
+
+        // 💾 SALVA NO localStorage
+        localStorage.setItem(
+          "@apae:profissional",
+          JSON.stringify(profissional),
+        );
+
         document.cookie = `token=${token}; path=/; samesite=lax`;
 
         setStatus("success");
@@ -60,7 +81,8 @@ export default function VerificacaoPage() {
         {status === "loading" && (
           <>
             <p className="text-base text-[#344054] mt-6">
-              Verifique o link na sua caixa de entrada do email para validar o seu acesso.
+              Verifique o link na sua caixa de entrada do email para validar o
+              seu acesso.
             </p>
 
             <div className="flex justify-center mt-10">

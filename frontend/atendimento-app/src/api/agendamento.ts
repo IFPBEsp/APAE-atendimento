@@ -1,4 +1,5 @@
 import dados from "../../data/verificacao.json";
+import { getAuth } from "firebase/auth";
 
 export type CriarAgendamentoPayload = {
   profissionalId: string;
@@ -8,9 +9,30 @@ export type CriarAgendamentoPayload = {
   numeroAtendimento: number;
 };
 
+// 🔐 Helper centralizado
+async function getFirebaseToken(): Promise<string> {
+  const auth = getAuth();
+  const user = auth.currentUser;
+
+  if (!user) {
+    throw new Error("Usuário não autenticado");
+  }
+
+  return await user.getIdToken();
+}
+
 export async function listarAgendamentos(profissionalId: string) {
+  const token = await getFirebaseToken();
+
   const res = await fetch(
-    `${dados.urlBase}/agendamento/${profissionalId}`
+    `${dados.urlBase}/agendamento/${profissionalId}`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/json",
+      },
+    }
   );
 
   if (!res.ok) {
@@ -22,12 +44,16 @@ export async function listarAgendamentos(profissionalId: string) {
 }
 
 export async function criarAgendamento(payload: CriarAgendamentoPayload) {
+  const token = await getFirebaseToken();
+
   const res = await fetch(
     `${dados.urlBase}/agendamento`,
     {
       method: "POST",
       headers: {
+        Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
+        Accept: "application/json",
       },
       body: JSON.stringify({
         profissionalId: payload.profissionalId,
@@ -52,10 +78,16 @@ export async function deletarAgendamento(
   pacienteId: string,
   agendamentoId: string
 ) {
+  const token = await getFirebaseToken();
+
   const res = await fetch(
     `${dados.urlBase}/agendamento/${profissionalId}/${pacienteId}/${agendamentoId}`,
     {
       method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/json",
+      },
     }
   );
 

@@ -1,12 +1,12 @@
 "use client";
 
+import { useEffect, useState, useMemo } from "react"; // Adicionado useEffect
 import {
   Relatorio,
   RelatorioEnvioFormData,
   RelatorioBase,
 } from "@/features/relatorio/types";
 
-import dados from "@/../data/verificacao.json";
 import { toast } from "sonner";
 import { validarTamanhoArquivo } from "@/services/validarTamanhoArquivo";
 import { construirArquivoFormData } from "@/services/construirArquivoFormData";
@@ -18,7 +18,6 @@ import {
   getRelatorios,
 } from "@/features/relatorio/services/relatorioService";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
 import { TipoArquivo } from "@/features/arquivo/types";
 import { filtroData } from "@/utils/filtroData";
 
@@ -27,18 +26,31 @@ export function useRelatorios(pacienteId: string) {
   const [open, setOpen] = useState(false);
   const [reportToDelete, setReportToDelete] = useState<Relatorio | null>(null);
   const [reportToView, setReportToView] = useState<Relatorio | null>(null);
+  
+  const [profissionalId, setProfissionalId] = useState<string>("");
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("@apae:profissional");
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        setProfissionalId(parsed.id);
+      }
+    }
+  }, []);
+  // ----------------------------------------------
+
   const queryClient = useQueryClient();
+
   const { data, isLoading } = useQuery({
     queryKey: ["relatorios", pacienteId],
     enabled: !!pacienteId,
     queryFn: async () => {
-      const [relatoriosResponse] = await Promise.all([
-        getRelatorios(pacienteId),
-      ]);
+      const relatoriosResponse = await getRelatorios(profissionalId, pacienteId);
 
       const relatorios: Relatorio[] = relatoriosResponse.map(
-        (e: RelatorioBase, i) => ({
-          id: ++i,
+        (e: RelatorioBase, i: number) => ({
+          id: i + 1,
           ...e,
         }),
       );
@@ -48,10 +60,7 @@ export function useRelatorios(pacienteId: string) {
 
   const relatoriosFiltrados = useMemo(() => {
     if (!data?.relatorios) return [];
-
-    if (!dataSelecionada) {
-      return data.relatorios;
-    }
+    if (!dataSelecionada) return data.relatorios;
 
     return data.relatorios.filter((relatorio) =>
       filtroData(dataSelecionada, relatorio.data),
@@ -94,12 +103,17 @@ export function useRelatorios(pacienteId: string) {
     },
   });
 
+  /** 🔥 TROCA DO dados.idProfissional PELO profissionalId DO ESTADO */
   function criarArquivoRelatorio(data: RelatorioEnvioFormData): FormData {
+    if (!profissionalId) {
+      throw new Error("Profissional não identificado. Refaça o login.");
+    }
+
     const request: RelatorioEnvioFormData = {
       ...data,
       pacienteId,
       tipoArquivo: TipoArquivo.relatorio,
-      profissionalId: dados.idProfissional,
+      profissionalId: profissionalId, // Agora usa o ID do localStorage
     };
 
     validarTamanhoArquivo(request.arquivo);
@@ -107,8 +121,12 @@ export function useRelatorios(pacienteId: string) {
   }
 
   async function construirEnviarArquivoRelatorio(data: RelatorioEnvioFormData) {
-    const relatorio = criarArquivoRelatorio(data);
-    enviarRelatorioMutation.mutate(relatorio);
+    try {
+      const relatorio = criarArquivoRelatorio(data);
+      enviarRelatorioMutation.mutate(relatorio);
+    } catch (error: any) {
+      toast.error(error.message);
+    }
   }
 
   const handleDelete = (objectName: string) => {
@@ -116,25 +134,18 @@ export function useRelatorios(pacienteId: string) {
   };
 
   return {
-    // dados-estados
     loading: isLoading,
     dataSelecionada,
     open,
     reportToDelete,
     reportToView,
     relatoriosFiltrados,
-
-    // ações-passivas
     setDataSelecionada,
     setOpen,
     setReportToDelete,
     setReportToView,
-
-    // ações-ativas
     enviarRelatorio: construirEnviarArquivoRelatorio,
     deletarRelatorio: handleDelete,
-
-    // intenções
     enviando: enviarRelatorioMutation.isPending,
     deletando: deletarRelatorioMutation.isPending,
   };

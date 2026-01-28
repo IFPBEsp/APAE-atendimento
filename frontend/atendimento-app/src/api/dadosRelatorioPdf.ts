@@ -1,4 +1,5 @@
 import dados from "../../data/verificacao.json";
+import { getAuth } from "firebase/auth";
 
 export type PacientePdfDTO = {
   nome: string;
@@ -16,10 +17,32 @@ function formatarDataBr(dataIso: string): string {
   return new Date(dataIso).toLocaleDateString("pt-BR");
 }
 
+
+async function getFirebaseToken(): Promise<string> {
+  const auth = getAuth();
+  const user = auth.currentUser;
+
+  if (!user) {
+    throw new Error("Usuário não autenticado");
+  }
+
+  return await user.getIdToken();
+}
+
 export async function buscarPacienteParaPdf(
   pacienteId: string
 ): Promise<PacientePdfDTO> {
-  const res = await fetch(`${dados.urlBase}/pacientes/${pacienteId}`);
+  const token = await getFirebaseToken();
+
+  const res = await fetch(
+    `${dados.urlBase}/pacientes/${pacienteId}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/json",
+      },
+    }
+  );
 
   if (!res.ok) {
     throw new Error("Erro ao buscar paciente");
@@ -38,7 +61,17 @@ export async function buscarPacienteParaPdf(
 export async function buscarProfissionalParaPdf(
   profissionalId: string
 ): Promise<ProfissionalPdfDTO> {
-  const res = await fetch(`${dados.urlBase}/profissionais/${profissionalId}`);
+  const token = await getFirebaseToken();
+
+  const res = await fetch(
+    `${dados.urlBase}/profissionais/${profissionalId}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/json",
+      },
+    }
+  );
 
   if (!res.ok) {
     throw new Error("Erro ao buscar profissional");

@@ -8,6 +8,7 @@ export type FiltroPaciente = {
   cidade?: string;
 };
 
+
 export async function getPacientes(
   filtros?: FiltroPaciente
 ): Promise<Paciente[]> {
@@ -15,16 +16,19 @@ export async function getPacientes(
     const query = new URLSearchParams(
       filtros as Record<string, string>
     ).toString();
-
+    
     const { data } = await api.get<Paciente[]>(
       `/pacientes/search?${query}`
     );
-
+    
     return data;
   }
-
+  
+  const profissional = JSON.parse(
+    localStorage.getItem("@apae:profissional") || "null"
+  );
   const { data } = await api.get<Paciente[]>(
-    `/profissionais/${dados.idProfissional}/pacientes`
+    `/profissionais/${profissional.id}/pacientes`
   );
 
   return data;

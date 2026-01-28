@@ -12,9 +12,10 @@ import {
   InputGroupInput,
 } from "@/components/ui/input-group";
 import { sendMagicLink, loginWithGoogle } from "@/services/authService";
-import { api, setAuthToken } from "@/services/apiClient";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { ProfissionalStorage } from "@/auth/authStorage";
+import { api } from "@/services/axios";
 const nunitoFont = Nunito({
   weight: "700",
 });
@@ -35,16 +36,13 @@ export default function LoginPage() {
     setError("");
 
     try {
-      const response = await fetch(
-        "http://localhost:8080/auth/send-link",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email }),
-        }
-      );
+      const response = await fetch("http://localhost:8080/auth/send-link", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+      });
 
       if (!response.ok) {
         setError("Acesso negado. Email não autorizado.");
@@ -53,12 +51,10 @@ export default function LoginPage() {
 
       await sendMagicLink(email);
       router.push("/login/verificacao");
-
     } catch {
       setError("Erro ao enviar link de acesso.");
     }
   };
-
 
   return (
     <div className="h-screen w-screen bg-[url('/background-login-apae.svg')] relative bg-no-repeat bg-cover bg-center flex items-center justify-center">
@@ -126,9 +122,20 @@ export default function LoginPage() {
                 onClick={async () => {
                   try {
                     const token = await loginWithGoogle();
-                    setAuthToken(token);
-                    await api.get("/auth/me"); 
+
+                    const { data } = await api.get("/auth/me");
+
+                    const profissional: ProfissionalStorage = {
+                        id: data.id,
+                    };
+
+                    localStorage.setItem(
+                      "@apae:profissional",
+                      JSON.stringify(profissional),
+                    );
+
                     document.cookie = `token=${token}; path=/; samesite=lax`;
+
                     router.push("/home");
                   } catch (err) {
                     console.error(err);

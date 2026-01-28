@@ -1,15 +1,16 @@
 import { api } from "@/services/axios";
-import dados from "@/../data/verificacao.json";
 import { AxiosError } from "axios";
 import { ArquivoResponse, TipoArquivo } from "../types";
 
+// Adicionamos idProfissional como primeiro parâmetro
 export async function getArquivos(
+  idProfissional: string,
   idPaciente: string,
   tipoArquivo: TipoArquivo,
 ): Promise<ArquivoResponse[]> {
   try {
     const { data } = await api.get<ArquivoResponse[]>(
-      `${dados.urlBase}/arquivo/${dados.idProfissional}/${idPaciente}/${tipoArquivo}`,
+      `/arquivo/${idProfissional}/${idPaciente}/${tipoArquivo}`,
     );
     return data;
   } catch (error) {
@@ -25,7 +26,7 @@ export async function getArquivos(
 
 export async function enviarArquivo(relatorioEnvio: FormData) {
   try {
-    const { data } = await api.post(`${dados.urlBase}/arquivo`, relatorioEnvio);
+    const { data } = await api.post(`/arquivo`, relatorioEnvio);
     return data;
   } catch (error) {
     const axiosError = error as AxiosError;
