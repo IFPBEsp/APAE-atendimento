@@ -7,13 +7,11 @@ import { AxiosError } from "axios";
 import { TipoArquivo } from "@/features/arquivo/types";
 
 export async function getRelatorios(
-  profissionalId: string,
   pacienteId: string,
 ): Promise<RelatorioBase[]> {
   try {
     if (!pacienteId) return [];
     const resposta = (await getArquivos(
-      profissionalId,
       pacienteId,
       TipoArquivo.relatorio,
     )) as RelatorioBase[];
