@@ -12,6 +12,9 @@ import br.org.apae.atendimento.mappers.ProfissionalMapper;
 import br.org.apae.atendimento.repositories.PacienteRepository;
 import br.org.apae.atendimento.services.storage.ObjectStorageService;
 import br.org.apae.atendimento.services.storage.PresignedUrlService;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import br.org.apae.atendimento.dtos.response.PacienteResponseDTO;
@@ -85,4 +88,28 @@ public class ProfissionalSaudeService {
         }
         return nome;
     }
+
+    private String getEmailUsuarioLogado() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || auth.getPrincipal() == null) {
+            throw new AccessDeniedException("Usuário não autenticado");
+        }
+        return auth.getName();
+    }
+    public ProfissionalResponseDTO getProfissionalLogado() {
+        String email = getEmailUsuarioLogado();
+
+        ProfissionalSaude profissional = repository
+                .findByEmail(email)
+                .orElseThrow(() ->
+                        new AccessDeniedException("Usuário não autorizado para o sistema")
+                );
+
+        return profissionalMapper.toDTOPadrao(profissional);
+    }
+
+    public boolean existByEmail(String email){
+        return repository.existsByEmail(email);
+    }
+
 }

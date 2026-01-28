@@ -1,8 +1,8 @@
 package br.org.apae.atendimento.repositories;
 
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
+import br.org.apae.atendimento.entities.ProfissionalSaude;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
