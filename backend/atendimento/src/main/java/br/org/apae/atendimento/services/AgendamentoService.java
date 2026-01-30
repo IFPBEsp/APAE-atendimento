@@ -19,6 +19,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -79,13 +80,14 @@ public class AgendamentoService {
 
     @Transactional
     public List<DiaAgendamentoResponseDTO> listarAgrupadoPorDia(UUID profissionalId) {
-        return repository.findByProfissionalIdOrderByDataHoraDesc(profissionalId)
+        return repository.findByProfissionalIdOrderByDataHora(profissionalId)
                 .stream()
                 .collect(Collectors.groupingBy(
                         a -> a.getDataHora().toLocalDate(),
                         Collectors.mapping(agendamentoMapper::toDTOPadrao, Collectors.toList())
                 ))
                 .entrySet().stream()
+                .sorted(Map.Entry.<LocalDate, List<AgendamentoResponseDTO>>comparingByKey().reversed())
                 .map(e -> new DiaAgendamentoResponseDTO(e.getKey(), e.getValue()))
                 .toList();
     }
@@ -100,8 +102,6 @@ public class AgendamentoService {
     public void setStatus(UUID agendamentoId){
         Agendamento agendamento = repository.findById(agendamentoId).orElseThrow(() -> new AgendamentoNotFoundException());
         agendamento.setStatus(true);
-
-        System.out.println(agendamentoId + " - status: " + agendamento.isStatus());
 
         repository.save(agendamento);
     }
@@ -120,6 +120,10 @@ public class AgendamentoService {
     public boolean verificarAgendamentoExiste(UUID profissionalId, UUID pacienteId, LocalDate data, LocalTime hora){
         LocalDateTime dataHora = LocalDateTime.of(data, hora);
         return repository.existsByProfissionalIdAndPacienteIdAndDataHora(profissionalId, pacienteId, dataHora);
+    }
+
+    public void verificarAtendimentos(){
+
     }
 
     public Long gerarProximaNumeracao(LocalDate data, UUID profissionalId, UUID pacienteId){

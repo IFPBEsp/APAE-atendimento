@@ -30,10 +30,9 @@ public class AtendimentoController {
 
     @PostMapping
     public ResponseEntity<AtendimentoResponseDTO> criarAtendimento(
-            @RequestBody AtendimentoRequestDTO atendimento,
-            @RequestParam(required = false) UUID agendamentoId
+            @RequestBody AtendimentoRequestDTO atendimento
     ) {
-        AtendimentoResponseDTO novoAtendimento = atendimentoService.addAtendimento(atendimento, agendamentoId);
+        AtendimentoResponseDTO novoAtendimento = atendimentoService.addAtendimento(atendimento);
         return ResponseEntity.status(HttpStatus.CREATED).body(novoAtendimento);
     }
 
