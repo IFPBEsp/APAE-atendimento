@@ -1,4 +1,4 @@
-import { PacientePdfDTO, ProfissionalPdfDTO } from "@/api/dadosRelatorioPdf";
+
 import {
   DocumentoFormData,
   DocumentoFormDataEnvio,
@@ -27,3 +27,16 @@ export type RelatorioEnvioFormData = DocumentoFormData &
   DocumentoFormDataEnvio & {
     tipoArquivo: TipoArquivo.relatorio;
   };
+
+
+  export type PacientePdfDTO = {
+    nome: string;
+    dataNascimento: string;
+    endereco: string;
+    responsaveis: string[];
+  };
+  
+  export type ProfissionalPdfDTO = {
+    nome: string;
+  };
+  
