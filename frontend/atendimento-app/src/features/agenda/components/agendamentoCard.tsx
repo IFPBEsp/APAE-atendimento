@@ -18,7 +18,7 @@ export default function AgendamentoCard({
 }: AgendamentoCardProps) {
   return (
     <>
-      <div className="bg-white border border-[#E5E7EB] rounded-2xl shadow-sm p-4 flex flex-col justify-between min-h-[250px]">
+      <div className="bg-white border border-[#E5E7EB] rounded-2xl shadow-sm p-4 flex flex-col justify-between min-h-62.5">
         <div className="flex justify-between items-start gap-2">
           <div className="text-[17px] font-semibold text-[#344054] leading-tight line-clamp-2">
             {paciente}
@@ -40,7 +40,7 @@ export default function AgendamentoCard({
         </div>
 
         <div className="flex justify-center my-6">
-          <div className="bg-[#F8FAFD] w-full min-h-[110px] flex justify-center items-center">
+          <div className="bg-[#F8FAFD] w-full min-h-27.5 flex justify-center items-center">
             <span className="text-3xl font-bold text-[#344054]">{horario}</span>
           </div>
         </div>

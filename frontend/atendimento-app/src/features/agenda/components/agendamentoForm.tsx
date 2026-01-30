@@ -8,10 +8,8 @@ import { Label } from "@/components/ui/label";
 import { DialogFooter } from "@/components/ui/dialog";
 import { Nunito } from "next/font/google";
 import { Check } from "lucide-react";
-import {
-  getPacientesPorProfissional,
-  PacienteOption,
-} from "../../api/pacientesOptional";
+import { getPacientesPorProfissional } from "../services/agendaService";
+import { PacienteOption } from "../types";
 
 import {
   Select,
@@ -92,7 +90,7 @@ export default function AgendamentoForm({ onSubmit }: AgendamentoFormProps) {
           value={pacienteId}
           onValueChange={handleSelectPaciente}
         >
-          <SelectTrigger className="bg-white border border-[#3B82F6] rounded-full text-sm focus:ring-0 focus:border-[#3B82F6] w-[100%]">
+          <SelectTrigger className="bg-white border border-[#3B82F6] rounded-full text-sm focus:ring-0 focus:border-[#3B82F6] w-full">
             <SelectValue placeholder="Selecione o paciente" />
           </SelectTrigger>
 
@@ -136,6 +134,7 @@ export default function AgendamentoForm({ onSubmit }: AgendamentoFormProps) {
         <Label>Numeração</Label>
         <Input
           type="number"
+          disabled
           {...register("numeracao")}
           min={1}
           className="w-full rounded-[30px] border border-[#3B82F6] text-center"
