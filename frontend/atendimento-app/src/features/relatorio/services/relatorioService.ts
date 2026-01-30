@@ -1,10 +1,13 @@
-import { RelatorioBase } from "@/features/relatorio/types";
+import { PacientePdfDTO, ProfissionalPdfDTO, RelatorioBase } from "@/features/relatorio/types";
 import {
   enviarArquivo,
   getArquivos,
 } from "@/features/arquivo/services/arquivoService";
 import { AxiosError } from "axios";
 import { TipoArquivo } from "@/features/arquivo/types";
+import { api } from "@/services/axios";
+import dados from "@/../data/verificacao.json";
+import { formatarDataBr } from "@/features/relatorio/utils/formatarData";
 
 export async function getRelatorios(
   pacienteId: string,
@@ -41,4 +44,37 @@ export async function enviarRelatorio(formData: FormData) {
 
     throw new Error(mensagem);
   }
+}
+
+export async function buscarPacienteParaPdf(
+  pacienteId: string
+): Promise<PacientePdfDTO> {
+
+  const {data: {
+    nomeCompleto, 
+    dataDeNascimento,
+    endereco,
+    responsaveis
+  }} = await api.get(`${dados.urlBase}/pacientes/${pacienteId}`);
+
+  return {
+    nome: nomeCompleto,
+    dataNascimento: formatarDataBr(dataDeNascimento),
+    endereco,
+    responsaveis
+  };
+  
+}
+
+export async function buscarProfissionalParaPdf(
+  profissionalId: string
+): Promise<ProfissionalPdfDTO> {
+
+  const {data: {
+    nomeCompleto
+  }} = await api.get(`${dados.urlBase}/profissionais/${profissionalId}`);
+
+  return {
+    nome: nomeCompleto
+  };
 }

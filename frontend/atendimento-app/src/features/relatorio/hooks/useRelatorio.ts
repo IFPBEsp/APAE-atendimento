@@ -94,7 +94,7 @@ export function useRelatorios(pacienteId: string) {
     },
   });
 
-  function criarArquivoRelatorio(data: RelatorioEnvioFormData): FormData {
+  function criarArquivoRelatorio(data: RelatorioEnvioFormData): FormData | undefined {
     const request: RelatorioEnvioFormData = {
       ...data,
       pacienteId,
@@ -102,13 +102,21 @@ export function useRelatorios(pacienteId: string) {
       profissionalId: dados.idProfissional,
     };
 
-    validarTamanhoArquivo(request.arquivo);
-    return construirArquivoFormData(request);
+    try{
+      validarTamanhoArquivo(request.arquivo);
+      return construirArquivoFormData(request);
+    }catch(error){
+      const mensagem = error instanceof Error
+            ? error.message
+            : String(error);
+       toast.error(mensagem || "Erro ao enviar anexo");
+    }
+    
   }
 
   async function construirEnviarArquivoRelatorio(data: RelatorioEnvioFormData) {
     const relatorio = criarArquivoRelatorio(data);
-    enviarRelatorioMutation.mutate(relatorio);
+    relatorio && enviarRelatorioMutation.mutate(relatorio);
   }
 
   const handleDelete = (objectName: string) => {

@@ -1,4 +1,4 @@
-import {buscarPacienteParaPdf, buscarProfissionalParaPdf} from "@/api/dadosRelatorioPdf";
+import {buscarPacienteParaPdf, buscarProfissionalParaPdf} from "@/features/relatorio/services/relatorioService";
 import {useQuery} from "@tanstack/react-query";
 import dados from "@/../data/verificacao.json";
 import { RelatorioPDFData } from "../types";
@@ -16,7 +16,6 @@ export function useRelatorioPDF(pacienteId: string) {
         buscarProfissionalParaPdf(profissionalId),
       ]);
 
-      // Garantia forte
       if (!paciente || !profissional) {
         throw new Error("Dados do PDF incompletos");
       }
