@@ -28,6 +28,21 @@ public interface AtendimentoRepository extends JpaRepository<Atendimento, UUID> 
             UUID pacienteId
     );
 
+    @Query("""
+    SELECT CASE WHEN COUNT(a) > 0 THEN true ELSE false END
+    FROM Atendimento a
+    WHERE FUNCTION('MONTH', a.dataAtendimento) = :mes
+      AND FUNCTION('YEAR', a.dataAtendimento) = :ano
+      AND a.profissional.id = :profissionalId
+      AND a.paciente.id = :pacienteId
+    """)
+    boolean existsAtendimento(
+            int mes,
+            int ano,
+            UUID profissionalId,
+            UUID pacienteId
+    );
+
     boolean existsByPacienteIdAndProfissionalIdAndDataAtendimento(
             UUID pacienteId,
             UUID profissionalId,

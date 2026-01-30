@@ -64,8 +64,10 @@ public class AgendamentoService {
 
         agendamento.setProfissional(profissionalSaude);
         agendamento.setPaciente(paciente);
-        agendamento.setNumeracao(gerarProximaNumeracao(agendamentoRequest.data(),
-                agendamentoRequest.profissionalId(), agendamentoRequest.pacienteId()));
+        verificarAtendimentos(agendamentoRequest.data(),
+                agendamentoRequest.profissionalId(),
+                agendamentoRequest.pacienteId(),
+                agendamento);
 
         return agendamentoMapper.toDTOPadrao(repository.save(agendamento));
     }
@@ -122,15 +124,27 @@ public class AgendamentoService {
         return repository.existsByProfissionalIdAndPacienteIdAndDataHora(profissionalId, pacienteId, dataHora);
     }
 
-    public void verificarAtendimentos(){
+    public void verificarAtendimentos(LocalDate data, UUID profissionalId, UUID pacienteId, Agendamento agendamento){
+        boolean existAtendimento = atendimentoRepository.existsAtendimento(data.getMonthValue(),
+                data.getYear(), profissionalId, pacienteId);
 
+        if (existAtendimento){
+            agendamento.setStatus(true);
+            Long numero = atendimentoRepository.findMaxNumeracaoByMesAndAno(
+                    data.getMonthValue(),
+                    data.getYear(),
+                    profissionalId,
+                    pacienteId);
+
+            agendamento.setNumeracao(numero);
+        } else {
+            Long numero = atendimentoRepository.findMaxNumeracaoByMesAndAno(
+                    data.getMonthValue(),
+                    data.getYear(),
+                    profissionalId,
+                    pacienteId);
+
+            agendamento.setNumeracao(numero + 1);
+        }
     }
-
-    public Long gerarProximaNumeracao(LocalDate data, UUID profissionalId, UUID pacienteId){
-        Long maiorNumeracao = atendimentoRepository.findMaxNumeracaoByMesAndAno(
-                data.getMonthValue(), data.getYear(), profissionalId, pacienteId);
-
-        return maiorNumeracao + 1;
-    }
-
 }
