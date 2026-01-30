@@ -45,7 +45,7 @@ public class AtendimentoService {
         this.pacienteService = pacienteService;
     }
 
-    public AtendimentoResponseDTO addAtendimento(AtendimentoRequestDTO atendimentoRequestDTO, UUID agendamentoId){
+    public AtendimentoResponseDTO addAtendimento(AtendimentoRequestDTO atendimentoRequestDTO){
         if (repository.existsByPacienteIdAndProfissionalIdAndDataAtendimento(atendimentoRequestDTO.pacienteId(),
                 atendimentoRequestDTO.profissionalId(),
                 LocalDateTime.of(atendimentoRequestDTO.data(), atendimentoRequestDTO.hora())
@@ -64,7 +64,7 @@ public class AtendimentoService {
 
         Atendimento dadosPersistidos = repository.save(dadosConvertidos);
         try {
-            tratarAgendamento(agendamentoId, atendimentoRequestDTO.pacienteId(), atendimentoRequestDTO.data());
+            tratarAgendamento(atendimentoRequestDTO.pacienteId(), atendimentoRequestDTO.data());
         }
         catch (AgendamentoNotFoundException e){
         }
@@ -84,11 +84,7 @@ public class AtendimentoService {
         }
     }
 
-    public void tratarAgendamento(UUID agendamentoId, UUID pacienteId, LocalDate data){
-        if (agendamentoId != null){
-            agendamentoService.setStatus(agendamentoId);
-        }
-
+    public void tratarAgendamento(UUID pacienteId, LocalDate data){
         Agendamento agendamento = agendamentoService.buscarAgendamentoPorDataEPaciente(data, pacienteId);
 
         agendamentoService.setStatus(agendamento);

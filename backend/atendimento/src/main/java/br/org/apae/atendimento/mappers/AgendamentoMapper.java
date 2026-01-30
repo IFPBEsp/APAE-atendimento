@@ -19,7 +19,6 @@ public class AgendamentoMapper extends AbstractMapper<Agendamento, AgendamentoRe
 
         agendamento.setDataHora(LocalDateTime.of(dtoPadrao.data(), dtoPadrao.hora()));
         agendamento.setStatus(false);
-        agendamento.setNumeracao(dtoPadrao.numeroAtendimento());
 
         return agendamento;
     }
