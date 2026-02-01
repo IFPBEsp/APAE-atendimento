@@ -201,6 +201,7 @@ export default function AgendamentoPage() {
       <button
         onClick={() => setOpenCreate(true)}
         className="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-[#165BAA] flex items-center justify-center shadow-[4px_4px_12px_rgba(0,0,0,0.25)] md:hidden"
+        aria-label="Novo agendamento"
       >
         <CalendarPlus size={28} className="text-white" />
       </button>

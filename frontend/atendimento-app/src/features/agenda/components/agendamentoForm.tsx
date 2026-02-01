@@ -51,7 +51,14 @@ function extrairMesAno(data: string) {
     return { mes, ano };
   }
 
-  const [ano, mes] = data.split("-");
+  const parts = data.split("-");
+
+  if (parts[0].length === 4) {
+    const [ano, mes] = parts;
+    return { mes, ano };
+  }
+
+  const [, mes, ano] = parts;
   return { mes, ano };
 }
 
