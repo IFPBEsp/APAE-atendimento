@@ -29,7 +29,7 @@ export function AgendamentoModal({
       >
         <div className="absolute right-5 top-5 z-10">
           <DialogClose className="rounded-full p-1 hover:bg-gray-100 transition-colors outline-none">
-            <X className="h-6 w-6 text-gray-600" />
+            <X className="h-6 w-6 text-gray-600 cursor-pointer" />
           </DialogClose>
         </div>
 

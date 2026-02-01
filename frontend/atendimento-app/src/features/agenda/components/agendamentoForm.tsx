@@ -8,8 +8,6 @@ import { Label } from "@/components/ui/label";
 import { DialogFooter } from "@/components/ui/dialog";
 import { Nunito } from "next/font/google";
 import { Check } from "lucide-react";
-import { getPacientesPorProfissional } from "../services/agendaService";
-import { PacienteOption, Agendamento } from "../types";
 
 import {
   Select,
@@ -18,6 +16,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+
+import { getPacientesPorProfissional } from "../services/agendaService";
+import { PacienteOption, Agendamento } from "../types";
 
 export type AgendamentoFormData = {
   pacienteId: string;
@@ -38,6 +39,16 @@ function getTodayLocalDate() {
   const now = new Date();
   const offset = now.getTimezoneOffset() * 60000;
   return new Date(now.getTime() - offset).toISOString().split("T")[0];
+}
+
+function extrairMesAno(data: string) {
+  if (data.includes("/")) {
+    const [, mes, ano] = data.split("/");
+    return { mes, ano };
+  }
+
+  const [ano, mes] = data.split("-");
+  return { mes, ano };
 }
 
 export default function AgendamentoForm({
@@ -74,28 +85,23 @@ export default function AgendamentoForm({
 
   function handleSelectPaciente(value: string) {
     const paciente = pacientes.find((p) => p.id === value);
-    if (paciente) {
-      setValue("pacienteId", paciente.id);
-      setValue("pacienteNome", paciente.nome);
-    }
+    if (!paciente) return;
+
+    setValue("pacienteId", paciente.id);
+    setValue("pacienteNome", paciente.nome);
   }
 
   useEffect(() => {
     if (!dataSelecionada) return;
 
-    const [anoSelecionado, mesSelecionado] = dataSelecionada.split("-");
+    const { mes, ano } = extrairMesAno(dataSelecionada);
 
-    const agendamentosDoMes = agendamentos.filter((a) => {
-      if (a.data.includes("/")) {
-        const [, mes, ano] = a.data.split("/");
-        return mes === mesSelecionado && ano === anoSelecionado;
-      }
+    const totalNoMes = agendamentos.filter((a) => {
+      const dataAgendamento = extrairMesAno(a.data);
+      return dataAgendamento.mes === mes && dataAgendamento.ano === ano;
+    }).length;
 
-      const [ano, mes] = a.data.split("-");
-      return mes === mesSelecionado && ano === anoSelecionado;
-    });
-
-    setValue("numeroAtendimento", agendamentosDoMes.length + 1);
+    setValue("numeroAtendimento", totalNoMes + 1);
   }, [dataSelecionada, agendamentos, setValue]);
 
   return (
@@ -165,7 +171,7 @@ export default function AgendamentoForm({
       <DialogFooter>
         <Button
           type="submit"
-          className="w-full rounded-[30px] shadow-md bg-[#0D4F97] hover:bg-[#13447D]"
+          className="w-full rounded-[30px] shadow-md bg-[#0D4F97] hover:bg-[#13447D] cursor-pointer"
         >
           <Check className="mr-1" />
           Criar Agendamento
