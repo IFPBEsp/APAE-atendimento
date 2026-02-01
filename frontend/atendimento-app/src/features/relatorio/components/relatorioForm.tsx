@@ -17,7 +17,7 @@ import { Upload, CirclePlus, Info, FileText } from "lucide-react";
 import { pdf } from "@react-pdf/renderer";
 import { TemplateRelatorio } from "../../../components/pdf/templateRelatorio";
 import { renderizarFormatoArquivo } from "@/utils/renderizarFormatoArquivo";
-import { PacientePdfDTO, ProfissionalPdfDTO } from "@/api/dadosRelatorioPdf";
+import { PacientePdfDTO, ProfissionalPdfDTO } from "@/features/relatorio/types";
 import { RelatorioEnvioFormData } from "../types";
 
 interface RelatorioFormProps {

@@ -34,7 +34,10 @@ export default function RootLayout({
         )}
       >
         <CoreProvider>{children}</CoreProvider>
-        <Toaster richColors />
+        <Toaster 
+        richColors 
+        duration={1500}
+        />
       </body>
     </html>
   );
