@@ -12,6 +12,5 @@ public record AgendamentoRequestDTO(
         UUID profissionalId,
         UUID pacienteId,
         LocalDate data,
-        LocalTime hora,
-        Long numeroAtendimento) {
+        LocalTime hora) {
 }

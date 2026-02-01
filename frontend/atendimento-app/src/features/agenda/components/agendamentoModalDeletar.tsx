@@ -9,7 +9,7 @@ interface DeletarAgendamentoModalProps {
   onConfirm: () => void;
 }
 
-export function DeletarAgendamentoModal({
+export function AgendamentoModalDeletar({
   isOpen,
   onClose,
   onConfirm,
@@ -18,7 +18,7 @@ export function DeletarAgendamentoModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="bg-white rounded-3xl p-8 w-[360px] md:w-[520px] flex flex-col items-center shadow-xl zoom-in-95">
+      <div className="bg-white rounded-3xl p-8 w-90 md:w-130 flex flex-col items-center shadow-xl zoom-in-95">
         <h2 className="text-xl font-bold text-[#344054] mb-2 text-center">
           Cancelar agendamento?
         </h2>

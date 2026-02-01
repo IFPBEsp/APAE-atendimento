@@ -196,10 +196,11 @@ export default function AtendimentoForm({
         <div className="grid gap-2">
           <Label htmlFor="numeracao">Numeração</Label>
           <Input
+            type="number"
             required
             disabled
-            className="rounded-[30px] border-[#B2D7EC] focus-visible:ring-0 focus-visible:border-[#B2D7EC] text-center"
             {...register("numeracao", { valueAsNumber: true })}
+            className="rounded-[30px] border-[#B2D7EC] focus-visible:ring-0 focus-visible:border-[#B2D7EC] text-center"
           />
         </div>
       </div>
@@ -231,7 +232,7 @@ export default function AtendimentoForm({
 
           <Textarea
             required
-            className="min-h-[100px] w-full rounded-[30px] border border-[#B2D7EC] focus-visible:ring-0 focus-visible:border-[#B2D7EC] px-3 py-2 text-sm"
+            className="min-h-25 w-full rounded-[30px] border border-[#B2D7EC] focus-visible:ring-0 focus-visible:border-[#B2D7EC] px-3 py-2 text-sm"
             placeholder="Insira a descrição do tópico"
             {...register(`relatorio.${index}.descricao`, {
               required: index === 0,

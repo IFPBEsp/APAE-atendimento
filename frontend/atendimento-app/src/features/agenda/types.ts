@@ -1,6 +1,6 @@
 export interface Agendamento {
   id: string;
-  pacienteId?: string;
+  pacienteId: string;
   paciente: string;
   horario: string;
   data: string;
@@ -22,3 +22,15 @@ export interface DiaAgendamento {
   data: string;
   agendamentos: AgendamentoResponse[];
 }
+
+export type CriarAgendamentoPayload = {
+  profissionalId: string;
+  pacienteId: string;
+  data: string;
+  hora: string;
+};
+
+export type PacienteOption = {
+  id: string;
+  nome: string;
+};
