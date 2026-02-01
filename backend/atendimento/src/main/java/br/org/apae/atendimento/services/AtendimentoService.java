@@ -64,7 +64,7 @@ public class AtendimentoService {
 
         Atendimento dadosPersistidos = repository.save(dadosConvertidos);
         try {
-            tratarAgendamento(atendimentoRequestDTO.pacienteId(), atendimentoRequestDTO.data());
+            tratarAgendamento(atendimentoRequestDTO.pacienteId(), atendimentoRequestDTO.data(), dadosPersistidos.getNumeracao());
         }
         catch (AgendamentoNotFoundException e){
         }
@@ -84,8 +84,9 @@ public class AtendimentoService {
         }
     }
 
-    public void tratarAgendamento(UUID pacienteId, LocalDate data){
+    public void tratarAgendamento(UUID pacienteId, LocalDate data, Long numeracao){
         Agendamento agendamento = agendamentoService.buscarAgendamentoPorDataEPaciente(data, pacienteId);
+        agendamento.setNumeracao(numeracao);
 
         agendamentoService.setStatus(agendamento);
     }

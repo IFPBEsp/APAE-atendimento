@@ -101,21 +101,12 @@ public class AgendamentoService {
         repository.deleteById(agendamentoId);
     }
 
-    public void setStatus(UUID agendamentoId){
-        Agendamento agendamento = repository.findById(agendamentoId).orElseThrow(() -> new AgendamentoNotFoundException());
-        agendamento.setStatus(true);
-
-        repository.save(agendamento);
-    }
-
     public void setStatus(Agendamento agendamento){
         if (agendamento == null){
             throw new AgendamentoNotFoundException();
         }
 
         agendamento.setStatus(true);
-        System.out.println(agendamento.getId() + " - status: " + agendamento.isStatus());
-
         repository.save(agendamento);
     }
 
@@ -125,8 +116,8 @@ public class AgendamentoService {
     }
 
     public void verificarAtendimentos(LocalDate data, UUID profissionalId, UUID pacienteId, Agendamento agendamento){
-        boolean existAtendimento = atendimentoRepository.existsAtendimento(data.getMonthValue(),
-                data.getYear(), profissionalId, pacienteId);
+        boolean existAtendimento = atendimentoRepository.existsAtendimentoNoDia(
+                data.getDayOfMonth(), data.getMonthValue(), data.getYear(), profissionalId, pacienteId);
 
         if (existAtendimento){
             agendamento.setStatus(true);
