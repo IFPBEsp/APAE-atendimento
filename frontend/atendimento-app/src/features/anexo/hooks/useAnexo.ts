@@ -84,22 +84,28 @@ export function useAnexos(pacienteId: string) {
     },
   });
 
-  function criarArquivoAnexo(data: AnexoEnvioFormData): FormData {
-    const request: AnexoEnvioFormData = {
+  function criarArquivoAnexo(data: AnexoEnvioFormData): FormData | undefined {
+ const request: AnexoEnvioFormData = {
       ...data,
       pacienteId,
       tipoArquivo: TipoArquivo.anexo,
       profissionalId: dados.idProfissional,
     };
-
-    validarTipoArquivo(request.arquivo);
-    validarTamanhoArquivo(request.arquivo);
-    return construirArquivoFormData(request);
+    try{
+       validarTipoArquivo(request.arquivo);
+       validarTamanhoArquivo(request.arquivo);
+       return construirArquivoFormData(request);
+    }catch(error){
+      const mensagem = error instanceof Error
+            ? error.message
+            : String(error);
+       toast.error(mensagem || "Erro ao enviar anexo");
+    }
   }
 
   async function construirEnviarArquivoAnexo(data: AnexoEnvioFormData) {
     const anexo = criarArquivoAnexo(data);
-    enviarAnexoMutation.mutate(anexo);
+    anexo && enviarAnexoMutation.mutate(anexo);
   }
 
   const handleDelete = (objectName: string) => {

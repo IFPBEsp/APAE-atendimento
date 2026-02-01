@@ -19,7 +19,6 @@ interface TemplateRelatorioProps {
 
   profissional: {
     nome: string;
-    crm: string;
   };
 
   titulo: string;
@@ -100,10 +99,6 @@ export const TemplateRelatorio = ({
 
             <Text style={styles.field}>
               Profissional Responsável: {profissional.nome}
-            </Text>
-
-            <Text style={styles.field}>
-              CRM: {profissional.crm}
             </Text>
 
           </View>

@@ -52,14 +52,13 @@ export default function AnexoForm({ onSubmit }: AnexoFormProps) {
   const [isDragging, setIsDragging] = useState(false);
 
   const titulo = watch("titulo");
-  const descricao = watch("descricao");
   const arquivo = watch("arquivo");
 
   const existeArquivo = arquivo && arquivo.length > 0;
   const existeTemplate =
-    titulo?.trim().length > 0 && descricao?.trim().length > 0;
+    titulo?.trim().length > 0;
 
-  const envioValidado = existeArquivo || existeTemplate;
+  const envioValidado = existeArquivo && existeTemplate;
 
   const previewUrl = arquivo?.[0] ? URL.createObjectURL(arquivo[0]) : null;
   const renderizar =
