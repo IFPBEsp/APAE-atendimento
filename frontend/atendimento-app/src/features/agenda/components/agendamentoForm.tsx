@@ -42,6 +42,10 @@ function getTodayLocalDate() {
 }
 
 function extrairMesAno(data: string) {
+  if (!data || data.length < 7) {
+    return { mes: "", ano: "" };
+  }
+
   if (data.includes("/")) {
     const [, mes, ano] = data.split("/");
     return { mes, ano };
@@ -62,6 +66,7 @@ export default function AgendamentoForm({
         pacienteNome: "",
         data: getTodayLocalDate(),
         horario: "",
+        numeroAtendimento: 1,
       },
     });
 
