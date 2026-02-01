@@ -70,7 +70,6 @@ public class FirebaseAuthenticationFilter extends OncePerRequestFilter {
             SecurityContextHolder.getContext().setAuthentication(auth);
 
         } catch (Exception e) {
-
             SecurityContextHolder.clearContext();
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             return;

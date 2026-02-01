@@ -13,7 +13,6 @@ public class ArquivoMapper extends AbstractMapper<Arquivo, ArquivoRequestDTO, Ar
     @Override
     public Arquivo toEntityPadrao(ArquivoRequestDTO dtoPadraoArquivo) {
         ProfissionalSaude profissionalSaude = new ProfissionalSaude();
-        profissionalSaude.setId(dtoPadraoArquivo.profissionalId());
 
         Paciente paciente = new Paciente();
         paciente.setId(dtoPadraoArquivo.pacienteId());
