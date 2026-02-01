@@ -37,3 +37,4 @@ target/
 /target/
 /node_modules/
 node_modules/
+firebase-service-account.json
