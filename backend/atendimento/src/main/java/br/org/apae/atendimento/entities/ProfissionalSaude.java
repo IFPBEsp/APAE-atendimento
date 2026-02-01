@@ -26,6 +26,9 @@ public class ProfissionalSaude {
     @Column(name = "contato")
     private String contato;
 
+    @Column(name = "firebase_uid", unique = true)
+    private String firebaseUID;
+
     @ManyToMany()
     @JoinTable(
             name = "profissional_paciente",
@@ -108,5 +111,13 @@ public class ProfissionalSaude {
 
     public void setArquivos(List<Arquivo> arquivos) {
         this.arquivos = arquivos;
+    }
+
+    public String getFirebaseUID() {
+        return firebaseUID;
+    }
+
+    public void setFirebaseUID(String firebaseUID) {
+        this.firebaseUID = firebaseUID;
     }
 }

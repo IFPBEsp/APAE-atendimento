@@ -14,22 +14,18 @@ import java.time.LocalDateTime;
 public class AtendimentoMapper extends AbstractMapper<Atendimento, AtendimentoRequestDTO, AtendimentoResponseDTO> {
     @Override
     public Atendimento toEntityPadrao(AtendimentoRequestDTO dtoPadraoAtendimento) {
-       Atendimento atendimento = new Atendimento();
+        Atendimento atendimento = new Atendimento();
 
-       ProfissionalSaude profissional = new ProfissionalSaude();
-       profissional.setId(dtoPadraoAtendimento.profissionalId());
+        Paciente paciente = new Paciente();
+        paciente.setId(dtoPadraoAtendimento.pacienteId());
 
-       Paciente paciente = new Paciente();
-       paciente.setId(dtoPadraoAtendimento.pacienteId());
+        LocalDateTime dataAtendimento = LocalDateTime.of(dtoPadraoAtendimento.data(), dtoPadraoAtendimento.hora());
 
-       LocalDateTime dataAtendimento = LocalDateTime.of(dtoPadraoAtendimento.data(), dtoPadraoAtendimento.hora());
+        atendimento.setDataAtendimento(dataAtendimento);
+        atendimento.setPaciente(paciente);
+        atendimento.setRelatorio(dtoPadraoAtendimento.relatorio());
 
-       atendimento.setDataAtendimento(dataAtendimento);
-       atendimento.setProfissional(profissional);
-       atendimento.setPaciente(paciente);
-       atendimento.setRelatorio(dtoPadraoAtendimento.relatorio());
-
-       return atendimento;
+        return atendimento;
     }
 
     @Override
@@ -39,7 +35,6 @@ public class AtendimentoMapper extends AbstractMapper<Atendimento, AtendimentoRe
                 entidadePadraoAtendimento.getRelatorio(),
                 entidadePadraoAtendimento.getDataAtendimento().toLocalDate(),
                 entidadePadraoAtendimento.getDataAtendimento().toLocalTime(),
-                entidadePadraoAtendimento.getNumeracao()
-        );
+                entidadePadraoAtendimento.getNumeracao());
     }
 }

@@ -41,8 +41,8 @@ public class ArquivoService {
     private static final String RELATORIO_PATH = "relatorio";
 
     @Transactional
-    public ArquivoResponseDTO salvar(MultipartFile file, ArquivoRequestDTO arquivoRequest) {
-        String objectName = criarObjectName(arquivoRequest.pacienteId(), arquivoRequest.profissionalId(),
+    public ArquivoResponseDTO salvar(MultipartFile file, ArquivoRequestDTO arquivoRequest, UUID profissionalId) {
+        String objectName = criarObjectName(arquivoRequest.pacienteId(), profissionalId,
                 arquivoRequest.tipoArquivo());
 
         String url = storageService.uploadArquivo(objectName, file);

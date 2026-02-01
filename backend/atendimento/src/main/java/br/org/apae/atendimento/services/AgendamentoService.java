@@ -48,9 +48,9 @@ public class AgendamentoService {
         return repository.save(agendamento);
     }
 
-    public AgendamentoResponseDTO agendar(AgendamentoRequestDTO agendamentoRequest){
+    public AgendamentoResponseDTO agendar(AgendamentoRequestDTO agendamentoRequest, UUID profissionalId){
         if (verificarAgendamentoExiste(
-                agendamentoRequest.profissionalId(),
+                profissionalId,
                 agendamentoRequest.data(), agendamentoRequest.hora())){
             throw new AgendamentoInvalidException(
                     agendamentoRequest.data() +  " - " + agendamentoRequest.hora() + " ja possui um agendamento");
@@ -58,13 +58,13 @@ public class AgendamentoService {
 
         Agendamento agendamento = agendamentoMapper.toEntityPadrao(agendamentoRequest);
 
-        ProfissionalSaude profissionalSaude = profissionalSaudeService.getProfissionalById(agendamentoRequest.profissionalId());
+        ProfissionalSaude profissionalSaude = profissionalSaudeService.getProfissionalById(profissionalId);
         Paciente paciente = pacienteService.getPacienteById(agendamentoRequest.pacienteId());
 
         agendamento.setProfissional(profissionalSaude);
         agendamento.setPaciente(paciente);
         verificarAtendimentos(agendamentoRequest.data(),
-                agendamentoRequest.profissionalId(),
+                profissionalId,
                 agendamentoRequest.pacienteId(),
                 agendamento);
 

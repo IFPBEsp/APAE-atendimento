@@ -37,12 +37,12 @@ public class AuthController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<ProfissionalResponseDTO> me(Authentication authentication) {
+    public ResponseEntity<?> me(Authentication authentication) {
 
         if (authentication == null) {
             return ResponseEntity.status(401).build();
         }
 
-        return ResponseEntity.ok().body(profissionalService.getProfissionalLogado());
+        return ResponseEntity.ok("Logado");
     }
 }

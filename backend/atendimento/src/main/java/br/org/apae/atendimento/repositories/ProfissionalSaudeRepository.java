@@ -25,4 +25,7 @@ public interface ProfissionalSaudeRepository extends JpaRepository<ProfissionalS
     Optional<ProfissionalSaude> findByEmail(String email);
 
     boolean existsByEmail(String email);
+
+    @Query("SELECT p.id FROM ProfissionalSaude p WHERE p.firebaseUID = :uid")
+    UUID findIdByFirebaseUID(@Param("uid") String uid);
 }
