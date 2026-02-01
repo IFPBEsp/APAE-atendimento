@@ -51,7 +51,6 @@ public class AgendamentoService {
     public AgendamentoResponseDTO agendar(AgendamentoRequestDTO agendamentoRequest){
         if (verificarAgendamentoExiste(
                 agendamentoRequest.profissionalId(),
-                agendamentoRequest.pacienteId(),
                 agendamentoRequest.data(), agendamentoRequest.hora())){
             throw new AgendamentoInvalidException(
                     agendamentoRequest.data() +  " - " + agendamentoRequest.hora() + " ja possui um agendamento");
@@ -110,9 +109,9 @@ public class AgendamentoService {
         repository.save(agendamento);
     }
 
-    public boolean verificarAgendamentoExiste(UUID profissionalId, UUID pacienteId, LocalDate data, LocalTime hora){
+    public boolean verificarAgendamentoExiste(UUID profissionalId, LocalDate data, LocalTime hora){
         LocalDateTime dataHora = LocalDateTime.of(data, hora);
-        return repository.existsByProfissionalIdAndPacienteIdAndDataHora(profissionalId, pacienteId, dataHora);
+        return repository.existsByProfissionalIdAndDataHora(profissionalId, dataHora);
     }
 
     public void verificarAtendimentos(LocalDate data, UUID profissionalId, UUID pacienteId, Agendamento agendamento){
