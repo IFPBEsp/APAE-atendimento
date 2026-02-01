@@ -159,7 +159,7 @@ export default function AgendamentoPage() {
                   key={item.id}
                   paciente={item.paciente}
                   horario={item.horario}
-                  numeracao={item.numeracao}
+                  numeroAtendimento={item.numeracao}
                   status={item.status}
                   onDeleteClick={() => {
                     setAgendamentoSelecionado(item);
@@ -190,7 +190,10 @@ export default function AgendamentoPage() {
         )}
 
         <AgendamentoModal open={openCreate} onOpenChange={setOpenCreate}>
-          <AgendamentoForm onSubmit={handleCreateAgendamento} />
+          <AgendamentoForm
+            agendamentos={agendamentos}
+            onSubmit={handleCreateAgendamento}
+          />
         </AgendamentoModal>
       </section>
 

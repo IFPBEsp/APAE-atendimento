@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 interface AgendamentoCardProps {
   paciente: string;
   horario: string;
-  numeracao: number;
+  numeroAtendimento: number;
   status: boolean;
   onDeleteClick?: () => void;
 }
@@ -12,7 +12,7 @@ interface AgendamentoCardProps {
 export default function AgendamentoCard({
   paciente,
   horario,
-  numeracao,
+  numeroAtendimento,
   status,
   onDeleteClick,
 }: AgendamentoCardProps) {
@@ -26,7 +26,7 @@ export default function AgendamentoCard({
 
           <div className="flex items-center gap-2">
             <span className="text-[11px] font-semibold text-white bg-[#165BAA] w-6 h-6 flex items-center justify-center rounded-full">
-              {String(numeracao).padStart(2, "0")}
+              {String(numeroAtendimento).padStart(2, "0")}
             </span>
 
             <button
