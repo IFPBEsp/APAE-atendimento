@@ -83,12 +83,13 @@ export default function AgendamentoForm({
   const [pacientes, setPacientes] = useState<PacienteOption[]>([]);
 
   useEffect(() => {
+    let cancelled = false;
     async function carregarPacientes() {
       try {
         const data = await getPacientesPorProfissional();
-        setPacientes(data);
+        if (!cancelled) setPacientes(data);
       } catch (error) {
-        console.error("Erro ao carregar pacientes", error);
+        if (!cancelled) console.error("Erro ao carregar pacientes", error);
       }
     }
 
