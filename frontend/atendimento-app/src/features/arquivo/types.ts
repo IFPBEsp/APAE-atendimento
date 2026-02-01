@@ -17,5 +17,4 @@ export type DocumentoFormData = {
 
 export type DocumentoFormDataEnvio = {
   pacienteId?: string;
-  profissionalId?: string;
 };

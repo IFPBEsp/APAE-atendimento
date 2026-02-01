@@ -13,7 +13,6 @@ export interface Atendimento {
 }
 
 export interface AtendimentoPayload {
-  profissionalId: string;
   pacienteId: string;
   data: string;
   hora: string;

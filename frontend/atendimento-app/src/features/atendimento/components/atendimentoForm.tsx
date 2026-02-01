@@ -145,7 +145,6 @@ export default function AtendimentoForm({
     }
 
     const payload: AtendimentoPayload = {
-      profissionalId: dados.idProfissional,
       pacienteId,
       data: isoParaBR(data.data),
       hora: data.hora,

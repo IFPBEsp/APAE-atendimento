@@ -7,7 +7,6 @@ import { useRouter } from "next/navigation";
 import { Check, Loader2 } from "lucide-react";
 
 import { confirmMagicLink } from "@/services/authService";
-import { ProfissionalStorage } from "@/auth/authStorage";
 
 export default function VerificacaoPage() {
   const [status, setStatus] = useState<"loading" | "success" | "error">(
@@ -36,16 +35,6 @@ export default function VerificacaoPage() {
         }
 
         const data = await response.json();
-
-        const profissional: ProfissionalStorage = {
-          id: data.id,
-        };
-
-        // 💾 SALVA NO localStorage
-        localStorage.setItem(
-          "@apae:profissional",
-          JSON.stringify(profissional),
-        );
 
         document.cookie = `token=${token}; path=/; samesite=lax`;
 

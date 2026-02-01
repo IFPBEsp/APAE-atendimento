@@ -38,9 +38,7 @@ export default function AgendamentoPage() {
   const [agendamentoSelecionado, setAgendamentoSelecionado] =
     useState<Agendamento | null>(null);
 
-  const { data: agendamentos = [], isLoading } = useAgendamentos(
-    dados.idProfissional,
-  );
+  const { data: agendamentos = [], isLoading } = useAgendamentos();
 
   const criarAgendamentoMutation = useCriarAgendamento();
   const deletarAgendamentoMutation = useDeletarAgendamento();
@@ -63,7 +61,6 @@ export default function AgendamentoPage() {
 
     try {
       await criarAgendamentoMutation.mutateAsync({
-        profissionalId: dados.idProfissional,
         pacienteId: data.pacienteId,
         data: isoParaBR(data.data),
         hora: data.horario,
@@ -88,7 +85,6 @@ export default function AgendamentoPage() {
 
     try {
       await deletarAgendamentoMutation.mutateAsync({
-        profissionalId: dados.idProfissional,
         pacienteId: agendamentoSelecionado.pacienteId,
         agendamentoId: agendamentoSelecionado.id,
       });

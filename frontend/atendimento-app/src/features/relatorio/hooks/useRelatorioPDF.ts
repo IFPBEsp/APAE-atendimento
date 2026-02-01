@@ -9,11 +9,9 @@ export function useRelatorioPDF(pacienteId: string) {
     queryKey: ["relatoriosPDF", pacienteId],
     enabled: !!pacienteId,
     queryFn: async () => {
-      const profissionalId = dados.idProfissional;
-
       const [paciente, profissional] = await Promise.all([
         buscarPacienteParaPdf(pacienteId),
-        buscarProfissionalParaPdf(profissionalId),
+        buscarProfissionalParaPdf(),
       ]);
 
       if (!paciente || !profissional) {

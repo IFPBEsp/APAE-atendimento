@@ -9,7 +9,7 @@ export async function getArquivos(
 ): Promise<ArquivoResponse[]> {
   try {
     const { data } = await api.get<ArquivoResponse[]>(
-      `${dados.urlBase}/arquivo/${dados.idProfissional}/${idPaciente}/${tipoArquivo}`,
+      `${dados.urlBase}/arquivo/${idPaciente}/${tipoArquivo}`,
     );
     return data;
   } catch (error) {

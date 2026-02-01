@@ -14,7 +14,6 @@ import {
 import { sendMagicLink, loginWithGoogle } from "@/services/authService";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { ProfissionalStorage } from "@/auth/authStorage";
 import { api } from "@/services/axios";
 const nunitoFont = Nunito({
   weight: "700",
@@ -124,15 +123,6 @@ export default function LoginPage() {
                     const token = await loginWithGoogle();
 
                     const { data } = await api.get("/auth/me");
-
-                    const profissional: ProfissionalStorage = {
-                        id: data.id,
-                    };
-
-                    localStorage.setItem(
-                      "@apae:profissional",
-                      JSON.stringify(profissional),
-                    );
 
                     document.cookie = `token=${token}; path=/; samesite=lax`;
 

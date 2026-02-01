@@ -89,7 +89,6 @@ export function useAnexos(pacienteId: string) {
       ...data,
       pacienteId,
       tipoArquivo: TipoArquivo.anexo,
-      profissionalId: dados.idProfissional,
     };
     try{
        validarTipoArquivo(request.arquivo);

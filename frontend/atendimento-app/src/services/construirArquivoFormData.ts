@@ -16,7 +16,6 @@ export function construirArquivoFormData(
   const metadata = {
     data: isoParaBR(data.data),
     tipoArquivo: data.tipoArquivo,
-    profissionalId: data.profissionalId,
     pacienteId: data.pacienteId,
     titulo: data.titulo,
     descricao: data.descricao,

@@ -66,13 +66,11 @@ export async function buscarPacienteParaPdf(
   
 }
 
-export async function buscarProfissionalParaPdf(
-  profissionalId: string
-): Promise<ProfissionalPdfDTO> {
+export async function buscarProfissionalParaPdf(): Promise<ProfissionalPdfDTO> {
 
   const {data: {
     nomeCompleto
-  }} = await api.get(`${dados.urlBase}/profissionais/${profissionalId}`);
+  }} = await api.get(`${dados.urlBase}/profissionais`);
 
   return {
     nome: nomeCompleto

@@ -8,7 +8,7 @@ export function useCriarAgendamento() {
     mutationFn: criarAgendamento,
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
-        queryKey: ["agendamentos", variables.profissionalId],
+        queryKey: ["agendamentos"],
       });
     },
   });

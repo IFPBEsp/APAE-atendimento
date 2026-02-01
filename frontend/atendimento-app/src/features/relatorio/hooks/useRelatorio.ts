@@ -99,7 +99,6 @@ export function useRelatorios(pacienteId: string) {
       ...data,
       pacienteId,
       tipoArquivo: TipoArquivo.relatorio,
-      profissionalId: dados.idProfissional,
     };
 
     try{

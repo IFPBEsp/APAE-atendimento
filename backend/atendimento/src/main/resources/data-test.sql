@@ -1,5 +1,8 @@
-INSERT INTO profissional_saude (id, primeiro_nome, nome_completo, email, contato, firebase_uid)
-VALUES ( '11111111-1111-1111-1111-111111111111', 'Ana', 'Dra. Ana Ribeiro', 'filipekevyn4@gmail.com', '11999990001'), ('22222222-2222-2222-2222-222222222222', 'Marcos', 'Dr. Marcos Oliveira', 'apaeatendimento2@gmail.com', '11977770002', null);
+INSERT INTO profissional_saude
+(id, primeiro_nome, nome_completo, email, contato, firebase_uid)
+VALUES
+('11111111-1111-1111-1111-111111111111', 'Ana', 'Dra. Ana Ribeiro', 'filipekevyn@gmail.com', '11999990001', null),
+('22222222-2222-2222-2222-222222222222', 'Marcos', 'Dr. Marcos Oliveira', 'marcosoliveira@gmail.com', '11977770002', null);
 
 INSERT INTO paciente (id, nome_completo, data_de_nascimento, contato, cpf, responsaveis, cidade, rua, bairro, numero_casa, transtornos) VALUES
 ( 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'João Pedro Silva', DATE '2016-05-10',

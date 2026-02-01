@@ -24,11 +24,8 @@ export async function getPacientes(
     return data;
   }
   
-  const profissional = JSON.parse(
-    localStorage.getItem("@apae:profissional") || "null"
-  );
   const { data } = await api.get<Paciente[]>(
-    `/profissionais/${profissional.id}/pacientes`
+    `/profissionais/pacientes`
   );
 
   return data;
