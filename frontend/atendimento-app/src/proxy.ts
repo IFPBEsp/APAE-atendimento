@@ -2,20 +2,24 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 export function proxy(request: NextRequest) {
-  const verified = request.cookies.get("verified")?.value;
+  const token = request.cookies.get("token")?.value;
 
   const publicRoutes = ["/login"];
   const pathname = request.nextUrl.pathname;
 
-  const isPublic = publicRoutes.includes(pathname);
+  const isPublicRoute = pathname.startsWith("/login");
 
-  if (!isPublic && !verified) {
+  if (!isPublicRoute && !token) {
     return NextResponse.redirect(new URL("/login", request.url));
+  }
+
+  if (isPublicRoute && token) {
+    return NextResponse.redirect(new URL("/home", request.url));
   }
 
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/home", "/login/verificacao"],
+  matcher: ["/home/:path*"],
 };

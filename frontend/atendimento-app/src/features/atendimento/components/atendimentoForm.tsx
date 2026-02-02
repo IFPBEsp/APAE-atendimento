@@ -9,7 +9,7 @@ import {
   criarAtendimento,
   editarAtendimento,
 } from "../services/atendimentoService";
-import dados from "../../../../data/verificacao.json";
+
 import { Atendimento, AtendimentoPayload } from "../types";
 import { useParams } from "next/navigation";
 import { toast } from "sonner";
@@ -145,7 +145,6 @@ export default function AtendimentoForm({
     }
 
     const payload: AtendimentoPayload = {
-      profissionalId: dados.idProfissional,
       pacienteId,
       data: isoParaBR(data.data),
       hora: data.hora,

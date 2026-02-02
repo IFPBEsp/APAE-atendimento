@@ -11,10 +11,8 @@ import java.util.Set;
 import java.util.UUID;
 
 public record AtendimentoRequestDTO(
-        UUID profissionalId,
         UUID pacienteId,
         Set<Topico> relatorio,
         LocalDate data,
-        LocalTime hora
-) {
+        LocalTime hora) {
 }

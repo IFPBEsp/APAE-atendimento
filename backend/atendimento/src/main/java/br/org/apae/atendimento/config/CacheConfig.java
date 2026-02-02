@@ -24,7 +24,6 @@ public class CacheConfig {
                 .recordStats()
         );
 
-        System.out.println("✅ CacheManager configurado com Caffeine");
         return cacheManager;
     }
 }

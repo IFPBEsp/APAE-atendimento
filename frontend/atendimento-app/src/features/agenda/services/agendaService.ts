@@ -1,9 +1,9 @@
 import { api } from "@/services/axios";
-import dados from "../../../../data/verificacao.json";
+
 import { CriarAgendamentoPayload, PacienteOption } from "../types";
 
-export async function listarAgendamentos(profissionalId: string) {
-  const { data } = await api.get(`/agendamento/${profissionalId}`);
+export async function listarAgendamentos() {
+  const { data } = await api.get(`/agendamento`);
   return data;
 }
 
@@ -13,18 +13,17 @@ export async function criarAgendamento(payload: CriarAgendamentoPayload) {
 }
 
 export async function deletarAgendamento(
-  profissionalId: string,
   pacienteId: string,
   agendamentoId: string,
 ): Promise<void> {
   await api.delete(
-    `/agendamento/${profissionalId}/${pacienteId}/${agendamentoId}`,
+    `/agendamento/${pacienteId}/${agendamentoId}`,
   );
 }
 
 export async function getPacientesPorProfissional(): Promise<PacienteOption[]> {
   const { data } = await api.get<PacienteOption[]>(
-    `/profissionais/${dados.idProfissional}/pacientes-option`,
+    `/profissionais/pacientes-option`,
   );
 
   return data;

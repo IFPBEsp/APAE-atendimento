@@ -24,7 +24,7 @@ import { useDeletarAgendamento } from "../hooks/useDeletarAgendamento";
 import { agruparPorData } from "../utils/agruparPorData";
 
 import { Agendamento } from "../types";
-import dados from "../../../../data/verificacao.json";
+
 import { isoParaBR } from "@/utils/formatarData";
 
 const nunitoFont = Nunito({ weight: "700" });
@@ -38,9 +38,7 @@ export default function AgendamentoPage() {
   const [agendamentoSelecionado, setAgendamentoSelecionado] =
     useState<Agendamento | null>(null);
 
-  const { data: agendamentos = [], isLoading } = useAgendamentos(
-    dados.idProfissional,
-  );
+  const { data: agendamentos = [], isLoading } = useAgendamentos();
 
   const criarAgendamentoMutation = useCriarAgendamento();
   const deletarAgendamentoMutation = useDeletarAgendamento();
@@ -64,7 +62,6 @@ export default function AgendamentoPage() {
 
     try {
       await criarAgendamentoMutation.mutateAsync({
-        profissionalId: dados.idProfissional,
         pacienteId: data.pacienteId,
         data: isoParaBR(data.data),
         hora: data.horario,
@@ -89,7 +86,6 @@ export default function AgendamentoPage() {
 
     try {
       await deletarAgendamentoMutation.mutateAsync({
-        profissionalId: dados.idProfissional,
         pacienteId: agendamentoSelecionado.pacienteId,
         agendamentoId: agendamentoSelecionado.id,
       });

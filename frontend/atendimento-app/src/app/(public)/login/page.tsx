@@ -11,11 +11,10 @@ import {
   InputGroupAddon,
   InputGroupInput,
 } from "@/components/ui/input-group";
-
-import dados from "../../../../data/verificacao.json";
-
+import { sendMagicLink, loginWithGoogle } from "@/services/authService";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { api } from "@/services/axios";
 const nunitoFont = Nunito({
   weight: "700",
 });
@@ -31,15 +30,18 @@ export default function LoginPage() {
   const isValidEmail = (value: string) =>
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (email !== dados.email) {
-      setError("E-mail inválido.");
-      return;
+    setError("");
+
+    try {
+      await api.post("/auth/send-link", { email });
+
+      await sendMagicLink(email);
+      router.push("/login/verificacao");
+    } catch {
+      setError("Erro ao enviar link de acesso.");
     }
-    if (!isValidEmail(email)) return;
-    document.cookie = "verified=true; path=/;";
-    router.push("/login/verificacao");
   };
 
   return (
@@ -105,7 +107,20 @@ export default function LoginPage() {
               </div>
 
               <Button
-                onClick={() => router.push("/home")}
+                onClick={async () => {
+                  try {
+                    const token = await loginWithGoogle();
+
+                    const { data } = await api.get("/auth/me");
+
+                    document.cookie = `token=${token}; path=/; samesite=lax`;
+
+                    router.push("/home");
+                  } catch (err) {
+                    console.error(err);
+                    setError("Erro ao autenticar com Google");
+                  }
+                }}
                 type="button"
                 className={` active:scale-[0.98] w-full h-[46px] rounded-full border border-[#B2D7EC] bg-white  text-gray-700 text-[18px] hover:cursor-pointer hover:bg-[#F8FAFD] ${baloo2Font.className}`}
                 style={{ boxShadow: "4px 4px 10px rgba(0, 0, 0, 0.25)" }}

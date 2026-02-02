@@ -4,20 +4,24 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import br.org.apae.atendimento.dtos.response.PacienteOptionDTO;
+import br.org.apae.atendimento.exceptions.notfound.ProfissionalSaudeNotFoundException;
+import br.org.apae.atendimento.mappers.PacienteMapper;
+import br.org.apae.atendimento.mappers.ProfissionalMapper;
+
+import br.org.apae.atendimento.repositories.PacienteRepository;
+import br.org.apae.atendimento.services.storage.ObjectStorageService;
+import br.org.apae.atendimento.services.storage.PresignedUrlService;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import br.org.apae.atendimento.dtos.response.PacienteOptionDTO;
 import br.org.apae.atendimento.dtos.response.PacienteResponseDTO;
 import br.org.apae.atendimento.dtos.response.ProfissionalResponseDTO;
 import br.org.apae.atendimento.entities.Paciente;
 import br.org.apae.atendimento.entities.ProfissionalSaude;
-import br.org.apae.atendimento.exceptions.notfound.ProfissionalSaudeNotFoundException;
-import br.org.apae.atendimento.mappers.PacienteMapper;
-import br.org.apae.atendimento.mappers.ProfissionalMapper;
-import br.org.apae.atendimento.repositories.PacienteRepository;
 import br.org.apae.atendimento.repositories.ProfissionalSaudeRepository;
-import br.org.apae.atendimento.services.storage.PresignedUrlService;
-import br.org.apae.atendimento.utils.PacienteImagemUtil;
 
 @Service
 public class ProfissionalSaudeService {
@@ -63,7 +67,7 @@ public class ProfissionalSaudeService {
 
         return pacientes.stream()
                 .map(paciente -> {
-                    String url = PacienteImagemUtil.obterImagem(paciente.getId());
+                    String url = urlService.gerarUrlPreAssinada(FOTO_PATH + paciente.getId());
                     paciente.setFotoPreAssinada(url);
                     return pacienteMapper.toDTOPadrao(paciente);
                 }).collect(Collectors.toList());
@@ -84,4 +88,28 @@ public class ProfissionalSaudeService {
         }
         return nome;
     }
+
+    private String getEmailUsuarioLogado() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || auth.getPrincipal() == null) {
+            throw new AccessDeniedException("Usuário não autenticado");
+        }
+        return auth.getName();
+    }
+    public ProfissionalResponseDTO getProfissionalLogado() {
+        String email = getEmailUsuarioLogado();
+
+        ProfissionalSaude profissional = repository
+                .findByEmail(email)
+                .orElseThrow(() ->
+                        new AccessDeniedException("Usuário não autorizado para o sistema")
+                );
+
+        return profissionalMapper.toDTOPadrao(profissional);
+    }
+
+    public boolean existByEmail(String email){
+        return repository.existsByEmail(email);
+    }
+
 }

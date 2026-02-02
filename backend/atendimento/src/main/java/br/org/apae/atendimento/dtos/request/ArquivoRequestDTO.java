@@ -7,7 +7,6 @@ import java.util.UUID;
 public record ArquivoRequestDTO(
         LocalDate data,
         Long tipoArquivo,
-        UUID profissionalId,
         UUID pacienteId,
         String titulo,
         String descricao

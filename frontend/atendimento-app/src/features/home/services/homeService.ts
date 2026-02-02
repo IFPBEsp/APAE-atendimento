@@ -1,5 +1,5 @@
 import { api } from "@/services/axios";
-import dados from "../../../../data/verificacao.json";
+
 import { Paciente } from "../types";
 
 export type FiltroPaciente = {
@@ -8,6 +8,7 @@ export type FiltroPaciente = {
   cidade?: string;
 };
 
+
 export async function getPacientes(
   filtros?: FiltroPaciente
 ): Promise<Paciente[]> {
@@ -15,16 +16,16 @@ export async function getPacientes(
     const query = new URLSearchParams(
       filtros as Record<string, string>
     ).toString();
-
+    
     const { data } = await api.get<Paciente[]>(
       `/pacientes/search?${query}`
     );
-
+    
     return data;
   }
-
+  
   const { data } = await api.get<Paciente[]>(
-    `/profissionais/${dados.idProfissional}/pacientes`
+    `/profissionais/pacientes`
   );
 
   return data;

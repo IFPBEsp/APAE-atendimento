@@ -30,11 +30,14 @@ export default function RootLayout({
         className={cn(
           "min-h-screen bg-background font-sans antialiased",
           geistSans.variable,
-          geistMono.variable,
+          geistMono.variable
         )}
       >
         <CoreProvider>{children}</CoreProvider>
-        <Toaster richColors duration={1500} />
+        <Toaster 
+        richColors 
+        duration={1500}
+        />
       </body>
     </html>
   );

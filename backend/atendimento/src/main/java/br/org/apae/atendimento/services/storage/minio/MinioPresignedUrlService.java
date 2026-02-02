@@ -30,8 +30,6 @@ public class MinioPresignedUrlService implements PresignedUrlService {
     )
     public String gerarUrlPreAssinada(String objectName) {
         try {
-            System.out.println("🔴 CACHE MISS - Gerando NOVA URL: " + BUCKET_NAME + "/" + objectName);
-            System.out.println("   Chave: presigned:" + BUCKET_NAME + ":" + objectName);
             String url = client.getPresignedObjectUrl(
                     GetPresignedObjectUrlArgs.builder()
                             .bucket(BUCKET_NAME)
@@ -47,7 +45,6 @@ public class MinioPresignedUrlService implements PresignedUrlService {
                             .build()
             );
 
-            System.out.println("✅ URL gerada (tamanho: " + url.length() + ")");
             return url;
 
         } catch (Exception e) {
@@ -57,6 +54,5 @@ public class MinioPresignedUrlService implements PresignedUrlService {
 
     @CacheEvict(value = "presignedUrls", key = "'presigned:' + #bucket + ':' + #objectName")
     public void evictUrlFromCache(String objectName) {
-        System.out.println("🗑️ Removendo do cache: presigned:" + BUCKET_NAME + ":" + objectName);
     }
 }

@@ -9,6 +9,8 @@ import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import br.org.apae.atendimento.security.UsuarioAutenticado;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import java.util.List;
 import java.util.UUID;
 
@@ -19,26 +21,31 @@ public class ProfissionalSaudeController {
     @Autowired
     private ProfissionalSaudeService profissionalSaudeService;
 
-    @GetMapping("/{id}")
-    public ResponseEntity<ProfissionalResponseDTO> buscarPorId(@PathVariable UUID id) {
-        ProfissionalResponseDTO profissional = profissionalSaudeService.getProfissionalByIdDTO(id);
+    @GetMapping
+    public ResponseEntity<ProfissionalResponseDTO> buscarPorId(
+            @AuthenticationPrincipal UsuarioAutenticado usuarioAutenticado) {
+        ProfissionalResponseDTO profissional = profissionalSaudeService
+                .getProfissionalByIdDTO(usuarioAutenticado.getId());
         return ResponseEntity.ok().body(profissional);
     }
 
-    @GetMapping("/{id}/pacientes")
-    public ResponseEntity<List<PacienteResponseDTO>> listarPacientesDoProfissional(@PathVariable UUID id) {
-        List<PacienteResponseDTO> pacientes = profissionalSaudeService.getPacientesDoProfissional(id);
+    @GetMapping("/pacientes")
+    public ResponseEntity<List<PacienteResponseDTO>> listarPacientesDoProfissional(
+            @AuthenticationPrincipal UsuarioAutenticado usuarioAutenticado) {
+        List<PacienteResponseDTO> pacientes = profissionalSaudeService
+                .getPacientesDoProfissional(usuarioAutenticado.getId());
         return ResponseEntity.ok().body(pacientes);
     }
 
-    @GetMapping("/{id}/primeiro-nome")
-    public ResponseEntity<String> obterPrimeiroNome(@PathVariable UUID id) {
-        String nome = profissionalSaudeService.getPrimeiroNome(id);
+    @GetMapping("/primeiro-nome")
+    public ResponseEntity<String> obterPrimeiroNome(@AuthenticationPrincipal UsuarioAutenticado usuarioAutenticado) {
+        String nome = profissionalSaudeService.getPrimeiroNome(usuarioAutenticado.getId());
         return ResponseEntity.ok().body(nome);
     }
 
-    @GetMapping("/{id}/pacientes-option")
-    public ResponseEntity<List<PacienteOptionDTO>> pacientesOption(@PathVariable UUID id){
-        return ResponseEntity.ok().body(profissionalSaudeService.getPacienteOption(id));
+    @GetMapping("/pacientes-option")
+    public ResponseEntity<List<PacienteOptionDTO>> pacientesOption(
+            @AuthenticationPrincipal UsuarioAutenticado usuarioAutenticado) {
+        return ResponseEntity.ok().body(profissionalSaudeService.getPacienteOption(usuarioAutenticado.getId()));
     }
 }

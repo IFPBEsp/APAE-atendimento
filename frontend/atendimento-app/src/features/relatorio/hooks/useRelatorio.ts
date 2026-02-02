@@ -6,7 +6,7 @@ import {
   RelatorioBase,
 } from "@/features/relatorio/types";
 
-import dados from "@/../data/verificacao.json";
+
 import { toast } from "sonner";
 import { validarTamanhoArquivo } from "@/services/validarTamanhoArquivo";
 import { construirArquivoFormData } from "@/services/construirArquivoFormData";
@@ -99,7 +99,6 @@ export function useRelatorios(pacienteId: string) {
       ...data,
       pacienteId,
       tipoArquivo: TipoArquivo.relatorio,
-      profissionalId: dados.idProfissional,
     };
 
     try{

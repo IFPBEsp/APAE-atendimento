@@ -6,17 +6,15 @@ export function useDeletarAgendamento() {
 
   return useMutation({
     mutationFn: ({
-      profissionalId,
       pacienteId,
       agendamentoId,
     }: {
-      profissionalId: string;
       pacienteId: string;
       agendamentoId: string;
-    }) => deletarAgendamento(profissionalId, pacienteId, agendamentoId),
-    onSuccess: (_, variables) => {
+    }) => deletarAgendamento(pacienteId, agendamentoId),
+    onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["agendamentos", variables.profissionalId],
+        queryKey: ["agendamentos"],
       });
     },
   });

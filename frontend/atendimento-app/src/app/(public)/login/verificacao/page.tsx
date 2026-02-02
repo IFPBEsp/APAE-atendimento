@@ -1,41 +1,50 @@
 "use client";
 
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import {
-  InputOTP,
-  InputOTPGroup,
-  InputOTPSlot,
-} from "@/components/ui/input-otp";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Check } from "lucide-react";
-import dados from "../../../../../data/verificacao.json";
+import { Check, Loader2 } from "lucide-react";
+
+import { confirmMagicLink } from "@/services/authService";
+import { api } from "@/services/axios";
 
 export default function VerificacaoPage() {
-  const [value, setValue] = useState("");
-  const [status, setStatus] = useState<"idle" | "error" | "success">("idle");
+  const [status, setStatus] = useState<"loading" | "success" | "error">(
+    "loading",
+  );
   const router = useRouter();
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (value !== dados.codigo) {
-      setStatus("error");
-      return;
-    } else setStatus("success");
-    setTimeout(() => {
-      document.cookie = "verified=true; path=/;";
-      router.push("/home");
-    }, 700);
-  };
+  useEffect(() => {
+    const run = async () => {
+      try {
+        const token = await confirmMagicLink();
 
-  const borderColor =
-    status === "error"
-      ? "border-red-500 focus:ring-red-500"
-      : status === "success"
-      ? "border-green-500 focus:ring-green-500"
-      : "border-[#0D4F97] focus:ring-blue-600";
+        if (!token) {
+          setStatus("loading");
+          return;
+        }
+
+        await api.get("/auth/me", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        document.cookie = `token=${token}; path=/; samesite=lax`;
+
+        setStatus("success");
+
+        setTimeout(() => {
+          router.replace("/home");
+        }, 1000);
+      } catch {
+        setStatus("error");
+      }
+    };
+
+    run();
+  }, [router]);
 
   return (
     <div className="relative min-h-screen w-full flex items-center justify-center">
@@ -53,62 +62,45 @@ export default function VerificacaoPage() {
           Verificação
         </h1>
 
-        <p className="text-base text-[#344054] mt-3">
-          Verifique o código no seu e-mail para efetuar o login, ou{" "}
-          <Link href="/login" className="text-[#0D4F97] underline font-medium">
-            edite seu e-mail
-          </Link>
-          .
-        </p>
-
-        <div className="mt-8 flex justify-center">
-          <InputOTP
-            maxLength={4}
-            value={value}
-            onChange={(val) => {
-              if (/^\d*$/.test(val)) setValue(val);
-            }}
-          >
-            <InputOTPGroup className="flex gap-3">
-              {[0, 1, 2, 3].map((i) => (
-                <InputOTPSlot
-                  key={i}
-                  index={i}
-                  className={`w-12 h-15 border-1 rounded-md text-center text-xl font-semibold text-[#344054] focus:outline-none transition-all ${borderColor}`}
-                />
-              ))}
-            </InputOTPGroup>
-          </InputOTP>
-        </div>
-
-        <div className="h-6 mt-3">
-          {status === "error" && (
-            <p className="text-red-500 text-sm">
-              Código inválido. Verifique e tente novamente.
+        {status === "loading" && (
+          <>
+            <p className="text-base text-[#344054] mt-6">
+              Verifique o link na sua caixa de entrada do email para validar o
+              seu acesso.
             </p>
-          )}
-          {status === "success" && (
-            <p className="text-green-600 text-sm">
-              Código validado com sucesso.
+
+            <div className="flex justify-center mt-10">
+              <Loader2 className="animate-spin text-[#165BAA]" size={48} />
+            </div>
+          </>
+        )}
+
+        {status === "success" && (
+          <>
+            <p className="text-green-600 text-base mt-6">
+              Acesso confirmado com sucesso.
             </p>
-          )}
-        </div>
 
-        <Button
-          onClick={handleSubmit}
-          disabled={value.length < 4}
-          className={`active:scale-[0.98] text-[18px] w-full h-[46px] rounded-full bg-[#165BAA] hover:bg-[#13447D] hover:cursor-pointer text-white mt-8 disabled:bg-[#B0C6DE] disabled:cursor-not-allowed`}
-          style={{ boxShadow: "4px 4px 10px rgba(0, 0, 0, 0.25)" }}
-        >
-          {status === "success" ? <Check size={22} /> : "Verificar"}
-        </Button>
+            <div className="flex justify-center mt-10">
+              <Check size={48} className="text-green-600" />
+            </div>
+          </>
+        )}
 
-        <button
-          onClick={() => console.log("Reenviar código")}
-          className="text-base text-[#344054] mt-6 underline cursor-pointer"
-        >
-          Enviar novamente
-        </button>
+        {status === "error" && (
+          <>
+            <p className="text-red-500 text-base mt-6">
+              Link inválido ou expirado.
+            </p>
+
+            <Link
+              href="/login"
+              className="text-[#0D4F97] underline font-medium mt-6 block"
+            >
+              Voltar para o login
+            </Link>
+          </>
+        )}
       </div>
     </div>
   );

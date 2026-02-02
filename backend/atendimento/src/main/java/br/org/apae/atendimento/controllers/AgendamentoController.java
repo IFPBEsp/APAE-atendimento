@@ -3,10 +3,12 @@ package br.org.apae.atendimento.controllers;
 import br.org.apae.atendimento.dtos.request.AgendamentoRequestDTO;
 import br.org.apae.atendimento.dtos.response.AgendamentoResponseDTO;
 import br.org.apae.atendimento.dtos.response.DiaAgendamentoResponseDTO;
+import br.org.apae.atendimento.security.UsuarioAutenticado;
 import br.org.apae.atendimento.services.AgendamentoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,24 +21,27 @@ public class AgendamentoController {
     private AgendamentoService service;
 
     @PostMapping()
-    public ResponseEntity<AgendamentoResponseDTO> agendarPaciente(@RequestBody AgendamentoRequestDTO agendamentoRequest){
-        AgendamentoResponseDTO agendamento = service.agendar(agendamentoRequest);
+    public ResponseEntity<AgendamentoResponseDTO> agendarPaciente(
+            @RequestBody AgendamentoRequestDTO agendamentoRequest,
+            @AuthenticationPrincipal UsuarioAutenticado usuarioAtenticado
+    ){
+        AgendamentoResponseDTO agendamento = service.agendar(agendamentoRequest, usuarioAtenticado.getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(agendamento);
     }
 
-    @GetMapping("/{profissionalId}")
+    @GetMapping()
     public ResponseEntity<List<DiaAgendamentoResponseDTO>> listarAgendamentoAgrupadoPorDia(
-            @PathVariable UUID profissionalId
-    ){
-        List<DiaAgendamentoResponseDTO> agendamentos = service.listarAgrupadoPorDia(profissionalId);
+            @AuthenticationPrincipal UsuarioAutenticado usuarioAtenticado
+            ){
+        List<DiaAgendamentoResponseDTO> agendamentos = service.listarAgrupadoPorDia(usuarioAtenticado.getId());
         return ResponseEntity.ok().body(agendamentos);
     }
 
-    @DeleteMapping("/{profissionalId}/{pacienteId}/{agendamentoId}")
-    public ResponseEntity<String> deletarAgendamento(@PathVariable UUID profissionalId,
-                                                     @PathVariable UUID pacienteId,
-                                                     @PathVariable UUID agendamentoId){
-        service.deletar(profissionalId, pacienteId, agendamentoId);
+    @DeleteMapping("/{pacienteId}/{agendamentoId}")
+    public ResponseEntity<String> deletarAgendamento(@PathVariable UUID pacienteId,
+                                                     @PathVariable UUID agendamentoId,
+                                                     @AuthenticationPrincipal UsuarioAutenticado usuarioAutenticado){
+        service.deletar(usuarioAutenticado.getId(), pacienteId, agendamentoId);
         return ResponseEntity.ok().body("Agendamento excluído");
     }
 }

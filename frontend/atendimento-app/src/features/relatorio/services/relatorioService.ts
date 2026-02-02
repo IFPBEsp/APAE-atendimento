@@ -6,7 +6,7 @@ import {
 import { AxiosError } from "axios";
 import { TipoArquivo } from "@/features/arquivo/types";
 import { api } from "@/services/axios";
-import dados from "@/../data/verificacao.json";
+
 import { formatarDataBr } from "@/features/relatorio/utils/formatarData";
 
 export async function getRelatorios(
@@ -55,7 +55,7 @@ export async function buscarPacienteParaPdf(
     dataDeNascimento,
     endereco,
     responsaveis
-  }} = await api.get(`${dados.urlBase}/pacientes/${pacienteId}`);
+  }} = await api.get(`/pacientes/${pacienteId}`);
 
   return {
     nome: nomeCompleto,
@@ -66,13 +66,11 @@ export async function buscarPacienteParaPdf(
   
 }
 
-export async function buscarProfissionalParaPdf(
-  profissionalId: string
-): Promise<ProfissionalPdfDTO> {
+export async function buscarProfissionalParaPdf(): Promise<ProfissionalPdfDTO> {
 
   const {data: {
     nomeCompleto
-  }} = await api.get(`${dados.urlBase}/profissionais/${profissionalId}`);
+  }} = await api.get(`/profissionais`);
 
   return {
     nome: nomeCompleto

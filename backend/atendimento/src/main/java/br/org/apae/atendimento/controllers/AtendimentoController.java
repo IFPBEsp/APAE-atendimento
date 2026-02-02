@@ -12,6 +12,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import br.org.apae.atendimento.security.UsuarioAutenticado;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+
 import java.util.List;
 import java.util.UUID;
 
@@ -30,35 +33,36 @@ public class AtendimentoController {
 
     @PostMapping
     public ResponseEntity<AtendimentoResponseDTO> criarAtendimento(
-            @RequestBody AtendimentoRequestDTO atendimento
-    ) {
-        AtendimentoResponseDTO novoAtendimento = atendimentoService.addAtendimento(atendimento);
+            @RequestBody AtendimentoRequestDTO atendimento,
+            @AuthenticationPrincipal UsuarioAutenticado usuarioAutenticado) {
+        AtendimentoResponseDTO novoAtendimento = atendimentoService.addAtendimento(atendimento,
+                usuarioAutenticado.getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(novoAtendimento);
     }
 
-    @GetMapping("/{profissionalId}/{pacienteId}")
+    @GetMapping("/{pacienteId}")
     public ResponseEntity<List<MesAnoAtendimentoResponseDTO>> listarAtendimentosDoPaciente(
             @PathVariable UUID pacienteId,
-            @PathVariable UUID profissionalId
-    ) {
+            @AuthenticationPrincipal UsuarioAutenticado usuarioAutenticado) {
         List<MesAnoAtendimentoResponseDTO> atendimentos = atendimentoService.getAtendimentosAgrupadosPorMes(
-                pacienteId, profissionalId);
+                pacienteId, usuarioAutenticado.getId());
         return ResponseEntity.ok().body(atendimentos);
     }
 
-
-    @DeleteMapping("/{profissionalId}/{pacienteId}/{atendimentoId}")
-    public ResponseEntity<String> deletar(@PathVariable UUID profissionalId,
-                                                     @PathVariable UUID pacienteId,
-                                                     @PathVariable UUID atendimentoId){
-        atendimentoService.deletar(profissionalId, pacienteId, atendimentoId);
+    @DeleteMapping("/{pacienteId}/{atendimentoId}")
+    public ResponseEntity<String> deletar(@PathVariable UUID pacienteId,
+            @PathVariable UUID atendimentoId,
+            @AuthenticationPrincipal UsuarioAutenticado usuarioAutenticado) {
+        atendimentoService.deletar(usuarioAutenticado.getId(), pacienteId, atendimentoId);
         return ResponseEntity.ok().body("Atendimento excluído");
     }
 
     @PutMapping("/{atendimentoId}")
     public ResponseEntity<AtendimentoResponseDTO> editarTopicos(@RequestBody AtendimentoRequestDTO updateDTO,
-                                                                @PathVariable UUID atendimentoId){
-        AtendimentoResponseDTO atendimentoAtualizado = atendimentoService.editar(updateDTO, atendimentoId);
+            @PathVariable UUID atendimentoId,
+            @AuthenticationPrincipal UsuarioAutenticado usuarioAutenticado) {
+        AtendimentoResponseDTO atendimentoAtualizado = atendimentoService.editar(updateDTO, atendimentoId,
+                usuarioAutenticado.getId());
         return ResponseEntity.ok().body(atendimentoAtualizado);
     }
 }

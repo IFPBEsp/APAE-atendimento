@@ -3,6 +3,7 @@ package br.org.apae.atendimento.services;
 import br.org.apae.atendimento.dtos.request.ArquivoRequestDTO;
 import br.org.apae.atendimento.dtos.response.ArquivoResponseDTO;
 import br.org.apae.atendimento.entities.Arquivo;
+import br.org.apae.atendimento.entities.ProfissionalSaude;
 import br.org.apae.atendimento.entities.TipoArquivo;
 import br.org.apae.atendimento.mappers.ArquivoMapper;
 import br.org.apae.atendimento.repositories.AnexoRepository;
@@ -41,8 +42,8 @@ public class ArquivoService {
     private static final String RELATORIO_PATH = "relatorio";
 
     @Transactional
-    public ArquivoResponseDTO salvar(MultipartFile file, ArquivoRequestDTO arquivoRequest) {
-        String objectName = criarObjectName(arquivoRequest.pacienteId(), arquivoRequest.profissionalId(),
+    public ArquivoResponseDTO salvar(MultipartFile file, ArquivoRequestDTO arquivoRequest, UUID profissionalId) {
+        String objectName = criarObjectName(arquivoRequest.pacienteId(), profissionalId,
                 arquivoRequest.tipoArquivo());
 
         String url = storageService.uploadArquivo(objectName, file);
@@ -53,6 +54,9 @@ public class ArquivoService {
         arquivo.setObjectName(objectName);
         arquivo.setNomeArquivo(file.getOriginalFilename());
         arquivo.setTipo(tipoArquivo);
+
+        ProfissionalSaude profissionalSaude = new ProfissionalSaude(profissionalId);
+        arquivo.setProfissional(profissionalSaude);
 
         Arquivo arquivoPersistido = repository.save(arquivo);
         arquivoPersistido.setPresignedUrl(url);
