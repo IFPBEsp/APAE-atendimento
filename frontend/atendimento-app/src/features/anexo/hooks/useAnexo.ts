@@ -7,7 +7,7 @@ import {
   AnexoEnvioFormData,
   TipoArquivo,
 } from "@/features/anexo/components/anexoForm";
-import dados from "@/../data/verificacao.json";
+
 import { validarTipoArquivo } from "@/services/validarTipoArquivo";
 import { validarTamanhoArquivo } from "@/services/validarTamanhoArquivo";
 import { construirArquivoFormData } from "@/services/construirArquivoFormData";

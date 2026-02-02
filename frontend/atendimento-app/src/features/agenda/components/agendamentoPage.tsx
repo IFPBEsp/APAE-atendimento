@@ -24,7 +24,7 @@ import { useDeletarAgendamento } from "../hooks/useDeletarAgendamento";
 import { agruparPorData } from "../utils/agruparPorData";
 
 import { Agendamento } from "../types";
-import dados from "../../../../data/verificacao.json";
+
 import { isoParaBR } from "@/utils/formatarData";
 
 const nunitoFont = Nunito({ weight: "700" });

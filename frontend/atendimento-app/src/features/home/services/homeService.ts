@@ -1,5 +1,5 @@
 import { api } from "@/services/axios";
-import dados from "../../../../data/verificacao.json";
+
 import { Paciente } from "../types";
 
 export type FiltroPaciente = {

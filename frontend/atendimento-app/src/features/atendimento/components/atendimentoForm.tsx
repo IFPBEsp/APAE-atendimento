@@ -9,7 +9,7 @@ import {
   criarAtendimento,
   editarAtendimento,
 } from "../services/atendimentoService";
-import dados from "../../../../data/verificacao.json";
+
 import { Atendimento, AtendimentoPayload } from "../types";
 import { useParams } from "next/navigation";
 import { toast } from "sonner";

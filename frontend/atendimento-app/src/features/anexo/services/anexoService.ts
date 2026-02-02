@@ -6,7 +6,7 @@ import {
 import { AxiosError } from "axios";
 
 import { api } from "@/services/axios";
-import data from "@/../data/verificacao.json";
+
 import { Anexo, AnexoResponse } from "../types";
 
 export async function getAnexos(pacienteId: string): Promise<Anexo[]> {
@@ -48,7 +48,7 @@ export async function apagarAnexo(objectName?: string): Promise<void> {
       throw new Error("Nome do arquivo não informado");
     }
 
-    await api.delete(`${data.urlBase}/arquivo/delete`, {
+    await api.delete(`/arquivo/delete`, {
       params: { objectName },
     });
   } catch (error) {

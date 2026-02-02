@@ -1,6 +1,6 @@
 import {buscarPacienteParaPdf, buscarProfissionalParaPdf} from "@/features/relatorio/services/relatorioService";
 import {useQuery} from "@tanstack/react-query";
-import dados from "@/../data/verificacao.json";
+
 import { RelatorioPDFData } from "../types";
 
 
