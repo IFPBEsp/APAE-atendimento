@@ -1,46 +1,37 @@
 import {
-  getAuth,
   GoogleAuthProvider,
   signInWithPopup,
   sendSignInLinkToEmail,
   signInWithEmailLink,
-  isSignInWithEmailLink
+  isSignInWithEmailLink,
 } from "firebase/auth";
 
-import { auth } from "@/lib/firebase";
+import { getFirebaseAuth } from "@/lib/firebase";
 
 const actionCodeSettings = {
-  url: "http://localhost:3000/login/verificacao",
+  url: `${process.env.NEXT_PUBLIC_APP_URL}/login/verificacao`,
   handleCodeInApp: true,
 };
 
-/*export async function loginWithGoogle() {
+export async function loginWithGoogle() {
+  const auth = getFirebaseAuth();
   const provider = new GoogleAuthProvider();
+
   const cred = await signInWithPopup(auth, provider);
   return await cred.user.getIdToken();
-}*/
-
-export async function loginWithGoogle() {
-  const provider = new GoogleAuthProvider();
-
-  const cred = await signInWithPopup(auth, provider);
-
-  console.log("Usuário Google:", cred.user);
-
-  const token = await cred.user.getIdToken();
-
-  console.log("ID TOKEN:", token);
-
-  return token;
 }
 
 export async function sendMagicLink(email: string) {
+  const auth = getFirebaseAuth();
+
   await sendSignInLinkToEmail(auth, email, actionCodeSettings);
   window.localStorage.setItem("emailForSignIn", email);
 }
 
 export async function confirmMagicLink() {
-  const auth = getAuth();
+  if (typeof window === "undefined") return null;
+
+  const auth = getFirebaseAuth();
   const url = window.location.href;
 
   if (!isSignInWithEmailLink(auth, url)) {
@@ -48,10 +39,7 @@ export async function confirmMagicLink() {
   }
 
   const email = localStorage.getItem("emailForSignIn");
-
-  if (!email) {
-    throw new Error("Email não encontrado");
-  }
+  if (!email) return null;
 
   const result = await signInWithEmailLink(auth, email, url);
 

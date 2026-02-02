@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { Check, Loader2 } from "lucide-react";
 
 import { confirmMagicLink } from "@/services/authService";
+import { api } from "@/services/axios";
 
 export default function VerificacaoPage() {
   const [status, setStatus] = useState<"loading" | "success" | "error">(
@@ -24,17 +25,11 @@ export default function VerificacaoPage() {
           return;
         }
 
-        const response = await fetch("http://localhost:8080/auth/me", {
+        await api.get("/auth/me", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-
-        if (!response.ok) {
-          throw new Error("Usuário não autorizado");
-        }
-
-        const data = await response.json();
 
         document.cookie = `token=${token}; path=/; samesite=lax`;
 

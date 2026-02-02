@@ -35,18 +35,7 @@ export default function LoginPage() {
     setError("");
 
     try {
-      const response = await fetch("http://localhost:8080/auth/send-link", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email }),
-      });
-
-      if (!response.ok) {
-        setError("Acesso negado. Email não autorizado.");
-        return;
-      }
+      await api.post("/auth/send-link", { email });
 
       await sendMagicLink(email);
       router.push("/login/verificacao");
