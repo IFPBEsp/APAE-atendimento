@@ -28,5 +28,5 @@ public interface AgendamentoRepository extends JpaRepository<Agendamento, UUID> 
             @Param("pacienteId") UUID pacienteId
     );
 
-    boolean existsByProfissionalIdAndPacienteIdAndDataHora(UUID profissionalId, UUID pacienteId, LocalDateTime dataHora);
+    boolean existsByProfissionalIdAndDataHora(UUID profissionalId, LocalDateTime dataHora);
 }

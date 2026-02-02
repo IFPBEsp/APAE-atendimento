@@ -3,9 +3,7 @@ package br.org.apae.atendimento.services;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
-import java.time.temporal.TemporalAccessor;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -23,7 +21,6 @@ import br.org.apae.atendimento.exceptions.invalid.RelacaoInvalidException;
 import br.org.apae.atendimento.exceptions.notfound.AtendimentoNotFoundException;
 import br.org.apae.atendimento.mappers.AtendimentoMapper;
 import br.org.apae.atendimento.repositories.AtendimentoRepository;
-import jakarta.persistence.NonUniqueResultException;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -46,12 +43,11 @@ public class AtendimentoService {
     }
 
     public AtendimentoResponseDTO addAtendimento(AtendimentoRequestDTO atendimentoRequestDTO){
-        if (repository.existsByPacienteIdAndProfissionalIdAndDataAtendimento(atendimentoRequestDTO.pacienteId(),
+        if (repository.existsByProfissionalIdAndDataAtendimento(
                 atendimentoRequestDTO.profissionalId(),
                 LocalDateTime.of(atendimentoRequestDTO.data(), atendimentoRequestDTO.hora())
-
         )){
-            throw new AtendimentoInvalidException("Já existe um atendimento para este horário.");
+            throw new AtendimentoInvalidException("Já existe um atendimento neste horário.");
         }
 
         Atendimento dadosConvertidos = atendimentoMapper.toEntityPadrao(atendimentoRequestDTO);
@@ -64,7 +60,7 @@ public class AtendimentoService {
 
         Atendimento dadosPersistidos = repository.save(dadosConvertidos);
         try {
-            tratarAgendamento(atendimentoRequestDTO.pacienteId(), atendimentoRequestDTO.data());
+            tratarAgendamento(atendimentoRequestDTO.pacienteId(), atendimentoRequestDTO.data(), dadosPersistidos.getNumeracao());
         }
         catch (AgendamentoNotFoundException e){
         }
@@ -84,8 +80,9 @@ public class AtendimentoService {
         }
     }
 
-    public void tratarAgendamento(UUID pacienteId, LocalDate data){
+    public void tratarAgendamento(UUID pacienteId, LocalDate data, Long numeracao){
         Agendamento agendamento = agendamentoService.buscarAgendamentoPorDataEPaciente(data, pacienteId);
+        agendamento.setNumeracao(numeracao);
 
         agendamentoService.setStatus(agendamento);
     }
