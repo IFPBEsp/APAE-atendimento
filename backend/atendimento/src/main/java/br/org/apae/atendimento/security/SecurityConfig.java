@@ -21,8 +21,6 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        System.out.println("🛡️ SecurityFilterChain carregada com logs ativos");
-
         http
                 .cors(cors -> {})
                 .csrf(csrf -> csrf.disable())

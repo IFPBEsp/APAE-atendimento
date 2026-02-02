@@ -51,6 +51,5 @@ public class S3PresignedUrlService implements PresignedUrlService {
 
     @CacheEvict(value = "presignedUrls", key = "'presigned:' + #bucket + ':' + #objectName")
     public void evictUrlFromCache(String objectName) {
-        System.out.println("🗑️ Removendo do cache: presigned:" + BUCKET_NAME + ":" + objectName);
     }
 }
