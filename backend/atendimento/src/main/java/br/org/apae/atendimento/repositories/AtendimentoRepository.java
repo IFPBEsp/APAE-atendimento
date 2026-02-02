@@ -13,12 +13,12 @@ import java.util.UUID;
 public interface AtendimentoRepository extends JpaRepository<Atendimento, UUID> {
     List<Atendimento> findByPacienteIdAndProfissionalIdOrderByDataAtendimento(UUID pacienteId, UUID profissionalId);
     @Query("""
-    SELECT COALESCE(MAX(a.numeracao), 0)
-    FROM Atendimento a
-    WHERE FUNCTION('MONTH', a.dataAtendimento) = :mes
-      AND FUNCTION('YEAR', a.dataAtendimento) = :ano
-      AND a.profissional.id = :profissionalId
-      AND a.paciente.id = :pacienteId
+        SELECT COALESCE(MAX(a.numeracao), 0)
+        FROM Atendimento a
+        WHERE EXTRACT(MONTH FROM a.dataAtendimento) = :mes
+          AND EXTRACT(YEAR FROM a.dataAtendimento) = :ano
+          AND a.profissional.id = :profissionalId
+          AND a.paciente.id = :pacienteId
     """)
     Long findMaxNumeracaoByMesAndAno(
             int mes,
@@ -26,20 +26,17 @@ public interface AtendimentoRepository extends JpaRepository<Atendimento, UUID> 
             UUID profissionalId,
             UUID pacienteId
     );
-
     @Query("""
         SELECT CASE WHEN COUNT(a) > 0 THEN true ELSE false END
         FROM Atendimento a
-        WHERE FUNCTION('DAY', a.dataAtendimento) = :dia
-          AND FUNCTION('MONTH', a.dataAtendimento) = :mes
-          AND FUNCTION('YEAR', a.dataAtendimento) = :ano
+        WHERE a.dataAtendimento >= :inicioDia
+          AND a.dataAtendimento < :fimDia
           AND a.profissional.id = :profissionalId
           AND a.paciente.id = :pacienteId
     """)
     boolean existsAtendimentoNoDia(
-            int dia,
-            int mes,
-            int ano,
+            LocalDateTime inicioDia,
+            LocalDateTime fimDia,
             UUID profissionalId,
             UUID pacienteId
     );

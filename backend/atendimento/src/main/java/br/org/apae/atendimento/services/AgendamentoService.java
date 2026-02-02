@@ -115,8 +115,11 @@ public class AgendamentoService {
     }
 
     public void verificarAtendimentos(LocalDate data, UUID profissionalId, UUID pacienteId, Agendamento agendamento){
-        boolean existAtendimento = atendimentoRepository.existsAtendimentoNoDia(
-                data.getDayOfMonth(), data.getMonthValue(), data.getYear(), profissionalId, pacienteId);
+        LocalDateTime inicioDia = data.atStartOfDay();
+        LocalDateTime fimDia = data.plusDays(1).atStartOfDay();
+
+        boolean existAtendimento = atendimentoRepository.existsAtendimentoNoDia(inicioDia,
+                fimDia, profissionalId, pacienteId);
 
         if (existAtendimento){
             agendamento.setStatus(true);
