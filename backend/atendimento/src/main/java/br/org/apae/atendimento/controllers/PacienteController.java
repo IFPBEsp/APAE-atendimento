@@ -1,10 +1,12 @@
 package br.org.apae.atendimento.controllers;
 
 import br.org.apae.atendimento.dtos.response.PacienteResponseDTO;
+import br.org.apae.atendimento.security.UsuarioAutenticado;
 import br.org.apae.atendimento.services.PacienteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -32,12 +34,15 @@ public class PacienteController {
     
     @GetMapping("/search")
     public ResponseEntity<List<PacienteResponseDTO>> buscarPacientes(
-           @RequestParam(required = false) String nome,
-           @RequestParam(required = false) String cpf,
-           @RequestParam(required = false) String cidade
-    ) {
+            @RequestParam(required = false) String nome,
+            @RequestParam(required = false) String cpf,
+            @RequestParam(required = false) String cidade,
+            @AuthenticationPrincipal UsuarioAutenticado usuarioAutenticado
+            ) {
 
-       List<PacienteResponseDTO> paciente = pacienteService.buscarPaciente(nome, cpf, cidade);
+       List<PacienteResponseDTO> paciente = pacienteService.buscarPaciente(
+               usuarioAutenticado.getId(), nome, cpf, cidade
+       );
        return ResponseEntity.ok(paciente);
    }
 

@@ -48,8 +48,8 @@ public class PacienteService {
     }
 
 
-    public List<PacienteResponseDTO> buscarPaciente(String nome, String cpf, String cidade) {
-        return repository.buscarPaciente(nome, cpf, cidade)
+    public List<PacienteResponseDTO> buscarPaciente(UUID profissionalId, String nome, String cpf, String cidade) {
+        return repository.buscarPaciente(profissionalId, nome, cpf, cidade)
                 .stream()
                 .map(pacienteMapper::toDTOPadrao)
                 .collect(Collectors.toList());
