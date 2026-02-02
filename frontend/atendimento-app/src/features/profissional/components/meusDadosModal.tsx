@@ -53,11 +53,6 @@ export function MeusDadosModal({ trigger }: MeusDadosModalProps) {
 
           <div className="w-full grid grid-cols-2 gap-y-5 gap-x-4 text-left mb-8">
             <div>
-              <p className="font-bold text-sm text-[#344054]">CRM</p>
-              <p className="text-[#475467] text-sm mt-1">{profissional.crm}</p>
-            </div>
-
-            <div>
               <p className="font-bold text-sm text-[#344054]">Contato</p>
               <p className="text-[#475467] text-sm mt-1">
                 {profissional.contato}

@@ -45,8 +45,7 @@ export default function AgendamentoPage() {
 
   const agendamentosFiltrados = useMemo(() => {
     if (!dataSelecionada) return agendamentos;
-    const dataBR = isoParaBR(dataSelecionada);
-    return agendamentos.filter((a) => a.data === dataBR);
+    return agendamentos.filter((a) => a.data === dataSelecionada);
   }, [agendamentos, dataSelecionada]);
 
   const gruposParaRenderizar = useMemo(

@@ -4,5 +4,4 @@ export interface Profissional {
   nomeCompleto: string;
   email: string;
   contato: string;
-  crm: string;
 }
