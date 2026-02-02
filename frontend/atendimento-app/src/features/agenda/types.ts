@@ -2,8 +2,8 @@ export interface Agendamento {
   id: string;
   pacienteId: string;
   paciente: string;
-  horario: string;
   data: string;
+  horario: string;
   numeracao: number;
   status: boolean;
 }

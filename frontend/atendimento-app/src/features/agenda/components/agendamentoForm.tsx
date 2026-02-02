@@ -8,8 +8,6 @@ import { Label } from "@/components/ui/label";
 import { DialogFooter } from "@/components/ui/dialog";
 import { Nunito } from "next/font/google";
 import { Check } from "lucide-react";
-import { getPacientesPorProfissional } from "../services/agendaService";
-import { PacienteOption } from "../types";
 
 import {
   Select,
@@ -19,15 +17,19 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+import { getPacientesPorProfissional } from "../services/agendaService";
+import { PacienteOption, Agendamento } from "../types";
+
 export type AgendamentoFormData = {
   pacienteId: string;
   pacienteNome?: string;
   data: string;
   horario: string;
-  numeracao: number;
+  numeroAtendimento: number;
 };
 
 interface AgendamentoFormProps {
+  agendamentos: Agendamento[];
   onSubmit: (data: AgendamentoFormData) => void;
 }
 
@@ -39,7 +41,31 @@ function getTodayLocalDate() {
   return new Date(now.getTime() - offset).toISOString().split("T")[0];
 }
 
-export default function AgendamentoForm({ onSubmit }: AgendamentoFormProps) {
+function extrairMesAno(data: string) {
+  if (!data || data.length < 7) {
+    return { mes: "", ano: "" };
+  }
+
+  if (data.includes("/")) {
+    const [, mes, ano] = data.split("/");
+    return { mes, ano };
+  }
+
+  const parts = data.split("-");
+
+  if (parts[0].length === 4) {
+    const [ano, mes] = parts;
+    return { mes, ano };
+  }
+
+  const [, mes, ano] = parts;
+  return { mes, ano };
+}
+
+export default function AgendamentoForm({
+  agendamentos,
+  onSubmit,
+}: AgendamentoFormProps) {
   const { register, handleSubmit, setValue, watch } =
     useForm<AgendamentoFormData>({
       defaultValues: {
@@ -47,20 +73,23 @@ export default function AgendamentoForm({ onSubmit }: AgendamentoFormProps) {
         pacienteNome: "",
         data: getTodayLocalDate(),
         horario: "",
-        numeracao: 1,
+        numeroAtendimento: 1,
       },
     });
 
-  const pacienteId = watch("pacienteId", "");
+  const pacienteId = watch("pacienteId");
+  const dataSelecionada = watch("data");
+
   const [pacientes, setPacientes] = useState<PacienteOption[]>([]);
 
   useEffect(() => {
+    let cancelled = false;
     async function carregarPacientes() {
       try {
         const data = await getPacientesPorProfissional();
-        setPacientes(data);
+        if (!cancelled) setPacientes(data);
       } catch (error) {
-        console.error("Erro ao carregar pacientes", error);
+        if (!cancelled) console.error("Erro ao carregar pacientes", error);
       }
     }
 
@@ -69,11 +98,24 @@ export default function AgendamentoForm({ onSubmit }: AgendamentoFormProps) {
 
   function handleSelectPaciente(value: string) {
     const paciente = pacientes.find((p) => p.id === value);
-    if (paciente) {
-      setValue("pacienteId", paciente.id);
-      setValue("pacienteNome", paciente.nome);
-    }
+    if (!paciente) return;
+
+    setValue("pacienteId", paciente.id);
+    setValue("pacienteNome", paciente.nome);
   }
+
+  useEffect(() => {
+    if (!dataSelecionada) return;
+
+    const { mes, ano } = extrairMesAno(dataSelecionada);
+
+    const totalNoMes = agendamentos.filter((a) => {
+      const dataAgendamento = extrairMesAno(a.data);
+      return dataAgendamento.mes === mes && dataAgendamento.ano === ano;
+    }).length;
+
+    setValue("numeroAtendimento", totalNoMes + 1);
+  }, [dataSelecionada, agendamentos, setValue]);
 
   return (
     <form
@@ -90,16 +132,14 @@ export default function AgendamentoForm({ onSubmit }: AgendamentoFormProps) {
           value={pacienteId}
           onValueChange={handleSelectPaciente}
         >
-          <SelectTrigger className="bg-white border border-[#3B82F6] rounded-full text-sm focus:ring-0 focus:border-[#3B82F6] w-full">
+          <SelectTrigger className="bg-white border border-[#3B82F6] rounded-full text-sm focus:ring-0 w-full">
             <SelectValue placeholder="Selecione o paciente" />
           </SelectTrigger>
 
           <SelectContent>
             {pacientes.map((p) => (
               <SelectItem key={p.id} value={p.id} className="cursor-pointer">
-                <div className="text-sm font-medium text-[#344054]">
-                  {p.nome}
-                </div>
+                <span className="text-sm font-medium">{p.nome}</span>
               </SelectItem>
             ))}
           </SelectContent>
@@ -135,7 +175,7 @@ export default function AgendamentoForm({ onSubmit }: AgendamentoFormProps) {
         <Input
           type="number"
           disabled
-          {...register("numeracao")}
+          {...register("numeroAtendimento", { valueAsNumber: true })}
           min={1}
           className="w-full rounded-[30px] border border-[#3B82F6] text-center"
         />

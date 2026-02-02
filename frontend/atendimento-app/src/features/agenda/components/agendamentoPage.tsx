@@ -45,7 +45,8 @@ export default function AgendamentoPage() {
 
   const agendamentosFiltrados = useMemo(() => {
     if (!dataSelecionada) return agendamentos;
-    return agendamentos.filter((a) => a.data === dataSelecionada);
+    const dataBR = isoParaBR(dataSelecionada);
+    return agendamentos.filter((a) => a.data === dataBR);
   }, [agendamentos, dataSelecionada]);
 
   const gruposParaRenderizar = useMemo(
@@ -155,7 +156,7 @@ export default function AgendamentoPage() {
                   key={item.id}
                   paciente={item.paciente}
                   horario={item.horario}
-                  numeracao={item.numeracao}
+                  numeroAtendimento={item.numeracao}
                   status={item.status}
                   onDeleteClick={() => {
                     setAgendamentoSelecionado(item);
@@ -186,13 +187,17 @@ export default function AgendamentoPage() {
         )}
 
         <AgendamentoModal open={openCreate} onOpenChange={setOpenCreate}>
-          <AgendamentoForm onSubmit={handleCreateAgendamento} />
+          <AgendamentoForm
+            agendamentos={agendamentos}
+            onSubmit={handleCreateAgendamento}
+          />
         </AgendamentoModal>
       </section>
 
       <button
         onClick={() => setOpenCreate(true)}
         className="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-[#165BAA] flex items-center justify-center shadow-[4px_4px_12px_rgba(0,0,0,0.25)] md:hidden"
+        aria-label="Novo agendamento"
       >
         <CalendarPlus size={28} className="text-white" />
       </button>
