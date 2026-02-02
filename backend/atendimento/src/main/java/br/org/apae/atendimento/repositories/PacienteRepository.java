@@ -33,14 +33,14 @@ public interface PacienteRepository extends JpaRepository<Paciente, UUID> {
 
     List<Paciente>findByProfissionais_Id(UUID profissionalId);
     @Query("""
-        SELECT DISTINCT p
-        FROM Paciente p
-        JOIN p.profissionais prof
-        WHERE prof.id = :profissionalId
-        AND (:nome IS NULL OR p.nomeCompleto ILIKE CONCAT('%', :nome, '%'))
-        AND (:cpf IS NULL OR p.cpf LIKE CONCAT('%', :cpf, '%'))
-        AND (:cidade IS NULL OR p.cidade ILIKE CONCAT('%', :cidade, '%'))
-    """)
+    SELECT DISTINCT p
+    FROM Paciente p
+    JOIN p.profissionais prof
+    WHERE prof.id = :profissionalId
+    AND (cast(:nome as string) IS NULL OR p.nomeCompleto ILIKE CONCAT('%', cast(:nome as string), '%'))
+    AND (cast(:cpf as string) IS NULL OR p.cpf LIKE CONCAT('%', cast(:cpf as string), '%'))
+    AND (cast(:cidade as string) IS NULL OR p.cidade ILIKE CONCAT('%', cast(:cidade as string), '%'))
+""")
     List<Paciente> buscarPaciente(
             @Param("profissionalId") UUID profissionalId,
             @Param("nome") String nome,
