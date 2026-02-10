@@ -1,5 +1,5 @@
 import axios from "axios";
-import { getAuth } from "firebase/auth";
+import { getFirebaseAuth } from "@/lib/firebase";
 
 
 export const api = axios.create({
@@ -16,12 +16,16 @@ api.interceptors.request.use(async (config) => {
     config.headers["Content-Type"] = "application/json";
   }
 
-  const auth = getAuth();
-  const user = auth.currentUser;
+  try {
+    const auth = getFirebaseAuth();
+    const user = auth.currentUser;
 
-  if (user) {
-    const token = await user.getIdToken();
-    config.headers.Authorization = `Bearer ${token}`;
+    if (user) {
+      const token = await user.getIdToken();
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+  } catch (error) {
+    console.error(error);
   }
 
   return config;
