@@ -1,1 +1,2 @@
-pnpm test
+# .husky/pre-commit
+# não precisa mais do shebang nem do _/husky.sh
