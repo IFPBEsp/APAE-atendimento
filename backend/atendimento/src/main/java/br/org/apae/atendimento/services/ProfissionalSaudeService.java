@@ -46,23 +46,21 @@ public class ProfissionalSaudeService {
         this.urlService = urlService;
     }
 
-    public ProfissionalResponseDTO getProfissionalByIdDTO(UUID id){
-        ProfissionalSaude profissionalSaude = repository.findById(id)
-                .orElseThrow(() -> new ProfissionalSaudeNotFoundException());
-
-        return profissionalMapper.toDTOPadrao(profissionalSaude);
-    }
-
     public ProfissionalSaude getProfissionalById(UUID id){
         ProfissionalSaude profissionalSaude = repository.findById(id)
-                .orElseThrow(() -> new ProfissionalSaudeNotFoundException());
+                .orElseThrow(() -> new ProfissionalSaudeNotFoundException("Profissional de saúde não encontrado."));
 
         return profissionalSaude;
     }
 
+    public ProfissionalResponseDTO getProfissionalByIdDTO(UUID id){
+        ProfissionalSaude profissionalSaude = getProfissionalById(id);
+        return profissionalMapper.toDTOPadrao(profissionalSaude);
+    }
+
     public List<PacienteResponseDTO> getPacientesDoProfissional (UUID id) {
-        ProfissionalSaude profissionalSaude = repository.findById(id)
-                .orElseThrow(() -> new ProfissionalSaudeNotFoundException());
+        ProfissionalSaude profissionalSaude = getProfissionalById(id);
+
         List<Paciente> pacientes = profissionalSaude.getPacientes();
 
         return pacientes.stream()
@@ -80,11 +78,10 @@ public class ProfissionalSaudeService {
                 .collect(Collectors.toList());
     }
 
-
     public String getPrimeiroNome (UUID id) {
         String nome = repository.findPrimeiroNomeById(id);
         if(nome == null) {
-            throw new ProfissionalSaudeNotFoundException();
+            throw new ProfissionalSaudeNotFoundException("Não foi possível localizar o nome do profissional.");
         }
         return nome;
     }
@@ -110,6 +107,22 @@ public class ProfissionalSaudeService {
 
     public boolean existByEmail(String email){
         return repository.existsByEmail(email);
+    }
+
+    public List<PacienteResponseDTO> getPacientesDoProfissionalLogado() {
+        String email = getEmailUsuarioLogado();
+
+        ProfissionalSaude profissionalSaude = repository.findByEmail(email)
+                .orElseThrow(() -> new ProfissionalSaudeNotFoundException("Profissional de saúde não encontrado."));
+
+        List<Paciente> pacientes = profissionalSaude.getPacientes();
+
+        return pacientes.stream()
+                .map(paciente -> {
+                    String url = urlService.gerarUrlPreAssinada(FOTO_PATH + paciente.getId());
+                    paciente.setFotoPreAssinada(url);
+                    return pacienteMapper.toDTOPadrao(paciente);
+                }).collect(Collectors.toList());
     }
 
 }
