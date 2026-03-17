@@ -75,7 +75,7 @@ public class AgendamentoService {
         LocalDateTime dataInicio = data.atStartOfDay();
         LocalDateTime dataFim = dataInicio.plusDays(1);
         return repository.findByDataHoraAndPacienteId(dataInicio, dataFim, pacienteId)
-                .orElseThrow(() -> new AgendamentoNotFoundException());
+                .orElseThrow(() -> new AgendamentoNotFoundException("Nenhum agendamento encontrado para esse paciente nesta data."));
     }
 
 
@@ -95,14 +95,17 @@ public class AgendamentoService {
 
     public void deletar(UUID profissionalId, UUID pacienteId, UUID agendamentoId){
         if (!pacienteService.existeRelacao(pacienteId, profissionalId)){
-            throw new RelacaoInvalidException();
+            throw new RelacaoInvalidException("Você não tem vínculo com este paciente para excluir o agendamento.");
+        }
+        if (!repository.existsById(agendamentoId)) {
+            throw new AgendamentoNotFoundException("O agendamento que tentou excluir não existe ou já foi apagado.");
         }
         repository.deleteById(agendamentoId);
     }
 
     public void setStatus(Agendamento agendamento){
         if (agendamento == null){
-            throw new AgendamentoNotFoundException();
+            throw new AgendamentoNotFoundException("Não é possível alterar o status. Agendamento não encontrado.");
         }
 
         agendamento.setStatus(true);
@@ -114,14 +117,14 @@ public class AgendamentoService {
         return repository.existsByProfissionalIdAndDataHora(profissionalId, dataHora);
     }
 
-    public void verificarAtendimentos(LocalDate data, UUID profissionalId, UUID pacienteId, Agendamento agendamento){
+    public void verificarAtendimentos(LocalDate data, UUID profissionalId, UUID pacienteId, Agendamento agendamento) {
         LocalDateTime inicioDia = data.atStartOfDay();
         LocalDateTime fimDia = data.plusDays(1).atStartOfDay();
 
         boolean existAtendimento = atendimentoRepository.existsAtendimentoNoDia(inicioDia,
                 fimDia, profissionalId, pacienteId);
 
-        if (existAtendimento){
+        if (existAtendimento) {
             agendamento.setStatus(true);
             Long numero = atendimentoRepository.findMaxNumeracaoByMesAndAno(
                     data.getMonthValue(),
@@ -129,15 +132,14 @@ public class AgendamentoService {
                     profissionalId,
                     pacienteId);
 
-            agendamento.setNumeracao(numero);
-        } else {
-            Long numero = atendimentoRepository.findMaxNumeracaoByMesAndAno(
-                    data.getMonthValue(),
-                    data.getYear(),
-                    profissionalId,
-                    pacienteId);
+            long numeracaoAtual = (numero != null) ? numero : 0L;
 
-            agendamento.setNumeracao(numero + 1);
+            if (existAtendimento) {
+                agendamento.setStatus(true);
+                agendamento.setNumeracao(numeracaoAtual);
+            } else {
+                agendamento.setNumeracao(numeracaoAtual + 1);
+            }
         }
     }
 }

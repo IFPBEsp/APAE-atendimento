@@ -1,6 +1,6 @@
 package br.org.apae.atendimento.services.storage.s3;
 
-import br.org.apae.atendimento.exceptions.MinioStorageException;
+import br.org.apae.atendimento.exceptions.CloudStorageException;
 import br.org.apae.atendimento.services.storage.PresignedUrlService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
@@ -25,7 +25,7 @@ public class S3PresignedUrlService implements PresignedUrlService {
 
     @Cacheable(
             value = "presignedUrls",
-            key = "'presigned:' + #bucket + ':' + #objectName",  // ← CHAVE EXPLÍCITA
+            key = "'presigned:' + ':' + #objectName",  // ← CHAVE EXPLÍCITA
             unless = "#result == null"
     )
     public String gerarUrlPreAssinada(String objectName) {
@@ -45,11 +45,11 @@ public class S3PresignedUrlService implements PresignedUrlService {
 
             return s3Presigner.presignGetObject(presignRequest).url().toString();
         } catch (Exception e) {
-            throw new MinioStorageException("Erro ao gerar URL", e);
+            throw new CloudStorageException("Erro de comunicação com o armazenamento em nuvem ao gerar URL.", e);
         }
     }
 
-    @CacheEvict(value = "presignedUrls", key = "'presigned:' + #bucket + ':' + #objectName")
+    @CacheEvict(value = "presignedUrls", key = "'presigned:' + ':' + #objectName")
     public void evictUrlFromCache(String objectName) {
     }
 }

@@ -3,6 +3,7 @@ package br.org.apae.atendimento.controllers;
 import br.org.apae.atendimento.dtos.response.ProfissionalResponseDTO;
 import br.org.apae.atendimento.services.AuthService;
 import br.org.apae.atendimento.services.ProfissionalSaudeService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -23,7 +24,7 @@ public class AuthController {
     }
 
     @PostMapping("/send-link")
-    public ResponseEntity<?> sendMagicLink(@RequestBody Map<String, String> body) {
+    public ResponseEntity<?> sendMagicLink(@Valid @RequestBody Map<String, String> body) {
 
         String email = body.get("email");
 

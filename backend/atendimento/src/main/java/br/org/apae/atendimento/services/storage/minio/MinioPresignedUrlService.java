@@ -8,7 +8,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
-import br.org.apae.atendimento.exceptions.MinioStorageException;
+import br.org.apae.atendimento.exceptions.CloudStorageException;
 import br.org.apae.atendimento.services.storage.PresignedUrlService;
 import io.minio.GetPresignedObjectUrlArgs;
 import io.minio.MinioClient;
@@ -25,7 +25,7 @@ public class MinioPresignedUrlService implements PresignedUrlService {
 
     @Cacheable(
             value = "presignedUrls",
-            key = "'presigned:' + #bucket + ':' + #objectName",  // ← CHAVE EXPLÍCITA
+            key = "'presigned:' + ':' + #objectName",  // ← CHAVE EXPLÍCITA
             unless = "#result == null"
     )
     public String gerarUrlPreAssinada(String objectName) {
@@ -48,11 +48,11 @@ public class MinioPresignedUrlService implements PresignedUrlService {
             return url;
 
         } catch (Exception e) {
-            throw new MinioStorageException("Erro ao gerar URL", e);
+            throw new CloudStorageException("Erro ao gerar URL do arquivo.", e);
         }
     }
 
-    @CacheEvict(value = "presignedUrls", key = "'presigned:' + #bucket + ':' + #objectName")
+    @CacheEvict(value = "presignedUrls", key = "'presigned:' + ':' + #objectName")
     public void evictUrlFromCache(String objectName) {
     }
 }

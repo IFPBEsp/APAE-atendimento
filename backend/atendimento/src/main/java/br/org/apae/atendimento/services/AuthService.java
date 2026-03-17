@@ -1,6 +1,5 @@
 package br.org.apae.atendimento.services;
 
-import com.google.firebase.auth.ActionCodeSettings;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import org.springframework.stereotype.Service;
@@ -16,8 +15,11 @@ public class AuthService {
         try {
             FirebaseAuth.getInstance().getUserByEmail(email);
             return true;
-        } catch (Exception e) {
-            return false;
+        } catch (FirebaseAuthException e) {
+            if ("user-not-found".equals(e.getAuthErrorCode().name().toLowerCase())) {
+                return false;
+            }
+            throw new RuntimeException("Erro ao consultar o Firebase: " + e.getMessage());
         }
     }
 
@@ -27,7 +29,8 @@ public class AuthService {
             claims.put("idProfissional", idProfissional.toString());
 
             FirebaseAuth.getInstance().setCustomUserClaims(firebaseUid, claims);
-        } catch (FirebaseAuthException e) {;
+        } catch (FirebaseAuthException e) {
+            throw new RuntimeException("Falha ao sincronizar permissões de acesso: " + e.getMessage());
         }
     }
 }

@@ -7,6 +7,7 @@ import br.org.apae.atendimento.services.AtendimentoService;
 import br.org.apae.atendimento.services.PacienteService;
 import br.org.apae.atendimento.services.ProfissionalSaudeService;
 
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,7 +34,7 @@ public class AtendimentoController {
 
     @PostMapping
     public ResponseEntity<AtendimentoResponseDTO> criarAtendimento(
-            @RequestBody AtendimentoRequestDTO atendimento,
+            @Valid @RequestBody AtendimentoRequestDTO atendimento,
             @AuthenticationPrincipal UsuarioAutenticado usuarioAutenticado) {
         AtendimentoResponseDTO novoAtendimento = atendimentoService.addAtendimento(atendimento,
                 usuarioAutenticado.getId());
@@ -58,7 +59,7 @@ public class AtendimentoController {
     }
 
     @PutMapping("/{atendimentoId}")
-    public ResponseEntity<AtendimentoResponseDTO> editarTopicos(@RequestBody AtendimentoRequestDTO updateDTO,
+    public ResponseEntity<AtendimentoResponseDTO> editarTopicos(@Valid @RequestBody AtendimentoRequestDTO updateDTO,
             @PathVariable UUID atendimentoId,
             @AuthenticationPrincipal UsuarioAutenticado usuarioAutenticado) {
         AtendimentoResponseDTO atendimentoAtualizado = atendimentoService.editar(updateDTO, atendimentoId,

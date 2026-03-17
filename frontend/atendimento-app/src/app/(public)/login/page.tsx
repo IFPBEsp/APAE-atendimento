@@ -15,6 +15,9 @@ import { sendMagicLink, loginWithGoogle } from "@/services/authService";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { api } from "@/services/axios";
+import { isAxiosError } from 'axios';
+import { toast } from "sonner";
+
 const nunitoFont = Nunito({
   weight: "700",
 });
@@ -38,9 +41,12 @@ export default function LoginPage() {
       await api.post("/auth/send-link", { email });
 
       await sendMagicLink(email);
+
+      toast.success("Link de acesso enviado para o seu e-mail!");
       router.push("/login/verificacao");
-    } catch {
-      setError("Erro ao enviar link de acesso.");
+    } catch(err) {
+      if (!isAxiosError(err))
+        toast.error("Falha ao comunicar com o provedor de e-mail.");
     }
   };
 
@@ -87,9 +93,7 @@ export default function LoginPage() {
                 </div>
               </div>
 
-              <div className="h-6 mt-[6px] mb-[19px]">
-                {error && <p className="text-red-500 text-sm mb-3">{error}</p>}
-              </div>
+              <div className="h-6 mt-[6px] mb-[19px]"></div>
 
               <Button
                 type="submit"
@@ -114,11 +118,12 @@ export default function LoginPage() {
                     const { data } = await api.get("/auth/me");
 
                     document.cookie = `token=${token}; path=/; samesite=lax`;
-
+                    toast.success(`Bem-vindo, ${data.nome || 'Profissional'}!`);
                     router.push("/home");
                   } catch (err) {
-                    console.error(err);
-                    setError("Erro ao autenticar com Google");
+                    if (!isAxiosError(err)) {
+                      toast.error("A autenticação com o Google foi cancelada ou falhou.");
+                    }
                   }
                 }}
                 type="button"

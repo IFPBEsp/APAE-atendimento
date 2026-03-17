@@ -5,6 +5,8 @@ import br.org.apae.atendimento.dtos.response.ArquivoResponseDTO;
 import br.org.apae.atendimento.entities.Arquivo;
 import br.org.apae.atendimento.entities.ProfissionalSaude;
 import br.org.apae.atendimento.entities.TipoArquivo;
+import br.org.apae.atendimento.exceptions.notfound.ArquivoNotFoundException;
+import br.org.apae.atendimento.exceptions.notfound.TipoArquivoNotFoundException;
 import br.org.apae.atendimento.mappers.ArquivoMapper;
 import br.org.apae.atendimento.repositories.AnexoRepository;
 import br.org.apae.atendimento.repositories.TipoArquivoRepository;
@@ -43,12 +45,14 @@ public class ArquivoService {
 
     @Transactional
     public ArquivoResponseDTO salvar(MultipartFile file, ArquivoRequestDTO arquivoRequest, UUID profissionalId) {
+
+        TipoArquivo tipoArquivo = tipoRepository.findById(arquivoRequest.tipoArquivo())
+                .orElseThrow(() -> new TipoArquivoNotFoundException("O tipo de arquivo selecionado é invalido"));
+
         String objectName = criarObjectName(arquivoRequest.pacienteId(), profissionalId,
                 arquivoRequest.tipoArquivo());
 
         String url = storageService.uploadArquivo(objectName, file);
-
-        TipoArquivo tipoArquivo = tipoRepository.getReferenceById(arquivoRequest.tipoArquivo());
 
         Arquivo arquivo = anexoMapper.toEntityPadrao(arquivoRequest);
         arquivo.setObjectName(objectName);
@@ -60,6 +64,7 @@ public class ArquivoService {
 
         Arquivo arquivoPersistido = repository.save(arquivo);
         arquivoPersistido.setPresignedUrl(url);
+
         return anexoMapper.toDTOPadrao(arquivoPersistido);
     }
 
@@ -100,7 +105,12 @@ public class ArquivoService {
     }
 
     public void deletar(String objectName) {
+        if (!repository.existsById(objectName)) {
+            throw new ArquivoNotFoundException("O arquivo selecionado não existe ou já foi apagado.");
+        }
+
         repository.deleteById(objectName);
+
         storageService.deletarArquivo(objectName);
     }
 }
