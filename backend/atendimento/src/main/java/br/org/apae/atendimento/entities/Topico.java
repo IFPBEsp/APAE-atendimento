@@ -21,9 +21,11 @@ public class Topico {
     private UUID id;
 
     @NotBlank(message = "O título do tópico é obrigatório")
+    @Column(nullable = false)
     private String titulo;
 
     @NotBlank(message = "A descrição do tópico é obrigatória")
+    @Column(nullable = false)
     private String descricao;
 
 }
