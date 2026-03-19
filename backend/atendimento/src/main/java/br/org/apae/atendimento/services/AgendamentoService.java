@@ -35,7 +35,7 @@ public class AgendamentoService {
                               PacienteService pacienteService,
                               ProfissionalSaudeService profissionalSaudeService,
                               AgendamentoMapper agendamentoMapper,
-                              AtendimentoRepository atendimentoRepository){
+                              AtendimentoRepository atendimentoRepository) {
 
         this.repository = repository;
         this.pacienteService = pacienteService;
@@ -44,16 +44,16 @@ public class AgendamentoService {
         this.atendimentoRepository = atendimentoRepository;
     }
 
-    public Agendamento save(Agendamento agendamento){
+    public Agendamento save(Agendamento agendamento) {
         return repository.save(agendamento);
     }
 
-    public AgendamentoResponseDTO agendar(AgendamentoRequestDTO agendamentoRequest, UUID profissionalId){
+    public AgendamentoResponseDTO agendar(AgendamentoRequestDTO agendamentoRequest, UUID profissionalId) {
         if (verificarAgendamentoExiste(
                 profissionalId,
-                agendamentoRequest.data(), agendamentoRequest.hora())){
+                agendamentoRequest.data(), agendamentoRequest.hora())) {
             throw new AgendamentoInvalidException(
-                    agendamentoRequest.data() +  " - " + agendamentoRequest.hora() + " ja possui um agendamento");
+                    agendamentoRequest.data() + " - " + agendamentoRequest.hora() + " ja possui um agendamento");
         }
 
         Agendamento agendamento = agendamentoMapper.toEntityPadrao(agendamentoRequest);
@@ -71,11 +71,11 @@ public class AgendamentoService {
         return agendamentoMapper.toDTOPadrao(repository.save(agendamento));
     }
 
-    public Agendamento buscarAgendamentoPorDataEPaciente(LocalDate data, UUID pacienteId){
+    public Agendamento buscarAgendamentoPorDataEPaciente(LocalDate data, UUID pacienteId) {
         LocalDateTime dataInicio = data.atStartOfDay();
         LocalDateTime dataFim = dataInicio.plusDays(1);
         return repository.findByDataHoraAndPacienteId(dataInicio, dataFim, pacienteId)
-                .orElseThrow(() -> new AgendamentoNotFoundException());
+                .orElseThrow(() -> new AgendamentoNotFoundException("Nenhum agendamento encontrado para esse paciente nesta data."));
     }
 
 
@@ -93,51 +93,51 @@ public class AgendamentoService {
                 .toList();
     }
 
-    public void deletar(UUID profissionalId, UUID pacienteId, UUID agendamentoId){
-        if (!pacienteService.existeRelacao(pacienteId, profissionalId)){
-            throw new RelacaoInvalidException();
+    public void deletar(UUID profissionalId, UUID pacienteId, UUID agendamentoId) {
+        if (!pacienteService.existeRelacao(pacienteId, profissionalId)) {
+            throw new RelacaoInvalidException("Você não tem vínculo com este paciente para excluir o agendamento.");
+        }
+        if (!repository.existsById(agendamentoId)) {
+            throw new AgendamentoNotFoundException("O agendamento que tentou excluir não existe ou já foi apagado.");
         }
         repository.deleteById(agendamentoId);
     }
 
-    public void setStatus(Agendamento agendamento){
-        if (agendamento == null){
-            throw new AgendamentoNotFoundException();
+    public void setStatus(Agendamento agendamento) {
+        if (agendamento == null) {
+            throw new AgendamentoNotFoundException("Não é possível alterar o status. Agendamento não encontrado.");
         }
 
         agendamento.setStatus(true);
         repository.save(agendamento);
     }
 
-    public boolean verificarAgendamentoExiste(UUID profissionalId, LocalDate data, LocalTime hora){
+    public boolean verificarAgendamentoExiste(UUID profissionalId, LocalDate data, LocalTime hora) {
         LocalDateTime dataHora = LocalDateTime.of(data, hora);
         return repository.existsByProfissionalIdAndDataHora(profissionalId, dataHora);
     }
 
-    public void verificarAtendimentos(LocalDate data, UUID profissionalId, UUID pacienteId, Agendamento agendamento){
+    public void verificarAtendimentos(LocalDate data, UUID profissionalId, UUID pacienteId, Agendamento agendamento) {
         LocalDateTime inicioDia = data.atStartOfDay();
         LocalDateTime fimDia = data.plusDays(1).atStartOfDay();
 
         boolean existAtendimento = atendimentoRepository.existsAtendimentoNoDia(inicioDia,
                 fimDia, profissionalId, pacienteId);
 
-        if (existAtendimento){
-            agendamento.setStatus(true);
-            Long numero = atendimentoRepository.findMaxNumeracaoByMesAndAno(
-                    data.getMonthValue(),
-                    data.getYear(),
-                    profissionalId,
-                    pacienteId);
+        Long numero = atendimentoRepository.findMaxNumeracaoByMesAndAno(
+                data.getMonthValue(),
+                data.getYear(),
+                profissionalId,
+                pacienteId);
 
-            agendamento.setNumeracao(numero);
+        long numeracaoAtual = (numero != null) ? numero : 0L;
+
+        agendamento.setStatus(true);
+
+        if (existAtendimento) {
+            agendamento.setNumeracao(numeracaoAtual);
         } else {
-            Long numero = atendimentoRepository.findMaxNumeracaoByMesAndAno(
-                    data.getMonthValue(),
-                    data.getYear(),
-                    profissionalId,
-                    pacienteId);
-
-            agendamento.setNumeracao(numero + 1);
+            agendamento.setNumeracao(numeracaoAtual + 1);
         }
     }
 }

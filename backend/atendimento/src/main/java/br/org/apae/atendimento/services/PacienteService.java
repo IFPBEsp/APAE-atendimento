@@ -36,7 +36,7 @@ public class PacienteService {
 
     public Paciente getPacienteById(UUID id) {
         return repository
-                .findById(id).orElseThrow(() -> new PacienteNotFoundException());
+                .findById(id).orElseThrow(() -> new PacienteNotFoundException("Paciente não encontrado no sistema."));
     }
 
     public boolean existeRelacao(UUID pacienteId, UUID profissionalId) {
@@ -44,7 +44,11 @@ public class PacienteService {
     }
 
     public String getNomeCompletoPacienteById(UUID id) {
-        return repository.findNomeCompletoById(id);
+        String nome = repository.findNomeCompletoById(id);
+        if (nome == null) {
+            throw new PacienteNotFoundException("Não foi possível localizar o nome do paciente.");
+        }
+        return nome;
     }
 
 
@@ -56,6 +60,10 @@ public class PacienteService {
     }
 
     public String adicionarFoto(MultipartFile file, UUID pacienteId){
+
+        if (!repository.existsById(pacienteId)) {
+            throw new PacienteNotFoundException("Não é possivel adicionar foto. Paciente não encontrado.");
+        }
        return storageService.uploadArquivo(FOTO_PATH + pacienteId, file);
     }
 }

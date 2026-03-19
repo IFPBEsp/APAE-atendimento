@@ -4,4 +4,8 @@ public class ProfissionalSaudeNotFoundException extends RuntimeException{
     public ProfissionalSaudeNotFoundException(){
         super("O profissional de saúde não foi encontrado.");
     }
+
+    public ProfissionalSaudeNotFoundException(String message) {
+        super(message);
+    }
 }

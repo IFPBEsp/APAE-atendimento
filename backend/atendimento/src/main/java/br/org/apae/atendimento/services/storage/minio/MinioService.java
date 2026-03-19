@@ -1,6 +1,6 @@
 package br.org.apae.atendimento.services.storage.minio;
 
-import br.org.apae.atendimento.exceptions.MinioStorageException;
+import br.org.apae.atendimento.exceptions.CloudStorageException;
 import br.org.apae.atendimento.services.storage.ObjectStorageService;
 import br.org.apae.atendimento.services.storage.PresignedUrlService;
 import io.minio.*;
@@ -31,8 +31,13 @@ public class MinioService implements ObjectStorageService {
 
     public String uploadArquivo(String objectName, MultipartFile file) {
         if (objectName == null || objectName.isBlank()) {
-            throw new MinioStorageException("O nome do arquivo no MinIO não pode ser vazio.");
+            throw new CloudStorageException("O nome do arquivo no MinIO não pode ser vazio.");
         }
+
+        if (file == null || file.isEmpty()) {
+            throw new CloudStorageException("O arquivo selecionado está vazio ou inválido.");
+        }
+
         colocarArquivo(objectName, file);
         return urlService.gerarUrlPreAssinada(objectName);
     }
@@ -57,7 +62,7 @@ public class MinioService implements ObjectStorageService {
                             .build()
             );
         } catch (Exception e) {
-            throw new MinioStorageException("Erro ao enviar arquivo para o bucket", e);
+            throw new CloudStorageException("Erro ao enviar arquivo para a nuvem. Tente novamente.", e);
         }
     }
 
@@ -69,7 +74,7 @@ public class MinioService implements ObjectStorageService {
                     .build());
         } catch (Exception e) {
             e.printStackTrace();
-            throw new MinioStorageException("Erro ao apagar arquivo", e);
+            throw new CloudStorageException("Erro de comunicação ao tentar apagar o arquivo.", e);
         }
     }
 }

@@ -65,6 +65,8 @@ public class AtendimentoService {
             tratarAgendamento(atendimentoRequestDTO.pacienteId(), atendimentoRequestDTO.data(),
                     dadosPersistidos.getNumeracao());
         } catch (AgendamentoNotFoundException e) {
+            // Ignora a exceção propositalmente.
+            // Isso acontece quando é um atendimento de "encaixe" sem agendamento prévio.
         }
 
         return atendimentoMapper.toDTOPadrao(dadosPersistidos);
@@ -105,7 +107,7 @@ public class AtendimentoService {
 
     public void deletar(UUID profissionalId, UUID pacienteId, UUID atendimentoId) {
         if (!pacienteService.existeRelacao(pacienteId, profissionalId)) {
-            throw new RelacaoInvalidException();
+            throw new RelacaoInvalidException("Você não tem permissão para excluir atendimentos deste paciente.");
         }
 
         repository.deleteById(atendimentoId);
@@ -115,16 +117,18 @@ public class AtendimentoService {
         Long maiorNumeracao = repository.findMaxNumeracaoByMesAndAno(
                 data.getMonthValue(), data.getYear(), profissionalId, pacienteId);
 
-        return maiorNumeracao + 1;
+        long numeracaoAtual = (maiorNumeracao != null) ? maiorNumeracao : 0L;
+
+        return numeracaoAtual + 1;
     }
 
     public AtendimentoResponseDTO editar(AtendimentoRequestDTO requestDTO, UUID atendimentoId, UUID profissionalId) {
         if (!pacienteService.existeRelacao(requestDTO.pacienteId(), profissionalId)) {
-            throw new RelacaoInvalidException();
+            throw new RelacaoInvalidException("Você não tem permissão para editar atendimentos deste paciente.");
         }
 
         Atendimento atendimento = repository.findById(atendimentoId)
-                .orElseThrow(() -> new AtendimentoNotFoundException());
+                .orElseThrow(() -> new AtendimentoNotFoundException("O atendimento que deseja editar não foi encontrado."));
         verificarRelatorio(requestDTO.relatorio());
 
         atendimento.getRelatorio().clear();

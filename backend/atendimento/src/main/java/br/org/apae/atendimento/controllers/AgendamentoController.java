@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/agendamento")
 public class AgendamentoController {
@@ -22,7 +24,7 @@ public class AgendamentoController {
 
     @PostMapping()
     public ResponseEntity<AgendamentoResponseDTO> agendarPaciente(
-            @RequestBody AgendamentoRequestDTO agendamentoRequest,
+            @Valid @RequestBody AgendamentoRequestDTO agendamentoRequest,
             @AuthenticationPrincipal UsuarioAutenticado usuarioAtenticado
     ){
         AgendamentoResponseDTO agendamento = service.agendar(agendamentoRequest, usuarioAtenticado.getId());
