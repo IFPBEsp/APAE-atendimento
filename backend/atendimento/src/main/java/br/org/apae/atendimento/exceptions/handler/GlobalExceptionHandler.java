@@ -3,11 +3,13 @@ package br.org.apae.atendimento.exceptions.handler;
 import br.org.apae.atendimento.exceptions.ErrorResponse;
 import br.org.apae.atendimento.exceptions.invalid.*;
 import br.org.apae.atendimento.exceptions.notfound.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.validation.FieldError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
@@ -19,7 +21,9 @@ import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import br.org.apae.atendimento.exceptions.CloudStorageException;
 
 import java.time.LocalDateTime;
+import java.util.stream.Collectors;
 
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -41,35 +45,24 @@ public class GlobalExceptionHandler {
         return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 
-    @ExceptionHandler(AgendamentoInvalidException.class)
-    public ResponseEntity<ErrorResponse> handleAgendamentoInvalid(AgendamentoInvalidException ex){
-        return buildResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
-    }
-
-    @ExceptionHandler(AtendimentoInvalidException.class)
-    public ResponseEntity<ErrorResponse> handleRelacaoInvalid(AtendimentoInvalidException ex){
-        return buildResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
-    }
-
-    @ExceptionHandler(ConsultaInvalidException.class)
-    public ResponseEntity<ErrorResponse> handleConsultaInvalid(ConsultaInvalidException ex) {
-        return buildResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
-    }
-
-    @ExceptionHandler(RelacaoInvalidException.class)
-    public ResponseEntity<ErrorResponse> handleRelacaoInvalid(RelacaoInvalidException ex){
-        return buildResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
-    }
-
-    @ExceptionHandler(TopicoInvalidException.class)
-    public ResponseEntity<ErrorResponse> handleTopicInvalid(TopicoInvalidException ex){
+    @ExceptionHandler({
+            AgendamentoInvalidException.class,
+            AtendimentoInvalidException.class,
+            ConsultaInvalidException.class,
+            RelacaoInvalidException.class,
+            TopicoInvalidException.class
+    })
+    public ResponseEntity<ErrorResponse> handleBadRequestExceptions(RuntimeException ex) {
         return buildResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidation(MethodArgumentNotValidException ex) {
-        String mensagem = ex.getBindingResult().getFieldErrors().get(0).getDefaultMessage();
-        return buildResponse(HttpStatus.BAD_REQUEST, mensagem);
+        String mensagensDeErro = ex.getBindingResult().getFieldErrors().stream()
+                .map(FieldError::getDefaultMessage)
+                .collect(Collectors.joining(" | "));
+
+        return buildResponse(HttpStatus.BAD_REQUEST, "Verifique os campos: " + mensagensDeErro);
     }
 
     @ExceptionHandler(CloudStorageException.class)
@@ -84,18 +77,32 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGenericException(Exception ex) {
-        ex.printStackTrace();
+        log.error("Erro interno não tratado pelo sistema: ", ex);
         return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Ocorreu um erro interno inesperado no servidor.");
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ErrorResponse> handleInvalidJson(HttpMessageNotReadableException ex) {
-        return buildResponse(HttpStatus.BAD_REQUEST, "Os dados enviados possuem um formato inválido.");
+        return buildResponse(HttpStatus.BAD_REQUEST, "Os dados enviados possuem um formato inválido ou estão mal estruturados.");
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ErrorResponse> handleDataIntegrity(DataIntegrityViolationException ex) {
-        return buildResponse(HttpStatus.CONFLICT, "Operação não permitida: O registo já existe ou está a ser utilizado por outro processo.");
+        String mensagemExata = ex.getMostSpecificCause().getMessage();
+
+        if (mensagemExata != null) {
+            String mensagemMinuscula = mensagemExata.toLowerCase();
+
+            if (mensagemMinuscula.contains("duplicate") || mensagemMinuscula.contains("unique")) {
+                return buildResponse(HttpStatus.CONFLICT, "Operação não permitida: Este registro já está cadastrado no sistema.");
+            }
+
+            if (mensagemMinuscula.contains("foreign key") || mensagemMinuscula.contains("constraint")) {
+                return buildResponse(HttpStatus.CONFLICT, "Operação não permitida: Este registro está vinculado a outros dados e não pode ser excluído ou alterado.");
+            }
+        }
+
+        return buildResponse(HttpStatus.CONFLICT, "Operação não permitida por violação de integridade no banco de dados.");
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)

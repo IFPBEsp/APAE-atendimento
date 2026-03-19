@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.UUID;
 
 import br.org.apae.atendimento.security.UsuarioAutenticado;
+import jakarta.validation.Valid;
 import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -34,7 +35,7 @@ public class ArquivoController {
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ArquivoResponseDTO> upload(@RequestPart("file") MultipartFile file,
-                                                     @RequestPart("metadata") ArquivoRequestDTO arquivoRequest,
+                                                     @Valid @RequestPart("metadata") ArquivoRequestDTO arquivoRequest,
                                                      @AuthenticationPrincipal UsuarioAutenticado usuarioAutenticado){
         ArquivoResponseDTO anexoDTO = service.salvar(file, arquivoRequest, usuarioAutenticado.getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(anexoDTO);

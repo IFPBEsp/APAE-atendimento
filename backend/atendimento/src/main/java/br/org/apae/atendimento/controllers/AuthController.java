@@ -1,5 +1,6 @@
 package br.org.apae.atendimento.controllers;
 
+import br.org.apae.atendimento.dtos.request.MagicLinkRequestDTO;
 import br.org.apae.atendimento.dtos.response.ProfissionalResponseDTO;
 import br.org.apae.atendimento.services.AuthService;
 import br.org.apae.atendimento.services.ProfissionalSaudeService;
@@ -24,9 +25,9 @@ public class AuthController {
     }
 
     @PostMapping("/send-link")
-    public ResponseEntity<?> sendMagicLink(@Valid @RequestBody Map<String, String> body) {
+    public ResponseEntity<?> sendMagicLink(@Valid @RequestBody MagicLinkRequestDTO body) {
 
-        String email = body.get("email");
+        String email = body.email();
 
         if (!profissionalService.existByEmail(email) ||  !authService.emailExisteNoFirebase(email)) {
             return ResponseEntity
