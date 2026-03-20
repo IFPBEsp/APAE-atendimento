@@ -4,7 +4,7 @@ VALUES
 ('11111111-1111-1111-1111-111111111111', 'Ana', 'Dra. Ana Ribeiro', 'filipekevyn@gmail.com', '11999990001', null),
 ('22222222-2222-2222-2222-222222222222', 'Marcos', 'Dr. Marcos Oliveira', 'marcosoliveira@gmail.com', '11977770002', null),
 ('33333333-3333-3333-3333-333333333333', 'Luiz', 'Dr. Luiz Artur', 'luiz.artur.coder@gmail.com', '11977771114', 'Efn0oqQ68rMSjtimpAAQPO3KmjY2'),
-('44444444-4444-4444-4444-444444444444', 'Teste', 'Dr. Novo Teste', 'artur.luiz@academico.ifpb.edu.br', '11900000000', 'iA2d7BygJGR30pV3rlxramHkG1t1');
+('44444444-4444-4444-4444-444444444444', 'Teste', 'Dr. Novo Teste', 'teste@gmail.com', '11900000000', null);
 
 INSERT INTO paciente (id, nome_completo, data_de_nascimento, contato, cpf, responsaveis, cidade, rua, bairro, numero_casa, transtornos) VALUES
 ( 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'João Pedro Silva', DATE '2016-05-10',
@@ -15,6 +15,6 @@ INSERT INTO paciente (id, nome_completo, data_de_nascimento, contato, cpf, respo
 
 INSERT INTO profissional_paciente (profissional_id, paciente_id) VALUES
 ('44444444-4444-4444-4444-444444444444', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'),
-('22222222-2222-2222-2222-222222222222', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb'),
+('44444444-4444-4444-4444-444444444444', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb'),
 ('22222222-2222-2222-2222-222222222222', 'cccccccc-cccc-cccc-cccc-cccccccccccc'),
 ('33333333-3333-3333-3333-333333333333', 'dddddddd-dddd-dddd-dddd-dddddddddddd');

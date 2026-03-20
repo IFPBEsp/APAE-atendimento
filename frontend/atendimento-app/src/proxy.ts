@@ -2,6 +2,12 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 export function proxy(request: NextRequest) {
+  const firebaseEnabled = process.env.NEXT_PUBLIC_FIREBASE_ENABLED === "true";
+
+  if (!firebaseEnabled) {
+    return NextResponse.next();
+  }
+
   const token = request.cookies.get("token")?.value;
 
   const publicRoutes = ["/login"];

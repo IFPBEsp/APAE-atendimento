@@ -2,6 +2,7 @@ package br.org.apae.atendimento.services;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -9,6 +10,7 @@ import java.util.Map;
 import java.util.UUID;
 
 @Service
+@ConditionalOnProperty(name = "firebase.enabled", havingValue = "true")
 public class AuthService {
 
     public boolean emailExisteNoFirebase(String email) {

@@ -38,13 +38,20 @@ export default function LoginPage() {
     setError("");
 
     try {
-      await api.post("/auth/send-link", { email });
+      await api.post("/auth/send-link", {email});
 
-      await sendMagicLink(email);
+      if (process.env.NEXT_PUBLIC_FIREBASE_ENABLED === "true") {
+        await sendMagicLink(email);
+        toast.success("Link de acesso enviado para o seu e-mail!");
+        router.push("/login/verificacao");
 
-      toast.success("Link de acesso enviado para o seu e-mail!");
-      router.push("/login/verificacao");
-    } catch(err) {
+      } else {
+        document.cookie = `token=dev-token-ignorado-pelo-backend; path=/; samesite=lax`;
+
+        toast.success("Login simulado com sucesso (Modo Dev)!");
+        router.push("/home")
+      }
+    } catch (err) {
       if (!isAxiosError(err))
         toast.error("Falha ao comunicar com o provedor de e-mail.");
     }
