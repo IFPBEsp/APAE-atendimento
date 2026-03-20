@@ -17,16 +17,18 @@ api.interceptors.request.use(async (config) => {
     config.headers["Content-Type"] = "application/json";
   }
 
-  try {
-    const auth = getFirebaseAuth();
-    const user = auth.currentUser;
+  if (process.env.NEXT_PUBLIC_FIREBASE_ENABLED === "true") {
+    try {
+      const auth = getFirebaseAuth();
+      const user = auth.currentUser;
 
-    if (user) {
-      const token = await user.getIdToken();
-      config.headers.Authorization = `Bearer ${token}`;
+      if (user) {
+        const token = await user.getIdToken();
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+    } catch (error) {
+      console.error(error);
     }
-  } catch (error) {
-    console.error(error);
   }
 
   return config;
