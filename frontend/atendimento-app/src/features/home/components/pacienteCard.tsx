@@ -74,23 +74,28 @@ export function PacienteCard({
             )}
           </Avatar>
 
-          {/* Nome visível SOMENTE no mobile*/}
-          <h2 className="font-semibold text-[#344054] text-base md:hidden text-left">
+          {/* Nome visível SOMENTE no mobile */}
+          <h2
+            className="font-semibold text-[#344054] text-base md:hidden text-left line-clamp-2"
+            title={nomeCompleto}
+          >
             {nomeCompleto}
           </h2>
         </div>
 
-        <div className="flex flex-col justify-center flex-1">
-          {/* Nome visível SOMENTE no desktop */}
-          <h2 className="hidden md:block font-semibold text-[#344054] text-lg mb-3 text-left">
+        <div className="flex flex-col justify-center flex-1 min-w-0">
+          {" "}
+          <h2
+            className="hidden md:block font-semibold text-[#344054] text-lg mb-3 text-left truncate"
+            title={nomeCompleto}
+          >
             {nomeCompleto}
           </h2>
-
           <div className="text-left text-sm text-[#344054] leading-relaxed space-y-1">
             <p>
               <strong>CPF:</strong> {cpf}
             </p>
-            <p>
+            <p className="truncate" title={endereco}>
               <strong>Endereço:</strong> {endereco}
             </p>
             <p>
@@ -100,10 +105,10 @@ export function PacienteCard({
               <strong>Data de nascimento:</strong>{" "}
               {formatarData(dataDeNascimento)}
             </p>
-            <p>
+            <p className="truncate" title={transtornos.join(", ")}>
               <strong>Transtornos:</strong> {transtornos.join(", ")}
             </p>
-            <p>
+            <p className="truncate" title={responsaveis.join(", ")}>
               <strong>Responsáveis:</strong> {responsaveis.join(", ")}
             </p>
           </div>
