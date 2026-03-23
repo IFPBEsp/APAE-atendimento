@@ -25,8 +25,6 @@ function logout() {
 export function MeusDadosModal({ trigger }: MeusDadosModalProps) {
   const { data: profissional, isLoading } = useProfissional();
 
-  if (isLoading || !profissional) return null;
-
   return (
     <Dialog>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
@@ -38,43 +36,49 @@ export function MeusDadosModal({ trigger }: MeusDadosModalProps) {
           </DialogClose>
         </div>
 
-        <div className="px-8 py-8 flex flex-col items-center">
-          <DialogHeader className="mb-4 w-full">
-            <DialogTitle className="text-2xl font-bold text-[#344054] text-center">
-              Meus dados
-            </DialogTitle>
-          </DialogHeader>
-
-          <div className="text-center mb-8 px-4">
-            <h2 className="font-bold text-lg text-[#344054] leading-snug">
-              {profissional.nomeCompleto}
-            </h2>
+        {isLoading || !profissional ? (
+          <div className="px-8 py-16 flex items-center justify-center">
+            <p className="text-[#475467] font-medium">Carregando dados...</p>
           </div>
+        ) : (
+          <div className="px-8 py-8 flex flex-col items-center">
+            <DialogHeader className="mb-4 w-full">
+              <DialogTitle className="text-2xl font-bold text-[#344054] text-center">
+                Meus dados
+              </DialogTitle>
+            </DialogHeader>
 
-          <div className="w-full grid grid-cols-2 gap-y-5 gap-x-4 text-left mb-8">
-            <div>
-              <p className="font-bold text-sm text-[#344054]">Contato</p>
-              <p className="text-[#475467] text-sm mt-1">
-                {profissional.contato}
-              </p>
+            <div className="text-center mb-8 px-4">
+              <h2 className="font-bold text-lg text-[#344054] leading-snug">
+                {profissional.nomeCompleto}
+              </h2>
             </div>
 
-            <div>
-              <p className="font-bold text-sm text-[#344054]">Email</p>
-              <p className="text-[#475467] text-sm mt-1 break-words">
-                {profissional.email}
-              </p>
-            </div>
-          </div>
+            <div className="w-full grid grid-cols-2 gap-y-5 gap-x-4 text-left mb-8">
+              <div>
+                <p className="font-bold text-sm text-[#344054]">Contato</p>
+                <p className="text-[#475467] text-sm mt-1">
+                  {profissional.contato}
+                </p>
+              </div>
 
-          <Button
-            onClick={logout}
-            className="w-full bg-[#F45D6C] hover:bg-[#D44D54] text-white font-medium rounded-full h-12 text-base shadow-none cursor-pointer"
-          >
-            <LogOut className="mr-2 h-5 w-5 rotate-180" />
-            Sair
-          </Button>
-        </div>
+              <div>
+                <p className="font-bold text-sm text-[#344054]">Email</p>
+                <p className="text-[#475467] text-sm mt-1 break-words">
+                  {profissional.email}
+                </p>
+              </div>
+            </div>
+
+            <Button
+              onClick={logout}
+              className="w-full bg-[#F45D6C] hover:bg-[#D44D54] text-white font-medium rounded-full h-12 text-base shadow-none cursor-pointer"
+            >
+              <LogOut className="mr-2 h-5 w-5 rotate-180" />
+              Sair
+            </Button>
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   );
