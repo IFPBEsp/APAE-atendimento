@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react"; // 1. Importado useState e useEffect
 import {
   Dialog,
   DialogContent,
@@ -24,6 +25,15 @@ function logout() {
 
 export function MeusDadosModal({ trigger }: MeusDadosModalProps) {
   const { data: profissional, isLoading } = useProfissional();
+  const [isMounted, setIsMounted] = useState(false); // 2. Estado de montagem
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted) {
+    return <>{trigger}</>;
+  }
 
   return (
     <Dialog>
