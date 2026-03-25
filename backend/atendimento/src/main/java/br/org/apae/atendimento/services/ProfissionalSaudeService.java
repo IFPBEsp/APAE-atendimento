@@ -10,7 +10,6 @@ import br.org.apae.atendimento.mappers.PacienteMapper;
 import br.org.apae.atendimento.mappers.ProfissionalMapper;
 
 import br.org.apae.atendimento.repositories.PacienteRepository;
-import br.org.apae.atendimento.services.storage.ObjectStorageService;
 import br.org.apae.atendimento.services.storage.PresignedUrlService;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
@@ -46,19 +45,19 @@ public class ProfissionalSaudeService {
         this.urlService = urlService;
     }
 
-    public ProfissionalSaude getProfissionalById(UUID id){
+    public ProfissionalSaude getProfissionalById(UUID id) {
         ProfissionalSaude profissionalSaude = repository.findById(id)
                 .orElseThrow(() -> new ProfissionalSaudeNotFoundException("Profissional de saúde não encontrado."));
 
         return profissionalSaude;
     }
 
-    public ProfissionalResponseDTO getProfissionalByIdDTO(UUID id){
+    public ProfissionalResponseDTO getProfissionalByIdDTO(UUID id) {
         ProfissionalSaude profissionalSaude = getProfissionalById(id);
         return profissionalMapper.toDTOPadrao(profissionalSaude);
     }
 
-    public List<PacienteResponseDTO> getPacientesDoProfissional (UUID id) {
+    public List<PacienteResponseDTO> getPacientesDoProfissional(UUID id) {
         ProfissionalSaude profissionalSaude = getProfissionalById(id);
 
         List<Paciente> pacientes = profissionalSaude.getPacientes();
@@ -71,58 +70,19 @@ public class ProfissionalSaudeService {
                 }).collect(Collectors.toList());
     }
 
-    public List<PacienteOptionDTO> getPacienteOption(UUID profissionalId){
+    public List<PacienteOptionDTO> getPacienteOption(UUID profissionalId) {
         List<Paciente> pacientes = pacienteRepository.findByProfissionais_Id(profissionalId);
         return pacientes.stream()
                 .map(paciente -> pacienteMapper.toOptionDTO(paciente))
                 .collect(Collectors.toList());
     }
 
-    public String getPrimeiroNome (UUID id) {
-        String nome = repository.findPrimeiroNomeById(id);
-        if(nome == null) {
-            throw new ProfissionalSaudeNotFoundException("Não foi possível localizar o nome do profissional.");
+    public String getPrimeiroNome(UUID id) {
+        String nomeCompleto = repository.findNomeCompletoById(id);
+        if (nomeCompleto == null || nomeCompleto.isBlank()) {
+            return "Doutor(a)";
         }
-        return nome;
+        // Pega a primeira palavra do nome completo
+        return nomeCompleto.trim().split("\\s+")[0];
     }
-
-    private String getEmailUsuarioLogado() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || auth.getPrincipal() == null) {
-            throw new AccessDeniedException("Usuário não autenticado");
-        }
-        return auth.getName();
-    }
-    public ProfissionalResponseDTO getProfissionalLogado() {
-        String email = getEmailUsuarioLogado();
-
-        ProfissionalSaude profissional = repository
-                .findByEmail(email)
-                .orElseThrow(() ->
-                        new AccessDeniedException("Usuário não autorizado para o sistema")
-                );
-
-        return profissionalMapper.toDTOPadrao(profissional);
-    }
-
-    public boolean existByEmail(String email){
-        return repository.existsByEmail(email);
-    }
-
-    public List<PacienteResponseDTO> getPacientesDoProfissionalLogado() {
-        String email = getEmailUsuarioLogado();
-
-        ProfissionalSaude profissionalSaude = repository.findByEmail(email)
-                .orElseThrow(() -> new ProfissionalSaudeNotFoundException("Profissional de saúde não encontrado."));
-
-        List<Paciente> pacientes = profissionalSaude.getPacientes();
-
-        return pacientes.stream()
-                .map(paciente -> {
-                    String url = urlService.gerarUrlPreAssinada(FOTO_PATH + paciente.getId());
-                    paciente.setFotoPreAssinada(url);
-                    return pacienteMapper.toDTOPadrao(paciente);
-                }).collect(Collectors.toList());
-    }
-
 }

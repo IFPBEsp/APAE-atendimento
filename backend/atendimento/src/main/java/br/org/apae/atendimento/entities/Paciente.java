@@ -1,54 +1,58 @@
 package br.org.apae.atendimento.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-
+import org.hibernate.annotations.Immutable; // IMPORTANTE
 import java.time.LocalDate;
 import java.util.*;
 
 @Entity
-@Table(name = "paciente")
+@Immutable // SOMENTE LEITURA (View)
+@Table(name = "vw_pacientes")
 public class Paciente {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(name = "nome_completo")
+    @Column(name = "nome")
     private String nomeCompleto;
 
-    @Column(name = "data_de_nascimento")
+    @Column(name = "data_nascimento")
     private LocalDate dataDeNascimento;
-
-    @Column(name = "contato")
-    private String contato;
 
     @Column(name = "cpf")
     private String cpf;
 
-    @Column(name = "responsaveis")
+    // A issue deixa claro os atributos selecionados, mas estou mantendo estes temporariamente.
+
+    @Transient
+    private String contato;
+
+    @Transient
     private List<String> responsaveis = new ArrayList<>();
 
-    @Column(name = "cidade")
+    @Transient
     private String cidade;
 
-    @Column(name = "rua")
+    @Transient
     private String rua;
 
-    @Column(name = "bairro")
+    @Transient
     private String bairro;
 
-    @Column(name = "numero_casa")
+    @Transient
     private Integer numeroCasa;
 
     @Transient
     private String fotoPreAssinada;
 
-    @Column(name = "transtornos")
+    @Transient
     private List<String> transtornos = new ArrayList<>();
 
     @OneToMany(mappedBy = "paciente")
     private Set<Atendimento> atendimentos = new HashSet<>();
 
+    @JsonIgnore
     @ManyToMany(mappedBy = "pacientes")
     private Set<ProfissionalSaude> profissionais = new HashSet<>();
 

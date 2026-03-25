@@ -1,34 +1,45 @@
 package br.org.apae.atendimento.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-
+import org.hibernate.annotations.Immutable; // IMPORTANTE
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name = "profissional_saude")
+@Immutable // Somente Leitura
+@Table(name = "vw_profissionais") // Aponta para a view exigida pelo PO
 public class ProfissionalSaude {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(name = "primeiro_nome")
-    private String primeiroNome;
-
-    @Column(name = "nome_completo")
+    @Column(name = "nome") // Mapeado para a View
     private String nomeCompleto;
 
-    @Column(name = "email")
-    private String email;
+    // Campos novos exigidos pela Issue
+    @Column(name = "registro_profissional")
+    private String registroProfissional;
 
-    @Column(name = "contato")
-    private String contato;
+    @Column(name = "especialidade")
+    private String especialidade;
 
     @Column(name = "firebase_uid", unique = true)
-    private String firebaseUID;
+    private String firebaseUID; // Mantido pois é vital para o AuthFilter
 
+    // --- CAMPOS IGNORADOS PELO BANCO DE DADOS (@Transient) ---
+    @Transient
+    private String primeiroNome;
+
+    @Transient
+    private String email;
+
+    @Transient
+    private String contato;
+    // ---------------------------------------------------------
+
+    @JsonIgnore
     @ManyToMany()
     @JoinTable(
             name = "profissional_paciente",
@@ -42,12 +53,12 @@ public class ProfissionalSaude {
 
     @OneToMany(mappedBy = "profissional")
     private List<Arquivo> arquivos = new ArrayList<>();
-
     public ProfissionalSaude() {}
 
     public ProfissionalSaude(UUID id) {
         this.id = id;
     }
+
 
     public UUID getId() {
         return id;
@@ -56,6 +67,12 @@ public class ProfissionalSaude {
     public void setId(UUID id) {
         this.id = id;
     }
+
+    public String getRegistroProfissional() { return registroProfissional; }
+    public void setRegistroProfissional(String registroProfissional) { this.registroProfissional = registroProfissional; }
+
+    public String getEspecialidade() { return especialidade; }
+    public void setEspecialidade(String especialidade) { this.especialidade = especialidade; }
 
     public String getPrimeiroNome() {
         return primeiroNome;

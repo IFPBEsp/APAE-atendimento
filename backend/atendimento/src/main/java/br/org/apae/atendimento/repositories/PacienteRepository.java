@@ -39,7 +39,6 @@ public interface PacienteRepository extends JpaRepository<Paciente, UUID> {
     WHERE prof.id = :profissionalId
     AND (cast(:nome as string) IS NULL OR p.nomeCompleto ILIKE CONCAT('%', cast(:nome as string), '%'))
     AND (cast(:cpf as string) IS NULL OR p.cpf LIKE CONCAT('%', cast(:cpf as string), '%'))
-    AND (cast(:cidade as string) IS NULL OR p.cidade ILIKE CONCAT('%', cast(:cidade as string), '%'))
 """)
     List<Paciente> buscarPaciente(
             @Param("profissionalId") UUID profissionalId,

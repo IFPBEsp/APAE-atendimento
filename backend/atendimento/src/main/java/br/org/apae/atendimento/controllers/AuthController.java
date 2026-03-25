@@ -28,11 +28,11 @@ public class AuthController {
 
         boolean emailExisteNoFirebase = authService == null || authService.emailExisteNoFirebase(email);
 
-        if (!profissionalService.existByEmail(email) ||  !emailExisteNoFirebase) {
-            return ResponseEntity
-                    .status(HttpStatus.FORBIDDEN)
-                    .body("Email não autorizado");
-        }
+//        if (!profissionalService.existByEmail(email) ||  !emailExisteNoFirebase) {
+//            return ResponseEntity
+//                    .status(HttpStatus.FORBIDDEN)
+//                    .body("Email não autorizado");
+//        }
 
         return ResponseEntity.ok("Link autorizado");
     }
