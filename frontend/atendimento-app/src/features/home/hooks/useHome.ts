@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Paciente } from "../types";
+import { api } from "../../../services/axios";
 
 export function useHome() {
   const [medicoNome] = useState("Doutor(a)");
@@ -15,38 +16,10 @@ export function useHome() {
         setLoading(true);
         setErro(false);
 
-        // Quando Paulo terminar, eu troco pra:
-        // const response = await api.get('/patients');
-        // setPacientes(response.data);
-
-        const response = await fetch("/mock-dados.json");
-
-        if (!response.ok) {
-          console.warn("Arquivo não encontrado, usando fallback local.");
-          const fallbackData = [
-            {
-              id: "1",
-              nomeCompleto: "João Silva",
-              cpf: "111",
-              endereco: "Rua da Energisa",
-              contato: "8585",
-              dataDeNascimento: "2015-05-20",
-              transtornos: ["TEA"],
-              responsaveis: ["Maria"],
-              fotoPreAssinada: "",
-            },
-          ];
-          setPacientes(await Promise.resolve(fallbackData));
-          setLoading(false);
-          return;
-        }
-
-        const data = await response.json();
-
-        setTimeout(() => {
-          setPacientes(data);
-          setLoading(false);
-        }, 1500);
+        const response = await api.get("/pacientes/search");
+        setPacientes(response.data);
+        setLoading(false);
+       
       } catch (err) {
         console.error(err);
         setErro(true);
