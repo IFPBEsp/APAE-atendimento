@@ -2,13 +2,20 @@ CREATE TABLE IF NOT EXISTS vw_pacientes (
                                             id UUID PRIMARY KEY,
                                             nome VARCHAR(255) NOT NULL,
                                             cpf VARCHAR(14) NOT NULL,
-                                            data_nascimento DATE NOT NULL
+                                            data_nascimento DATE NOT NULL,
+                                            contato VARCHAR(20),
+                                            cidade VARCHAR(100),
+                                            rua VARCHAR(255),
+                                            bairro VARCHAR(100),
+                                            numero_casa INTEGER,
+                                            responsaveis VARCHAR ARRAY,
+                                            transtornos VARCHAR ARRAY
 );
 
 CREATE TABLE IF NOT EXISTS vw_profissionais (
                                                 id UUID PRIMARY KEY,
                                                 nome VARCHAR(255) NOT NULL,
-                                                registro_professional VARCHAR(50),
+                                                registro_profissional VARCHAR(50),
                                                 especialidade VARCHAR(255),
                                                 firebase_uid VARCHAR(255)
 );

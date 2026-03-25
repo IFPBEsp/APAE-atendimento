@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Paciente } from "../types";
-import { api } from "@/services/axios";
+import { api } from "../../../services/axios";
 
 export function useHome() {
   const [medicoNome] = useState("Doutor(a)");
@@ -16,14 +16,12 @@ export function useHome() {
         setLoading(true);
         setErro(false);
 
-        // utilizando o endpoint de testes
-        const response = await api.get("/profissionais/pacientes");
-        
+        const response = await api.get("/pacientes/search");
         setPacientes(response.data);
         setLoading(false);
-
+       
       } catch (err) {
-        console.error("Erro ao carregar pacientes do Back-end:", err);
+        console.error(err);
         setErro(true);
         setLoading(false);
       }
@@ -32,21 +30,14 @@ export function useHome() {
     fetchPacientes();
   }, []);
 
-  // Utilizando filtros 'null' por conta dos atributos especificamente selecionados (@Transient)
   const pacientesFiltrados = pacientes.filter((pac) => {
     if (!busca) return true;
     const termo = busca.toLowerCase();
 
-    if (filtro === "cpf") {
-        return pac.cpf?.includes(termo);
-    }
-    
-    if (filtro === "cidade") {
-        const cidade = pac.cidade || ""; 
-        return cidade.toLowerCase().includes(termo);
-    }
+    if (filtro === "cpf") return pac.cpf.includes(termo);
+    if (filtro === "cidade") return pac.endereco.toLowerCase().includes(termo);
 
-    return pac.nomeCompleto?.toLowerCase().includes(termo);
+    return pac.nomeCompleto.toLowerCase().includes(termo);
   });
 
   return {

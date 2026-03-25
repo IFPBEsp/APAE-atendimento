@@ -23,30 +23,28 @@ public class Paciente {
     @Column(name = "cpf")
     private String cpf;
 
-    // A issue deixa claro os atributos selecionados, mas estou mantendo estes temporariamente.
-
-    @Transient
+    @Column(name = "contato")
     private String contato;
 
-    @Transient
+    @Column(name = "responsaveis")
     private List<String> responsaveis = new ArrayList<>();
 
-    @Transient
+    @Column(name = "cidade")
     private String cidade;
 
-    @Transient
+    @Column(name = "rua")
     private String rua;
 
-    @Transient
+    @Column(name = "bairro")
     private String bairro;
 
-    @Transient
+    @Column(name = "numero_casa")
     private Integer numeroCasa;
 
     @Transient
     private String fotoPreAssinada;
 
-    @Transient
+    @Column(name = "transtornos")
     private List<String> transtornos = new ArrayList<>();
 
     @OneToMany(mappedBy = "paciente")
