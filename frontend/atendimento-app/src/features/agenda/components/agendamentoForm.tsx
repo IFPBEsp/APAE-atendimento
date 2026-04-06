@@ -17,12 +17,15 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import { getPacientesPorProfissional } from "../services/agendaService";
-import { PacienteOption, Agendamento } from "../types";
+import { Agendamento } from "../types";
+import { usePacientesDropdown } from "@/features/agenda/hooks/usePacientesDropdown";
+import { useProfissionaisDropdown } from "@/features/agenda/hooks/useProfissionaisDropdown";
 
 export type AgendamentoFormData = {
   pacienteId: string;
   pacienteNome?: string;
+  profissionalId: string;
+  profissionalNome?: string;
   data: string;
   horario: string;
   numeroAtendimento: number;
@@ -71,6 +74,8 @@ export default function AgendamentoForm({
       defaultValues: {
         pacienteId: "",
         pacienteNome: "",
+        profissionalId: "",
+        profissionalNome: "",
         data: getTodayLocalDate(),
         horario: "",
         numeroAtendimento: 1,
@@ -78,23 +83,11 @@ export default function AgendamentoForm({
     });
 
   const pacienteId = watch("pacienteId");
+  const profissionalId = watch("profissionalId")
   const dataSelecionada = watch("data");
 
-  const [pacientes, setPacientes] = useState<PacienteOption[]>([]);
-
-  useEffect(() => {
-    let cancelled = false;
-    async function carregarPacientes() {
-      try {
-        const data = await getPacientesPorProfissional();
-        if (!cancelled) setPacientes(data);
-      } catch (error) {
-        if (!cancelled) console.error("Erro ao carregar pacientes", error);
-      }
-    }
-
-    carregarPacientes();
-  }, []);
+  const { data: pacientes = [], isLoading: isLoadingPacientes } = usePacientesDropdown();
+  const { data: profissionais = [], isLoading: isLoadingProfissionais } = useProfissionaisDropdown();
 
   function handleSelectPaciente(value: string) {
     const paciente = pacientes.find((p) => p.id === value);
@@ -102,6 +95,14 @@ export default function AgendamentoForm({
 
     setValue("pacienteId", paciente.id);
     setValue("pacienteNome", paciente.nome);
+  }
+
+  function handleSelectProfissional(value: string) {
+    const profissional = profissionais.find((p) => p.id === value);
+    if (!profissional) return;
+
+    setValue("profissionalId", profissional.id);
+    setValue("profissionalNome", profissional.nome);
   }
 
   useEffect(() => {
@@ -124,23 +125,61 @@ export default function AgendamentoForm({
     >
       <div className="grid gap-2">
         <Label>
+          Profissional <span className="text-[#F28C38]">*</span>
+        </Label>
+
+        <Select
+            required
+            value={profissionalId}
+            onValueChange={handleSelectProfissional}
+            disabled={isLoadingProfissionais || profissionais.length === 0}
+        >
+          <SelectTrigger className="bg-white border border-[#3B82F6] rounded-full text-sm focus:ring-0 w-full disabled:opacity-50 disabled:cursor-not-allowed">
+            <SelectValue
+                placeholder={
+                  isLoadingProfissionais ? "Carregando..." :
+                      profissionais.length === 0 ? "Nenhum profissional encontrado" :
+                          "Selecione o profissional"
+                }
+            />
+          </SelectTrigger>
+
+          <SelectContent>
+            {profissionais.map((p) => (
+                <SelectItem key={p.id} value={p.id} className="cursor-pointer">
+                  <span className="text-sm font-medium">{p.nome}</span>
+                </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="grid gap-2">
+        <Label>
           Paciente <span className="text-[#F28C38]">*</span>
         </Label>
 
         <Select
-          required
-          value={pacienteId}
-          onValueChange={handleSelectPaciente}
+            required
+            value={pacienteId}
+            onValueChange={handleSelectPaciente}
+            disabled={isLoadingPacientes || pacientes.length === 0}
         >
-          <SelectTrigger className="bg-white border border-[#3B82F6] rounded-full text-sm focus:ring-0 w-full">
-            <SelectValue placeholder="Selecione o paciente" />
+          <SelectTrigger className="bg-white border border-[#3B82F6] rounded-full text-sm focus:ring-0 w-full disabled:opacity-50 disabled:cursor-not-allowed">
+            <SelectValue
+                placeholder={
+                  isLoadingPacientes ? "Carregando..." :
+                      pacientes.length === 0 ? "Nenhum paciente encontrado" :
+                          "Selecione o paciente"
+                }
+            />
           </SelectTrigger>
 
           <SelectContent>
             {pacientes.map((p) => (
-              <SelectItem key={p.id} value={p.id} className="cursor-pointer">
-                <span className="text-sm font-medium">{p.nome}</span>
-              </SelectItem>
+                <SelectItem key={p.id} value={p.id} className="cursor-pointer">
+                  <span className="text-sm font-medium">{p.nome}</span>
+                </SelectItem>
             ))}
           </SelectContent>
         </Select>
