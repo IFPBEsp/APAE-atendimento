@@ -4,8 +4,8 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import br.org.apae.atendimento.dtos.response.PacienteDropdownResponseDTO;
 import br.org.apae.atendimento.services.storage.ObjectStorageService;
-import br.org.apae.atendimento.services.storage.PresignedUrlService;
 import org.springframework.stereotype.Service;
 
 import br.org.apae.atendimento.dtos.response.PacienteResponseDTO;
@@ -13,6 +13,7 @@ import br.org.apae.atendimento.entities.Paciente;
 import br.org.apae.atendimento.exceptions.notfound.PacienteNotFoundException;
 import br.org.apae.atendimento.mappers.PacienteMapper;
 import br.org.apae.atendimento.repositories.PacienteRepository;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
@@ -65,5 +66,10 @@ public class PacienteService {
             throw new PacienteNotFoundException("Não é possivel adicionar foto. Paciente não encontrado.");
         }
        return storageService.uploadArquivo(FOTO_PATH + pacienteId, file);
+    }
+
+    @Transactional(readOnly = true)
+    public List<PacienteDropdownResponseDTO> listarParaDropdown() {
+        return repository.listarParaDropdown();
     }
 }

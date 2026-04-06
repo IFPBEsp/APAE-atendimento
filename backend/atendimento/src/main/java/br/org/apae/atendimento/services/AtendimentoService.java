@@ -22,21 +22,26 @@ import br.org.apae.atendimento.exceptions.invalid.RelacaoInvalidException;
 import br.org.apae.atendimento.exceptions.notfound.AtendimentoNotFoundException;
 import br.org.apae.atendimento.mappers.AtendimentoMapper;
 import br.org.apae.atendimento.repositories.AtendimentoRepository;
+import br.org.apae.atendimento.repositories.ProfissionalSaudeRepository;
 import org.springframework.stereotype.Service;
 
 @Service
 public class AtendimentoService {
-    private AtendimentoRepository repository;
-    private AgendamentoService agendamentoService;
-    private AtendimentoMapper atendimentoMapper;
-    private PacienteService pacienteService;
+    private final AtendimentoRepository repository;
+    private final ProfissionalSaudeRepository profissionalRepository;
+    private final AgendamentoService agendamentoService;
+    private final AtendimentoMapper atendimentoMapper;
+    private final PacienteService pacienteService;
 
-    public AtendimentoService(AtendimentoRepository atendimentoRepository,
-            AgendamentoService agendamentoService,
-            AtendimentoMapper atendimentoMapper,
-            PacienteService pacienteService) {
+    public AtendimentoService(AtendimentoRepository repository,
+                              ProfissionalSaudeRepository profissionalRepository,
+                              AgendamentoService agendamentoService,
+                              AtendimentoMapper atendimentoMapper,
+                              PacienteService pacienteService
+                              ) {
 
-        this.repository = atendimentoRepository;
+        this.repository = repository;
+        this.profissionalRepository = profissionalRepository;
         this.agendamentoService = agendamentoService;
         this.atendimentoMapper = atendimentoMapper;
         this.pacienteService = pacienteService;
@@ -51,8 +56,7 @@ public class AtendimentoService {
 
         Atendimento dadosConvertidos = atendimentoMapper.toEntityPadrao(atendimentoRequestDTO);
 
-        ProfissionalSaude profissional = new ProfissionalSaude();
-        profissional.setId(profissionalId);
+        ProfissionalSaude profissional = profissionalRepository.getReferenceById(profissionalId);
         dadosConvertidos.setProfissional(profissional);
 
         verificarRelatorio(dadosConvertidos.getRelatorio());
