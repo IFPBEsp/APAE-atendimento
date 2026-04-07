@@ -62,6 +62,7 @@ export default function AgendamentoPage() {
     try {
       await criarAgendamentoMutation.mutateAsync({
         pacienteId: data.pacienteId,
+        profissionalId: data.profissionalId,
         data: isoParaBR(data.data),
         hora: data.horario,
       });
@@ -187,7 +188,6 @@ export default function AgendamentoPage() {
 
         <AgendamentoModal open={openCreate} onOpenChange={setOpenCreate}>
           <AgendamentoForm
-            agendamentos={agendamentos}
             onSubmit={handleCreateAgendamento}
           />
         </AgendamentoModal>

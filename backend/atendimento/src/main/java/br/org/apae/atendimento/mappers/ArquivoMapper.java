@@ -3,30 +3,34 @@ import br.org.apae.atendimento.dtos.request.ArquivoRequestDTO;
 import br.org.apae.atendimento.dtos.response.ArquivoResponseDTO;
 import br.org.apae.atendimento.entities.Arquivo;
 import br.org.apae.atendimento.entities.TipoArquivo;
+import br.org.apae.atendimento.repositories.PacienteRepository;
 import org.springframework.stereotype.Component;
 
 import br.org.apae.atendimento.entities.Paciente;
-import br.org.apae.atendimento.entities.ProfissionalSaude;
 
 @Component
 public class ArquivoMapper extends AbstractMapper<Arquivo, ArquivoRequestDTO, ArquivoResponseDTO> {
+
+    private final PacienteRepository pacienteRepository;
+
+    public ArquivoMapper(PacienteRepository pacienteRepository) {
+        this.pacienteRepository = pacienteRepository;
+    }
+
     @Override
     public Arquivo toEntityPadrao(ArquivoRequestDTO dtoPadraoArquivo) {
-        ProfissionalSaude profissionalSaude = new ProfissionalSaude();
+        Arquivo arquivo = new Arquivo();
 
-        Paciente paciente = new Paciente();
-        paciente.setId(dtoPadraoArquivo.pacienteId());
+        Paciente paciente = pacienteRepository.getReferenceById(dtoPadraoArquivo.pacienteId());
+        arquivo.setPaciente(paciente);
 
         TipoArquivo tipoArquivo = new TipoArquivo();
         tipoArquivo.setId(dtoPadraoArquivo.tipoArquivo());
+        arquivo.setTipo(tipoArquivo);
 
-        Arquivo arquivo = new Arquivo();
         arquivo.setData(dtoPadraoArquivo.data());
-        arquivo.setPaciente(paciente);
-        arquivo.setProfissional(profissionalSaude);
         arquivo.setTitulo(dtoPadraoArquivo.titulo());
         arquivo.setDescricao(dtoPadraoArquivo.descricao());
-        arquivo.setTipo(tipoArquivo);
         return arquivo;
     }
 

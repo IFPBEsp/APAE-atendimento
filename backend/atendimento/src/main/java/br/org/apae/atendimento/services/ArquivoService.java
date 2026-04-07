@@ -9,6 +9,7 @@ import br.org.apae.atendimento.exceptions.notfound.ArquivoNotFoundException;
 import br.org.apae.atendimento.exceptions.notfound.TipoArquivoNotFoundException;
 import br.org.apae.atendimento.mappers.ArquivoMapper;
 import br.org.apae.atendimento.repositories.AnexoRepository;
+import br.org.apae.atendimento.repositories.ProfissionalSaudeRepository;
 import br.org.apae.atendimento.repositories.TipoArquivoRepository;
 import br.org.apae.atendimento.services.storage.ObjectStorageService;
 import br.org.apae.atendimento.services.storage.PresignedUrlService;
@@ -30,6 +31,9 @@ public class ArquivoService {
 
     @Autowired
     private TipoArquivoRepository tipoRepository;
+
+    @Autowired
+    private ProfissionalSaudeRepository profissionalRepository;
 
     @Autowired
     private ObjectStorageService storageService;
@@ -59,7 +63,7 @@ public class ArquivoService {
         arquivo.setNomeArquivo(file.getOriginalFilename());
         arquivo.setTipo(tipoArquivo);
 
-        ProfissionalSaude profissionalSaude = new ProfissionalSaude(profissionalId);
+        ProfissionalSaude profissionalSaude = profissionalRepository.getReferenceById(profissionalId);
         arquivo.setProfissional(profissionalSaude);
 
         Arquivo arquivoPersistido = repository.save(arquivo);
