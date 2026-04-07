@@ -14,7 +14,12 @@ const regexTitulo = /^(?=.*[\p{L}\p{M}])[\p{L}\p{M}0-9 \-:/()']*$/u;
 const regexDescricao = /^(?=.*[\p{L}\p{M}])[\p{L}\p{M}0-9 \-:/()'%&#]*$/u;
 
 // Data de fundação da APAE Esperança: 21/09/1993
-const DATA_FUNDACAO_APAE = new Date(1993, 8, 21); // Meses são base 0 em JS (8 = Setembro)
+const DATA_FUNDACAO_APAE = new Date(1993, 8, 21);
+
+export enum TipoArquivo {
+  anexo = 1,
+  relatorio = 2,
+}
 
 const schema = z.object({
   data: z.string().refine((val) => {
@@ -35,8 +40,8 @@ const schema = z.object({
 
   descricao: z.string()
     .transform(val => val.trim().replace(/\s{2,}/g, " "))
-    .refine(val => val === "" || regexDescricao.test(val), "Descrição possui caracteres inválidos ou é composta apenas por números.")
-    .optional(),
+    .refine(val => val.length > 0, "A descrição é obrigatória")
+    .refine(val => regexDescricao.test(val), "Descrição possui caracteres inválidos ou é composta apenas por números."),
 
   arquivo: z.any()
     .refine((files) => files?.length > 0, "O arquivo é obrigatório")
@@ -44,6 +49,9 @@ const schema = z.object({
       const type = files?.[0]?.type;
       return ["application/pdf", "image/jpeg", "image/png", "image/gif"].includes(type);
     }, "Apenas PDF ou Imagens (JPEG/PNG/GIF) são permitidos."),
+    
+  pacienteId: z.string().optional(),
+  tipoArquivo: z.nativeEnum(TipoArquivo),
 });
 
 export type DocumentoFormData = z.infer<typeof schema>;
@@ -62,11 +70,6 @@ export type RelatorioEnvioFormData = DocumentoFormData &
     tipoArquivo: TipoArquivo.relatorio;
   };
 
-export enum TipoArquivo {
-  anexo = 1,
-  relatorio = 2,
-}
-
 interface AnexoFormProps {
   onSubmit: (data: AnexoEnvioFormData) => void;
 }
@@ -80,6 +83,8 @@ export default function AnexoForm({ onSubmit }: AnexoFormProps) {
         data: new Date().toISOString().split("T")[0],
         titulo: "",
         descricao: "",
+        tipoArquivo: TipoArquivo.anexo,
+        pacienteId: undefined,
       },
     });
 
@@ -121,9 +126,13 @@ export default function AnexoForm({ onSubmit }: AnexoFormProps) {
     setValue("arquivo", fileList, { shouldValidate: true });
   };
 
+  const handleOnSubmit = (data: AnexoEnvioFormData) => {
+    onSubmit(data);
+  };
+
   return (
     <form
-      onSubmit={handleSubmit(onSubmit)}
+      onSubmit={handleSubmit(handleOnSubmit)}
       className="grid gap-6 pt-5 text-[#344054]"
     >
       <div className="grid gap-2">
@@ -147,7 +156,7 @@ export default function AnexoForm({ onSubmit }: AnexoFormProps) {
       </div>
 
       <Textarea
-        placeholder="Insira a descrição do anexo"
+        placeholder="Insira a descrição do anexo*"
         className={`min-h-[100px] w-full rounded-[30px] border border-[#B2D7EC] focus-visible:ring-0 focus-visible:border-[#B2D7EC] px-5 py-3 text-sm ${errors.descricao ? 'border-red-500' : ''}`}
         {...register("descricao")}
       />

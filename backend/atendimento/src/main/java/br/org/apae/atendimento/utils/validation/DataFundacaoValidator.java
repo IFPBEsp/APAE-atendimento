@@ -16,12 +16,11 @@ public class DataFundacaoValidator implements ConstraintValidator<ValidDataFunda
         }
 
         LocalDate hoje = LocalDate.now();
-        LocalDate limite30AnosAtras = hoje.minusYears(30);
 
-        // A data deve estar entre (Hoje - 30 anos)
-        boolean dentroDoRange30Anos = !value.isBefore(limite30AnosAtras) && !value.isAfter(hoje);
+        // A data deve estar entre a fundação da APAE e a data atual
         boolean aposFundacao = !value.isBefore(DATA_FUNDACAO_APAE);
+        boolean naoNoFuturo = !value.isAfter(hoje);
 
-        return dentroDoRange30Anos && aposFundacao;
+        return aposFundacao && naoNoFuturo;
     }
 }

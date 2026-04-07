@@ -27,8 +27,9 @@ public record ArquivoRequestDTO(
         )
         String titulo,
 
+        @NotBlank(message = "A descrição do arquivo é obrigatória")
         @Pattern(
-                regexp = "^$|^(?=.*[\\p{L}\\p{M}])[\\p{L}\\p{M}0-9 \\-:/()'%&#]*$",
+                regexp = "^(?=.*[\\p{L}\\p{M}])[\\p{L}\\p{M}0-9 \\-:/()'%&#]*$",
                 message = "Descrição inválida. Use apenas letras, números e pontuações permitidas. Não pode ser composta apenas por números ou espaços."
         )
         String descricao

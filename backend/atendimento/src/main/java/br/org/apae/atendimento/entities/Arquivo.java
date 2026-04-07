@@ -16,30 +16,30 @@ public class Arquivo {
     @Transient
     private String presignedUrl;
 
-    @Column(name = "nome_arquivo")
+    @Column(name = "nome_arquivo", nullable = false)
     private String nomeArquivo;
 
-    @Column(name = "data")
+    @Column(name = "data", nullable = false)
     private LocalDate data;
 
-    @Column(name = "titulo")
+    @Column(name = "titulo", nullable = false)
     private String titulo;
 
-    @Column(name = "descricao")
+    @Column(name = "descricao", nullable = false)
     private String descricao;
 
     @ManyToOne
-    @JoinColumn(name = "tipo_id")
+    @JoinColumn(name = "tipo_id", nullable = false)
     private TipoArquivo tipo;
 
     @JsonIgnore
     @ManyToOne
-    @JoinColumn(name = "profissional_id")
+    @JoinColumn(name = "profissional_id", nullable = false)
     private ProfissionalSaude profissional;
 
     @JsonIgnore
     @ManyToOne
-    @JoinColumn(name = "paciente_id")
+    @JoinColumn(name = "paciente_id", nullable = false)
     private Paciente paciente;
 
     public Arquivo(){}
