@@ -9,16 +9,15 @@ import { Textarea } from "../../../components/ui/textarea";
 import { useState, useMemo } from "react";
 import { Upload, CirclePlus } from "lucide-react";
 import { renderizarFormatoArquivo } from "@/utils/renderizarFormatoArquivo";
+import {
+  TipoArquivo,
+  AnexoEnvioFormData,
+} from "@/features/arquivo/types";
 
 const regexTitulo = /^(?=.*[\p{L}\p{M}])[\p{L}\p{M}0-9 \-:/()']*$/u;
 const regexDescricao = /^(?=.*[\p{L}\p{M}])[\p{L}\p{M}0-9 \-:/()'%&#]*$/u;
 
 const DATA_FUNDACAO_APAE = new Date(1993, 8, 21);
-
-export enum TipoArquivo {
-  anexo = 1,
-  relatorio = 2,
-}
 
 const schema = z.object({
   data: z.string().refine((val) => {
@@ -60,18 +59,6 @@ const anexoSchema = schema.extend({
   tipoArquivo: z.literal(TipoArquivo.anexo),
 });
 
-export type DocumentoFormData = z.infer<typeof schema>;
-
-export type DocumentoFormDataEnvio = {
-  pacienteId?: string;
-};
-
-export type AnexoEnvioFormData = z.infer<typeof anexoSchema> & DocumentoFormDataEnvio;
-
-export type RelatorioEnvioFormData = DocumentoFormData &
-  DocumentoFormDataEnvio & {
-    tipoArquivo: TipoArquivo.relatorio;
-  };
 
 interface AnexoFormProps {
   onSubmit: (data: AnexoEnvioFormData) => void;
@@ -107,7 +94,7 @@ export default function AnexoForm({ onSubmit }: AnexoFormProps) {
   const renderizar =
     previewUrl && arquivo && renderizarFormatoArquivo(arquivo[0].type, previewUrl);
 
-  const removerArquivo = () => setValue("arquivo", undefined, { shouldValidate: true });
+  const removerArquivo = () => setValue("arquivo", [] as unknown as FileList, { shouldValidate: true });
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -232,7 +219,7 @@ export default function AnexoForm({ onSubmit }: AnexoFormProps) {
           type="file"
           className="hidden"
           accept=".pdf,image/*"
-          onChange={(e) => setValue("arquivo", e.target.files, { shouldValidate: true })}
+          onChange={(e) => setValue("arquivo", e.target.files as FileList, { shouldValidate: true })}
         />
         {errors.arquivo && (
           <span className="text-red-500 text-xs text-center">
