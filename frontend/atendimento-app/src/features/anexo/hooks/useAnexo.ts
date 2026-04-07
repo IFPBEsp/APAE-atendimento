@@ -3,10 +3,8 @@ import { useMemo, useState } from "react";
 import { apagarAnexo, enviarAnexo, getAnexos } from "../services/anexoService";
 import { toast } from "sonner";
 import { AxiosError } from "axios";
-import {
-  AnexoEnvioFormData,
-  TipoArquivo,
-} from "@/features/anexo/components/anexoForm";
+import { AnexoEnvioFormData } from "@/features/anexo/types";
+import { TipoArquivo } from "@/features/arquivo/types";
 
 import { validarTipoArquivo } from "@/services/validarTipoArquivo";
 import { validarTamanhoArquivo } from "@/services/validarTamanhoArquivo";

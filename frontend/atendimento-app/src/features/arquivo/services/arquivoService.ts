@@ -1,7 +1,11 @@
 import { api } from "@/services/axios";
 
 import { AxiosError } from "axios";
-import { ArquivoResponse, TipoArquivo } from "../types";
+import { TipoArquivo } from "../types";
+import { AnexoResponse } from "@/features/anexo/types";
+import { RelatorioBase } from "@/features/relatorio/types";
+
+type ArquivoResponse = AnexoResponse | RelatorioBase;
 
 export async function getArquivos(
   idPaciente: string,

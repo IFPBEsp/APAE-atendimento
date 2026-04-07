@@ -4,6 +4,7 @@ import {
   TipoArquivo,
 } from "../arquivo/types";
 
+
 export interface Anexo extends AnexoBase {
   id: number;
 }

@@ -87,7 +87,7 @@ export default function RelatorioForm({
     arquivo &&
     renderizarFormatoArquivo(arquivo[0].type, previewUrl);
 
-  const removerArquivo = () => setValue("arquivo", undefined);
+  const removerArquivo = () => setValue("arquivo", [] as unknown as FileList, { shouldValidate: true });
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();

@@ -1,4 +1,4 @@
-import { TipoArquivo } from "@/features/anexo/components/anexoForm";
+import { TipoArquivo } from "@/features/arquivo/types";
 import {
   enviarArquivo,
   getArquivos,
