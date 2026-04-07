@@ -3,6 +3,7 @@ package br.org.apae.atendimento.services;
 import br.org.apae.atendimento.dtos.request.ArquivoRequestDTO;
 import br.org.apae.atendimento.entities.Arquivo;
 import br.org.apae.atendimento.entities.TipoArquivo;
+import br.org.apae.atendimento.exceptions.notfound.TipoArquivoNotFoundException;
 import br.org.apae.atendimento.mappers.ArquivoMapper;
 import br.org.apae.atendimento.repositories.AnexoRepository;
 import br.org.apae.atendimento.repositories.TipoArquivoRepository;
@@ -136,6 +137,61 @@ class ArquivoServiceTest {
 
         verify(repository).save(argThat(arquivo -> {
             assertEquals("foto_do_paciente_joao_2024.jpg", arquivo.getNomeArquivo());
+            return true;
+        }));
+    }
+
+    @Test
+    @DisplayName("Deve lançar exceção quando TipoArquivo não existe no repositório")
+    void deveLancarExcecaoTipoArquivoNaoEncontrado() {
+        MockMultipartFile file = new MockMultipartFile("file", "foto.jpg", "image/jpeg", "conteudo".getBytes());
+
+        when(tipoRepository.findById(1L)).thenReturn(Optional.empty());
+
+        assertThrows(TipoArquivoNotFoundException.class, () ->
+                service.salvar(file, requestDTO, profissionalId)
+        );
+
+        verify(storageService, never()).uploadArquivo(any(), any());
+        verify(repository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("Não deve fazer upload quando arquivo é inválido")
+    void naoDeveUploadQuandoArquivoInvalido() {
+        MockMultipartFile file = new MockMultipartFile("file", "malware.exe", "application/x-msdownload", "conteudo".getBytes());
+
+        assertThrows(IllegalArgumentException.class, () ->
+                service.salvar(file, requestDTO, profissionalId)
+        );
+
+        verify(storageService, never()).uploadArquivo(any(), any());
+    }
+
+    @Test
+    @DisplayName("Deve aplicar pipeline completo de sanitização no título e descrição")
+    void deveAplicarPipelineNormalizacaoTituloDescricao() {
+        MockMultipartFile file = new MockMultipartFile("file", "foto.jpg", "image/jpeg", "conteudo".getBytes());
+        ArquivoRequestDTO requestComHtml = new ArquivoRequestDTO(
+                LocalDate.now(), 1L, pacienteId,
+                "  TÍTULO <script>alert('xss')</script> VÁLIDO  ",
+                "  Descrição   válida  "
+        );
+
+        TipoArquivo tipoArquivo = new TipoArquivo(1L, "Anexo");
+        Arquivo arquivoEntity = new Arquivo();
+
+        when(tipoRepository.findById(1L)).thenReturn(Optional.of(tipoArquivo));
+        when(storageService.uploadArquivo(any(), any())).thenReturn("http://url");
+        when(anexoMapper.toEntityPadrao(any())).thenReturn(arquivoEntity);
+        when(repository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        service.salvar(file, requestComHtml, profissionalId);
+
+        verify(repository).save(argThat(a -> {
+            assertFalse(a.getTitulo().contains("<script>"));
+            assertEquals(a.getTitulo(), a.getTitulo().toLowerCase());
+            assertFalse(a.getDescricao().startsWith(" "));
             return true;
         }));
     }

@@ -57,9 +57,7 @@ class ArquivoIntegrationTest {
     @DisplayName("Deve garantir rollback quando ocorre falha de integridade (Título Nulo)")
     void deveGarantirRollbackEmFalhaDeIntegridade() {
         MockMultipartFile file = new MockMultipartFile("file", "teste.pdf", "application/pdf", "conteudo".getBytes());
-        
-        // Criando DTO com título que resultará em nulo após processamento (se burlar validação)
-        // Mas aqui vamos testar a constraint do banco diretamente tentando salvar uma entidade inválida
+
         Arquivo arquivoInvalido = new Arquivo();
         arquivoInvalido.setObjectName("teste/falha");
         arquivoInvalido.setTitulo(null); // Violando constraint
@@ -84,8 +82,6 @@ class ArquivoIntegrationTest {
                 "Descrição do relatório detalhada"
         );
 
-        // O tipo 1L deve existir. No data-test.sql não vi INSERT de tipo_arquivo, 
-        // mas o ArquivoService depende dele. Vamos garantir que existe.
         if (!tipoArquivoRepository.existsById(1L)) {
             tipoArquivoRepository.save(new TipoArquivo(1L, "Anexo"));
         }
@@ -96,7 +92,7 @@ class ArquivoIntegrationTest {
         assertTrue(anexoRepository.existsById(response.objectName()));
         
         Arquivo persistido = anexoRepository.findById(response.objectName()).get();
-        assertEquals("relatório semestral", persistido.getTitulo()); // Canonicalizado (lowercase, acentos preservados)
+        assertEquals("relatório semestral", persistido.getTitulo());
         assertNotNull(persistido.getPaciente());
         assertNotNull(persistido.getProfissional());
     }

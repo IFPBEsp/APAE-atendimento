@@ -19,6 +19,7 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 import br.org.apae.atendimento.exceptions.CloudStorageException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.time.LocalDateTime;
 import java.util.stream.Collectors;
@@ -73,6 +74,11 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(MaxUploadSizeExceededException.class)
     public ResponseEntity<ErrorResponse> handleMaxSizeException(MaxUploadSizeExceededException ex) {
         return buildResponse(HttpStatus.PAYLOAD_TOO_LARGE, "O arquivo enviado é muito grande. Tente um menor.");
+    }
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<ErrorResponse> handleNoResourceFound(NoResourceFoundException ex) {
+        return buildResponse(HttpStatus.NOT_FOUND, "Recurso não encontrado.");
     }
 
     @ExceptionHandler(Exception.class)
