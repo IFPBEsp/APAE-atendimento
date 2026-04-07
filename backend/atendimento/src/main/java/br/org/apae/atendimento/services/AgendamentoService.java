@@ -127,8 +127,8 @@ public class AgendamentoService {
         Long numero = atendimentoRepository.findMaxNumeracaoByMesAndAno(
                 data.getMonthValue(),
                 data.getYear(),
-                profissionalId,
-                pacienteId);
+                profissionalId
+        );
 
         long numeracaoAtual = (numero != null) ? numero : 0L;
 

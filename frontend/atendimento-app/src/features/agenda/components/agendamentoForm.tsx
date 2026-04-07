@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,7 +16,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import { Agendamento } from "../types";
 import { usePacientesDropdown } from "@/features/agenda/hooks/usePacientesDropdown";
 import { useProfissionaisDropdown } from "@/features/agenda/hooks/useProfissionaisDropdown";
 
@@ -28,11 +26,9 @@ export type AgendamentoFormData = {
   profissionalNome?: string;
   data: string;
   horario: string;
-  numeroAtendimento: number;
 };
 
 interface AgendamentoFormProps {
-  agendamentos: Agendamento[];
   onSubmit: (data: AgendamentoFormData) => void;
 }
 
@@ -44,29 +40,7 @@ function getTodayLocalDate() {
   return new Date(now.getTime() - offset).toISOString().split("T")[0];
 }
 
-function extrairMesAno(data: string) {
-  if (!data || data.length < 7) {
-    return { mes: "", ano: "" };
-  }
-
-  if (data.includes("/")) {
-    const [, mes, ano] = data.split("/");
-    return { mes, ano };
-  }
-
-  const parts = data.split("-");
-
-  if (parts[0].length === 4) {
-    const [ano, mes] = parts;
-    return { mes, ano };
-  }
-
-  const [, mes, ano] = parts;
-  return { mes, ano };
-}
-
 export default function AgendamentoForm({
-  agendamentos,
   onSubmit,
 }: AgendamentoFormProps) {
   const { register, handleSubmit, setValue, watch } =
@@ -78,13 +52,11 @@ export default function AgendamentoForm({
         profissionalNome: "",
         data: getTodayLocalDate(),
         horario: "",
-        numeroAtendimento: 1,
       },
     });
 
   const pacienteId = watch("pacienteId");
   const profissionalId = watch("profissionalId")
-  const dataSelecionada = watch("data");
 
   const { data: pacientes = [], isLoading: isLoadingPacientes } = usePacientesDropdown();
   const { data: profissionais = [], isLoading: isLoadingProfissionais } = useProfissionaisDropdown();
@@ -104,19 +76,6 @@ export default function AgendamentoForm({
     setValue("profissionalId", profissional.id);
     setValue("profissionalNome", profissional.nome);
   }
-
-  useEffect(() => {
-    if (!dataSelecionada) return;
-
-    const { mes, ano } = extrairMesAno(dataSelecionada);
-
-    const totalNoMes = agendamentos.filter((a) => {
-      const dataAgendamento = extrairMesAno(a.data);
-      return dataAgendamento.mes === mes && dataAgendamento.ano === ano;
-    }).length;
-
-    setValue("numeroAtendimento", totalNoMes + 1);
-  }, [dataSelecionada, agendamentos, setValue]);
 
   return (
     <form
@@ -210,13 +169,12 @@ export default function AgendamentoForm({
       </div>
 
       <div className="grid gap-2">
-        <Label>Numeração</Label>
+        <Label htmlFor="numeracao">Numeração</Label>
         <Input
-          type="number"
+          id="numeracao"
+          value="Gerada automaticamente"
           disabled
-          {...register("numeroAtendimento", { valueAsNumber: true })}
-          min={1}
-          className="w-full rounded-[30px] border border-[#3B82F6] text-center"
+          className="w-full rounded-[30px] border border-[#3B82F6] text-center bg-gray-100 text-gray-500 cursor-not-allowed italic"
         />
       </div>
 

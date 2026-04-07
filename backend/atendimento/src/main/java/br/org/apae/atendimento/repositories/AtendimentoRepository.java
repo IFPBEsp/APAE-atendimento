@@ -3,6 +3,7 @@ package br.org.apae.atendimento.repositories;
 import br.org.apae.atendimento.entities.Atendimento;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -12,20 +13,14 @@ import java.util.UUID;
 @Repository
 public interface AtendimentoRepository extends JpaRepository<Atendimento, UUID> {
     List<Atendimento> findByPacienteIdAndProfissionalIdOrderByDataAtendimento(UUID pacienteId, UUID profissionalId);
-    @Query("""
-        SELECT COALESCE(MAX(a.numeracao), 0)
-        FROM Atendimento a
-        WHERE EXTRACT(MONTH FROM a.dataAtendimento) = :mes
-          AND EXTRACT(YEAR FROM a.dataAtendimento) = :ano
-          AND a.profissional.id = :profissionalId
-          AND a.paciente.id = :pacienteId
-    """)
-    Long findMaxNumeracaoByMesAndAno(
-            int mes,
-            int ano,
-            UUID profissionalId,
-            UUID pacienteId
-    );
+
+    @Query("SELECT MAX(a.numeracao) " +
+            "FROM Agendamento a " +
+            "WHERE MONTH(a.dataHora) = :mes " +
+            "AND YEAR(a.dataHora) = :ano " +
+            "AND a.profissional.id = :profissionalId")
+    Long findMaxNumeracaoByMesAndAno(@Param("mes") int mes, @Param("ano") int ano, @Param("profissionalId") UUID profissionalId);
+
     @Query("""
         SELECT CASE WHEN COUNT(a) > 0 THEN true ELSE false END
         FROM Atendimento a

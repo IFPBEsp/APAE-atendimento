@@ -62,7 +62,7 @@ public class AtendimentoService {
         verificarRelatorio(dadosConvertidos.getRelatorio());
 
         dadosConvertidos.setNumeracao(gerarProximaNumeracao(atendimentoRequestDTO.data(),
-                profissionalId, atendimentoRequestDTO.pacienteId()));
+                profissionalId));
 
         Atendimento dadosPersistidos = repository.save(dadosConvertidos);
         try {
@@ -117,9 +117,9 @@ public class AtendimentoService {
         repository.deleteById(atendimentoId);
     }
 
-    public Long gerarProximaNumeracao(LocalDate data, UUID profissionalId, UUID pacienteId) {
+    public Long gerarProximaNumeracao(LocalDate data, UUID profissionalId) {
         Long maiorNumeracao = repository.findMaxNumeracaoByMesAndAno(
-                data.getMonthValue(), data.getYear(), profissionalId, pacienteId);
+                data.getMonthValue(), data.getYear(), profissionalId);
 
         long numeracaoAtual = (maiorNumeracao != null) ? maiorNumeracao : 0L;
 
@@ -140,7 +140,7 @@ public class AtendimentoService {
 
         if (!requestDTO.data().equals(atendimento.getDataAtendimento().toLocalDate())) {
             atendimento.setNumeracao(gerarProximaNumeracao(
-                    requestDTO.data(), profissionalId, requestDTO.pacienteId()));
+                    requestDTO.data(), profissionalId));
             atendimento.setDataAtendimento(LocalDateTime.of(requestDTO.data(), requestDTO.hora()));
         }
 
