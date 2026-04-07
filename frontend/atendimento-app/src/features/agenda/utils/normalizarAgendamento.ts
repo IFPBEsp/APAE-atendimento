@@ -12,6 +12,8 @@ export function normalizarAgendamentos(
         id: a.atendimentoId,
         pacienteId: a.pacienteId,
         paciente: a.nomePaciente,
+        profissionalId: a.profissionalId || "",
+        nomeProfissional: a.nomeProfissional || "Não informado",
         horario: a.time,
         data: isoParaBR(a.data),
         numeracao: a.numeroAtendimento ?? 0,
