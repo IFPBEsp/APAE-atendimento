@@ -181,7 +181,7 @@ export default function RelatorioForm({
 
   return (
     <form
-      onSubmit={handleSubmit(onSubmit)}
+      onSubmit={handleSubmit(onSubmitLocal)}
       className="grid gap-6 pt-5 text-[#344054]"
     >
       <div className="grid gap-2">
@@ -193,10 +193,7 @@ export default function RelatorioForm({
           id="dataInput"
           type="date"
           className="rounded-[30px] border-[#B2D7EC] focus-visible:ring-0 focus-visible:border-[#B2D7EC]"
-          {...register("data", {
-            required: "A data é obrigatória",
-            validate: validarData,
-          })}
+          {...register("data")}
         />
 
         {errors.data && (
@@ -210,14 +207,7 @@ export default function RelatorioForm({
             <Input
               placeholder="Insira o título do relatório*"
               className="p-0 rounded-none border-0 border-b border-[#B2D7EC] focus-visible:ring-0 focus-visible:border-[#B2D7EC] w-full"
-              {...register("titulo", {
-                required: "O título é obrigatório",
-                pattern: {
-                  value: /^(?!\s+$)[a-zA-Z0-9\s\-_À-ÿ]+$/,
-                  message:
-                    "O título não pode ser vazio ou conter caracteres especiais.",
-                },
-              })}
+              {...register("titulo")}
             />
 
             <Dialog>
@@ -399,7 +389,6 @@ export default function RelatorioForm({
       <DialogFooter>
         <Button
           type="submit"
-          disabled={!podeEnviarAnexo}
           className="w-full rounded-[30px] shadow-md bg-[#0D4F97] hover:bg-[#13447D] cursor-pointer"
         >
           <CirclePlus className="mr-1" />
