@@ -28,6 +28,9 @@ public class Arquivo {
     @Column(name = "descricao")
     private String descricao;
 
+    @Column(name = "titulo_canonical") 
+    private String tituloCanonical;
+
     @ManyToOne
     @JoinColumn(name = "tipo_id")
     private TipoArquivo tipo;
@@ -125,4 +128,13 @@ public class Arquivo {
     public void setDescricao(String descricao) {
         this.descricao = descricao;
     }
+
+    public String getTituloCanonical(){
+        return tituloCanonical;
+    }
+
+    public void setTituloCanonical(String tituloCanonical) {
+        this.tituloCanonical = tituloCanonical;
+    }
+
 }
