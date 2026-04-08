@@ -105,6 +105,14 @@
 			<optional>true</optional>
 		</dependency>
 
+		<dependency>
+  			<!-- jsoup HTML parser library @ https://jsoup.org/ -->
+  			<groupId>org.jsoup</groupId>
+  			<artifactId>jsoup</artifactId>
+  			<version>1.22.1</version>
+		</dependency>
+
+
 
     </dependencies>
 

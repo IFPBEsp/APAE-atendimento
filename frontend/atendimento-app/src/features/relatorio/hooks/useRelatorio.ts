@@ -6,7 +6,6 @@ import {
   RelatorioBase,
 } from "@/features/relatorio/types";
 
-
 import { toast } from "sonner";
 import { validarTamanhoArquivo } from "@/services/validarTamanhoArquivo";
 import { construirArquivoFormData } from "@/services/construirArquivoFormData";
@@ -21,6 +20,13 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { TipoArquivo } from "@/features/arquivo/types";
 import { filtroData } from "@/utils/filtroData";
+
+import {
+  normalizar,
+  validarTexto,
+  validarDataISO,
+  validarArquivo,
+} from "@/features/relatorio/utils/sanitizeRelatorio";
 
 export function useRelatorios(pacienteId: string) {
   const [dataSelecionada, setDataSelecionada] = useState<string>("");
@@ -67,12 +73,19 @@ export function useRelatorios(pacienteId: string) {
       });
     },
     onError: (error: unknown) => {
-      const mensagem =
-        error instanceof AxiosError
-          ? error.response?.data || error.message
-          : error instanceof Error
-            ? error.message
-            : String(error);
+      let mensagem: string;
+
+      if (error instanceof AxiosError) {
+        const payload = error.response?.data;
+        mensagem =
+          payload && typeof payload === "object"
+            ? JSON.stringify(payload)
+            : payload || error.message;
+      } else if (error instanceof Error) {
+        mensagem = error.message;
+      } else {
+        mensagem = String(error);
+      }
 
       toast.error(mensagem || "Erro ao enviar relatório");
     },
@@ -94,23 +107,49 @@ export function useRelatorios(pacienteId: string) {
     },
   });
 
-  function criarArquivoRelatorio(data: RelatorioEnvioFormData): FormData | undefined {
-    const request: RelatorioEnvioFormData = {
-      ...data,
-      pacienteId,
-      tipoArquivo: TipoArquivo.relatorio,
-    };
-
-    try{
-      validarTamanhoArquivo(request.arquivo);
-      return construirArquivoFormData(request);
-    }catch(error){
-      const mensagem = error instanceof Error
-            ? error.message
-            : String(error);
-       toast.error(mensagem || "Erro ao enviar anexo");
+  function criarArquivoRelatorio(
+    data: RelatorioEnvioFormData,
+  ): FormData | undefined {
+    if (!pacienteId) {
+      toast.error("Paciente não selecionado.");
+      return;
     }
-    
+    try {
+      const titulo = normalizar(data.titulo);
+      const descricao = normalizar(data.descricao);
+
+      validarTexto(titulo, descricao);
+      validarDataISO(data.data);
+      validarTamanhoArquivo(data.arquivo);
+
+      const arquivoValidado = data.arquivo?.[0]
+        ? validarArquivo(data.arquivo[0])
+        : undefined;
+
+      const fileList = arquivoValidado
+        ? ({
+            0: arquivoValidado,
+            length: 1,
+            item: () => arquivoValidado,
+            [Symbol.iterator]: function* () {
+              yield arquivoValidado;
+            },
+          } as unknown as FileList)
+        : data.arquivo;
+
+      return construirArquivoFormData({
+        ...data,
+        pacienteId,
+        tipoArquivo: TipoArquivo.relatorio,
+        titulo,
+        descricao,
+        arquivo: fileList,
+      });
+    } catch (error) {
+      const mensagem = error instanceof Error ? error.message : String(error);
+      toast.error(mensagem || "Erro ao enviar anexo");
+      return undefined;
+    }
   }
 
   async function construirEnviarArquivoRelatorio(data: RelatorioEnvioFormData) {

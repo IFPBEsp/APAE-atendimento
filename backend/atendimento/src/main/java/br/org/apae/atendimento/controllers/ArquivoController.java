@@ -22,6 +22,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import br.org.apae.atendimento.dtos.request.ArquivoRequestDTO;
 import br.org.apae.atendimento.dtos.response.ArquivoResponseDTO;
@@ -34,11 +37,16 @@ public class ArquivoController {
     private ArquivoService service;
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<ArquivoResponseDTO> upload(@RequestPart("file") MultipartFile file,
-                                                     @Valid @RequestPart("metadata") ArquivoRequestDTO arquivoRequest,
-                                                     @AuthenticationPrincipal UsuarioAutenticado usuarioAutenticado){
-        ArquivoResponseDTO anexoDTO = service.salvar(file, arquivoRequest, usuarioAutenticado.getId());
-        return ResponseEntity.status(HttpStatus.CREATED).body(anexoDTO);
+    public ResponseEntity<ArquivoResponseDTO> upload(
+        @RequestPart("file") MultipartFile file,
+        @RequestPart("metadata") String metadataJson,
+        @AuthenticationPrincipal UsuarioAutenticado usuarioAutenticado
+    ) throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule());
+        ArquivoRequestDTO metadata = mapper.readValue(metadataJson, ArquivoRequestDTO.class);
+
+        ArquivoResponseDTO dto = service.salvar(file, metadata, usuarioAutenticado.getId());
+        return ResponseEntity.status(HttpStatus.CREATED).body(dto);
     }
 
     @GetMapping("/{pacienteId}/{tipoId}")

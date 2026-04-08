@@ -4,6 +4,8 @@ import br.org.apae.atendimento.dtos.response.ArquivoResponseDTO;
 import br.org.apae.atendimento.entities.Arquivo;
 import br.org.apae.atendimento.entities.TipoArquivo;
 import br.org.apae.atendimento.repositories.PacienteRepository;
+import br.org.apae.atendimento.utils.StringSanitizer;
+
 import org.springframework.stereotype.Component;
 
 import br.org.apae.atendimento.entities.Paciente;
@@ -18,19 +20,25 @@ public class ArquivoMapper extends AbstractMapper<Arquivo, ArquivoRequestDTO, Ar
     }
 
     @Override
-    public Arquivo toEntityPadrao(ArquivoRequestDTO dtoPadraoArquivo) {
+    public Arquivo toEntityPadrao(ArquivoRequestDTO dto) {
         Arquivo arquivo = new Arquivo();
 
-        Paciente paciente = pacienteRepository.getReferenceById(dtoPadraoArquivo.pacienteId());
+        Paciente paciente = pacienteRepository.getReferenceById(dto.pacienteId());
         arquivo.setPaciente(paciente);
 
         TipoArquivo tipoArquivo = new TipoArquivo();
-        tipoArquivo.setId(dtoPadraoArquivo.tipoArquivo());
+        tipoArquivo.setId(dto.tipoArquivo());
         arquivo.setTipo(tipoArquivo);
 
-        arquivo.setData(dtoPadraoArquivo.data());
-        arquivo.setTitulo(dtoPadraoArquivo.titulo());
-        arquivo.setDescricao(dtoPadraoArquivo.descricao());
+        String tituloLimpo = StringSanitizer.normalizeSpaces(dto.titulo());
+        arquivo.setTitulo(StringSanitizer.stripHtml(tituloLimpo));
+        arquivo.setTituloCanonical(StringSanitizer.canonical(dto.titulo()));
+
+        String descLimpa = StringSanitizer.stripHtml(StringSanitizer.normalizeSpaces(dto.descricao()));
+        arquivo.setDescricao(descLimpa);
+
+        arquivo.setData(dto.data());
+
         return arquivo;
     }
 
