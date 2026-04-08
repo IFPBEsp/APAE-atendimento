@@ -36,6 +36,9 @@ public class Arquivo {
     @Column(name = "descricao")
     private String descricao;
 
+    @Column(name = "titulo_canonical") 
+    private String tituloCanonical;
+
     @ManyToOne
     @JoinColumn(name = "tipo_id")
     private TipoArquivo tipo;

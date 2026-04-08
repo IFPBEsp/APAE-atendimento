@@ -19,6 +19,12 @@ import { TemplateRelatorio } from "../../../components/pdf/templateRelatorio";
 import { renderizarFormatoArquivo } from "@/utils/renderizarFormatoArquivo";
 import { PacientePdfDTO, ProfissionalPdfDTO } from "@/features/relatorio/types";
 import { RelatorioEnvioFormData } from "../types";
+import {
+  validarTexto,
+  validarDataISO,
+  validarArquivo,
+} from "@/features/relatorio/utils/sanitizeRelatorio";
+import { toast } from "sonner";
 
 interface RelatorioFormProps {
   onSubmit: (data: RelatorioEnvioFormData) => void;
@@ -126,6 +132,34 @@ export default function RelatorioForm({
     clearErrors("arquivo");
     const fileList = {0: file, length: 1, item: () => file} as unknown as FileList;
     setValue("arquivo", fileList, {shouldValidate: true});
+  };
+
+  const onSubmitLocal = (data: RelatorioEnvioFormData) => {
+    try {
+      const { titulo, descricao } = validarTexto(data.titulo, data.descricao);
+      const dataValida = validarDataISO(data.data);
+      const arquivo = data.arquivo?.[0]
+        ? validarArquivo(data.arquivo[0])
+        : undefined;
+
+      onSubmit({
+        ...data,
+        data: dataValida,
+        titulo,
+        descricao,
+        arquivo: arquivo
+          ? ({
+              0: arquivo,
+              length: 1,
+              item: () => arquivo,
+            } as unknown as FileList)
+          : data.arquivo,
+      });
+    } catch (error) {
+      const msg =
+        error instanceof Error ? error.message : "Erro ao validar anexo";
+      toast.error(msg);
+    }
   };
 
   return (

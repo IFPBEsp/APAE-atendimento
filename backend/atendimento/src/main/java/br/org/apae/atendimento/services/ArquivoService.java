@@ -5,6 +5,7 @@ import br.org.apae.atendimento.dtos.response.ArquivoResponseDTO;
 import br.org.apae.atendimento.entities.Arquivo;
 import br.org.apae.atendimento.entities.ProfissionalSaude;
 import br.org.apae.atendimento.entities.TipoArquivo;
+import br.org.apae.atendimento.exceptions.invalid.AtendimentoInvalidException;
 import br.org.apae.atendimento.exceptions.notfound.ArquivoNotFoundException;
 import br.org.apae.atendimento.exceptions.notfound.TipoArquivoNotFoundException;
 import br.org.apae.atendimento.mappers.ArquivoMapper;
@@ -13,6 +14,8 @@ import br.org.apae.atendimento.repositories.ProfissionalSaudeRepository;
 import br.org.apae.atendimento.repositories.TipoArquivoRepository;
 import br.org.apae.atendimento.services.storage.ObjectStorageService;
 import br.org.apae.atendimento.services.storage.PresignedUrlService;
+import br.org.apae.atendimento.utils.StringSanitizer;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,17 +53,28 @@ public class ArquivoService {
     @Transactional
     public ArquivoResponseDTO salvar(MultipartFile file, ArquivoRequestDTO arquivoRequest, UUID profissionalId) {
 
-        TipoArquivo tipoArquivo = tipoRepository.findById(arquivoRequest.tipoArquivo())
-                .orElseThrow(() -> new TipoArquivoNotFoundException("O tipo de arquivo selecionado é invalido"));
+        String contentType = file.getContentType();
+        if (contentType == null || !(contentType.equals("application/pdf") || contentType.startsWith("image/"))) {
+            throw new AtendimentoInvalidException("Tipo de arquivo não permitido. Use PDF ou imagem.");
+        }
 
-        String objectName = criarObjectName(arquivoRequest.pacienteId(), profissionalId,
-                arquivoRequest.tipoArquivo());
+        LocalDate hoje = LocalDate.now();
+        LocalDate minimo = hoje.minusYears(30);
+        if (arquivoRequest.data().isBefore(minimo) || arquivoRequest.data().isAfter(hoje)) {
+            throw new AtendimentoInvalidException("Data fora do intervalo permitido (últimos 30 anos até hoje).");
+        }
+
+        TipoArquivo tipoArquivo = tipoRepository.findById(arquivoRequest.tipoArquivo())
+            .orElseThrow(() -> new TipoArquivoNotFoundException("O tipo de arquivo selecionado é invalido"));
+
+        String objectName = criarObjectName(arquivoRequest.pacienteId(), profissionalId, arquivoRequest.tipoArquivo());
+        String nomeSanitizado = StringSanitizer.sanitizeFilename(file.getOriginalFilename());
 
         String url = storageService.uploadArquivo(objectName, file);
 
         Arquivo arquivo = anexoMapper.toEntityPadrao(arquivoRequest);
         arquivo.setObjectName(objectName);
-        arquivo.setNomeArquivo(file.getOriginalFilename());
+        arquivo.setNomeArquivo(nomeSanitizado);
         arquivo.setTipo(tipoArquivo);
 
         ProfissionalSaude profissionalSaude = profissionalRepository.getReferenceById(profissionalId);
