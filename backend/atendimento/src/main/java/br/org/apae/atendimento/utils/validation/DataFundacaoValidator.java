@@ -3,6 +3,7 @@ package br.org.apae.atendimento.utils.validation;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import java.time.LocalDate;
+import java.time.ZoneId;
 
 public class DataFundacaoValidator implements ConstraintValidator<ValidDataFundacao, LocalDate> {
 
@@ -15,7 +16,7 @@ public class DataFundacaoValidator implements ConstraintValidator<ValidDataFunda
             return true;
         }
 
-        LocalDate hoje = LocalDate.now();
+        LocalDate hoje = LocalDate.now(ZoneId.of("America/Fortaleza"));
 
         // A data deve estar entre a fundação da APAE e a data atual
         boolean aposFundacao = !value.isBefore(DATA_FUNDACAO_APAE);
