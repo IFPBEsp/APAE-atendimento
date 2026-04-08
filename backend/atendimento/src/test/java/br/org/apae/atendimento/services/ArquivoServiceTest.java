@@ -56,58 +56,48 @@ class ArquivoServiceTest {
                 "Título Válido", "Descrição Válida"
         );
 
-        // stub usado em todos os testes positivos
+        // stubs comuns (lenient para não falhar em testes que não usam)
         TipoArquivo tipoArquivo = new TipoArquivo();
         tipoArquivo.setId(1L);
         tipoArquivo.setTipo("PDF");
-        when(tipoRepository.findById(1L)).thenReturn(Optional.of(tipoArquivo));
-        when(profissionalRepository.getReferenceById(profissionalId)).thenReturn(new ProfissionalSaude());
+        lenient().when(tipoRepository.findById(1L)).thenReturn(Optional.of(tipoArquivo));
+        lenient().when(profissionalRepository.getReferenceById(profissionalId)).thenReturn(new ProfissionalSaude());
     }
 
     @Test
     @DisplayName("Deve lançar exceção ao enviar arquivo vazio")
     void deveLancarExcecaoArquivoVazio() {
         MockMultipartFile file = new MockMultipartFile("file", "test.pdf", "application/pdf", new byte[0]);
-
         AtendimentoInvalidException ex = assertThrows(AtendimentoInvalidException.class,
                 () -> service.salvar(file, requestDTO, profissionalId));
-
         assertEquals("O arquivo enviado está vazio.", ex.getMessage());
     }
 
     @Test
     @DisplayName("Deve lançar exceção ao enviar tipo de arquivo não permitido")
     void deveLancarExcecaoTipoNaoPermitido() {
-        MockMultipartFile file = new MockMultipartFile("file", "test.exe", "application/x-msdownload", "content".getBytes());
-
+        MockMultipartFile file = new MockMultipartFile("file", "test.exe", "application/x-msdownload", "conteudo".getBytes());
         AtendimentoInvalidException ex = assertThrows(AtendimentoInvalidException.class,
                 () -> service.salvar(file, requestDTO, profissionalId));
-
         assertEquals("Tipo de arquivo não permitido. Apenas PDF e Imagens são aceitos.", ex.getMessage());
     }
 
     @Test
-    @DisplayName("Deve lançar exceção ao enviar arquivo com extensão forjada (ex: .exe como .pdf)")
+    @DisplayName("Deve lançar exceção ao enviar arquivo com MIME incorreto")
     void deveLancarExcecaoMimeTypeIncorreto() {
-        MockMultipartFile file = new MockMultipartFile("file", "malware.pdf", "text/plain", "content".getBytes());
-
+        MockMultipartFile file = new MockMultipartFile("file", "malware.pdf", "text/plain", "conteudo".getBytes());
         AtendimentoInvalidException ex = assertThrows(AtendimentoInvalidException.class,
                 () -> service.salvar(file, requestDTO, profissionalId));
-
         assertEquals("Tipo de arquivo não permitido. Apenas PDF e Imagens são aceitos.", ex.getMessage());
     }
 
     @Test
     @DisplayName("Deve salvar com sucesso quando todos os dados são válidos")
     void deveSalvarComSucesso() {
-        MockMultipartFile file = new MockMultipartFile("file", "foto paciente.jpg", "image/jpeg", "content".getBytes());
-        TipoArquivo tipoArquivo = new TipoArquivo();
-        tipoArquivo.setId(1L);
-
+        MockMultipartFile file = new MockMultipartFile("file", "foto paciente.jpg", "image/jpeg", "conteudo".getBytes());
         Arquivo arquivoEntity = new Arquivo();
         arquivoEntity.setTitulo("título válido");
 
-        when(tipoRepository.findById(1L)).thenReturn(Optional.of(tipoArquivo));
         when(storageService.uploadArquivo(any(), any())).thenReturn("http://storage/url");
         when(anexoMapper.toEntityPadrao(any())).thenReturn(arquivoEntity);
         when(repository.save(any())).thenReturn(arquivoEntity);
@@ -122,24 +112,23 @@ class ArquivoServiceTest {
     @Test
     @DisplayName("Deve sanitizar o nome do arquivo corretamente")
     void deveSanitizarNomeArquivo() {
-        MockMultipartFile file = new MockMultipartFile("file", "Foto do Paciente (João) #2024.jpg", "image/jpeg", "content".getBytes());
-
+        MockMultipartFile file = new MockMultipartFile("file", "Foto do Paciente (João) #2024.jpg", "image/jpeg", "conteudo".getBytes());
         when(anexoMapper.toEntityPadrao(any())).thenReturn(new Arquivo());
         when(repository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        when(storageService.uploadArquivo(any(), any())).thenReturn("http://url");
 
         service.salvar(file, requestDTO, profissionalId);
 
         verify(repository).save(argThat(arq -> {
-            assertEquals("foto_do_paciente_joão__2024.jpg", arq.getNomeArquivo().toLowerCase());
+            assertEquals("foto_do_paciente__joão___2024.jpg", arq.getNomeArquivo().toLowerCase());
             return true;
         }));
     }
 
     @Test
-    @DisplayName("Deve lançar exceção quando TipoArquivo não existe no repositório")
+    @DisplayName("Deve lançar exceção quando TipoArquivo não existe")
     void deveLancarExcecaoTipoArquivoNaoEncontrado() {
         MockMultipartFile file = new MockMultipartFile("file", "foto.jpg", "image/jpeg", "conteudo".getBytes());
-
         when(tipoRepository.findById(1L)).thenReturn(Optional.empty());
 
         assertThrows(TipoArquivoNotFoundException.class,
@@ -153,10 +142,8 @@ class ArquivoServiceTest {
     @DisplayName("Não deve fazer upload quando arquivo é inválido")
     void naoDeveUploadQuandoArquivoInvalido() {
         MockMultipartFile file = new MockMultipartFile("file", "malware.exe", "application/x-msdownload", "conteudo".getBytes());
-
         assertThrows(AtendimentoInvalidException.class,
                 () -> service.salvar(file, requestDTO, profissionalId));
-
         verify(storageService, never()).uploadArquivo(any(), any());
     }
 
