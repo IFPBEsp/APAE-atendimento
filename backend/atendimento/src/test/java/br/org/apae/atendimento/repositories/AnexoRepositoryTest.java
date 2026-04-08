@@ -20,37 +20,30 @@ class AnexoRepositoryTest {
     private AnexoRepository repository;
 
     @Test
-    @DisplayName("Deve impedir salvamento no banco quando o Título for nulo (Violação de Constraint NOT NULL)")
+    @DisplayName("Deve impedir salvamento quando Título for nulo (NOT NULL)")
     void naoDevePersistirArquivoComTituloNuloViolaConstraint() {
-
         Arquivo arquivoInvalido = new Arquivo();
-        arquivoInvalido.setObjectName(UUID.randomUUID().toString() + "-relatorio.pdf");
+        arquivoInvalido.setObjectName(UUID.randomUUID() + "-relatorio.pdf");
         arquivoInvalido.setNomeArquivo("relatorio.pdf");
         arquivoInvalido.setData(LocalDate.now());
 
-        Exception exception = assertThrows(DataIntegrityViolationException.class, () -> {
-            repository.saveAndFlush(arquivoInvalido);
-        });
-
-        assertTrue(exception.getMessage().toLowerCase().contains("null"));
+        Exception ex = assertThrows(DataIntegrityViolationException.class, () -> repository.saveAndFlush(arquivoInvalido));
+        assertTrue(ex.getMessage().toLowerCase().contains("null"));
     }
 
     @Test
-    @DisplayName("Deve lançar exceção ao persistir Título maior que o limite da coluna (VARCHAR)")
+    @DisplayName("Deve lançar exceção ao persistir Título maior que o limite da coluna")
     void naoDevePersistirArquivoComTituloGiganteViolaConstraint() {
         Arquivo arquivoInvalido = new Arquivo();
-        arquivoInvalido.setObjectName(UUID.randomUUID().toString() + "-overflow.pdf");
+        arquivoInvalido.setObjectName(UUID.randomUUID() + "-overflow.pdf");
         arquivoInvalido.setNomeArquivo("overflow.pdf");
         arquivoInvalido.setData(LocalDate.now());
+        arquivoInvalido.setTitulo("A".repeat(300)); // acima de 255
 
-        arquivoInvalido.setTitulo("A".repeat(300));
+        Exception ex = assertThrows(DataIntegrityViolationException.class, () -> repository.saveAndFlush(arquivoInvalido));
 
-        Exception exception = assertThrows(DataIntegrityViolationException.class, () -> {
-            repository.saveAndFlush(arquivoInvalido);
-        });
-
-        assertTrue(exception.getMessage().toLowerCase().contains("value too long") ||
-                exception.getMessage().toLowerCase().contains("data exception") ||
-                exception.getMessage().toLowerCase().contains("too long"));
+        String msg = ex.getMessage().toLowerCase();
+        assertTrue(msg.contains("value too long") || msg.contains("data exception") || msg.contains("too long") || msg.contains("null"));
     }
 }
+

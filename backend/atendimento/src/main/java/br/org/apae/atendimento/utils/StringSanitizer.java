@@ -1,15 +1,27 @@
 package br.org.apae.atendimento.utils;
 
-import java.nio.charset.StandardCharsets;
-import java.util.Locale;
-
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.safety.Safelist;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Locale;
+
 public final class StringSanitizer {
 
-    private StringSanitizer() {} 
+    private StringSanitizer() {}
+
+    public static String normalizeSpaces(String s) {
+        return normalize(s);
+    }
+
+    public static String stripHtml(String s) {
+        return sanitize(s);
+    }
+
+    public static String canonical(String s) {
+        return canonicalize(normalizeSpaces(stripHtml(s)));
+    }
 
     public static String normalize(String s) {
         if (s == null) return null;
@@ -31,6 +43,6 @@ public final class StringSanitizer {
 
     public static String sanitizeFilename(String name) {
         if (name == null) return null;
-        return name.replaceAll("[^a-zA-Z0-9._-]", "_");
+        return name.replaceAll("[^\\p{L}0-9._-]", "_");
     }
 }

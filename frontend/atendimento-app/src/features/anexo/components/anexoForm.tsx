@@ -8,7 +8,13 @@ import { DialogFooter } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { useState } from "react";
 import { Upload, CirclePlus } from "lucide-react";
-
+import { toast } from "sonner";
+import {
+  normalizar,
+  validarTexto,
+  validarDataISO,
+  validarArquivo,
+} from "@/features/relatorio/utils/sanitizeRelatorio";
 import { renderizarFormatoArquivo } from "@/utils/renderizarFormatoArquivo";
 
 export type DocumentoFormData = {
@@ -50,17 +56,15 @@ export default function AnexoForm({ onSubmit }: AnexoFormProps) {
 
   const existeArquivo = arquivo && arquivo.length > 0;
   const existeTexto = titulo?.trim().length > 0 && descricao?.trim().length > 0;
-
   const podeEnviar = existeArquivo && existeTexto;
 
   const previewUrl = arquivo?.[0] ? URL.createObjectURL(arquivo[0]) : null;
-
   const renderizar =
     previewUrl &&
     arquivo &&
     renderizarFormatoArquivo(arquivo[0].type, previewUrl);
 
-  const removerArquivo = () => setValue("arquivo", [] as unknown as FileList);
+  const removerArquivo = () => setValue("arquivo", undefined);
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -85,18 +89,46 @@ export default function AnexoForm({ onSubmit }: AnexoFormProps) {
     setValue("arquivo", fileList);
   };
 
+  const onSubmitLocal = (data: AnexoEnvioFormData) => {
+    try {
+      const tituloNorm = normalizar(data.titulo);
+      const descNorm = normalizar(data.descricao);
+      validarTexto(tituloNorm, descNorm);
+      validarDataISO(data.data);
+
+      const file = data.arquivo?.[0];
+      if (!file) throw new Error("Selecione um arquivo.");
+      const fileValidado = validarArquivo(file);
+
+      onSubmit({
+        ...data,
+        titulo: tituloNorm,
+        descricao: descNorm,
+        arquivo: {
+          0: fileValidado,
+          length: 1,
+          item: () => fileValidado,
+        } as unknown as FileList,
+        tipoArquivo: TipoArquivo.anexo,
+      });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Erro ao validar anexo");
+    }
+  };
+
   return (
     <form
-      onSubmit={handleSubmit(onSubmit)}
+      onSubmit={handleSubmit(onSubmitLocal)}
       className="grid gap-6 pt-5 text-[#344054]"
     >
-      {/* DATA + TITULO */}
+      {/* DATA + TÍTULO */}
       <div className="grid gap-2">
-        <Label>
+        <Label htmlFor="dataInput">
           Data<span className="text-[#F28C38]">*</span>
         </Label>
 
         <Input
+          id="dataInput"
           type="date"
           className="rounded-[30px] border-[#B2D7EC] focus-visible:ring-0 focus-visible:border-[#B2D7EC]"
           {...register("data")}
@@ -118,7 +150,7 @@ export default function AnexoForm({ onSubmit }: AnexoFormProps) {
 
       {/* ARQUIVO */}
       <div className="grid gap-2">
-        <Label>Inserir arquivo</Label>
+        <Label htmlFor="arquivo">Inserir arquivo</Label>
 
         <div
           className={`
@@ -142,7 +174,7 @@ export default function AnexoForm({ onSubmit }: AnexoFormProps) {
                 <button
                   type="button"
                   className="pointer-events-none flex items-center gap-2 px-6 py-2 rounded-full
-      bg-[#0D4F97] text-white font-semibold h-9"
+                    bg-[#0D4F97] text-white font-semibold h-9"
                 >
                   <Upload className="h-4 w-4 text-white" />
                   Enviar arquivo
@@ -155,7 +187,6 @@ export default function AnexoForm({ onSubmit }: AnexoFormProps) {
             </>
           )}
 
-          {/* NOME DO ARQUIVO */}
           {arquivo?.[0] && (
             <div
               className="absolute bottom-0 left-1/2 transform -translate-x-1/2 
@@ -170,7 +201,7 @@ export default function AnexoForm({ onSubmit }: AnexoFormProps) {
                   e.stopPropagation();
                   removerArquivo();
                 }}
-                className="text-gray-500 hover:text-red-500 font-bold text-xs"
+                className="text-gray-500 hover:text-red-500 font-bold text-xs cursor-pointer"
               >
                 ✕
               </button>
