@@ -56,7 +56,6 @@ class ArquivoServiceTest {
                 "Título Válido", "Descrição Válida"
         );
 
-        // stubs comuns (lenient para não falhar em testes que não usam)
         TipoArquivo tipoArquivo = new TipoArquivo();
         tipoArquivo.setId(1L);
         tipoArquivo.setTipo("PDF");
