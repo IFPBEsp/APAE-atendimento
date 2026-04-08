@@ -3,30 +3,42 @@ import br.org.apae.atendimento.dtos.request.ArquivoRequestDTO;
 import br.org.apae.atendimento.dtos.response.ArquivoResponseDTO;
 import br.org.apae.atendimento.entities.Arquivo;
 import br.org.apae.atendimento.entities.TipoArquivo;
+import br.org.apae.atendimento.repositories.PacienteRepository;
+import br.org.apae.atendimento.utils.StringSanitizer;
+
 import org.springframework.stereotype.Component;
 
 import br.org.apae.atendimento.entities.Paciente;
-import br.org.apae.atendimento.entities.ProfissionalSaude;
 
 @Component
 public class ArquivoMapper extends AbstractMapper<Arquivo, ArquivoRequestDTO, ArquivoResponseDTO> {
-    @Override
-    public Arquivo toEntityPadrao(ArquivoRequestDTO dtoPadraoArquivo) {
-        ProfissionalSaude profissionalSaude = new ProfissionalSaude();
 
-        Paciente paciente = new Paciente();
-        paciente.setId(dtoPadraoArquivo.pacienteId());
+    private final PacienteRepository pacienteRepository;
+
+    public ArquivoMapper(PacienteRepository pacienteRepository) {
+        this.pacienteRepository = pacienteRepository;
+    }
+
+    @Override
+    public Arquivo toEntityPadrao(ArquivoRequestDTO dto) {
+        Arquivo arquivo = new Arquivo();
+
+        Paciente paciente = pacienteRepository.getReferenceById(dto.pacienteId());
+        arquivo.setPaciente(paciente);
 
         TipoArquivo tipoArquivo = new TipoArquivo();
-        tipoArquivo.setId(dtoPadraoArquivo.tipoArquivo());
-
-        Arquivo arquivo = new Arquivo();
-        arquivo.setData(dtoPadraoArquivo.data());
-        arquivo.setPaciente(paciente);
-        arquivo.setProfissional(profissionalSaude);
-        arquivo.setTitulo(dtoPadraoArquivo.titulo());
-        arquivo.setDescricao(dtoPadraoArquivo.descricao());
+        tipoArquivo.setId(dto.tipoArquivo());
         arquivo.setTipo(tipoArquivo);
+
+        String tituloLimpo = StringSanitizer.normalize(dto.titulo());
+        arquivo.setTitulo(StringSanitizer.sanitize(tituloLimpo));
+        arquivo.setTituloCanonical(StringSanitizer.canonicalize(dto.titulo()));
+
+        String descLimpa = StringSanitizer.sanitize(StringSanitizer.normalize(dto.descricao()));
+        arquivo.setDescricao(descLimpa);
+
+        arquivo.setData(dto.data());
+
         return arquivo;
     }
 

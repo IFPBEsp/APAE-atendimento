@@ -1,63 +1,31 @@
-import { TipoArquivo } from "@/features/arquivo/types";
-import {
-  enviarArquivo,
-  getArquivos,
-} from "@/features/arquivo/services/arquivoService";
-import { AxiosError } from "axios";
-
 import { api } from "@/services/axios";
-
-import { Anexo, AnexoResponse } from "../types";
-
-export async function getAnexos(pacienteId: string): Promise<Anexo[]> {
-  try {
-    if (!pacienteId) return [];
-    const resposta = (await getArquivos(
-      pacienteId,
-      TipoArquivo.anexo
-    )) as AnexoResponse[];
-    return resposta.map((e: AnexoResponse, i) => ({
-      id: ++i,
-      ...e,
-    }));
-  } catch (error) {
-    const axiosError = error as AxiosError;
-    const mensagem = String(
-      axiosError.response?.data || axiosError.message || "Erro ao buscar anexos"
-    );
-    throw new Error(mensagem);
-  }
-}
+import { AxiosError } from "axios";
 
 export async function enviarAnexo(formData: FormData) {
   try {
-    await enviarArquivo(formData);
-    return "Anexo enviado com sucesso!";
+    await api.post("/arquivo", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
   } catch (error) {
-    const axiosError = error as AxiosError;
-    const mensagem = String(
-      axiosError.response?.data || axiosError.message || "Erro ao enviar anexo"
-    );
-    throw new Error(mensagem);
+    const err = error as AxiosError<any>;
+
+    const message =
+      err.response?.data?.message ||
+      err.response?.data?.error ||
+      JSON.stringify(err.response?.data) ||
+      "Erro ao enviar anexo";
+
+    throw new Error(message);
   }
 }
 
-export async function apagarAnexo(objectName?: string): Promise<void> {
-  try {
-    if (!objectName) {
-      throw new Error("Nome do arquivo não informado");
-    }
+export async function getAnexos(pacienteId: string) {
+  const res = await api.get(`/arquivo/${pacienteId}/1`);
+  return res.data;
+}
 
-    await api.delete(`/arquivo/delete`, {
-      params: { objectName },
-    });
-  } catch (error) {
-    const axiosError = error as AxiosError;
-    const mensagem =
-      String(axiosError.response?.data) ||
-      axiosError.message ||
-      "Erro ao apagar anexo";
-
-    throw new Error(mensagem);
-  }
+export async function apagarAnexo(objectName: string) {
+  await api.delete(`/arquivo/delete`, {
+    params: { objectName },
+  });
 }

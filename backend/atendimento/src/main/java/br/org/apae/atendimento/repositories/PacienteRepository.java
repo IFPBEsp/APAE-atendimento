@@ -2,6 +2,7 @@ package br.org.apae.atendimento.repositories;
 
 import java.util.*;
 
+import br.org.apae.atendimento.dtos.response.PacienteDropdownResponseDTO;
 import br.org.apae.atendimento.entities.ProfissionalSaude;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -48,4 +49,8 @@ public interface PacienteRepository extends JpaRepository<Paciente, UUID> {
             @Param("cpf") String cpf,
             @Param("cidade") String cidade
     );
+
+    @Query("SELECT new br.org.apae.atendimento.dtos.response.PacienteDropdownResponseDTO(p.id, p.nomeCompleto) " +
+    "FROM Paciente p WHERE p.ativo = true ORDER BY p.nomeCompleto ASC")
+    List<PacienteDropdownResponseDTO> listarParaDropdown();
 }

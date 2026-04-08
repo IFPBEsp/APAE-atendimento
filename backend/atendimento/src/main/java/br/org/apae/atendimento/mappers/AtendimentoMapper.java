@@ -1,23 +1,29 @@
 package br.org.apae.atendimento.mappers;
 
 import br.org.apae.atendimento.dtos.request.AtendimentoRequestDTO;
+import br.org.apae.atendimento.repositories.PacienteRepository;
 import org.springframework.stereotype.Component;
 
 import br.org.apae.atendimento.dtos.response.AtendimentoResponseDTO;
 import br.org.apae.atendimento.entities.Atendimento;
 import br.org.apae.atendimento.entities.Paciente;
-import br.org.apae.atendimento.entities.ProfissionalSaude;
 
 import java.time.LocalDateTime;
 
 @Component
 public class AtendimentoMapper extends AbstractMapper<Atendimento, AtendimentoRequestDTO, AtendimentoResponseDTO> {
+
+    private final PacienteRepository pacienteRepository;
+
+    public AtendimentoMapper(PacienteRepository pacienteRepository) {
+        this.pacienteRepository = pacienteRepository;
+    }
+
     @Override
     public Atendimento toEntityPadrao(AtendimentoRequestDTO dtoPadraoAtendimento) {
         Atendimento atendimento = new Atendimento();
 
-        Paciente paciente = new Paciente();
-        paciente.setId(dtoPadraoAtendimento.pacienteId());
+        Paciente paciente = pacienteRepository.getReferenceById(dtoPadraoAtendimento.pacienteId());
 
         LocalDateTime dataAtendimento = LocalDateTime.of(dtoPadraoAtendimento.data(), dtoPadraoAtendimento.hora());
 

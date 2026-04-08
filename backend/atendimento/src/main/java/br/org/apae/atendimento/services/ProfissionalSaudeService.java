@@ -2,18 +2,15 @@ package br.org.apae.atendimento.services;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import br.org.apae.atendimento.dtos.response.PacienteOptionDTO;
+import br.org.apae.atendimento.dtos.response.ProfissionalDropdownResponseDTO;
 import br.org.apae.atendimento.exceptions.notfound.ProfissionalSaudeNotFoundException;
 import br.org.apae.atendimento.mappers.PacienteMapper;
 import br.org.apae.atendimento.mappers.ProfissionalMapper;
 
 import br.org.apae.atendimento.repositories.PacienteRepository;
 import br.org.apae.atendimento.services.storage.PresignedUrlService;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import br.org.apae.atendimento.dtos.response.PacienteResponseDTO;
@@ -21,6 +18,9 @@ import br.org.apae.atendimento.dtos.response.ProfissionalResponseDTO;
 import br.org.apae.atendimento.entities.Paciente;
 import br.org.apae.atendimento.entities.ProfissionalSaude;
 import br.org.apae.atendimento.repositories.ProfissionalSaudeRepository;
+import org.springframework.transaction.annotation.Transactional;
+
+import static java.util.stream.Collectors.toList;
 
 @Service
 public class ProfissionalSaudeService {
@@ -60,21 +60,19 @@ public class ProfissionalSaudeService {
     public List<PacienteResponseDTO> getPacientesDoProfissional(UUID id) {
         ProfissionalSaude profissionalSaude = getProfissionalById(id);
 
-        List<Paciente> pacientes = profissionalSaude.getPacientes();
-
-        return pacientes.stream()
+        return profissionalSaude.getPacientes().stream()
                 .map(paciente -> {
+                    PacienteResponseDTO dtoSemFoto = pacienteMapper.toDTOPadrao(paciente);
                     String url = urlService.gerarUrlPreAssinada(FOTO_PATH + paciente.getId());
-                    paciente.setFotoPreAssinada(url);
-                    return pacienteMapper.toDTOPadrao(paciente);
-                }).collect(Collectors.toList());
+                    return dtoSemFoto.comFoto(url);
+                }).toList();
     }
 
     public List<PacienteOptionDTO> getPacienteOption(UUID profissionalId) {
         List<Paciente> pacientes = pacienteRepository.findByProfissionais_Id(profissionalId);
         return pacientes.stream()
                 .map(paciente -> pacienteMapper.toOptionDTO(paciente))
-                .collect(Collectors.toList());
+                .collect(toList());
     }
 
     public String getPrimeiroNome(UUID id) {
@@ -84,5 +82,10 @@ public class ProfissionalSaudeService {
         }
         // Pega a primeira palavra do nome completo
         return nomeCompleto.trim().split("\\s+")[0];
+    }
+
+    @Transactional(readOnly = true)
+    public List<ProfissionalDropdownResponseDTO> listarParaDropdown() {
+        return repository.listarParaDropdown();
     }
 }

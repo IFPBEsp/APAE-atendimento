@@ -1,100 +1,66 @@
+"use client";
+
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { DialogFooter } from "@/components/ui/dialog";
-import { Textarea } from "../../../components/ui/textarea";
-import { useState, useMemo } from "react";
+import { Textarea } from "@/components/ui/textarea";
+import { useState } from "react";
 import { Upload, CirclePlus } from "lucide-react";
+
 import { renderizarFormatoArquivo } from "@/utils/renderizarFormatoArquivo";
-import {
-  TipoArquivo,
-  AnexoEnvioFormData,
-} from "@/features/arquivo/types";
 
-const regexTitulo = /^(?=.*[\p{L}\p{M}])[\p{L}\p{M}0-9 \-:/()']*$/u;
-const regexDescricao = /^(?=.*[\p{L}\p{M}])[\p{L}\p{M}0-9 \-:/()'%&#]*$/u;
+export type DocumentoFormData = {
+  data: string;
+  titulo: string;
+  arquivo?: FileList;
+  descricao: string;
+};
 
-const DATA_FUNDACAO_APAE = new Date(1993, 8, 21);
+export enum TipoArquivo {
+  anexo = 1,
+  relatorio = 2,
+}
 
-const schema = z.object({
-  data: z.string().refine((val) => {
-    const dataSelecionada = new Date(val);
-    const hoje = new Date();
-    hoje.setHours(23, 59, 59, 999);
-    const limite30Anos = new Date();
-    limite30Anos.setFullYear(hoje.getFullYear() - 30);
-    limite30Anos.setHours(0, 0, 0, 0);
-
-    return (
-      dataSelecionada >= limite30Anos &&
-      dataSelecionada <= hoje &&
-      dataSelecionada >= DATA_FUNDACAO_APAE
-    );
-  }, { message: "Data fora do período permitido (últimos 30 anos) ou anterior à fundação da APAE (21/09/1993)." }),
-
-  titulo: z.string()
-    .transform((val) => val.trim().replace(/\s{2,}/g, " "))
-    .refine((val) => val.length > 0, "O título é obrigatório")
-    .refine((val) => regexTitulo.test(val), "Título possui caracteres inválidos ou é composto apenas por números."),
-
-  descricao: z.string()
-    .transform((val) => val.trim().replace(/\s{2,}/g, " "))
-    .refine((val) => val.length > 0, "A descrição é obrigatória")
-    .refine((val) => regexDescricao.test(val), "Descrição possui caracteres inválidos ou é composta apenas por números."),
-
-  arquivo: z.any()
-    .refine((files) => files?.length > 0, "O arquivo é obrigatório")
-    .refine((files) => {
-      const type = files?.[0]?.type;
-      return ["application/pdf", "image/jpeg", "image/png", "image/gif"].includes(type);
-    }, "Apenas PDF ou Imagens (JPEG/PNG/GIF) são permitidos."),
-
-  pacienteId: z.string().optional(),
-});
-
-const anexoSchema = schema.extend({
-  tipoArquivo: z.literal(TipoArquivo.anexo),
-});
-
+export type AnexoEnvioFormData = DocumentoFormData & {
+  pacienteId?: string;
+  tipoArquivo: TipoArquivo.anexo;
+};
 
 interface AnexoFormProps {
   onSubmit: (data: AnexoEnvioFormData) => void;
 }
 
 export default function AnexoForm({ onSubmit }: AnexoFormProps) {
-  const {
-    register,
-    handleSubmit,
-    watch,
-    setValue,
-    formState: { errors, isValid },
-  } = useForm<AnexoEnvioFormData>({
-    resolver: zodResolver(anexoSchema),
-    mode: "onChange",
-    defaultValues: {
-      data: new Date().toISOString().split("T")[0],
-      titulo: "",
-      descricao: "",
-      tipoArquivo: TipoArquivo.anexo,
-      pacienteId: undefined,
-    },
-  });
+  const { register, handleSubmit, watch, setValue } =
+    useForm<AnexoEnvioFormData>({
+      defaultValues: {
+        data: new Date().toISOString().split("T")[0],
+        titulo: "",
+        descricao: "",
+      },
+    });
 
   const [isDragging, setIsDragging] = useState(false);
 
+  const titulo = watch("titulo");
+  const descricao = watch("descricao");
   const arquivo = watch("arquivo");
 
-  const previewUrl = useMemo(() => {
-    return arquivo?.[0] ? URL.createObjectURL(arquivo[0]) : null;
-  }, [arquivo]);
+  const existeArquivo = arquivo && arquivo.length > 0;
+  const existeTexto = titulo?.trim().length > 0 && descricao?.trim().length > 0;
+
+  const podeEnviar = existeArquivo && existeTexto;
+
+  const previewUrl = arquivo?.[0] ? URL.createObjectURL(arquivo[0]) : null;
 
   const renderizar =
-    previewUrl && arquivo && renderizarFormatoArquivo(arquivo[0].type, previewUrl);
+    previewUrl &&
+    arquivo &&
+    renderizarFormatoArquivo(arquivo[0].type, previewUrl);
 
-  const removerArquivo = () => setValue("arquivo", [] as unknown as FileList, { shouldValidate: true });
+  const removerArquivo = () => setValue("arquivo", [] as unknown as FileList);
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -116,18 +82,15 @@ export default function AnexoForm({ onSubmit }: AnexoFormProps) {
       item: () => file,
     } as unknown as FileList;
 
-    setValue("arquivo", fileList, { shouldValidate: true });
-  };
-
-  const handleOnSubmit = (data: AnexoEnvioFormData) => {
-    onSubmit(data);
+    setValue("arquivo", fileList);
   };
 
   return (
     <form
-      onSubmit={handleSubmit(handleOnSubmit)}
+      onSubmit={handleSubmit(onSubmit)}
       className="grid gap-6 pt-5 text-[#344054]"
     >
+      {/* DATA + TITULO */}
       <div className="grid gap-2">
         <Label>
           Data<span className="text-[#F28C38]">*</span>
@@ -135,32 +98,25 @@ export default function AnexoForm({ onSubmit }: AnexoFormProps) {
 
         <Input
           type="date"
-          className={`rounded-[30px] border-[#B2D7EC] focus-visible:ring-0 focus-visible:border-[#B2D7EC] ${errors.data ? "border-red-500" : ""}`}
+          className="rounded-[30px] border-[#B2D7EC] focus-visible:ring-0 focus-visible:border-[#B2D7EC]"
           {...register("data")}
         />
-        {errors.data && (
-          <span className="text-red-500 text-xs">{errors.data.message}</span>
-        )}
 
         <Input
           placeholder="Insira o título do anexo*"
-          className={`p-0 rounded-none border-0 border-b border-[#B2D7EC] focus-visible:ring-0 focus-visible:border-[#B2D7EC] ${errors.titulo ? "border-red-500" : ""}`}
+          className="p-0 rounded-none border-0 border-b border-[#B2D7EC] focus-visible:ring-0 focus-visible:border-[#B2D7EC]"
           {...register("titulo")}
         />
-        {errors.titulo && (
-          <span className="text-red-500 text-xs">{errors.titulo.message}</span>
-        )}
       </div>
 
+      {/* DESCRIÇÃO */}
       <Textarea
-        placeholder="Insira a descrição do anexo*"
-        className={`min-h-[100px] w-full rounded-[30px] border border-[#B2D7EC] focus-visible:ring-0 focus-visible:border-[#B2D7EC] px-5 py-3 text-sm ${errors.descricao ? "border-red-500" : ""}`}
+        placeholder="Insira a descrição do anexo"
+        className="min-h-[100px] w-full rounded-[30px] border border-[#B2D7EC] focus-visible:ring-0 focus-visible:border-[#B2D7EC] px-5 py-3 text-sm"
         {...register("descricao")}
       />
-      {errors.descricao && (
-        <span className="text-red-500 text-xs">{errors.descricao.message}</span>
-      )}
 
+      {/* ARQUIVO */}
       <div className="grid gap-2">
         <Label>Inserir arquivo</Label>
 
@@ -170,7 +126,6 @@ export default function AnexoForm({ onSubmit }: AnexoFormProps) {
             border-2 border-dashed rounded-[30px] cursor-pointer bg-[#F8FAFD] overflow-hidden
             transition-colors
             ${isDragging ? "border-blue-400 bg-blue-50" : "border-[#B2D7EC]"}
-            ${errors.arquivo ? "border-red-500" : ""}
           `}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
@@ -184,10 +139,14 @@ export default function AnexoForm({ onSubmit }: AnexoFormProps) {
                 htmlFor="arquivo"
                 className="flex flex-col items-center gap-2 pointer-events-auto cursor-pointer"
               >
-                <div className="flex items-center gap-2 px-6 py-2 rounded-full bg-[#0D4F97] text-white font-semibold h-9">
+                <button
+                  type="button"
+                  className="pointer-events-none flex items-center gap-2 px-6 py-2 rounded-full
+      bg-[#0D4F97] text-white font-semibold h-9"
+                >
                   <Upload className="h-4 w-4 text-white" />
                   Enviar arquivo
-                </div>
+                </button>
               </Label>
 
               <p className="hidden md:block text-sm text-gray-500 mt-2">
@@ -196,8 +155,13 @@ export default function AnexoForm({ onSubmit }: AnexoFormProps) {
             </>
           )}
 
+          {/* NOME DO ARQUIVO */}
           {arquivo?.[0] && (
-            <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 bg-white bg-opacity-70 border border-[#B2D7EC] text-[#344054] text-sm px-3 py-1 rounded-full flex items-center gap-2">
+            <div
+              className="absolute bottom-0 left-1/2 transform -translate-x-1/2 
+                bg-white bg-opacity-70 border border-[#B2D7EC]
+                text-[#344054] text-sm px-3 py-1 rounded-full flex items-center gap-2"
+            >
               <span className="max-w-[150px] truncate">{arquivo[0].name}</span>
 
               <button
@@ -206,7 +170,7 @@ export default function AnexoForm({ onSubmit }: AnexoFormProps) {
                   e.stopPropagation();
                   removerArquivo();
                 }}
-                className="text-gray-500 hover:text-red-500 font-bold text-xs cursor-pointer"
+                className="text-gray-500 hover:text-red-500 font-bold text-xs"
               >
                 ✕
               </button>
@@ -218,21 +182,16 @@ export default function AnexoForm({ onSubmit }: AnexoFormProps) {
           id="arquivo"
           type="file"
           className="hidden"
-          accept=".pdf,image/*"
-          onChange={(e) => setValue("arquivo", e.target.files as FileList, { shouldValidate: true })}
+          {...register("arquivo")}
         />
-        {errors.arquivo && (
-          <span className="text-red-500 text-xs text-center">
-            {(errors.arquivo as any).message}
-          </span>
-        )}
       </div>
 
+      {/* BOTÃO */}
       <DialogFooter>
         <Button
           type="submit"
-          disabled={!isValid}
-          className="w-full rounded-[30px] shadow-md bg-[#0D4F97] hover:bg-[#13447D] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+          disabled={!podeEnviar}
+          className="w-full rounded-[30px] shadow-md bg-[#0D4F97] hover:bg-[#13447D] cursor-pointer"
         >
           <CirclePlus className="mr-1" />
           Adicionar Anexo

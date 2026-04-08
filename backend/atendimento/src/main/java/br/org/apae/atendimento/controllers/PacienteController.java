@@ -1,5 +1,6 @@
 package br.org.apae.atendimento.controllers;
 
+import br.org.apae.atendimento.dtos.response.PacienteDropdownResponseDTO;
 import br.org.apae.atendimento.dtos.response.PacienteResponseDTO;
 import br.org.apae.atendimento.security.UsuarioAutenticado;
 import br.org.apae.atendimento.services.PacienteService;
@@ -51,5 +52,10 @@ public class PacienteController {
         String urlFoto = pacienteService.adicionarFoto(foto, pacienteId);
 
         return  ResponseEntity.status(HttpStatus.CREATED).body(urlFoto);
+   }
+
+   @GetMapping("/dropdown")
+   public ResponseEntity<List<PacienteDropdownResponseDTO>> listarParaDropdown() {
+        return ResponseEntity.ok(pacienteService.listarParaDropdown());
    }
 }

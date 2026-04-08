@@ -5,20 +5,21 @@ import br.org.apae.atendimento.dtos.response.ArquivoResponseDTO;
 import br.org.apae.atendimento.entities.Arquivo;
 import br.org.apae.atendimento.entities.ProfissionalSaude;
 import br.org.apae.atendimento.entities.TipoArquivo;
+import br.org.apae.atendimento.exceptions.invalid.AtendimentoInvalidException;
 import br.org.apae.atendimento.exceptions.notfound.ArquivoNotFoundException;
 import br.org.apae.atendimento.exceptions.notfound.TipoArquivoNotFoundException;
 import br.org.apae.atendimento.mappers.ArquivoMapper;
 import br.org.apae.atendimento.repositories.AnexoRepository;
+import br.org.apae.atendimento.repositories.ProfissionalSaudeRepository;
 import br.org.apae.atendimento.repositories.TipoArquivoRepository;
 import br.org.apae.atendimento.services.storage.ObjectStorageService;
 import br.org.apae.atendimento.services.storage.PresignedUrlService;
-import br.org.apae.atendimento.utils.StringHandler;
+import br.org.apae.atendimento.utils.StringSanitizer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.text.Normalizer;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
@@ -33,6 +34,9 @@ public class ArquivoService {
 
     @Autowired
     private TipoArquivoRepository tipoRepository;
+
+    @Autowired
+    private ProfissionalSaudeRepository profissionalRepository;
 
     @Autowired
     private ObjectStorageService storageService;
@@ -52,24 +56,21 @@ public class ArquivoService {
 
     @Transactional
     public ArquivoResponseDTO salvar(MultipartFile file, ArquivoRequestDTO arquivoRequest, UUID profissionalId) {
-
         validarIntegridadeArquivo(file);
+        validarIntervaloData(arquivoRequest.data());
 
         TipoArquivo tipoArquivo = tipoRepository.findById(arquivoRequest.tipoArquivo())
                 .orElseThrow(() -> new TipoArquivoNotFoundException("O tipo de arquivo selecionado é invalido"));
 
-        String nomeSanitizado = sanitizarNomeArquivo(file.getOriginalFilename());
+        String tituloProcessado = StringSanitizer.normalize(arquivoRequest.titulo());
+        tituloProcessado = StringSanitizer.sanitize(tituloProcessado);
+        tituloProcessado = StringSanitizer.canonicalize(tituloProcessado);
 
-        // Pipeline de Normalização, Sanitização e Canonicalização
-        String tituloProcessado = StringHandler.normalizar(arquivoRequest.titulo());
-        tituloProcessado = StringHandler.sanitizar(tituloProcessado);
-        tituloProcessado = StringHandler.canonicalizar(tituloProcessado);
+        String descricaoProcessada = StringSanitizer.normalize(arquivoRequest.descricao());
+        descricaoProcessada = StringSanitizer.sanitize(descricaoProcessada);
 
-        String descricaoProcessada = StringHandler.normalizar(arquivoRequest.descricao());
-        descricaoProcessada = StringHandler.sanitizar(descricaoProcessada);
-
-        String objectName = criarObjectName(arquivoRequest.pacienteId(), profissionalId,
-                arquivoRequest.tipoArquivo());
+        String nomeSanitizado = StringSanitizer.sanitizeFilename(file.getOriginalFilename());
+        String objectName = criarObjectName(arquivoRequest.pacienteId(), profissionalId, arquivoRequest.tipoArquivo());
 
         String url = storageService.uploadArquivo(objectName, file);
 
@@ -80,7 +81,7 @@ public class ArquivoService {
         arquivo.setNomeArquivo(nomeSanitizado);
         arquivo.setTipo(tipoArquivo);
 
-        ProfissionalSaude profissionalSaude = new ProfissionalSaude(profissionalId);
+        ProfissionalSaude profissionalSaude = profissionalRepository.getReferenceById(profissionalId);
         arquivo.setProfissional(profissionalSaude);
 
         Arquivo arquivoPersistido = repository.save(arquivo);
@@ -88,40 +89,6 @@ public class ArquivoService {
 
         return anexoMapper.toDTOPadrao(arquivoPersistido);
     }
-
-    private void validarIntegridadeArquivo(MultipartFile file) {
-        if (file.isEmpty()) {
-            throw new IllegalArgumentException("O arquivo enviado está vazio.");
-        }
-
-        String contentType = file.getContentType();
-        if (contentType == null || !MIME_TYPES_PERMITIDOS.contains(contentType)) {
-            throw new IllegalArgumentException("Tipo de arquivo não permitido. Apenas PDF e Imagens são aceitos.");
-        }
-    }
-
-    private String sanitizarNomeArquivo(String originalFilename) {
-        if (originalFilename == null) return "arquivo_sem_nome";
-
-        String normalized = Normalizer.normalize(originalFilename, Normalizer.Form.NFD);
-        String result = normalized.replaceAll("[\\p{InCombiningDiacriticalMarks}]", "");
-
-        result = result.replaceAll("[^a-zA-Z0-9.\\-_]", "_");
-
-        result = result.replaceAll("_{2,}", "_");
-
-        return result.toLowerCase();
-    }
-
-    private String criarObjectName(UUID pacienteId, UUID profissionalId, Long tipoArquivoId) {
-        String objectId = UUID.randomUUID().toString();
-        if (tipoArquivoId == 1L){
-            return pacienteId + "/" + profissionalId + "/" + ANEXO_PATH + "/" + objectId;
-        } else {
-            return pacienteId + "/" + profissionalId + "/" + RELATORIO_PATH + "/" + objectId;
-        }
-    }
-
 
     public List<ArquivoResponseDTO> listar(UUID profissionalId, UUID pacienteId, Long tipoId) {
         List<Arquivo> arquivos = repository.findByProfissionalIdAndPacienteIdAndTipoId(
@@ -155,7 +122,31 @@ public class ArquivoService {
         }
 
         repository.deleteById(objectName);
-
         storageService.deletarArquivo(objectName);
+    }
+
+    private void validarIntegridadeArquivo(MultipartFile file) {
+        if (file == null || file.isEmpty()) {
+            throw new AtendimentoInvalidException("O arquivo enviado está vazio.");
+        }
+
+        String contentType = file.getContentType();
+        if (contentType == null || !MIME_TYPES_PERMITIDOS.contains(contentType)) {
+            throw new AtendimentoInvalidException("Tipo de arquivo não permitido. Apenas PDF e Imagens são aceitos.");
+        }
+    }
+
+    private void validarIntervaloData(LocalDate data) {
+        LocalDate hoje = LocalDate.now();
+        LocalDate minimo = hoje.minusYears(30);
+        if (data.isBefore(minimo) || data.isAfter(hoje)) {
+            throw new AtendimentoInvalidException("Data fora do intervalo permitido (Fundação APAE - 30 anos até hoje).");
+        }
+    }
+
+    private String criarObjectName(UUID pacienteId, UUID profissionalId, Long tipoArquivoId) {
+        String objectId = UUID.randomUUID().toString();
+        String path = (tipoArquivoId == 1L) ? ANEXO_PATH : RELATORIO_PATH;
+        return pacienteId + "/" + profissionalId + "/" + path + "/" + objectId;
     }
 }

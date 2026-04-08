@@ -3,11 +3,11 @@ import { renderizarFormatoArquivo } from "@/utils/renderizarFormatoArquivo";
 import { formatarData } from "@/utils/formatarData";
 
 interface AnexoCardProps {
-  id?: number;
+  id: string;
   titulo: string;
   data: string;
   fileName: string;
-  imageUrl?: string;
+  imageUrl: string;
   onView: () => void;
   onDelete: () => void;
 }
