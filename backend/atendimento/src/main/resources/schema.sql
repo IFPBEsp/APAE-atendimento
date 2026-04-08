@@ -1,3 +1,7 @@
+DROP TABLE IF EXISTS profissional_paciente CASCADE;
+DROP TABLE IF EXISTS vw_pacientes CASCADE;
+DROP TABLE IF EXISTS vw_profissionais CASCADE;
+
 CREATE TABLE IF NOT EXISTS vw_pacientes (
                                             id UUID PRIMARY KEY,
                                             nome VARCHAR(255) NOT NULL,

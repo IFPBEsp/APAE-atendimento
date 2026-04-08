@@ -2,49 +2,41 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { apagarAnexo, enviarAnexo, getAnexos } from "../services/anexoService";
 import { toast } from "sonner";
-import { AxiosError } from "axios";
-import {
-  AnexoEnvioFormData,
-  TipoArquivo,
-} from "@/features/anexo/components/anexoForm";
+
+import { TipoArquivo } from "@/features/anexo/types";
+import type { AnexoEnvioFormData } from "@/features/anexo/types";
 
 import { validarTipoArquivo } from "@/services/validarTipoArquivo";
 import { validarTamanhoArquivo } from "@/services/validarTamanhoArquivo";
 import { construirArquivoFormData } from "@/services/construirArquivoFormData";
-import { Anexo, AnexoResponse } from "../types";
+
+import type { Anexo } from "../types";
 import { filtroData } from "@/utils/filtroData";
 
 export function useAnexos(pacienteId: string) {
-  const [dataSelecionada, setDataSelecionada] = useState<string>("");
+  const [dataSelecionada, setDataSelecionada] = useState("");
   const [open, setOpen] = useState(false);
-  const [reportToDelete, setReportToDelete] = useState<Anexo | null>(null);
+
   const [reportToView, setReportToView] = useState<Anexo | null>(null);
+  const [reportToDelete, setReportToDelete] = useState<Anexo | null>(null);
 
   const queryClient = useQueryClient();
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading } = useQuery<{ anexos: Anexo[] }>({
     queryKey: ["anexos", pacienteId],
     enabled: !!pacienteId,
     queryFn: async () => {
-      const [anexosResponse] = await Promise.all([getAnexos(pacienteId)]);
-
-      const anexos: Anexo[] = anexosResponse.map((e: AnexoResponse, i) => ({
-        id: ++i,
-        ...e,
-      }));
+      const anexos = await getAnexos(pacienteId);
       return { anexos };
     },
   });
 
   const anexosFiltrados = useMemo(() => {
     if (!data?.anexos) return [];
+    if (!dataSelecionada) return data.anexos;
 
-    if (!dataSelecionada) {
-      return data.anexos;
-    }
-
-    return data.anexos.filter((anexos) =>
-      filtroData(dataSelecionada, anexos.data),
+    return data.anexos.filter((a: Anexo) =>
+      filtroData(dataSelecionada, a.data),
     );
   }, [data, dataSelecionada]);
 
@@ -52,86 +44,100 @@ export function useAnexos(pacienteId: string) {
     mutationFn: enviarAnexo,
     onSuccess: () => {
       toast.success("Anexo criado com sucesso!");
-      queryClient.invalidateQueries({
-        queryKey: ["anexos", pacienteId],
-      });
-    },
-    onError: (error: unknown) => {
-      const mensagem =
-        error instanceof AxiosError
-          ? error.response?.data || error.message
-          : error instanceof Error
-            ? error.message
-            : String(error);
-
-      toast.error(mensagem || "Erro ao enviar anexo");
-    },
-    onSettled() {
+      queryClient.invalidateQueries({ queryKey: ["anexos", pacienteId] });
       setOpen(false);
+    },
+    onError: (error: any) => {
+      toast.error(error.message || "Erro ao enviar");
     },
   });
 
   const deletarAnexoMutation = useMutation({
     mutationFn: apagarAnexo,
     onSuccess: () => {
-      toast.success("Anexo removido");
-      queryClient.invalidateQueries({
-        queryKey: ["anexos", pacienteId],
-      });
+      toast.success("Removido com sucesso!");
+      queryClient.invalidateQueries({ queryKey: ["anexos", pacienteId] });
+      setReportToDelete(null);
     },
     onError: () => {
-      toast.error("Erro ao remover anexos");
+      toast.error("Erro ao remover");
     },
   });
 
-  function criarArquivoAnexo(data: AnexoEnvioFormData): FormData | undefined {
- const request: AnexoEnvioFormData = {
-      ...data,
-      pacienteId,
-      tipoArquivo: TipoArquivo.anexo,
-    };
-    try{
-       validarTipoArquivo(request.arquivo);
-       validarTamanhoArquivo(request.arquivo);
-       return construirArquivoFormData(request);
-    }catch(error){
-      const mensagem = error instanceof Error
-            ? error.message
-            : String(error);
-       toast.error(mensagem || "Erro ao enviar anexo");
+  const handleEnviarAnexo = (formData: AnexoEnvioFormData) => {
+    try {
+      if (!formData.data) throw new Error("Data obrigatória");
+      if (!formData.titulo?.trim()) throw new Error("Título obrigatório");
+      if (!formData.arquivo?.length) throw new Error("Arquivo obrigatório");
+
+      // ✅ NORMALIZAÇÃO
+      const titulo = formData.titulo.trim().replace(/\s+/g, " ");
+      const descricao = formData.descricao?.trim().replace(/\s+/g, " ") || "";
+
+      // ✅ VALIDAÇÃO TÍTULO
+      const tituloRegex = /^(?=.*[\p{L}\p{M}])[\p{L}\p{M}0-9 \-:/()']*$/u;
+
+      if (!tituloRegex.test(titulo)) {
+        throw new Error("Título inválido");
+      }
+
+      // ✅ VALIDAÇÃO DESCRIÇÃO
+      const descRegex = /^(?=.*[\p{L}\p{M}])[\p{L}\p{M}0-9 \-:/()'%&#]*$/u;
+
+      if (!descRegex.test(descricao)) {
+        throw new Error("Descrição inválida");
+      }
+
+      // ✅ REGRA: não pode ser só número
+      const cleanTitulo = titulo.replace(/\s/g, "");
+      if (!cleanTitulo || /^\d+$/.test(cleanTitulo)) {
+        throw new Error("Título inválido");
+      }
+
+      const cleanDesc = descricao.replace(/\s/g, "");
+      if (!cleanDesc || /^\d+$/.test(cleanDesc)) {
+        throw new Error("Descrição inválida");
+      }
+
+      const request: AnexoEnvioFormData = {
+        ...formData,
+        titulo,
+        descricao,
+        pacienteId,
+        tipoArquivo: TipoArquivo.anexo,
+      };
+
+      // ✅ VALIDA ARQUIVO
+      validarTipoArquivo(request.arquivo);
+      validarTamanhoArquivo(request.arquivo);
+
+      const ready = construirArquivoFormData(request);
+
+      enviarAnexoMutation.mutate(ready);
+    } catch (error: any) {
+      toast.error(error.message || "Erro ao enviar anexo");
     }
-  }
-
-  async function construirEnviarArquivoAnexo(data: AnexoEnvioFormData) {
-    const anexo = criarArquivoAnexo(data);
-    anexo && enviarAnexoMutation.mutate(anexo);
-  }
-
-  const handleDelete = (objectName: string) => {
-    deletarAnexoMutation.mutate(objectName);
   };
-
   return {
-    // dados-estados
     anexos: data?.anexos ?? [],
     loading: isLoading,
-    dataSelecionada,
-    open,
-    reportToDelete,
-    reportToView,
     anexosFiltrados,
 
-    // ações-passivas
+    dataSelecionada,
     setDataSelecionada,
+
+    open,
     setOpen,
-    setReportToDelete,
+
+    reportToView,
     setReportToView,
 
-    // ações-ativas
-    enviarAnexo: construirEnviarArquivoAnexo,
-    deletarAnexo: handleDelete,
+    reportToDelete,
+    setReportToDelete,
 
-    // intenções
+    enviarAnexo: handleEnviarAnexo,
+    deletarAnexo: deletarAnexoMutation.mutate,
+
     enviando: enviarAnexoMutation.isPending,
     deletando: deletarAnexoMutation.isPending,
   };

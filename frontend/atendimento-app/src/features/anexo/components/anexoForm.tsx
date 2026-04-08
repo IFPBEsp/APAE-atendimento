@@ -1,11 +1,14 @@
+"use client";
+
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { DialogFooter } from "@/components/ui/dialog";
-import { Textarea } from "../../../components/ui/textarea";
+import { Textarea } from "@/components/ui/textarea";
 import { useState } from "react";
 import { Upload, CirclePlus } from "lucide-react";
+
 import { renderizarFormatoArquivo } from "@/utils/renderizarFormatoArquivo";
 
 export type DocumentoFormData = {
@@ -15,24 +18,15 @@ export type DocumentoFormData = {
   descricao: string;
 };
 
-export type DocumentoFormDataEnvio = {
-  pacienteId?: string;
-};
-
-export type AnexoEnvioFormData = DocumentoFormData &
-  DocumentoFormDataEnvio & {
-    tipoArquivo: TipoArquivo.anexo;
-  };
-
-export type RelatorioEnvioFormData = DocumentoFormData &
-  DocumentoFormDataEnvio & {
-    tipoArquivo: TipoArquivo.relatorio;
-  };
-
 export enum TipoArquivo {
   anexo = 1,
   relatorio = 2,
 }
+
+export type AnexoEnvioFormData = DocumentoFormData & {
+  pacienteId?: string;
+  tipoArquivo: TipoArquivo.anexo;
+};
 
 interface AnexoFormProps {
   onSubmit: (data: AnexoEnvioFormData) => void;
@@ -51,20 +45,22 @@ export default function AnexoForm({ onSubmit }: AnexoFormProps) {
   const [isDragging, setIsDragging] = useState(false);
 
   const titulo = watch("titulo");
+  const descricao = watch("descricao");
   const arquivo = watch("arquivo");
 
   const existeArquivo = arquivo && arquivo.length > 0;
-  const existeTemplate =
-    titulo?.trim().length > 0;
+  const existeTexto = titulo?.trim().length > 0 && descricao?.trim().length > 0;
 
-  const envioValidado = existeArquivo && existeTemplate;
+  const podeEnviar = existeArquivo && existeTexto;
 
   const previewUrl = arquivo?.[0] ? URL.createObjectURL(arquivo[0]) : null;
+
   const renderizar =
     previewUrl &&
     arquivo &&
     renderizarFormatoArquivo(arquivo[0].type, previewUrl);
-  const removerArquivo = () => setValue("arquivo", undefined);
+
+  const removerArquivo = () => setValue("arquivo", [] as unknown as FileList);
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -94,6 +90,7 @@ export default function AnexoForm({ onSubmit }: AnexoFormProps) {
       onSubmit={handleSubmit(onSubmit)}
       className="grid gap-6 pt-5 text-[#344054]"
     >
+      {/* DATA + TITULO */}
       <div className="grid gap-2">
         <Label>
           Data<span className="text-[#F28C38]">*</span>
@@ -102,7 +99,7 @@ export default function AnexoForm({ onSubmit }: AnexoFormProps) {
         <Input
           type="date"
           className="rounded-[30px] border-[#B2D7EC] focus-visible:ring-0 focus-visible:border-[#B2D7EC]"
-          {...register("data", { required: true })}
+          {...register("data")}
         />
 
         <Input
@@ -112,12 +109,14 @@ export default function AnexoForm({ onSubmit }: AnexoFormProps) {
         />
       </div>
 
+      {/* DESCRIÇÃO */}
       <Textarea
         placeholder="Insira a descrição do anexo"
         className="min-h-[100px] w-full rounded-[30px] border border-[#B2D7EC] focus-visible:ring-0 focus-visible:border-[#B2D7EC] px-5 py-3 text-sm"
         {...register("descricao")}
       />
 
+      {/* ARQUIVO */}
       <div className="grid gap-2">
         <Label>Inserir arquivo</Label>
 
@@ -143,7 +142,7 @@ export default function AnexoForm({ onSubmit }: AnexoFormProps) {
                 <button
                   type="button"
                   className="pointer-events-none flex items-center gap-2 px-6 py-2 rounded-full
-                    bg-[#0D4F97] text-white font-semibold h-9"
+      bg-[#0D4F97] text-white font-semibold h-9"
                 >
                   <Upload className="h-4 w-4 text-white" />
                   Enviar arquivo
@@ -156,6 +155,7 @@ export default function AnexoForm({ onSubmit }: AnexoFormProps) {
             </>
           )}
 
+          {/* NOME DO ARQUIVO */}
           {arquivo?.[0] && (
             <div
               className="absolute bottom-0 left-1/2 transform -translate-x-1/2 
@@ -170,7 +170,7 @@ export default function AnexoForm({ onSubmit }: AnexoFormProps) {
                   e.stopPropagation();
                   removerArquivo();
                 }}
-                className="text-gray-500 hover:text-red-500 font-bold text-xs cursor-pointer"
+                className="text-gray-500 hover:text-red-500 font-bold text-xs"
               >
                 ✕
               </button>
@@ -186,10 +186,11 @@ export default function AnexoForm({ onSubmit }: AnexoFormProps) {
         />
       </div>
 
+      {/* BOTÃO */}
       <DialogFooter>
         <Button
           type="submit"
-          disabled={!envioValidado}
+          disabled={!podeEnviar}
           className="w-full rounded-[30px] shadow-md bg-[#0D4F97] hover:bg-[#13447D] cursor-pointer"
         >
           <CirclePlus className="mr-1" />

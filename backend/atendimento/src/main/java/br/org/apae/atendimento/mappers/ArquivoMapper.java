@@ -30,11 +30,11 @@ public class ArquivoMapper extends AbstractMapper<Arquivo, ArquivoRequestDTO, Ar
         tipoArquivo.setId(dto.tipoArquivo());
         arquivo.setTipo(tipoArquivo);
 
-        String tituloLimpo = StringSanitizer.normalizeSpaces(dto.titulo());
-        arquivo.setTitulo(StringSanitizer.stripHtml(tituloLimpo));
-        arquivo.setTituloCanonical(StringSanitizer.canonical(dto.titulo()));
+        String tituloLimpo = StringSanitizer.normalize(dto.titulo());
+        arquivo.setTitulo(StringSanitizer.sanitize(tituloLimpo));
+        arquivo.setTituloCanonical(StringSanitizer.canonicalize(dto.titulo()));
 
-        String descLimpa = StringSanitizer.stripHtml(StringSanitizer.normalizeSpaces(dto.descricao()));
+        String descLimpa = StringSanitizer.sanitize(StringSanitizer.normalize(dto.descricao()));
         arquivo.setDescricao(descLimpa);
 
         arquivo.setData(dto.data());
