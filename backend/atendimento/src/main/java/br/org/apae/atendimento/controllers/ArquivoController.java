@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
+import br.org.apae.atendimento.exceptions.CloudStorageException;
 import br.org.apae.atendimento.security.UsuarioAutenticado;
 import jakarta.validation.Valid;
 import org.checkerframework.checker.units.qual.A;
@@ -29,6 +30,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import br.org.apae.atendimento.dtos.request.ArquivoRequestDTO;
 import br.org.apae.atendimento.dtos.response.ArquivoResponseDTO;
 import br.org.apae.atendimento.services.ArquivoService;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/arquivo")
@@ -38,15 +40,24 @@ public class ArquivoController {
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ArquivoResponseDTO> upload(
-        @RequestPart("file") MultipartFile file,
-        @RequestPart("metadata") String metadataJson,
-        @AuthenticationPrincipal UsuarioAutenticado usuarioAutenticado
-    ) throws JsonProcessingException {
+            @RequestPart("file") MultipartFile file,
+            @RequestPart("metadata") String metadataJson,
+            @AuthenticationPrincipal UsuarioAutenticado usuarioAutenticado
+    ) {
         ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule());
-        ArquivoRequestDTO metadata = mapper.readValue(metadataJson, ArquivoRequestDTO.class);
+        ArquivoRequestDTO metadata;
+        try {
+            metadata = mapper.readValue(metadataJson, ArquivoRequestDTO.class);
+        } catch (JsonProcessingException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "JSON de metadados inválido", e);
+        }
 
-        ArquivoResponseDTO dto = service.salvar(file, metadata, usuarioAutenticado.getId());
-        return ResponseEntity.status(HttpStatus.CREATED).body(dto);
+        try {
+            ArquivoResponseDTO dto = service.salvar(file, metadata, usuarioAutenticado.getId());
+            return ResponseEntity.status(HttpStatus.CREATED).body(dto);
+        } catch (CloudStorageException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Erro ao processar arquivos: " + e.getMessage(), e);
+        }
     }
 
     @GetMapping("/{pacienteId}/{tipoId}")
