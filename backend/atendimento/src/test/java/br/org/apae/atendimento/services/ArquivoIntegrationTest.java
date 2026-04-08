@@ -60,7 +60,7 @@ class ArquivoIntegrationTest {
 
         Arquivo arquivoInvalido = new Arquivo();
         arquivoInvalido.setObjectName("teste/falha");
-        arquivoInvalido.setTitulo(null); // Violando constraint
+        arquivoInvalido.setTitulo(null); 
         arquivoInvalido.setDescricao("Desc");
         arquivoInvalido.setData(LocalDate.now());
         arquivoInvalido.setNomeArquivo("teste.pdf");
@@ -76,7 +76,7 @@ class ArquivoIntegrationTest {
         MockMultipartFile file = new MockMultipartFile("file", "relatorio.pdf", "application/pdf", "pdf content".getBytes());
         ArquivoRequestDTO requestDTO = new ArquivoRequestDTO(
                 LocalDate.now(),
-                1L, // ID do TipoArquivo (Anexo) que já existe no data-test.sql via TesteJpaConfig ou import
+                1L,
                 pacienteId,
                 "Relatório Semestral",
                 "Descrição do relatório detalhada"
