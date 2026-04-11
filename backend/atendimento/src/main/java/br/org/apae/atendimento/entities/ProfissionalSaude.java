@@ -30,11 +30,15 @@ public class ProfissionalSaude {
     @Column(name = "especialidade")
     private String especialidade;
 
-    @Column(name = "firebase_uid", unique = true)
-    private String firebaseUID;
-
     @Column(name = "email")
     private String email;
+
+    @JsonIgnore
+    @Column(name = "senha")
+    private String senha;
+
+    @Column(name = "perfil")
+    private String perfil;
 
     @Column(name = "status")
     private String status;

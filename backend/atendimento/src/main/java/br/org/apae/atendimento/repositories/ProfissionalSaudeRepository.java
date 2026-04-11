@@ -18,13 +18,7 @@ public interface ProfissionalSaudeRepository extends JpaRepository<ProfissionalS
     @Query("SELECT p.nomeCompleto FROM ProfissionalSaude p WHERE p.id = :id")
     String findNomeCompletoById(@Param("id")UUID id);
 
-//    Optional<ProfissionalSaude> findByEmail(String email);
-
-//    boolean existsByEmail(String email);
-
-    @Query("SELECT p.id FROM ProfissionalSaude p WHERE p.firebaseUID = :uid")
-    UUID findIdByFirebaseUID(@Param("uid") String uid);
-
+    Optional<ProfissionalSaude> findByEmailIgnoreCase(String email);
 
     @Query("SELECT new br.org.apae.atendimento.dtos.response.ProfissionalDropdownResponseDTO(p.id, p.nomeCompleto) " +
     "FROM ProfissionalSaude p WHERE p.status = 'ATIVO' ORDER BY p.nomeCompleto ASC")
