@@ -16,11 +16,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 public class SecurityConfig {
 
-    private final FirebaseAuthenticationFilter firebaseAuthFilter;
     private final MockAuthenticationFilter mockAuthFilter;
 
-    public SecurityConfig(@Autowired(required = false) FirebaseAuthenticationFilter firebaseAuthFilter, @Autowired(required = false) MockAuthenticationFilter mockAuthFilter) {
-        this.firebaseAuthFilter = firebaseAuthFilter;
+    public SecurityConfig(@Autowired(required = false) MockAuthenticationFilter mockAuthFilter) {
         this.mockAuthFilter = mockAuthFilter;
     }
 
@@ -45,9 +43,7 @@ public class SecurityConfig {
                                 .anyRequest().authenticated()
                 );
 
-        if (firebaseAuthFilter != null) {
-            http.addFilterBefore(firebaseAuthFilter, UsernamePasswordAuthenticationFilter.class);
-        } else if (mockAuthFilter != null) {
+        if (mockAuthFilter != null) {
             http.addFilterBefore(mockAuthFilter, UsernamePasswordAuthenticationFilter.class);
         }
 
