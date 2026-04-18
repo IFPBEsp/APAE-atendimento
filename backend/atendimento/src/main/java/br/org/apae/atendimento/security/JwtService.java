@@ -7,13 +7,14 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import java.security.Key;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class JwtService {
@@ -38,8 +39,9 @@ public class JwtService {
         Date validade = new Date(agora.getTime() + tempoExpiracaoMillis);
 
         return Jwts.builder()
+                .setId(UUID.randomUUID().toString())
                 .setSubject(usuario.getId().toString())
-                .claim("roles", List.of(usuario.getPerfil() != null ? usuario.getPerfil() : "ROLE_PROFISSIONAL"))
+                .claim("roles", List.of(normalizarRole(usuario.getPerfil())))
                 .setIssuedAt(agora)
                 .setExpiration(validade)
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
@@ -67,6 +69,14 @@ public class JwtService {
         return extrairClaims(token).getSubject();
     }
 
+    public String extrairJti(String token) {
+        return extrairClaims(token).getId();
+    }
+
+    public Date extrairExpiracao(String token) {
+        return extrairClaims(token).getExpiration();
+    }
+
     @SuppressWarnings("unchecked")
     public List<String> extrairRoles(String token) {
         return (List<String>) extrairClaims(token).get("roles");
@@ -75,5 +85,18 @@ public class JwtService {
     private Key getSignInKey() {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
+    }
+
+    private String normalizarRole(String perfil) {
+        if (perfil == null || perfil.isBlank()) {
+            return "ROLE_PROFISSIONAL";
+        }
+
+        String role = perfil.trim().toUpperCase();
+        if (!role.startsWith("ROLE_")) {
+            role = "ROLE_" + role;
+        }
+
+        return role;
     }
 }

@@ -8,8 +8,12 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Locale;
+
 @Service
-public class AuthService {
+public class AuthService{
+
+    private static final String MSG_CREDENCIAIS_INVALIDAS = "Credenciais inválidas";
 
     private final ProfissionalSaudeRepository profissionalRepository;
     private final PasswordEncoder passwordEncoder;
@@ -22,19 +26,25 @@ public class AuthService {
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
     }
-
+    
     public String autenticar(LoginRequestDTO requestDTO) {
-        String emailSanitizado = requestDTO.email().trim().toLowerCase();
+        String emailSanitizado = requestDTO.email().trim().toLowerCase(Locale.ROOT);
+        String senhaInformada = requestDTO.password() == null ? "" : requestDTO.password();
 
         ProfissionalSaude usuario = profissionalRepository.findByEmailIgnoreCase(emailSanitizado)
-                .orElseThrow(() -> new BadCredentialsException("Credenciais inválidas"));
+                .orElseThrow(() -> new BadCredentialsException(MSG_CREDENCIAIS_INVALIDAS));
 
-        if ("INATIVO".equalsIgnoreCase(usuario.getStatus())) {
-            throw new BadCredentialsException("Usuário inativo no sistema. Procure a administração.");
+        if (!"ATIVO".equalsIgnoreCase(usuario.getStatus())) {
+            throw new BadCredentialsException(MSG_CREDENCIAIS_INVALIDAS);
         }
 
-        if (!passwordEncoder.matches(requestDTO.password(), usuario.getSenha())) {
-            throw new BadCredentialsException("Credenciais inválidas");
+        String senhaHash = usuario.getSenha();
+        if (senhaHash == null || senhaHash.isBlank()) {
+            throw new BadCredentialsException(MSG_CREDENCIAIS_INVALIDAS);
+        }
+
+        if (!passwordEncoder.matches(senhaInformada, senhaHash)) {
+            throw new BadCredentialsException(MSG_CREDENCIAIS_INVALIDAS);
         }
 
         return jwtService.gerarToken(usuario);

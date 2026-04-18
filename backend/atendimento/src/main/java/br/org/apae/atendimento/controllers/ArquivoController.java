@@ -7,7 +7,6 @@ import java.util.UUID;
 import br.org.apae.atendimento.exceptions.CloudStorageException;
 import br.org.apae.atendimento.security.UsuarioAutenticado;
 import jakarta.validation.Valid;
-import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
