@@ -17,6 +17,8 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -80,7 +82,7 @@ class AuthServiceTest {
         BadCredentialsException ex = assertThrows(BadCredentialsException.class,
                 () -> authService.autenticar(requestDTO));
 
-        assertEquals("Usuário inativo no sistema. Procure a administração.", ex.getMessage());
+        assertEquals("Credenciais inválidas", ex.getMessage());
         verify(passwordEncoder, never()).matches(anyString(), anyString());
         verify(jwtService, never()).gerarToken(any());
     }
