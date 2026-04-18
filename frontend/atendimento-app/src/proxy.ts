@@ -1,31 +1,38 @@
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+
+const PRIVATE_PREFIXES = [
+  "/home",
+  "/agenda",
+  "/atendimento",
+  "/relatorio",
+  "/anexo",
+];
+
+function matchesPrefix(pathname: string, prefix: string) {
+  return pathname === prefix || pathname.startsWith(`${prefix}/`);
+}
 
 export function proxy(request: NextRequest) {
-  const firebaseEnabled = process.env.NEXT_PUBLIC_FIREBASE_ENABLED === "true";
-
-  if (!firebaseEnabled) {
-    return NextResponse.next();
-  }
-
+  const { pathname } = request.nextUrl;
   const token = request.cookies.get("token")?.value;
 
-  const publicRoutes = ["/login"];
-  const pathname = request.nextUrl.pathname;
+  const isPrivateRoute = PRIVATE_PREFIXES.some((prefix) =>
+    matchesPrefix(pathname, prefix),
+  );
 
-  const isPublicRoute = pathname.startsWith("/login");
-
-  if (!isPublicRoute && !token) {
+  if (isPrivateRoute && !token) {
     return NextResponse.redirect(new URL("/login", request.url));
-  }
-
-  if (isPublicRoute && token) {
-    return NextResponse.redirect(new URL("/home", request.url));
   }
 
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/home/:path*"],
+  matcher: [
+    "/home/:path*",
+    "/agenda/:path*",
+    "/atendimento/:path*",
+    "/relatorio/:path*",
+    "/anexo/:path*",
+  ],
 };
