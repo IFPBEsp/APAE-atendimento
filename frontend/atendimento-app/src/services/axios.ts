@@ -1,58 +1,67 @@
 import axios from "axios";
-import { getFirebaseAuth } from "@/lib/firebase";
-import { toast } from 'sonner';
+import { toast } from "sonner";
 
+type ErrorResponse = {
+  message?: string;
+};
 
 export const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080",
+  withCredentials: true,
   headers: {
     Accept: "application/json",
   },
 });
 
-api.interceptors.request.use(async (config) => {
+api.interceptors.request.use((config) => {
   if (config.data instanceof FormData) {
     delete config.headers["Content-Type"];
   } else {
     config.headers["Content-Type"] = "application/json";
   }
 
-  if (process.env.NEXT_PUBLIC_FIREBASE_ENABLED === "true") {
-    try {
-      const auth = getFirebaseAuth();
-      const user = auth.currentUser;
-
-      if (user) {
-        const token = await user.getIdToken();
-        config.headers.Authorization = `Bearer ${token}`;
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  }
-
   return config;
 });
 
 api.interceptors.response.use(
-    (response) => {
-      return response;
-    },
-    (error) => {
-      if (error.response && error.response.data) {
-        const mensagemDoBackend = error.response.data.message;
+  (response) => response,
+  (error) => {
+    const status = error?.response?.status as number | undefined;
+    const url = error?.config?.url as string | undefined;
+    const backendMessage = (error?.response?.data as ErrorResponse | undefined)
+      ?.message;
 
-        if (mensagemDoBackend) {
-          toast.error(mensagemDoBackend);
-        } else {
-          toast.error("Ocorreu um erro interno no servidor.");
-        }
-      } else if(error.request) {
-        toast.error("Não foi possível conectar ao servidor. Tente novamente mais tarde.");
-      } else {
-        toast.error("Erro inesperado na aplicação");
+    const isAuthEndpoint = url?.startsWith("/auth/");
+    const isAuthLogin = url?.includes("/auth/login");
+    const isAuthMe = url?.includes("/auth/me");
+
+    if (status === 401) {
+      if (
+        typeof window !== "undefined" &&
+        !isAuthLogin &&
+        !isAuthMe &&
+        window.location.pathname !== "/login"
+      ) {
+        window.location.href = "/login";
       }
 
       return Promise.reject(error);
     }
-)
+
+    if (isAuthEndpoint) {
+      return Promise.reject(error);
+    }
+
+    if (backendMessage) {
+      toast.error(backendMessage);
+    } else if (error?.request) {
+      toast.error(
+        "Não foi possível conectar ao servidor. Tente novamente mais tarde.",
+      );
+    } else {
+      toast.error("Erro inesperado na aplicação.");
+    }
+
+    return Promise.reject(error);
+  },
+);

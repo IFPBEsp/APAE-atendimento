@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react"; // 1. Importado useState e useEffect
+import { useEffect, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -11,25 +11,32 @@ import {
 } from "../../../components/ui/dialog";
 import { Button } from "../../../components/ui/button";
 import { LogOut, X } from "lucide-react";
-
 import { useProfissional } from "../hooks/useProfissional";
+import { logout as logoutRequest } from "@/services/authService";
 
 interface MeusDadosModalProps {
   trigger: React.ReactNode;
 }
 
-function logout() {
-  document.cookie = "verified=; path=/; max-age=0";
-  window.location.href = "/login";
-}
-
 export function MeusDadosModal({ trigger }: MeusDadosModalProps) {
   const { data: profissional, isLoading } = useProfissional();
-  const [isMounted, setIsMounted] = useState(false); // 2. Estado de montagem
+  const [isMounted, setIsMounted] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
+
+  const handleLogout = async () => {
+    if (isLoggingOut) return;
+
+    setIsLoggingOut(true);
+    try {
+      await logoutRequest();
+    } finally {
+      window.location.href = "/login";
+    }
+  };
 
   if (!isMounted) {
     return <>{trigger}</>;
@@ -81,11 +88,12 @@ export function MeusDadosModal({ trigger }: MeusDadosModalProps) {
             </div>
 
             <Button
-              onClick={logout}
-              className="w-full bg-[#F45D6C] hover:bg-[#D44D54] text-white font-medium rounded-full h-12 text-base shadow-none cursor-pointer"
+              onClick={handleLogout}
+              disabled={isLoggingOut}
+              className="w-full bg-[#F45D6C] hover:bg-[#D44D54] text-white font-medium rounded-full h-12 text-base shadow-none cursor-pointer disabled:opacity-70"
             >
               <LogOut className="mr-2 h-5 w-5 rotate-180" />
-              Sair
+              {isLoggingOut ? "Saindo..." : "Sair"}
             </Button>
           </div>
         )}
