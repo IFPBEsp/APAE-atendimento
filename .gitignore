@@ -38,3 +38,6 @@ target/
 /node_modules/
 node_modules/
 firebase-service-account.json
+
+backend/docker/local-secrets.properties
+backend/docker/.env
