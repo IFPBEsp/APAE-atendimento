@@ -13,7 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.InputStream;
 
 @Service
-@Profile("test")
+@Profile({"test", "dev"})
 public class MinioService implements ObjectStorageService {
 
     private final MinioClient client;

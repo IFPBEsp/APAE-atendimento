@@ -14,7 +14,7 @@ import io.minio.GetPresignedObjectUrlArgs;
 import io.minio.MinioClient;
 
 @Service
-@Profile("test")
+@Profile({"test", "dev"})
 public class MinioPresignedUrlService implements PresignedUrlService {
     private final MinioClient client;
     @Value("${bucket.name}")

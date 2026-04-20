@@ -16,40 +16,39 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 public class SecurityConfig {
 
-    private final FirebaseAuthenticationFilter firebaseAuthFilter;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final MockAuthenticationFilter mockAuthFilter;
 
-    public SecurityConfig(@Autowired(required = false) FirebaseAuthenticationFilter firebaseAuthFilter, @Autowired(required = false) MockAuthenticationFilter mockAuthFilter) {
-        this.firebaseAuthFilter = firebaseAuthFilter;
+    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter,
+                          @Autowired(required = false) MockAuthenticationFilter mockAuthFilter) {
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
         this.mockAuthFilter = mockAuthFilter;
     }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .cors(cors -> {
-                })
+                .cors(cors -> {})
                 .csrf(AbstractHttpConfigurer::disable)
-                .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
-                .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint((req, res, err) -> res.sendError(401))
+                        .accessDeniedHandler((req, res, err) -> res.sendError(403))
                 )
-                .authorizeHttpRequests(auth ->
-                        auth.requestMatchers(
-                                        "/auth/send-link",
-                                        "/h2/**",
-                                        "/error",
-                                        "/"
-                                ).permitAll()
-                                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                                .anyRequest().authenticated()
-                );
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/auth/login", "/auth/logout", "/error", "/", "/h2/**").permitAll()
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .anyRequest().authenticated()
+                )
+                .formLogin(AbstractHttpConfigurer::disable)
+                .httpBasic(AbstractHttpConfigurer::disable);
 
-        if (firebaseAuthFilter != null) {
-            http.addFilterBefore(firebaseAuthFilter, UsernamePasswordAuthenticationFilter.class);
-        } else if (mockAuthFilter != null) {
+        if (mockAuthFilter != null) {
             http.addFilterBefore(mockAuthFilter, UsernamePasswordAuthenticationFilter.class);
         }
+
+        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

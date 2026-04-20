@@ -1,40 +1,52 @@
 package br.org.apae.atendimento.services;
 
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseAuthException;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import br.org.apae.atendimento.dtos.request.LoginRequestDTO;
+import br.org.apae.atendimento.entities.ProfissionalSaude;
+import br.org.apae.atendimento.repositories.ProfissionalSaudeRepository;
+import br.org.apae.atendimento.security.JwtService;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.Locale;
 
 @Service
-@ConditionalOnProperty(name = "firebase.enabled", havingValue = "true")
-public class AuthService {
+public class AuthService{
 
-    public boolean emailExisteNoFirebase(String email) {
-        try {
-            FirebaseAuth.getInstance().getUserByEmail(email);
-            return true;
-        } catch (FirebaseAuthException e) {
-            if ("user-not-found".equals(e.getAuthErrorCode().name().toLowerCase())) {
-                return false;
-            }
-            throw new RuntimeException("Erro ao consultar o Firebase: " + e.getMessage());
-        }
+    private static final String MSG_CREDENCIAIS_INVALIDAS = "Credenciais inválidas";
+
+    private final ProfissionalSaudeRepository profissionalRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
+
+    public AuthService(ProfissionalSaudeRepository profissionalRepository,
+                       PasswordEncoder passwordEncoder,
+                       JwtService jwtService) {
+        this.profissionalRepository = profissionalRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.jwtService = jwtService;
     }
+    
+    public String autenticar(LoginRequestDTO requestDTO) {
+        String emailSanitizado = requestDTO.email().trim().toLowerCase(Locale.ROOT);
+        String senhaInformada = requestDTO.password() == null ? "" : requestDTO.password();
 
-    public void syncCustomClaims(String firebaseUid, UUID idProfissional) {
-        try {
-            Map<String, Object> claims = new HashMap<>();
-            claims.put("idProfissional", idProfissional.toString());
+        ProfissionalSaude usuario = profissionalRepository.findByEmailIgnoreCase(emailSanitizado)
+                .orElseThrow(() -> new BadCredentialsException(MSG_CREDENCIAIS_INVALIDAS));
 
-            FirebaseAuth.getInstance().setCustomUserClaims(firebaseUid, claims);
-        } catch (FirebaseAuthException e) {
-            throw new RuntimeException("Falha ao sincronizar permissões de acesso: " + e.getMessage());
+        if (!"ATIVO".equalsIgnoreCase(usuario.getStatus())) {
+            throw new BadCredentialsException(MSG_CREDENCIAIS_INVALIDAS);
         }
+
+        String senhaHash = usuario.getSenha();
+        if (senhaHash == null || senhaHash.isBlank()) {
+            throw new BadCredentialsException(MSG_CREDENCIAIS_INVALIDAS);
+        }
+
+        if (!passwordEncoder.matches(senhaInformada, senhaHash)) {
+            throw new BadCredentialsException(MSG_CREDENCIAIS_INVALIDAS);
+        }
+
+        return jwtService.gerarToken(usuario);
     }
 }
-
-

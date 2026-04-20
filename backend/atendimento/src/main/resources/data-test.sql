@@ -28,16 +28,18 @@ VALUES (
            true
        );
 
-INSERT INTO vw_profissionais (id, nome, registro_profissional, especialidade, firebase_uid, email, status)
+INSERT INTO vw_profissionais (id, nome, registro_profissional, especialidade, email, senha, perfil, status)
 VALUES (
            '44444444-4444-4444-4444-444444444444',
            'Dr. Luiz Artur',
            'CRP-123',
            'Psicólogo',
-           'Efn0oqQ68rMSjtimpAAQPO3KmjY2',
            'teste@gmail.com',
+           '$2a$10$05v1Sk1c9CnRWX9wOMcYP.eI0buevR1DltWhnE3MUA4Nv5IKDX60O',
+           'ROLE_PROFISSIONAL',
            'ATIVO'
        );
+
 
 INSERT INTO profissional_paciente (profissional_id, paciente_id)
 VALUES

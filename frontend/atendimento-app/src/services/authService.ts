@@ -1,49 +1,26 @@
-import {
-  GoogleAuthProvider,
-  signInWithPopup,
-  sendSignInLinkToEmail,
-  signInWithEmailLink,
-  isSignInWithEmailLink,
-} from "firebase/auth";
+import { api } from "@/services/axios";
 
-import { getFirebaseAuth } from "@/lib/firebase";
-
-const actionCodeSettings = {
-  url: `${process.env.NEXT_PUBLIC_APP_URL}/login/verificacao`,
-  handleCodeInApp: true,
+export type LoginPayload = {
+  email: string;
+  password: string;
 };
 
-export async function loginWithGoogle() {
-  const auth = getFirebaseAuth();
-  const provider = new GoogleAuthProvider();
+export type LoginResponse = {
+  success: boolean;
+  message: string;
+};
 
-  const cred = await signInWithPopup(auth, provider);
-  return await cred.user.getIdToken();
+export async function login(payload: LoginPayload): Promise<LoginResponse> {
+  const { data } = await api.post<LoginResponse>("/auth/login", payload);
+  return data;
 }
 
-export async function sendMagicLink(email: string) {
-  const auth = getFirebaseAuth();
-
-  await sendSignInLinkToEmail(auth, email, actionCodeSettings);
-  window.localStorage.setItem("emailForSignIn", email);
+export async function logout(): Promise<LoginResponse> {
+  const { data } = await api.post<LoginResponse>("/auth/logout");
+  return data;
 }
 
-export async function confirmMagicLink() {
-  if (typeof window === "undefined") return null;
-
-  const auth = getFirebaseAuth();
-  const url = window.location.href;
-
-  if (!isSignInWithEmailLink(auth, url)) {
-    return null;
-  }
-
-  const email = localStorage.getItem("emailForSignIn");
-  if (!email) return null;
-
-  const result = await signInWithEmailLink(auth, email, url);
-
-  localStorage.removeItem("emailForSignIn");
-
-  return await result.user.getIdToken();
+export async function me(): Promise<LoginResponse> {
+  const { data } = await api.get<LoginResponse>("/auth/me");
+  return data;
 }
