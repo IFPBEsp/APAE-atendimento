@@ -43,7 +43,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 || "/auth/logout".equals(path)
                 || "/".equals(path)
                 || "/error".equals(path)
-                || path.startsWith("/h2");
+                || path.startsWith("/h2")
+                || path.startsWith("/actuator/health");
     }
 
     @Override
