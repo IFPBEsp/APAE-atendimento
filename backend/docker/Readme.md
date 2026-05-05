@@ -1,6 +1,6 @@
 # Instruções de Uso e Conexão do Docker Compose
 
-Este guia detalha como construir as imagens Docker do **Postgres** e do **Minio**, executar os containers configurados via **Docker Compose** e gerenciar suas operações.
+Este guia detalha como construir e executar a stack da aplicação via **Docker Compose**, incluindo **Frontend**, **Backend**, **Postgres** e **Minio**.
 
 ***
 
@@ -31,14 +31,14 @@ docker compose version
 ### 1. Navegue até o diretório do Compose
 
 ```bash
-cd APAE-ATENDIMENTO/backend/docker
+cd APAE-ATENDIMENTO
 ```
 
 
 ### 2. Inicie os containers em modo destacado (background)
 
 ```bash
-docker compose up -d
+docker compose --profile PROD up -d --build
 ```
 
 
@@ -56,10 +56,10 @@ Exemplo esperado:
 | 896e5f8a5e1c | postgres:16 | Up 2 minutes |
 | 98ecd313fc61 | minio/minio:latest | Up 2 minutes |
 
-### 4. Execute a aplicação Spring
+### 4. Verifique os serviços
 
 ```bash
-cd ../atendimento && mvn spring-boot:run -e -X
+docker compose ps
 ```
 
 
@@ -81,5 +81,7 @@ docker compose down
 | :-- | :-- | :-- |
 | Postgres | Banco de dados relacional do backend | 5432 |
 | MinIo | Armazenamento compatível com S3 | 9000 (API) / 9001 (Console) |
+| Backend | API Spring Boot | 8080 |
+| Frontend | Aplicação Next.js | 80 |
 
 
