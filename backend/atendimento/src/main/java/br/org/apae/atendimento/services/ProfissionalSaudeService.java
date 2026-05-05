@@ -58,9 +58,9 @@ public class ProfissionalSaudeService {
     }
 
     public List<PacienteResponseDTO> getPacientesDoProfissional(UUID id) {
-        ProfissionalSaude profissionalSaude = getProfissionalById(id);
+        List<Paciente> pacientes = pacienteRepository.findByProfissionais_Id(id);
 
-        return profissionalSaude.getPacientes().stream()
+        return pacientes.stream()
                 .map(paciente -> {
                     PacienteResponseDTO dtoSemFoto = pacienteMapper.toDTOPadrao(paciente);
                     String url = urlService.gerarUrlPreAssinada(FOTO_PATH + paciente.getId());

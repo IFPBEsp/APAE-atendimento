@@ -4,11 +4,11 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 import br.org.apae.atendimento.dtos.request.AtendimentoRequestDTO;
+import br.org.apae.atendimento.dtos.request.TopicoRequestDTO;
 import br.org.apae.atendimento.dtos.response.AtendimentoResponseDTO;
 import br.org.apae.atendimento.dtos.response.MesAnoAtendimentoResponseDTO;
 import br.org.apae.atendimento.entities.Agendamento;
@@ -24,6 +24,7 @@ import br.org.apae.atendimento.mappers.AtendimentoMapper;
 import br.org.apae.atendimento.repositories.AtendimentoRepository;
 import br.org.apae.atendimento.repositories.ProfissionalSaudeRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class AtendimentoService {
@@ -48,26 +49,28 @@ public class AtendimentoService {
     }
 
     public AtendimentoResponseDTO addAtendimento(AtendimentoRequestDTO atendimentoRequestDTO, UUID profissionalId) {
+        if (!pacienteService.existeRelacao(atendimentoRequestDTO.pacienteId(), profissionalId)) {
+            throw new RelacaoInvalidException("Você não tem permissão para criar atendimentos deste paciente.");
+        }
+
         if (repository.existsByProfissionalIdAndDataAtendimento(
                 profissionalId,
-                LocalDateTime.of(atendimentoRequestDTO.data(), atendimentoRequestDTO.hora()))) {
+                LocalDateTime.of(atendimentoRequestDTO.data(), atendimentoRequestDTO.hora())
+        )) {
             throw new AtendimentoInvalidException("Já existe um atendimento neste horário.");
         }
 
         Atendimento dadosConvertidos = atendimentoMapper.toEntityPadrao(atendimentoRequestDTO);
-
         ProfissionalSaude profissional = profissionalRepository.getReferenceById(profissionalId);
         dadosConvertidos.setProfissional(profissional);
 
-        verificarRelatorio(dadosConvertidos.getRelatorio());
+        verificarRelatorio(atendimentoRequestDTO.relatorio());
 
-        dadosConvertidos.setNumeracao(gerarProximaNumeracao(atendimentoRequestDTO.data(),
-                profissionalId));
+        dadosConvertidos.setNumeracao(gerarProximaNumeracao(profissionalId, atendimentoRequestDTO.data()));
 
         Atendimento dadosPersistidos = repository.save(dadosConvertidos);
         try {
-            tratarAgendamento(atendimentoRequestDTO.pacienteId(), atendimentoRequestDTO.data(),
-                    dadosPersistidos.getNumeracao());
+            tratarAgendamento(atendimentoRequestDTO.pacienteId(), atendimentoRequestDTO.data(), dadosPersistidos.getNumeracao());
         } catch (AgendamentoNotFoundException e) {
             // Ignora a exceção propositalmente.
             // Isso acontece quando é um atendimento de "encaixe" sem agendamento prévio.
@@ -77,12 +80,12 @@ public class AtendimentoService {
 
     }
 
-    private void verificarRelatorio(Set<Topico> relatorio) {
+    private void verificarRelatorio(List<TopicoRequestDTO> relatorio) {
         if (relatorio == null || relatorio.isEmpty()) {
             throw new AtendimentoInvalidException("Atendimento sem qualquer tópico");
         }
-        for (Topico topico : relatorio) {
-            if (topico.getTitulo().isEmpty() || topico.getDescricao().isEmpty()) {
+        for (TopicoRequestDTO topico : relatorio) {
+            if (topico.titulo().isEmpty() || topico.descricao().isEmpty()) {
                 throw new TopicoInvalidException("Topico sem titulo ou descrição");
             }
         }
@@ -98,7 +101,7 @@ public class AtendimentoService {
     public List<MesAnoAtendimentoResponseDTO> getAtendimentosAgrupadosPorMes(UUID pacienteId, UUID profissionalId) {
 
         List<Atendimento> atendimentos = repository
-                .findByPacienteIdAndProfissionalIdOrderByDataAtendimento(pacienteId, profissionalId);
+                .findByPacienteIdAndProfissionalIdComRelatorio(pacienteId, profissionalId);
 
         return atendimentos.stream()
                 .collect(Collectors.groupingBy(
@@ -117,34 +120,41 @@ public class AtendimentoService {
         repository.deleteById(atendimentoId);
     }
 
-    public Long gerarProximaNumeracao(LocalDate data, UUID profissionalId) {
+    public Long gerarProximaNumeracao(UUID profissionalId, LocalDate data) {
         Long maiorNumeracao = repository.findMaxNumeracaoByMesAndAno(
-                data.getMonthValue(), data.getYear(), profissionalId);
+                data.getMonthValue(),
+                data.getYear(),
+                profissionalId);
 
         long numeracaoAtual = (maiorNumeracao != null) ? maiorNumeracao : 0L;
 
         return numeracaoAtual + 1;
     }
 
+    @Transactional(readOnly = false)
     public AtendimentoResponseDTO editar(AtendimentoRequestDTO requestDTO, UUID atendimentoId, UUID profissionalId) {
         if (!pacienteService.existeRelacao(requestDTO.pacienteId(), profissionalId)) {
             throw new RelacaoInvalidException("Você não tem permissão para editar atendimentos deste paciente.");
         }
 
-        Atendimento atendimento = repository.findById(atendimentoId)
+        Atendimento atendimento = repository.findByIdComRelatorio(atendimentoId)
                 .orElseThrow(() -> new AtendimentoNotFoundException("O atendimento que deseja editar não foi encontrado."));
         verificarRelatorio(requestDTO.relatorio());
 
         atendimento.getRelatorio().clear();
-        atendimento.getRelatorio().addAll(requestDTO.relatorio());
+        requestDTO.relatorio().forEach(t -> {
+            Topico topico = new Topico();
+            topico.setTitulo(t.titulo());
+            topico.setDescricao(t.descricao());
+            topico.setAtendimento(atendimento);
+            atendimento.getRelatorio().add(topico);
+        });
 
-        if (!requestDTO.data().equals(atendimento.getDataAtendimento().toLocalDate())) {
-            atendimento.setNumeracao(gerarProximaNumeracao(
-                    requestDTO.data(), profissionalId));
+        if (!requestDTO.data().equals(atendimento.getDataAtendimento().toLocalDate())
+                || !requestDTO.hora().equals(atendimento.getDataAtendimento().toLocalTime())) {
             atendimento.setDataAtendimento(LocalDateTime.of(requestDTO.data(), requestDTO.hora()));
         }
 
         return atendimentoMapper.toDTOPadrao(repository.save(atendimento));
-
     }
 }
