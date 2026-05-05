@@ -1,0 +1,95 @@
+services:
+  postgres-db:
+    image: postgres:16
+    container_name: postgres-atendimento-apae
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DATABASE}
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    command: >
+      postgres
+      -c listen_addresses='*'
+      -c port=5432
+
+  minio:
+    image: minio/minio:latest
+    container_name: minio-atendimento-apae
+    command: server /data --console-address ":9001"
+    restart: always
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio-data:/data
+
+  backend:
+    container_name: backend-atendimento-apae
+    build:
+      context: ./backend/atendimento
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      DB_URL: jdbc:postgresql://postgres-db:5432/${POSTGRES_DATABASE}
+      DB_USER: ${POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      S3_ENDPOINT: http://minio:9000
+      S3_REGION: us-east-1
+      S3_ACESS_KEY: ${MINIO_ROOT_USER}
+      S3_SECRET_KEY: ${MINIO_ROOT_PASSWORD}
+      BUCKET_NAME: ${BUCKET_NAME}
+      FRONT_END_URL: ${FRONT_END_URL}
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres-db
+      - minio
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -fsS http://localhost:8080/actuator/health > /dev/null || exit 1",
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    profiles: ["PROD"]
+
+  frontend:
+    container_name: frontend-atendimento-apae
+    build:
+      context: ./frontend/atendimento-app
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+    restart: unless-stopped
+    environment:
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+    ports:
+      - "80:3000"
+    depends_on:
+      - backend
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -fsS http://localhost:3000/login > /dev/null || exit 1",
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    profiles: ["PROD"]
+
+volumes:
+  db-data:
+  minio-data:
