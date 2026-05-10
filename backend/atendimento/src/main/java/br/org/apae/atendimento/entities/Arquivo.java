@@ -1,6 +1,5 @@
 package br.org.apae.atendimento.entities;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -8,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 
 @Entity
@@ -36,20 +36,16 @@ public class Arquivo {
     @Column(name = "descricao", nullable = false)
     private String descricao;
 
-    @Column(name = "titulo_canonical") 
+    @Column(name = "titulo_canonical")
     private String tituloCanonical;
 
     @ManyToOne
     @JoinColumn(name = "tipo_id", nullable = false)
     private TipoArquivo tipo;
 
-    @JsonIgnore
-    @ManyToOne
-    @JoinColumn(name = "profissional_id", nullable = false)
-    private ProfissionalSaude profissional;
+    @Column(name = "profissional_id", nullable = false)
+    private UUID profissionalId;
 
-    @JsonIgnore
-    @ManyToOne
-    @JoinColumn(name = "paciente_id", nullable = false)
-    private Paciente paciente;
+    @Column(name = "paciente_id", nullable = false)
+    private UUID pacienteId;
 }

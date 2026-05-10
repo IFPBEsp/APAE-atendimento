@@ -3,10 +3,6 @@ package br.org.apae.atendimento.mappers;
 import br.org.apae.atendimento.dtos.request.AgendamentoRequestDTO;
 import br.org.apae.atendimento.dtos.response.AgendamentoResponseDTO;
 import br.org.apae.atendimento.entities.Agendamento;
-import br.org.apae.atendimento.entities.Atendimento;
-import br.org.apae.atendimento.entities.Paciente;
-import br.org.apae.atendimento.entities.ProfissionalSaude;
-import org.bouncycastle.asn1.ocsp.Request;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -25,10 +21,15 @@ public class AgendamentoMapper extends AbstractMapper<Agendamento, AgendamentoRe
 
     @Override
     public AgendamentoResponseDTO toDTOPadrao(Agendamento entidadePadrao) {
+        return null;
+    }
+
+
+    public AgendamentoResponseDTO toDTOPadrao(Agendamento entidadePadrao, String nomePaciente) {
         return new AgendamentoResponseDTO(
                 entidadePadrao.getId(),
-                entidadePadrao.getPaciente().getId(),
-                entidadePadrao.getPaciente().getNomeCompleto(),
+                entidadePadrao.getPacienteId(),
+                nomePaciente,
                 entidadePadrao.getDataHora().toLocalDate(),
                 entidadePadrao.getDataHora().toLocalTime(),
                 entidadePadrao.getNumeracao(),

@@ -4,8 +4,8 @@ import br.org.apae.atendimento.dtos.request.AtendimentoRequestDTO;
 import br.org.apae.atendimento.dtos.request.TopicoRequestDTO;
 import br.org.apae.atendimento.dtos.response.AtendimentoResponseDTO;
 import br.org.apae.atendimento.dtos.response.MesAnoAtendimentoResponseDTO;
-import br.org.apae.atendimento.entities.Paciente;
-import br.org.apae.atendimento.entities.ProfissionalSaude;
+import br.org.apae.atendimento.entities.views.Paciente;
+import br.org.apae.atendimento.entities.views.ProfissionalSaude;
 import br.org.apae.atendimento.repositories.AtendimentoRepository;
 import br.org.apae.atendimento.repositories.PacienteRepository;
 import br.org.apae.atendimento.repositories.ProfissionalSaudeRepository;
@@ -20,6 +20,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.YearMonth;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -57,14 +58,14 @@ class AtendimentoServiceIntegrationTest {
 
         AtendimentoRequestDTO request1 = new AtendimentoRequestDTO(
                 paciente.getId(),
-                List.of(new TopicoRequestDTO("Título 1", "Descrição 1")),
+                Set.of(new TopicoRequestDTO("Título 1", "Descrição 1")),
                 LocalDate.of(2026, 5, 10),
                 LocalTime.of(10, 0)
         );
 
         AtendimentoRequestDTO request2 = new AtendimentoRequestDTO(
                 paciente.getId(),
-                List.of(new TopicoRequestDTO("Título 2", "Descrição 2")),
+                Set.of(new TopicoRequestDTO("Título 2", "Descrição 2")),
                 LocalDate.of(2026, 5, 11),
                 LocalTime.of(11, 0)
         );
@@ -79,7 +80,7 @@ class AtendimentoServiceIntegrationTest {
 
         AtendimentoRequestDTO editRequest = new AtendimentoRequestDTO(
                 paciente.getId(),
-                List.of(new TopicoRequestDTO("Título editado", "Descrição editada")),
+                Set.of(new TopicoRequestDTO("Título editado", "Descrição editada")),
                 LocalDate.of(2026, 5, 15),
                 LocalTime.of(14, 0)
         );

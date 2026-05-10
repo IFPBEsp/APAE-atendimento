@@ -1,48 +1,66 @@
 package br.org.apae.atendimento.mappers;
 
 import br.org.apae.atendimento.dtos.response.PacienteOptionDTO;
+import br.org.apae.atendimento.dtos.response.PacienteResponseDTO;
+import br.org.apae.atendimento.entities.views.EnderecoPaciente;
+import br.org.apae.atendimento.entities.views.Paciente;
+import br.org.apae.atendimento.entities.views.ResponsavelPaciente;
+import br.org.apae.atendimento.entities.views.TranstornoPaciente;
 import org.springframework.stereotype.Component;
 
-import br.org.apae.atendimento.dtos.response.PacienteResponseDTO;
-import br.org.apae.atendimento.entities.Paciente;
-
+import java.util.List;
+import java.util.Optional;
 
 @Component
-public class PacienteMapper extends AbstractMapper<Paciente, Void, PacienteResponseDTO> {
+public class PacienteMapper {
 
-    @Override
-    public Paciente toEntityPadrao(Void dtoPadraoPaciente) {
-        return null;
-    }
+    // Montagem completa — service passa todos os dados resolvidos
+    public PacienteResponseDTO toDTOCompleto(
+            Paciente paciente,
+            EnderecoPaciente endereco,
+            List<ResponsavelPaciente> responsaveis,
+            List<TranstornoPaciente> transtorno)
+            //String fotoPreAssinada)
+            {
 
-    @Override
-    public PacienteResponseDTO toDTOPadrao(Paciente paciente) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(paciente.getCidade())
-                .append(", ")
-                .append(paciente.getRua())
-                .append(", ")
-                .append(paciente.getBairro())
-                .append(", ")
-                .append(paciente.getNumeroCasa())
-                .append(".");
+        // Endereço formatado — null-safe caso paciente não tenha endereço cadastrado
+        String enderecoFormatado = endereco != null
+                ? endereco.getRua()
+                  + ", " + endereco.getNumeroCasa()
+                  + ", " + endereco.getBairro()
+                  + ", " + endereco.getCidade() + "."
+                : "Endereço não informado";
 
-        String endereco = sb.toString();
+        // Responsáveis como lista de nomes — null-safe
+        List<String> nomesResponsaveis = responsaveis != null
+                ? responsaveis.stream()
+                  .map(ResponsavelPaciente::getNome)
+                  .toList()
+                : List.of();
+
+        // Transtornos e alergias — null-safe
+        List<String> transtornos = transtorno != null
+                ? transtorno.stream()
+                  .map(TranstornoPaciente::getTranstornos)
+                  .toList()
+                :List.of();
 
         return new PacienteResponseDTO(
                 paciente.getId(),
                 paciente.getNomeCompleto(),
                 paciente.getDataDeNascimento(),
-                endereco,
+                enderecoFormatado,
                 paciente.getContato(),
-                paciente.getResponsaveis(),
-                paciente.getTranstornos(),
-                paciente.getCpf(),
-                paciente.getFotoPreAssinada()
+                nomesResponsaveis,
+                transtornos,
+                paciente.getCpf()
+                //fotoPreAssinada
         );
     }
 
-    public PacienteOptionDTO toOptionDTO(Paciente paciente){
+    // Versão leve — apenas dados básicos, sem joins
+    // Usada em dropdowns, listagens e contextos onde endereço não é necessário
+    public PacienteOptionDTO toOptionDTO(Paciente paciente) {
         return new PacienteOptionDTO(paciente.getId(), paciente.getNomeCompleto());
     }
 }

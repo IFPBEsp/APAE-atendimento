@@ -1,5 +1,6 @@
 package br.org.apae.atendimento.entities;
 
+import br.org.apae.atendimento.dtos.request.TopicoRequestDTO;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -10,7 +11,7 @@ import lombok.Setter;
 import java.util.UUID;
 
 @Entity
-@Table(name = "topico")
+@Table(name = "topico", schema = "atendimento")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -31,4 +32,12 @@ public class Topico {
     @ManyToOne(optional = false)
     @JoinColumn(name = "atendimento_id", nullable = false)
     private Atendimento atendimento;
+
+    public static Topico from(TopicoRequestDTO dto, Atendimento atendimento) {
+        Topico topico = new Topico();
+        topico.setTitulo(dto.titulo());
+        topico.setDescricao(dto.descricao());
+        topico.setAtendimento(atendimento);
+        return topico;
+    }
 }

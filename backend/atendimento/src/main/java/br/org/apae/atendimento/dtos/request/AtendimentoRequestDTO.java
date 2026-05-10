@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 public record AtendimentoRequestDTO(
@@ -16,7 +16,7 @@ public record AtendimentoRequestDTO(
 
         @NotEmpty(message = "O relatório deve conter pelo menos um tópico")
         @Valid
-        List<TopicoRequestDTO> relatorio,
+        Set<TopicoRequestDTO> relatorio,
 
         @NotNull(message = "A data do atendimento é obrigatória")
         LocalDate data,

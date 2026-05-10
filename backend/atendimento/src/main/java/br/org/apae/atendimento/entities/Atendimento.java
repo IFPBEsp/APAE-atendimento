@@ -6,10 +6,12 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
 
 @Entity
-@Table(name = "atendimento")
+@Table(name = "atendimento", schema = "atendimento")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -19,22 +21,21 @@ public class Atendimento {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @OneToMany(mappedBy = "atendimento", cascade = CascadeType.ALL, orphanRemoval = true)
-    @OrderColumn(name = "ordem")
-    private List<Topico> relatorio = new ArrayList<>();
-
     @Column(name = "data_atendimento")
     private LocalDateTime dataAtendimento;
 
     @Column(name = "numeracao")
     private Long numeracao;
 
-    @ManyToOne
-    @JoinColumn(name = "paciente_id")
-    private Paciente paciente;
+    @Column(name = "paciente_id", nullable = false)
+    private UUID pacienteId;
 
-    @ManyToOne
-    @JoinColumn(name = "profissional_id")
-    private ProfissionalSaude profissional;
+    @Column(name = "profissional_id", nullable = false)
+    private UUID profissionalId;
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "atendimento_id")
+    private Set<Topico> relatorio = new HashSet<>();
+
 
 }

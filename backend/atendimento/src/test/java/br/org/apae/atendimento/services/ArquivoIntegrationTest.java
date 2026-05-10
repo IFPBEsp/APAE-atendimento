@@ -2,12 +2,8 @@ package br.org.apae.atendimento.services;
 
 import br.org.apae.atendimento.dtos.request.ArquivoRequestDTO;
 import br.org.apae.atendimento.entities.Arquivo;
-import br.org.apae.atendimento.entities.Paciente;
-import br.org.apae.atendimento.entities.ProfissionalSaude;
 import br.org.apae.atendimento.entities.TipoArquivo;
 import br.org.apae.atendimento.repositories.AnexoRepository;
-import br.org.apae.atendimento.repositories.PacienteRepository;
-import br.org.apae.atendimento.repositories.ProfissionalSaudeRepository;
 import br.org.apae.atendimento.repositories.TipoArquivoRepository;
 import br.org.apae.atendimento.services.storage.ObjectStorageService;
 import org.junit.jupiter.api.BeforeEach;
@@ -93,7 +89,7 @@ class ArquivoIntegrationTest {
         
         Arquivo persistido = anexoRepository.findById(response.objectName()).get();
         assertEquals("relatório semestral", persistido.getTitulo());
-        assertNotNull(persistido.getPaciente());
-        assertNotNull(persistido.getProfissional());
+        assertNotNull(persistido.getPacienteId());
+        assertNotNull(persistido.getProfissionalId());
     }
 }

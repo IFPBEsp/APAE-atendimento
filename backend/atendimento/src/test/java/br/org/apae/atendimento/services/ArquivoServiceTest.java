@@ -2,7 +2,7 @@ package br.org.apae.atendimento.services;
 
 import br.org.apae.atendimento.dtos.request.ArquivoRequestDTO;
 import br.org.apae.atendimento.entities.Arquivo;
-import br.org.apae.atendimento.entities.ProfissionalSaude;
+import br.org.apae.atendimento.entities.views.ProfissionalSaude;
 import br.org.apae.atendimento.entities.TipoArquivo;
 import br.org.apae.atendimento.exceptions.invalid.AtendimentoInvalidException;
 import br.org.apae.atendimento.exceptions.notfound.TipoArquivoNotFoundException;

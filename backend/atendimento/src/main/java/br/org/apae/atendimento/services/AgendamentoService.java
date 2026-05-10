@@ -4,8 +4,8 @@ import br.org.apae.atendimento.dtos.request.AgendamentoRequestDTO;
 import br.org.apae.atendimento.dtos.response.AgendamentoResponseDTO;
 import br.org.apae.atendimento.dtos.response.DiaAgendamentoResponseDTO;
 import br.org.apae.atendimento.entities.Agendamento;
-import br.org.apae.atendimento.entities.Paciente;
-import br.org.apae.atendimento.entities.ProfissionalSaude;
+import br.org.apae.atendimento.entities.views.Paciente;
+import br.org.apae.atendimento.entities.views.ProfissionalSaude;
 import br.org.apae.atendimento.exceptions.invalid.AgendamentoInvalidException;
 import br.org.apae.atendimento.exceptions.notfound.AgendamentoNotFoundException;
 import br.org.apae.atendimento.exceptions.invalid.RelacaoInvalidException;
@@ -58,11 +58,9 @@ public class AgendamentoService {
 
         Agendamento agendamento = agendamentoMapper.toEntityPadrao(agendamentoRequest);
 
-        ProfissionalSaude profissionalSaude = profissionalSaudeService.getProfissionalById(profissionalId);
-        Paciente paciente = pacienteService.getPacienteById(agendamentoRequest.pacienteId());
+        agendamento.setPacienteId(agendamentoRequest.pacienteId());
+        agendamento.setProfissionalId(profissionalId);
 
-        agendamento.setProfissional(profissionalSaude);
-        agendamento.setPaciente(paciente);
         verificarAtendimentos(agendamentoRequest.data(),
                 profissionalId,
                 agendamentoRequest.pacienteId(),

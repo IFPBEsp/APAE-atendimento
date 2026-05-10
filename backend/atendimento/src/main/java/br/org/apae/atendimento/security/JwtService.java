@@ -1,6 +1,6 @@
 package br.org.apae.atendimento.security;
 
-import br.org.apae.atendimento.entities.ProfissionalSaude;
+import br.org.apae.atendimento.entities.CredenciaisProfissional;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
@@ -33,15 +33,16 @@ public class JwtService {
         }
     }
 
-    public String gerarToken(ProfissionalSaude usuario) {
+    // Agora recebe CredenciaisProfissional — sem dependência de ProfissionalSaude
+    public String gerarToken(CredenciaisProfissional credenciais) {
         long tempoExpiracaoMillis = expirationMinutes * 60 * 1000;
         Date agora = new Date();
         Date validade = new Date(agora.getTime() + tempoExpiracaoMillis);
 
         return Jwts.builder()
                 .setId(UUID.randomUUID().toString())
-                .setSubject(usuario.getId().toString())
-                .claim("roles", List.of(normalizarRole(usuario.getPerfil())))
+                .setSubject(credenciais.getProfissionalId().toString())
+                .claim("roles", List.of(normalizarRole(credenciais.getPerfil())))
                 .setIssuedAt(agora)
                 .setExpiration(validade)
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
@@ -91,12 +92,10 @@ public class JwtService {
         if (perfil == null || perfil.isBlank()) {
             return "ROLE_PROFISSIONAL";
         }
-
         String role = perfil.trim().toUpperCase();
         if (!role.startsWith("ROLE_")) {
             role = "ROLE_" + role;
         }
-
         return role;
     }
 }

@@ -1,7 +1,7 @@
 package br.org.apae.atendimento.repositories;
 
 import br.org.apae.atendimento.dtos.response.ProfissionalDropdownResponseDTO;
-import br.org.apae.atendimento.entities.ProfissionalSaude;
+import br.org.apae.atendimento.entities.views.ProfissionalSaude;
 
 import java.util.List;
 import java.util.Optional;

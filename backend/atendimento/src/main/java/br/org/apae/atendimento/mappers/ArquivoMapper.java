@@ -1,6 +1,8 @@
 package br.org.apae.atendimento.mappers;
 import br.org.apae.atendimento.dtos.request.ArquivoRequestDTO;
+import br.org.apae.atendimento.dtos.response.AgendamentoResponseDTO;
 import br.org.apae.atendimento.dtos.response.ArquivoResponseDTO;
+import br.org.apae.atendimento.entities.Agendamento;
 import br.org.apae.atendimento.entities.Arquivo;
 import br.org.apae.atendimento.entities.TipoArquivo;
 import br.org.apae.atendimento.repositories.PacienteRepository;
@@ -8,7 +10,7 @@ import br.org.apae.atendimento.utils.StringSanitizer;
 
 import org.springframework.stereotype.Component;
 
-import br.org.apae.atendimento.entities.Paciente;
+import br.org.apae.atendimento.entities.views.Paciente;
 
 @Component
 public class ArquivoMapper extends AbstractMapper<Arquivo, ArquivoRequestDTO, ArquivoResponseDTO> {
@@ -23,8 +25,7 @@ public class ArquivoMapper extends AbstractMapper<Arquivo, ArquivoRequestDTO, Ar
     public Arquivo toEntityPadrao(ArquivoRequestDTO dto) {
         Arquivo arquivo = new Arquivo();
 
-        Paciente paciente = pacienteRepository.getReferenceById(dto.pacienteId());
-        arquivo.setPaciente(paciente);
+        arquivo.setPacienteId(dto.pacienteId());
 
         TipoArquivo tipoArquivo = new TipoArquivo();
         tipoArquivo.setId(dto.tipoArquivo());
@@ -53,4 +54,5 @@ public class ArquivoMapper extends AbstractMapper<Arquivo, ArquivoRequestDTO, Ar
                 arquivo.getDescricao()
         );
     }
+
 }

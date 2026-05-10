@@ -6,8 +6,8 @@ import br.org.apae.atendimento.dtos.response.AtendimentoResponseDTO;
 import br.org.apae.atendimento.dtos.response.MesAnoAtendimentoResponseDTO;
 import br.org.apae.atendimento.entities.Agendamento;
 import br.org.apae.atendimento.entities.Atendimento;
-import br.org.apae.atendimento.entities.ProfissionalSaude;
 import br.org.apae.atendimento.entities.Topico;
+import br.org.apae.atendimento.entities.views.ProfissionalSaude;
 import br.org.apae.atendimento.exceptions.invalid.AtendimentoInvalidException;
 import br.org.apae.atendimento.exceptions.invalid.RelacaoInvalidException;
 import br.org.apae.atendimento.exceptions.notfound.AgendamentoNotFoundException;
@@ -29,6 +29,7 @@ import java.time.LocalTime;
 import java.time.YearMonth;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -67,7 +68,7 @@ class AtendimentoServiceTest {
 
         requestDTO = new AtendimentoRequestDTO(
                 pacienteId,
-                List.of(new TopicoRequestDTO("Titulo", "Descricao")),
+                Set.of(new TopicoRequestDTO("Titulo", "Descricao")),
                 LocalDate.now(),
                 LocalTime.of(10, 0)
         );
@@ -124,7 +125,7 @@ class AtendimentoServiceTest {
     void deveLancarErroQuandoRelatorioVazio() {
         AtendimentoRequestDTO dtoSemRelatorio = new AtendimentoRequestDTO(
                 pacienteId,
-                List.of(),
+                Set.of(),
                 LocalDate.now(),
                 LocalTime.of(10, 0)
         );
@@ -148,7 +149,7 @@ class AtendimentoServiceTest {
         atendimento.setDataAtendimento(LocalDateTime.now());
         atendimento.getRelatorio().add(new Topico());
 
-        when(repository.findByIdComRelatorio(any())).thenReturn(Optional.of(atendimento));
+        when(repository.findById(any())).thenReturn(Optional.of(atendimento));
         when(repository.save(atendimento)).thenReturn(atendimento);
         when(atendimentoMapper.toDTOPadrao(atendimento)).thenReturn(mock(AtendimentoResponseDTO.class));
 
@@ -162,7 +163,7 @@ class AtendimentoServiceTest {
     @DisplayName("Deve lançar erro ao editar atendimento inexistente")
     void deveLancarErroQuandoAtendimentoNaoEncontrado() {
         when(pacienteService.existeRelacao(pacienteId, profissionalId)).thenReturn(true);
-        when(repository.findByIdComRelatorio(any())).thenReturn(Optional.empty());
+        when(repository.findById(any())).thenReturn(Optional.empty());
 
         assertThrows(AtendimentoNotFoundException.class,
                 () -> service.editar(requestDTO, UUID.randomUUID(), profissionalId));
@@ -176,7 +177,7 @@ class AtendimentoServiceTest {
         Atendimento a2 = new Atendimento();
         a2.setDataAtendimento(LocalDateTime.of(2026, 6, 5, 11, 0));
 
-        when(repository.findByPacienteIdAndProfissionalIdComRelatorio(pacienteId, profissionalId))
+        when(repository.findByPacienteIdAndProfissionalIdOrderByDataAtendimento(pacienteId, profissionalId))
                 .thenReturn(List.of(a1, a2));
         when(atendimentoMapper.toDTOPadrao(any())).thenReturn(mock(AtendimentoResponseDTO.class));
 

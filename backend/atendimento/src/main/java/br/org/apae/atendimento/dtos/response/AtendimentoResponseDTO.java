@@ -10,6 +10,8 @@ public record AtendimentoResponseDTO(
     List<TopicoResponseDTO> relatorio,
     LocalDate data,
     LocalTime hora,
-    Long numeracao
+    Long numeracao,
+    UUID pacienteId,       // ← adicionado
+    UUID profissionalId
 ) {
 }

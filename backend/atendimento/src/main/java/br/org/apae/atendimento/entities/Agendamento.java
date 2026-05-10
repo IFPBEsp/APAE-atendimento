@@ -1,13 +1,20 @@
 package br.org.apae.atendimento.entities;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "agendamento")
+@Table(name = "agendamento", schema = "atendimento")
+@Getter
+@Setter
+@NoArgsConstructor
 public class Agendamento {
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
@@ -21,69 +28,16 @@ public class Agendamento {
     @Column(name = "numeracao")
     private Long numeracao;
 
-    @ManyToOne
-    @JoinColumn(name = "profissional_id")
-    private ProfissionalSaude profissional;
+    @Column(name = "profissional_id")
+    private UUID profissionalId;
 
-    @ManyToOne
-    @JoinColumn(name = "paciente_id")
-    private Paciente paciente;
+    @Column(name = "paciente_id")
+    private UUID pacienteId;
 
-    public Agendamento() {
-    }
-
-    public Agendamento(UUID id, ProfissionalSaude profissionalSaude, Paciente paciente, boolean status) {
+    public Agendamento(UUID id, UUID profissionalId, UUID pacienteId, boolean status) {
         this.id = id;
-        this.profissional = profissionalSaude;
-        this.paciente = paciente;
+        this.profissionalId = profissionalId;
+        this.pacienteId = pacienteId;
         this.status = status;
-    }
-
-    public UUID getId() {
-        return id;
-    }
-
-    public void setId(UUID id) {
-        this.id = id;
-    }
-
-    public boolean isStatus() {
-        return status;
-    }
-
-    public void setStatus(boolean status) {
-        this.status = status;
-    }
-
-    public LocalDateTime getDataHora() {
-        return dataHora;
-    }
-
-    public void setDataHora(LocalDateTime dataHora) {
-        this.dataHora = dataHora;
-    }
-
-    public ProfissionalSaude getProfissional() {
-        return profissional;
-    }
-
-    public void setProfissional(ProfissionalSaude profissional) {
-        this.profissional = profissional;
-    }
-
-    public Paciente getPaciente() {
-        return paciente;
-    }
-
-    public void setPaciente(Paciente paciente) {
-        this.paciente = paciente;
-    }
-
-    public Long getNumeracao() {
-        return numeracao;
-    }
-
-    public void setNumeracao(Long numeracao) {
-        this.numeracao = numeracao;
     }
 }

@@ -1,3 +1,5 @@
+/* Deprecated */
+
 INSERT INTO vw_pacientes (id, nome, cpf, data_nascimento, contato, cidade, rua, bairro, numero_casa, responsaveis, transtornos, ativo)
 VALUES (
            'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',

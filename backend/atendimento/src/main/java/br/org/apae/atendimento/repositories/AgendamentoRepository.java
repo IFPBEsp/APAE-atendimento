@@ -20,7 +20,7 @@ public interface AgendamentoRepository extends JpaRepository<Agendamento, UUID> 
        FROM Agendamento a
        WHERE a.dataHora >= :dataInicio
          AND a.dataHora <  :dataFim
-         AND a.paciente.id = :pacienteId
+         AND a.pacienteId = :pacienteId
     """)
     Optional<Agendamento> findByDataHoraAndPacienteId(
             @Param("dataInicio") LocalDateTime dataInicio,

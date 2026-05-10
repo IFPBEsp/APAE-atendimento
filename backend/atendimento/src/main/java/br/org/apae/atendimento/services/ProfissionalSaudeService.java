@@ -9,14 +9,16 @@ import br.org.apae.atendimento.exceptions.notfound.ProfissionalSaudeNotFoundExce
 import br.org.apae.atendimento.mappers.PacienteMapper;
 import br.org.apae.atendimento.mappers.ProfissionalMapper;
 
+import br.org.apae.atendimento.repositories.AtendimentoRepository;
 import br.org.apae.atendimento.repositories.PacienteRepository;
 import br.org.apae.atendimento.services.storage.PresignedUrlService;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 
 import br.org.apae.atendimento.dtos.response.PacienteResponseDTO;
 import br.org.apae.atendimento.dtos.response.ProfissionalResponseDTO;
-import br.org.apae.atendimento.entities.Paciente;
-import br.org.apae.atendimento.entities.ProfissionalSaude;
+import br.org.apae.atendimento.entities.views.Paciente;
+import br.org.apae.atendimento.entities.views.ProfissionalSaude;
 import br.org.apae.atendimento.repositories.ProfissionalSaudeRepository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,7 +31,9 @@ public class ProfissionalSaudeService {
     private final ProfissionalMapper profissionalMapper;
     private final PacienteMapper pacienteMapper;
     private final PacienteRepository pacienteRepository;
+    private final AtendimentoRepository atendimentoRepository;
     private final PresignedUrlService urlService;
+    private final PacienteService pacienteService;
 
     private static String FOTO_PATH = "foto/";
 
@@ -37,12 +41,16 @@ public class ProfissionalSaudeService {
                                     ProfissionalMapper profissionalMapper,
                                     PacienteMapper pacienteMapper,
                                     PacienteRepository pacienteRepository,
-                                    PresignedUrlService urlService) {
+                                    PresignedUrlService urlService,
+                                    AtendimentoRepository atendimentoRepository,
+                                    PacienteService pacienteService) {
         this.repository = profissionalSaudeRepository;
         this.pacienteMapper = pacienteMapper;
         this.profissionalMapper = profissionalMapper;
         this.pacienteRepository = pacienteRepository;
         this.urlService = urlService;
+        this.atendimentoRepository = atendimentoRepository;
+        this.pacienteService = pacienteService;
     }
 
     public ProfissionalSaude getProfissionalById(UUID id) {
@@ -58,18 +66,23 @@ public class ProfissionalSaudeService {
     }
 
     public List<PacienteResponseDTO> getPacientesDoProfissional(UUID id) {
-        List<Paciente> pacientes = pacienteRepository.findByProfissionais_Id(id);
+        ProfissionalSaude profissionalSaude = getProfissionalById(id);
+
+        List<Paciente> pacientes =
+                atendimentoRepository.findPacientesByProfissionalId(profissionalSaude.getId());
 
         return pacientes.stream()
-                .map(paciente -> {
-                    PacienteResponseDTO dtoSemFoto = pacienteMapper.toDTOPadrao(paciente);
-                    String url = urlService.gerarUrlPreAssinada(FOTO_PATH + paciente.getId());
-                    return dtoSemFoto.comFoto(url);
-                }).toList();
+                .map(paciente -> pacienteMapper.toDTOCompleto(
+                        paciente,
+                        null,          // endereço ainda não resolvido
+                        null,          // responsáveis
+                        null           // transtornos
+                ))
+                .toList();
     }
 
     public List<PacienteOptionDTO> getPacienteOption(UUID profissionalId) {
-        List<Paciente> pacientes = pacienteRepository.findByProfissionais_Id(profissionalId);
+        List<Paciente> pacientes = pacienteRepository.findByProfissionalId(profissionalId);
         return pacientes.stream()
                 .map(paciente -> pacienteMapper.toOptionDTO(paciente))
                 .collect(toList());
