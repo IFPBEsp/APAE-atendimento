@@ -3,7 +3,6 @@ package br.org.apae.atendimento.services;
 import br.org.apae.atendimento.dtos.request.ArquivoRequestDTO;
 import br.org.apae.atendimento.dtos.response.ArquivoResponseDTO;
 import br.org.apae.atendimento.entities.Arquivo;
-import br.org.apae.atendimento.entities.views.ProfissionalSaude;
 import br.org.apae.atendimento.entities.TipoArquivo;
 import br.org.apae.atendimento.exceptions.invalid.AtendimentoInvalidException;
 import br.org.apae.atendimento.exceptions.notfound.ArquivoNotFoundException;
@@ -16,9 +15,11 @@ import br.org.apae.atendimento.services.storage.ObjectStorageService;
 import br.org.apae.atendimento.services.storage.PresignedUrlService;
 import br.org.apae.atendimento.utils.StringSanitizer;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -29,23 +30,11 @@ import java.util.stream.Collectors;
 @Service
 public class ArquivoService {
 
-    @Autowired
-    private AnexoRepository repository;
-
-    @Autowired
-    private TipoArquivoRepository tipoRepository;
-
-    @Autowired
-    private ProfissionalSaudeRepository profissionalRepository;
-
-    @Autowired
-    private ObjectStorageService storageService;
-
-    @Autowired
-    private PresignedUrlService urlService;
-
-    @Autowired
-    private ArquivoMapper anexoMapper;
+    @Autowired private AnexoRepository repository;
+    @Autowired private TipoArquivoRepository tipoRepository;
+    @Autowired private ObjectStorageService storageService;
+    @Autowired private PresignedUrlService urlService;
+    @Autowired private ArquivoMapper anexoMapper;
 
     private static final List<String> MIME_TYPES_PERMITIDOS = Arrays.asList(
             "application/pdf", "image/jpeg", "image/png", "image/gif"
@@ -115,9 +104,14 @@ public class ArquivoService {
                 }).collect(Collectors.toList());
     }
 
-    public void deletar(String objectName) {
-        if (!repository.existsById(objectName)) {
-            throw new ArquivoNotFoundException("O arquivo selecionado não existe ou já foi apagado.");
+    public void deletar(String objectName, UUID profissionalId) {
+        Arquivo arquivo = repository.findById(objectName)
+                .orElseThrow(() -> new ArquivoNotFoundException(
+                        "O arquivo selecionado não existe ou já foi apagado."));
+
+        if (!arquivo.getProfissionalId().equals(profissionalId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "Você não tem permissão para excluir este arquivo.");
         }
 
         repository.deleteById(objectName);

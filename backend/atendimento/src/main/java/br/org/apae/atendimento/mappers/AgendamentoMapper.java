@@ -21,7 +21,7 @@ public class AgendamentoMapper extends AbstractMapper<Agendamento, AgendamentoRe
 
     @Override
     public AgendamentoResponseDTO toDTOPadrao(Agendamento entidadePadrao) {
-        return null;
+        return toDTOPadrao(entidadePadrao, "Paciente");
     }
 
 

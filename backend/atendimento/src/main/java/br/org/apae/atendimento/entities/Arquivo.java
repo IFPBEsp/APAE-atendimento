@@ -11,7 +11,7 @@ import java.util.UUID;
 
 
 @Entity
-@Table(name = "anexo")
+@Table(name = "anexo", schema = "atendimento")
 @Getter
 @Setter
 @NoArgsConstructor

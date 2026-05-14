@@ -16,9 +16,9 @@ public interface AtendimentoRepository extends JpaRepository<Atendimento, UUID> 
     List<Atendimento> findByPacienteIdAndProfissionalIdOrderByDataAtendimento(UUID pacienteId, UUID profissionalId);
 
     @Query("SELECT MAX(a.numeracao) " +
-            "FROM Agendamento a " +
-            "WHERE MONTH(a.dataHora) = :mes " +
-            "AND YEAR(a.dataHora) = :ano " +
+            "FROM Atendimento a " +
+            "WHERE MONTH(a.dataAtendimento) = :mes " +
+            "AND YEAR(a.dataAtendimento) = :ano " +
             "AND a.profissionalId = :profissionalId")
     Long findMaxNumeracaoByMesAndAno(@Param("mes") int mes, @Param("ano") int ano, @Param("profissionalId") UUID profissionalId);
 
@@ -42,10 +42,11 @@ public interface AtendimentoRepository extends JpaRepository<Atendimento, UUID> 
             LocalDateTime dataAtendimento
     );
 
-    @Query("""
-    SELECT DISTINCT a.pacienteId
-    FROM Atendimento a
-    WHERE a.profissionalId = :profissionalId
-""")
-    List<Paciente> findPacientesByProfissionalId(UUID profissionalId);
+    @Query(value = """
+        SELECT DISTINCT p.*
+        FROM atendimento.vw_pacientes p
+        INNER JOIN atendimento.atendimento a ON a.paciente_id = p.paciente_id
+        WHERE a.profissional_id = :profissionalId
+        """, nativeQuery = true)
+    List<Paciente> findPacientesByProfissionalId(@Param("profissionalId") UUID profissionalId);
 }

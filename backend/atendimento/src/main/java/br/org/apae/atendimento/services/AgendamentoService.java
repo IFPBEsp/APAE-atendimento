@@ -4,8 +4,6 @@ import br.org.apae.atendimento.dtos.request.AgendamentoRequestDTO;
 import br.org.apae.atendimento.dtos.response.AgendamentoResponseDTO;
 import br.org.apae.atendimento.dtos.response.DiaAgendamentoResponseDTO;
 import br.org.apae.atendimento.entities.Agendamento;
-import br.org.apae.atendimento.entities.views.Paciente;
-import br.org.apae.atendimento.entities.views.ProfissionalSaude;
 import br.org.apae.atendimento.exceptions.invalid.AgendamentoInvalidException;
 import br.org.apae.atendimento.exceptions.notfound.AgendamentoNotFoundException;
 import br.org.apae.atendimento.exceptions.invalid.RelacaoInvalidException;
@@ -57,7 +55,6 @@ public class AgendamentoService {
         }
 
         Agendamento agendamento = agendamentoMapper.toEntityPadrao(agendamentoRequest);
-
         agendamento.setPacienteId(agendamentoRequest.pacienteId());
         agendamento.setProfissionalId(profissionalId);
 
@@ -66,7 +63,10 @@ public class AgendamentoService {
                 agendamentoRequest.pacienteId(),
                 agendamento);
 
-        return agendamentoMapper.toDTOPadrao(repository.save(agendamento));
+        Agendamento salvo = repository.save(agendamento);
+
+        String nomePaciente = pacienteService.getNomeCompletoPacienteById(salvo.getPacienteId());
+        return agendamentoMapper.toDTOPadrao(salvo, nomePaciente);
     }
 
     public Agendamento buscarAgendamentoPorDataEPaciente(LocalDate data, UUID pacienteId) {
@@ -83,7 +83,10 @@ public class AgendamentoService {
                 .stream()
                 .collect(Collectors.groupingBy(
                         a -> a.getDataHora().toLocalDate(),
-                        Collectors.mapping(agendamentoMapper::toDTOPadrao, Collectors.toList())
+                        Collectors.mapping(a -> {
+                            String nome = pacienteService.getNomeCompletoPacienteById(a.getPacienteId());
+                            return agendamentoMapper.toDTOPadrao(a, nome);
+                        }, Collectors.toList())
                 ))
                 .entrySet().stream()
                 .sorted(Map.Entry.<LocalDate, List<AgendamentoResponseDTO>>comparingByKey().reversed())
@@ -95,9 +98,16 @@ public class AgendamentoService {
         if (!pacienteService.existeRelacao(pacienteId, profissionalId)) {
             throw new RelacaoInvalidException("Você não tem vínculo com este paciente para excluir o agendamento.");
         }
-        if (!repository.existsById(agendamentoId)) {
-            throw new AgendamentoNotFoundException("O agendamento que tentou excluir não existe ou já foi apagado.");
+
+        Agendamento agendamento = repository.findById(agendamentoId)
+                .orElseThrow(() -> new AgendamentoNotFoundException(
+                        "O agendamento que tentou excluir não existe ou já foi apagado."));
+
+        if (!agendamento.getProfissionalId().equals(profissionalId)) {
+            throw new AgendamentoInvalidException(
+                    "Você não tem permissão para excluir este agendamento.");
         }
+
         repository.deleteById(agendamentoId);
     }
 

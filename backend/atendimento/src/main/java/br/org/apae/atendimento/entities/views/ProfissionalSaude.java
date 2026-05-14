@@ -37,9 +37,6 @@ public class ProfissionalSaude {
 
     @Column(name = "especialidade")
     private String especialidade;   // nome legível — útil para exibição
-
-    @Transient
-    private String primeiroNome;
 }
     // REMOVIDO: senha  → CredenciaisProfissional.java
     // REMOVIDO: perfil → CredenciaisProfissional.java

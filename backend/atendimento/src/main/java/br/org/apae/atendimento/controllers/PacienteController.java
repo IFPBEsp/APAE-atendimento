@@ -28,7 +28,7 @@ public class PacienteController {
     }
 
     @GetMapping("/{id}/nome-completo")
-    public ResponseEntity<String> obterPrimeiroNome(@PathVariable UUID id) {
+    public ResponseEntity<String> obterNomeCompleto(@PathVariable UUID id) {
         String nome = pacienteService.getNomeCompletoPacienteById(id);
         return ResponseEntity.ok().body(nome);
     }

@@ -1,25 +1,15 @@
 package br.org.apae.atendimento.mappers;
+
 import br.org.apae.atendimento.dtos.request.ArquivoRequestDTO;
-import br.org.apae.atendimento.dtos.response.AgendamentoResponseDTO;
 import br.org.apae.atendimento.dtos.response.ArquivoResponseDTO;
-import br.org.apae.atendimento.entities.Agendamento;
 import br.org.apae.atendimento.entities.Arquivo;
 import br.org.apae.atendimento.entities.TipoArquivo;
-import br.org.apae.atendimento.repositories.PacienteRepository;
 import br.org.apae.atendimento.utils.StringSanitizer;
 
 import org.springframework.stereotype.Component;
 
-import br.org.apae.atendimento.entities.views.Paciente;
-
 @Component
 public class ArquivoMapper extends AbstractMapper<Arquivo, ArquivoRequestDTO, ArquivoResponseDTO> {
-
-    private final PacienteRepository pacienteRepository;
-
-    public ArquivoMapper(PacienteRepository pacienteRepository) {
-        this.pacienteRepository = pacienteRepository;
-    }
 
     @Override
     public Arquivo toEntityPadrao(ArquivoRequestDTO dto) {

@@ -12,7 +12,6 @@ import br.org.apae.atendimento.mappers.ProfissionalMapper;
 import br.org.apae.atendimento.repositories.AtendimentoRepository;
 import br.org.apae.atendimento.repositories.PacienteRepository;
 import br.org.apae.atendimento.services.storage.PresignedUrlService;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 
 import br.org.apae.atendimento.dtos.response.PacienteResponseDTO;
@@ -65,22 +64,15 @@ public class ProfissionalSaudeService {
         return profissionalMapper.toDTOPadrao(profissionalSaude);
     }
 
-    public List<PacienteResponseDTO> getPacientesDoProfissional(UUID id) {
-        ProfissionalSaude profissionalSaude = getProfissionalById(id);
+    public List<PacienteResponseDTO> getPacientesDoProfissional(UUID profissionalId) {
+        getProfissionalById(profissionalId);
 
-        List<Paciente> pacientes =
-                atendimentoRepository.findPacientesByProfissionalId(profissionalSaude.getId());
+        List<Paciente> pacientes = atendimentoRepository.findPacientesByProfissionalId(profissionalId);
 
         return pacientes.stream()
-                .map(paciente -> pacienteMapper.toDTOCompleto(
-                        paciente,
-                        null,          // endereço ainda não resolvido
-                        null,          // responsáveis
-                        null           // transtornos
-                ))
+                .map(p -> pacienteMapper.toDTOCompleto(p, null, null, null))
                 .toList();
     }
-
     public List<PacienteOptionDTO> getPacienteOption(UUID profissionalId) {
         List<Paciente> pacientes = pacienteRepository.findByProfissionalId(profissionalId);
         return pacientes.stream()

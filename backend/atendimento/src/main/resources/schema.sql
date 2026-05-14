@@ -139,6 +139,22 @@ CREATE TABLE IF NOT EXISTS apae.cadastro_anual_transtorno (
 
 
 -- ----------------------------------------------------------------
+-- atendimento.tipo_arquivo
+-- Domínio do módulo de atendimento — classifica anexos e relatórios.
+-- IDs fixos referenciados em código (ArquivoService.criarObjectName).
+-- ----------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS atendimento.tipo_arquivo (
+                                                        id   BIGSERIAL PRIMARY KEY,
+                                                        tipo VARCHAR NOT NULL UNIQUE
+);
+
+INSERT INTO atendimento.tipo_arquivo (id, tipo) VALUES
+                                                    (1, 'ANEXO'),
+                                                    (2, 'RELATORIO')
+ON CONFLICT DO NOTHING;
+
+
+-- ----------------------------------------------------------------
 -- atendimento.atendimento
 -- Tabela principal
 -- ----------------------------------------------------------------
@@ -162,4 +178,21 @@ CREATE TABLE IF NOT EXISTS atendimento.credenciais_profissional (
                                                                     perfil          VARCHAR NOT NULL DEFAULT 'ROLE_PROFISSIONAL',
                                                                     criado_em       TIMESTAMP NOT NULL DEFAULT now(),
                                                                     atualizado_em   TIMESTAMP NOT NULL DEFAULT now()
+);
+
+
+-- ----------------------------------------------------------------
+-- atendimento.anexo
+-- Arquivos e relatórios associados a atendimentos
+-- ----------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS atendimento.anexo (
+                                                 object_name      VARCHAR PRIMARY KEY,
+                                                 nome_arquivo     VARCHAR NOT NULL,
+                                                 data             DATE NOT NULL,
+                                                 titulo           VARCHAR NOT NULL,
+                                                 descricao        VARCHAR NOT NULL,
+                                                 titulo_canonical VARCHAR,
+                                                 tipo_id          BIGINT NOT NULL REFERENCES atendimento.tipo_arquivo(id),
+                                                 profissional_id  UUID NOT NULL REFERENCES apae.profissionais_da_saude(id),
+                                                 paciente_id      UUID NOT NULL REFERENCES apae.pacientes(id)
 );

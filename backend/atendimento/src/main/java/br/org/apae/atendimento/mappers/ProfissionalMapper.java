@@ -17,13 +17,22 @@ public class ProfissionalMapper extends AbstractMapper<ProfissionalSaude, Void, 
 
     @Override
     public ProfissionalResponseDTO toDTOPadrao(ProfissionalSaude profissional) {
+
+        String primeiroNome = extrairPrimeiroNome(profissional.getNomeCompleto());
+
+
         return new ProfissionalResponseDTO(
                 profissional.getId(),
-                profissional.getPrimeiroNome(),
+                primeiroNome,
                 profissional.getNomeCompleto(),
                 profissional.getEmail(),
                 profissional.getContato()
         );
+    }
+
+    private String extrairPrimeiroNome(String nomeCompleto) {
+        if (nomeCompleto == null || nomeCompleto.isBlank()) return "Doutor(a)";
+        return nomeCompleto.trim().split("\\s+")[0];
     }
 
 }

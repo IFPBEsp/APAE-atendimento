@@ -1,9 +1,6 @@
 package br.org.apae.atendimento.repositories;
 
-import java.util.*;
-
 import br.org.apae.atendimento.dtos.response.PacienteDropdownResponseDTO;
-import br.org.apae.atendimento.entities.views.ProfissionalSaude;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -16,7 +13,6 @@ import br.org.apae.atendimento.entities.views.Paciente;
 @Repository
 public interface PacienteRepository extends JpaRepository<Paciente, UUID> {
 
-    // existeRelacao — antes navegava @ManyToMany, agora query nativa
     @Query(value = """
         SELECT COUNT(*) > 0
         FROM apae.profissional_paciente pp
@@ -43,10 +39,11 @@ public interface PacienteRepository extends JpaRepository<Paciente, UUID> {
         SELECT DISTINCT p.*
         FROM atendimento.vw_pacientes p
         INNER JOIN apae.profissional_paciente pp ON pp.paciente_id = p.paciente_id
+        LEFT JOIN atendimento.vw_enderecos_paciente e ON e.paciente_id = p.paciente_id
         WHERE pp.profissional_id = :profissionalId
-          AND (:nome   IS NULL OR p.nome  ILIKE CONCAT('%', :nome,   '%'))
-          AND (:cpf    IS NULL OR p.cpf   LIKE  CONCAT('%', :cpf,    '%'))
-          AND (:cidade IS NULL OR p.cidade ILIKE CONCAT('%', :cidade, '%'))
+          AND (:nome   IS NULL OR p.nome   ILIKE CONCAT('%', :nome,   '%'))
+          AND (:cpf    IS NULL OR p.cpf    LIKE  CONCAT('%', :cpf,    '%'))
+          AND (:cidade IS NULL OR e.cidade ILIKE CONCAT('%', :cidade, '%'))
         """, nativeQuery = true)
     List<Paciente> buscarPaciente(
             @Param("profissionalId") UUID profissionalId,

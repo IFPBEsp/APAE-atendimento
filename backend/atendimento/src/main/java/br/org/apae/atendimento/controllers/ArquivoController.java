@@ -81,8 +81,11 @@ public class ArquivoController {
     }
 
     @DeleteMapping("/delete")
-    public ResponseEntity<Void> delete(@RequestParam(name = "objectName") String objectName){
-        service.deletar(objectName);
+    public ResponseEntity<Void> delete(
+            @RequestParam(name = "objectName") String objectName,
+            @AuthenticationPrincipal UsuarioAutenticado usuarioAutenticado) {
+
+        service.deletar(objectName, usuarioAutenticado.getId());
         return ResponseEntity.noContent().build();
     }
 }

@@ -13,8 +13,6 @@ import br.org.apae.atendimento.repositories.EnderecoPacienteRepository;
 import br.org.apae.atendimento.repositories.PacienteRepository;
 import br.org.apae.atendimento.repositories.ResponsavelPacienteRepository;
 import br.org.apae.atendimento.repositories.TranstornoPacienteRepository;
-import br.org.apae.atendimento.services.storage.ObjectStorageService;
-import br.org.apae.atendimento.services.storage.minio.MinioPresignedUrlService;
 import br.org.apae.atendimento.services.storage.minio.MinioService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,7 +20,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class PacienteService {
@@ -57,16 +57,14 @@ public class PacienteService {
         // Busca dados complementares das views separadas
         EnderecoPaciente endereco = enderecoRepository
                 .findByPacienteId(id)
-                .orElse(null);                          // null-safe no mapper
+                .orElse(null);
 
         List<ResponsavelPaciente> responsaveis = responsavelRepository
-                .findAllByPacienteId(id);               // lista vazia se não houver
+                .findAllByPacienteId(id);
 
         List<TranstornoPaciente> transtorno = Collections.singletonList(transtornoRepository
                 .findByPacienteId(id)
-                .orElse(null));                          // null-safe no mapper
-
-        //String fotoUrl = storageService.uploadArquivo(FOTO_PATH + id, file);
+                .orElse(null));
 
         return pacienteMapper.toDTOCompleto(
                 paciente, endereco, responsaveis, transtorno);
@@ -96,18 +94,29 @@ public class PacienteService {
     public List<PacienteResponseDTO> buscarPaciente(
             UUID profissionalId, String nome, String cpf, String cidade) {
 
-        return pacienteRepository
-                .buscarPaciente(profissionalId, nome, cpf, cidade)
-                .stream()
-                .map(p -> {
-                    EnderecoPaciente endereco = enderecoRepository
-                            .findByPacienteId(p.getId()).orElse(null);
-                    List<ResponsavelPaciente> responsaveis = responsavelRepository
-                            .findAllByPacienteId(p.getId());
-                    List<TranstornoPaciente> transtorno = Collections.singletonList(transtornoRepository
-                            .findByPacienteId(p.getId()).orElse(null));
-                    return pacienteMapper.toDTOCompleto(p, endereco, responsaveis, transtorno);
-                })
+        List<Paciente> pacientes = pacienteRepository.buscarPaciente(profissionalId, nome, cpf, cidade);
+
+        if (pacientes.isEmpty()) return List.of();
+
+        List<UUID> ids = pacientes.stream().map(Paciente::getId).toList();
+
+        // 3 queries fixas independente do número de pacientes
+        Map<UUID, EnderecoPaciente> enderecos = enderecoRepository.findAllById(ids)
+                .stream().collect(Collectors.toMap(EnderecoPaciente::getPacienteId, e -> e));
+
+        Map<UUID, List<ResponsavelPaciente>> responsaveis = responsavelRepository.findAllByPacienteIdIn(ids)
+                .stream().collect(Collectors.groupingBy(ResponsavelPaciente::getPacienteId));
+
+        Map<UUID, TranstornoPaciente> transtornos = transtornoRepository.findAllById(ids)
+                .stream().collect(Collectors.toMap(TranstornoPaciente::getPacienteId, t -> t));
+
+        return pacientes.stream()
+                .map(p -> pacienteMapper.toDTOCompleto(
+                        p,
+                        enderecos.get(p.getId()),
+                        responsaveis.getOrDefault(p.getId(), List.of()),
+                        Collections.singletonList(transtornos.get(p.getId()))
+                ))
                 .toList();
     }
 
