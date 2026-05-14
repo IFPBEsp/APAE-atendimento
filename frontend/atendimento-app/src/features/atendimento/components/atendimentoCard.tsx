@@ -10,7 +10,6 @@ interface AtendimentoCardProps {
   numeracao: number;
   relatorio?: Relatorio[];
   atendimentos: Atendimento[];
-  onUpdated: (a: Atendimento) => void;
 }
 export default function AtendimentoCard({
   id,
@@ -19,7 +18,6 @@ export default function AtendimentoCard({
   numeracao,
   relatorio,
   atendimentos,
-  onUpdated,
 }: AtendimentoCardProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -65,7 +63,6 @@ export default function AtendimentoCard({
         numeracao={numeracao}
         relatorios={relatorio}
         atendimentos={atendimentos}
-        onUpdated={onUpdated!}
       />
     </>
   );

@@ -24,6 +24,10 @@ export async function criarAtendimento(
   return data;
 }
 
+export async function deletarAtendimento(pacienteId: string, atendimentoId: string): Promise<void> {
+  await api.delete(`/atendimentos/${pacienteId}/${atendimentoId}`);
+}
+
 export async function editarAtendimento(
   atendimentoId: string,
   payload: AtendimentoPayload
