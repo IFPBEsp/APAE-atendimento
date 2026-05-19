@@ -2,6 +2,7 @@ package br.org.apae.atendimento.controllers;
 
 import br.org.apae.atendimento.dtos.response.PacienteDropdownResponseDTO;
 import br.org.apae.atendimento.dtos.response.PacienteResponseDTO;
+import br.org.apae.atendimento.dtos.response.PaginatedResponseDTO;
 import br.org.apae.atendimento.security.UsuarioAutenticado;
 import br.org.apae.atendimento.services.PacienteService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,15 +35,17 @@ public class PacienteController {
     }
     
     @GetMapping("/search")
-    public ResponseEntity<List<PacienteResponseDTO>> buscarPacientes(
+    public ResponseEntity<PaginatedResponseDTO<PacienteResponseDTO>> buscarPacientes(
             @RequestParam(required = false) String nome,
             @RequestParam(required = false) String cpf,
             @RequestParam(required = false) String cidade,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int limit,
             @AuthenticationPrincipal UsuarioAutenticado usuarioAutenticado
             ) {
 
-       List<PacienteResponseDTO> paciente = pacienteService.buscarPaciente(
-               usuarioAutenticado.getId(), nome, cpf, cidade
+       PaginatedResponseDTO<PacienteResponseDTO> paciente = pacienteService.buscarPaciente(
+               usuarioAutenticado.getId(), nome, cpf, cidade, page, limit
        );
        return ResponseEntity.ok(paciente);
    }
