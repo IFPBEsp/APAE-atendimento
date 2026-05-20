@@ -1,32 +1,35 @@
 import { api } from "@/services/axios";
-
-import { Paciente } from "../types";
+import {Paciente, PaginationMeta} from "../types";
+import { PaginatedResponse } from "../types";
 
 export type FiltroPaciente = {
   nome?: string;
   cpf?: string;
   cidade?: string;
+  page?: number;
+  limit?: number;
 };
 
+type PacientesApiResponse = {
+  data: Paciente[];
+  paginationMetaDTO: PaginationMeta;
+};
 
 export async function getPacientes(
-  filtros?: FiltroPaciente
-): Promise<Paciente[]> {
-  if (filtros && Object.keys(filtros).length > 0) {
-    const query = new URLSearchParams(
-      filtros as Record<string, string>
-    ).toString();
-    
-    const { data } = await api.get<Paciente[]>(
-      `/pacientes/search?${query}`
-    );
-    
-    return data;
-  }
-  
-  const { data } = await api.get<Paciente[]>(
-    `/profissionais/pacientes`
+  filtros: FiltroPaciente = { page: 1, limit: 10 }
+): Promise<PaginatedResponse<Paciente>> {
+
+  const params = new URLSearchParams();
+  Object.entries(filtros).forEach(([key, value]) => {
+    if (value) params.append(key, String(value));
+  });
+
+  const { data } = await api.get<PacientesApiResponse>(
+      `/pacientes/search?${params.toString()}`
   );
 
-  return data;
+  return {
+    data: data.data,
+    pagination: data.paginationMetaDTO
+  };
 }

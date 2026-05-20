@@ -5,7 +5,12 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import br.org.apae.atendimento.dtos.response.PacienteDropdownResponseDTO;
+import br.org.apae.atendimento.dtos.response.PaginatedResponseDTO;
+import br.org.apae.atendimento.dtos.response.PaginationMetaDTO;
 import br.org.apae.atendimento.services.storage.ObjectStorageService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import br.org.apae.atendimento.dtos.response.PacienteResponseDTO;
@@ -53,11 +58,26 @@ public class PacienteService {
     }
 
 
-    public List<PacienteResponseDTO> buscarPaciente(UUID profissionalId, String nome, String cpf, String cidade) {
-        return repository.buscarPaciente(profissionalId, nome, cpf, cidade)
+    public PaginatedResponseDTO<PacienteResponseDTO> buscarPaciente(UUID profissionalId, String nome, String cpf, String cidade, int page, int limit) {
+        Pageable pageable = PageRequest.of(page -1, limit);
+
+        Page<Paciente> pacientePage = repository.buscarPaciente(profissionalId, nome, cpf, cidade, pageable);
+
+        List<PacienteResponseDTO> data = pacientePage.getContent()
                 .stream()
                 .map(pacienteMapper::toDTOPadrao)
                 .collect(Collectors.toList());
+
+        PaginationMetaDTO meta = new PaginationMetaDTO(
+                page,
+                limit,
+                pacientePage.getTotalElements(),
+                pacientePage.getTotalPages(),
+                pacientePage.hasNext(),
+                pacientePage.hasPrevious()
+        );
+
+        return new PaginatedResponseDTO<>(data, meta);
     }
 
     public String adicionarFoto(MultipartFile file, UUID pacienteId){

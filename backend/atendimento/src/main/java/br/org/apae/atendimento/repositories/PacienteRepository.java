@@ -1,9 +1,9 @@
 package br.org.apae.atendimento.repositories;
 
-import java.util.*;
 
 import br.org.apae.atendimento.dtos.response.PacienteDropdownResponseDTO;
-import br.org.apae.atendimento.entities.ProfissionalSaude;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -34,20 +34,20 @@ public interface PacienteRepository extends JpaRepository<Paciente, UUID> {
 
     List<Paciente>findByProfissionais_Id(UUID profissionalId);
     @Query("""
-    SELECT DISTINCT p
-    FROM Paciente p
-    JOIN p.profissionais prof
-    WHERE prof.id = :profissionalId
-    AND (cast(:nome as string) IS NULL OR p.nomeCompleto ILIKE CONCAT('%', cast(:nome as string), '%'))
-    AND (cast(:cpf as string) IS NULL OR p.cpf LIKE CONCAT('%', cast(:cpf as string), '%')
-    AND (cast(:cidade as string) IS NULL OR p.cidade ILIKE CONCAT('%', cast(:cidade as string), '%'))
-    )
-""")
-    List<Paciente> buscarPaciente(
+        SELECT DISTINCT p
+        FROM Paciente p
+        JOIN p.profissionais prof
+        WHERE prof.id = :profissionalId
+          AND (:nome IS NULL OR LOWER(p.nomeCompleto) LIKE LOWER(CONCAT('%', :nome, '%')))
+          AND (:cpf IS NULL OR p.cpf LIKE CONCAT('%', :cpf, '%'))
+          AND (:cidade IS NULL OR LOWER(p.cidade) LIKE LOWER(CONCAT('%', :cidade, '%')))
+    """)
+    Page<Paciente> buscarPaciente(
             @Param("profissionalId") UUID profissionalId,
             @Param("nome") String nome,
             @Param("cpf") String cpf,
-            @Param("cidade") String cidade
+            @Param("cidade") String cidade,
+            Pageable pageable
     );
 
     @Query("SELECT new br.org.apae.atendimento.dtos.response.PacienteDropdownResponseDTO(p.id, p.nomeCompleto) " +

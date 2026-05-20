@@ -1,52 +1,57 @@
+import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
-import { Paciente } from "../types";
-import { api } from "../../../services/axios";
+import { getPacientes, FiltroPaciente } from "../services/homeService";
+import { usePrimeiroNomeProfissional } from "@/features/profissional/hooks/usePrimeiroNomeProfissional";
+import { useDebounce } from "@/utils/useDebounce";
 
 export function useHome() {
-  const [medicoNome] = useState("Doutor(a)");
-  const [pacientes, setPacientes] = useState<Paciente[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [erro, setErro] = useState(false);
+  const { data: medicoNome, isLoading: loadingNome } = usePrimeiroNomeProfissional();
+
   const [busca, setBusca] = useState("");
-  const [filtro, setFiltro] = useState<"nome" | "cpf" | "cidade" | "">("");
+  const [filtro, setFiltro] = useState<"nome" | "cpf" | "cidade">("nome");
+  const [page, setPage] = useState(1);
+  const limit = 1;
+
+  const buscaDebounced = useDebounce(busca, 500);
 
   useEffect(() => {
-    async function fetchPacientes() {
-      try {
-        setLoading(true);
-        setErro(false);
+    setPage(1);
+  }, [buscaDebounced, filtro]);
 
-        const response = await api.get("/pacientes/search");
-        setPacientes(response.data);
-        setLoading(false);
-       
-      } catch (err) {
-        console.error(err);
-        setErro(true);
-        setLoading(false);
-      }
-    }
+  const filtros: FiltroPaciente = { page, limit };
+  if (buscaDebounced && filtro) {
+    filtros[filtro] = buscaDebounced;
+  }
 
-    fetchPacientes();
-  }, []);
+  const termoBusca = buscaDebounced.trim();
 
-  const pacientesFiltrados = pacientes.filter((pac) => {
-    if (!busca) return true;
-    const termo = busca.toLowerCase();
+  if (termoBusca) {
+    filtros[filtro] = termoBusca;
+  }
 
-    if (filtro === "cpf") return pac.cpf.includes(termo);
-    if (filtro === "cidade") return pac.endereco.toLowerCase().includes(termo);
-
-    return pac.nomeCompleto.toLowerCase().includes(termo);
+  const {
+    data: paginatedData,
+    isLoading: loadingPacientes,
+    isFetching,
+    isError,
+  } = useQuery({
+    queryKey: ["pacientes", filtros],
+    queryFn: () => getPacientes(filtros),
+    placeholderData: keepPreviousData,
   });
 
   return {
-    medicoNome,
-    pacientes: pacientesFiltrados,
-    loading,
-    erro,
+    medicoNome: medicoNome ?? "Profissional",
+    pacientes: paginatedData?.data || [],
+    pagination: paginatedData?.pagination,
+    loading: loadingNome || loadingPacientes,
+    isFetching,
+    erro: isError,
     busca,
     setBusca,
+    filtro,
     setFiltro,
+    page,
+    setPage,
   };
 }
