@@ -31,12 +31,6 @@ export default function AtendimentoPage() {
     setOpen,
   } = useAtendimentos(pacienteId);
 
-  const queryClient = useQueryClient();
-
-  function handleAtendimentoUpdated() {
-    queryClient.invalidateQueries({ queryKey: ["atendimentos", pacienteId] });
-  }
-
   return (
     <div className="min-h-screen w-full bg-[#F8FAFD]">
       <Header />
@@ -119,7 +113,6 @@ export default function AtendimentoPage() {
                   key={a.id}
                   {...a}
                   atendimentos={atendimentos}
-                  onUpdated={handleAtendimentoUpdated}
                 />
               ))}
             </div>

@@ -1,0 +1,4 @@
+allowBuilds:
+  canvas: true
+  sharp: true
+  unrs-resolver: true
