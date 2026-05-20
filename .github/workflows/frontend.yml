@@ -15,11 +15,7 @@ jobs:
     steps:
       - name: Baixar repositório
         uses: actions/checkout@v4
-
-      - name: Aprovar builds do pnpm
-        working-directory: ./frontend/atendimento-app
-        run: pnpm approve-builds
-
+        
       - name: Instalar PNPM
         uses: pnpm/action-setup@v4
         with:
@@ -32,6 +28,10 @@ jobs:
           node-version: "22.13"
           cache: "pnpm"
           cache-dependency-path: frontend/atendimento-app/pnpm-lock.yaml
+      
+      - name: Aprovar builds do pnpm
+        working-directory: ./frontend/atendimento-app
+        run: pnpm approve-builds
 
       - name: Instalar dependências
         working-directory: ./frontend/atendimento-app
