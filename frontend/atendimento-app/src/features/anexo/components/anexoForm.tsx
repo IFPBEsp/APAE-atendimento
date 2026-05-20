@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { DialogFooter } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Upload, CirclePlus } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -58,7 +58,17 @@ export default function AnexoForm({ onSubmit }: AnexoFormProps) {
   const existeTexto = titulo?.trim().length > 0 && descricao?.trim().length > 0;
   const podeEnviar = existeArquivo && existeTexto;
 
-  const previewUrl = arquivo?.[0] ? URL.createObjectURL(arquivo[0]) : null;
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  useEffect(() => {
+    if (arquivo && arquivo.length > 0 && arquivo[0] instanceof File) {
+      const url = URL.createObjectURL(arquivo[0]);
+      setPreviewUrl(url);
+      
+      return () => URL.revokeObjectURL(url);
+    }
+    setPreviewUrl(null);
+  }, [arquivo]);
+  
   const renderizar =
     previewUrl &&
     arquivo &&

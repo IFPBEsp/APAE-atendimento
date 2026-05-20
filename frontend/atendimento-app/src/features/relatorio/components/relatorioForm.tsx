@@ -12,7 +12,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Upload, CirclePlus, Info, FileText } from "lucide-react";
 import { pdf } from "@react-pdf/renderer";
 import { TemplateRelatorio } from "../../../components/pdf/templateRelatorio";
@@ -106,7 +106,17 @@ export default function RelatorioForm({
     setValue("arquivo", fileList, { shouldValidate: true });
   };
 
-  const previewUrl = arquivo?.[0] ? URL.createObjectURL(arquivo[0]) : null;
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  useEffect(() => {
+    if (arquivo && arquivo.length > 0 && arquivo[0] instanceof File) {
+      const url = URL.createObjectURL(arquivo[0]);
+      setPreviewUrl(url);
+      
+      return () => URL.revokeObjectURL(url);
+    }
+    setPreviewUrl(null);
+  }, [arquivo]);
+  
   const renderizar =
     previewUrl &&
     arquivo &&
