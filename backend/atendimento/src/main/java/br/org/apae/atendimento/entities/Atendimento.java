@@ -6,8 +6,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -33,9 +33,6 @@ public class Atendimento {
     @Column(name = "profissional_id", nullable = false)
     private UUID profissionalId;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "atendimento_id")
-    private Set<Topico> relatorio = new HashSet<>();
 
-
+    private List<Topico> relatorio = new ArrayList<>();
 }
