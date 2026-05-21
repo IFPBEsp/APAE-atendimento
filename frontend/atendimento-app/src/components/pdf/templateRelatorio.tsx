@@ -8,6 +8,14 @@ import {
 import { styles } from "./styles";
 import { formatarDataExtenso } from "@/lib/utils";
 
+interface AccessibleImageProps {
+  src: string | { uri: string; method: string; headers: Array<{ key: string; value: string }>; body: string };
+  style?: unknown;
+  alt?: string;
+}
+
+const AccessiblePdfImage = Image as unknown as React.ComponentType<AccessibleImageProps>;
+
 interface TemplateRelatorioProps {
 
   paciente: {
@@ -65,7 +73,11 @@ export const TemplateRelatorio = ({
         <Page size={"A4"} style={styles.page}>
 
           <View style={styles.header}>
-            <Image src="/logo-30anos.png" style={styles.logo}/>
+            <AccessiblePdfImage
+                src="/logo-30anos.png"
+                style={styles.logo}
+                alt="Logomarca comemorativa de 30 anos da APAE"
+            />
 
             <View style={styles.headerInfo}>
               <Text style={styles.apae}>APAE</Text>
