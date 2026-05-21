@@ -21,7 +21,7 @@ export default function HomePage() {
   const [isMounted, setIsMounted] = useState(false);
   const {
     medicoNome, pacientes, pagination, loading, isFetching, erro,
-    busca, setBusca, filtro, setFiltro, page, setPage
+    busca, setBusca, filtro, setFiltro, setPage
   } = useHome();
 
   useEffect(() => {

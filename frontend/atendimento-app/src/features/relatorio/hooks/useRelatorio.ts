@@ -154,7 +154,10 @@ export function useRelatorios(pacienteId: string) {
 
   async function construirEnviarArquivoRelatorio(data: RelatorioEnvioFormData) {
     const relatorio = criarArquivoRelatorio(data);
-    relatorio && enviarRelatorioMutation.mutate(relatorio);
+
+    if (relatorio) {
+      enviarRelatorioMutation.mutate(relatorio);
+    }
   }
 
   const handleDelete = (objectName: string) => {
