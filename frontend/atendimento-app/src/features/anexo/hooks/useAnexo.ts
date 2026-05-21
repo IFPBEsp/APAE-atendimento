@@ -47,8 +47,9 @@ export function useAnexos(pacienteId: string) {
       queryClient.invalidateQueries({ queryKey: ["anexos", pacienteId] });
       setOpen(false);
     },
-    onError: (error: any) => {
-      toast.error(error.message || "Erro ao enviar");
+    onError: (error: unknown) => {
+      const mensagem = error instanceof Error ? error.message : "Erro ao enviar";
+      toast.error(mensagem);
     },
   });
 
@@ -114,8 +115,9 @@ export function useAnexos(pacienteId: string) {
       const ready = construirArquivoFormData(request);
 
       enviarAnexoMutation.mutate(ready);
-    } catch (error: any) {
-      toast.error(error.message || "Erro ao enviar anexo");
+    } catch (error: unknown) {
+      const mensagem = error instanceof Error ? error.message : "Erro ao enviar anexo";
+      toast.error(mensagem);
     }
   };
   return {
