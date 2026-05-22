@@ -30,6 +30,10 @@ if (typeof window.URL.createObjectURL === "undefined") {
   window.URL.createObjectURL = jest.fn(() => "mocked-url");
 }
 
+if (typeof window.URL.revokeObjectURL === "undefined") {
+  window.URL.revokeObjectURL = jest.fn();
+}
+
 describe("RelatorioForm - Validações e Cénarios Negativos", () => {
   const mockOnSubmit = jest.fn();
   const mockDadosPdf = {
