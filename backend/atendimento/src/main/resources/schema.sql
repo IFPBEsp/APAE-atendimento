@@ -82,7 +82,7 @@ CREATE TABLE IF NOT EXISTS cadastro.profissionais_da_saude (
 
 CREATE TABLE IF NOT EXISTS cadastro.disponibilidades (
     id              UUID        PRIMARY KEY,
-    day             VARCHAR(20) NOT NULL,
+    day_of_week     VARCHAR(20) NOT NULL,
     shift           VARCHAR(20) NOT NULL,
     professional_id UUID        NOT NULL REFERENCES cadastro.profissionais_da_saude(id)
 );
@@ -101,7 +101,7 @@ CREATE TABLE IF NOT EXISTS cadastro.transtornos (
 CREATE TABLE IF NOT EXISTS cadastro.cadastros_anuais (
     id          UUID    PRIMARY KEY,
     paciente_id UUID    NOT NULL REFERENCES cadastro.pacientes(id),
-    year        INTEGER NOT NULL
+    ano        INTEGER NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS cadastro.cadastro_anual_transtorno (
@@ -178,8 +178,8 @@ SELECT
 FROM atendimento.vw_pacientes vp
          INNER JOIN cadastro.cadastros_anuais ca
                     ON  ca.paciente_id = vp.paciente_id
-                        AND ca.year = (
-                            SELECT MAX(ca2.year)
+                        AND ca.ano = (
+                            SELECT MAX(ca2.ano)
                             FROM cadastro.cadastros_anuais ca2
                             WHERE ca2.paciente_id = vp.paciente_id
                         )
