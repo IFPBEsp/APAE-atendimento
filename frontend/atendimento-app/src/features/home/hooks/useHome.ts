@@ -10,7 +10,7 @@ export function useHome() {
   const [busca, setBusca] = useState("");
   const [filtro, setFiltro] = useState<"nome" | "cpf" | "cidade">("nome");
   const [page, setPage] = useState(1);
-  const limit = 1;
+  const limit = 10;
 
   const buscaDebounced = useDebounce(busca, 500);
 

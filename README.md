@@ -19,22 +19,86 @@ A intenção do sistema é modernizar e unificar o processo de acompanhamento do
 - Permite ao profissional visualizar seus **dados pessoais cadastrados no sistema**
 
 # Stack Tecnológico
-- Framework: https://react.dev
-- SpringBoot: https://spring.io/projects/spring-boot
-- Biblioteca de componentes: https://ui.shadcn.com
-- Autenticação e autorização: https://www.keycloak.org
+- **Front-end:** [React](https://react.dev) com [Shadcn/ui](https://ui.shadcn.com)
+- **Back-end:** [Spring Boot](https://spring.io/projects/spring-boot)
+- **Banco de Dados:** [PostgreSQL](https://www.postgresql.org/)
+- **Armazenamento de Arquivos:** [MinIO](https://min.io/)
+- **Autenticação e Autorização:** Geração própria e verificação de tokens JWT nativa via [Spring Security](https://spring.io/projects/spring-security)
 
 ### Front-end
 
-**🧩 Caminho referente ao Front-end do sistema**
+[**🧩 Caminho referente ao Front-end do sistema**](https://github.com/IFPBEsp/APAE-atendimento/tree/dev/frontend#-tecnologias)
 
-(https://github.com/IFPBEsp/APAE-atendimento/tree/dev/frontend#-tecnologias)
+
 
 ### Back-end
 
-**🧩 Caminho referente ao Back-end do sistema**
+[**🧩 Caminho referente ao Back-end do sistema**](https://github.com/IFPBEsp/APAE-atendimento/tree/dev/backend#-pré-requisitos)
 
-(https://github.com/IFPBEsp/APAE-atendimento/tree/dev/backend#-pré-requisitos)
+#  Como Rodar o Projeto
+
+Para executar o sistema completo em sua máquina, siga os passos abaixo:
+
+### Pré-requisitos
+- [Docker](https://www.docker.com/) e [Docker Compose](https://docs.docker.com/compose/)
+- [Node.js](https://nodejs.org/) (recomendado v20+) e [PNPM](https://pnpm.io/)
+- [Java JDK 21](https://adoptium.net/temurin/releases/?version=21)
+
+---
+
+### 1. Preparação do Ambiente
+Clone o repositório e crie os arquivos de ambiente necessários:
+
+```bash
+# Clone o repositório
+git clone https://github.com/IFPBEsp/APAE-atendimento.git
+cd APAE-atendimento
+
+# No root do projeto, crie o .env baseado no exemplo
+cp .env.example .env
+
+# No diretório do backend, crie o local-secrets.properties
+cp backend/docker/local-secrets.properties.example backend/docker/local-secrets.properties
+```
+
+> **Nota:** Certifique-se de preencher as variáveis sensíveis no `.env` e `local-secrets.properties` antes de prosseguir.
+
+---
+
+### 2. Executando com Docker Compose (Recomendado)
+A forma mais simples de rodar toda a stack (Banco, Storage, Backend e Frontend) é via Docker Compose:
+
+```bash
+# Sobe todos os serviços em modo produção
+docker compose --profile PROD up -d --build
+```
+O sistema estará disponível em:
+- **Frontend:** `http://localhost:80` (ou porta configurada)
+- **Backend API:** `http://localhost:8080`
+- **MinIO Console:** `http://localhost:9001`
+
+---
+
+### 3. Execução em Desenvolvimento (Manual)
+Se desejar rodar os serviços separadamente para desenvolvimento:
+
+#### Infraestrutura (Banco e MinIO)
+```bash
+docker compose up postgres-db minio -d
+```
+
+#### Backend (Spring Boot)
+```bash
+cd backend/atendimento
+./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
+```
+
+#### Frontend (Next.js)
+```bash
+cd frontend/atendimento-app
+pnpm install
+pnpm dev
+```
 
 # Contribuições
 
