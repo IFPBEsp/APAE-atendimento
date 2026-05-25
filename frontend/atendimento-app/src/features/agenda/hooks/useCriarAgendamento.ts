@@ -6,7 +6,7 @@ export function useCriarAgendamento() {
 
   return useMutation({
     mutationFn: criarAgendamento,
-    onSuccess: (_, variables) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["agendamentos"],
       });

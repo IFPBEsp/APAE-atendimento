@@ -62,23 +62,10 @@ export default function RelatorioForm({
   const descricao = watch("descricao");
   const arquivo = watch("arquivo");
 
-  const validarData = (dataSelecionada: string) => {
-    const data = new Date(dataSelecionada);
-    const hoje = new Date();
-    const trintaAnosAtras = new Date();
-    trintaAnosAtras.setFullYear(hoje.getFullYear() - 30);
-
-    if (data > hoje || data < trintaAnosAtras) {
-      return "Data inválida ou fora do limite de permitido (30 anos)";
-    }
-    return true;
-  };
-
   const existeArquivo = arquivo && arquivo.length > 0;
   const existeTemplate =
     titulo?.trim().length > 0 && descricao?.trim().length > 0;
 
-  const podeEnviarAnexo = existeArquivo && existeTemplate;
   const podeGerarPdf = !existeArquivo && existeTemplate;
 
   const gerarPdfEAnexar = async () => {
@@ -107,6 +94,7 @@ export default function RelatorioForm({
   };
 
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
   useEffect(() => {
     if (arquivo && arquivo.length > 0 && arquivo[0] instanceof File) {
       const url = URL.createObjectURL(arquivo[0]);
@@ -385,7 +373,7 @@ export default function RelatorioForm({
                     message:
                       "Formato não suportado. Envie apenas PDF ou Imagens.",
                   });
-                  setValue("arquivo", null as any);
+                  setValue("arquivo", [] as unknown as FileList);
                 } else {
                   clearErrors("arquivo");
                 }

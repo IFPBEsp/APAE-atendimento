@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { Mail, Lock } from "lucide-react";
 import { Nunito, Baloo_2 } from "next/font/google";
 import { Card, CardContent } from "@/components/ui/card";
@@ -17,10 +18,12 @@ import { login, me } from "@/services/authService";
 
 const nunitoFont = Nunito({
   weight: "700",
+  subsets: ["latin"],
 });
 
 const baloo2Font = Baloo_2({
   weight: "500",
+  subsets: ["latin"],
 });
 
 export default function LoginPage() {
@@ -96,10 +99,13 @@ export default function LoginPage() {
     <div className="h-screen w-screen bg-[url('/background-login-apae.svg')] relative bg-no-repeat bg-cover bg-center flex items-center justify-center">
       <div className="absolute flex items-center justify-center inset-0 bg-[#0D4F97]/80">
         <div className="absolute z-50 mt-[-32rem] w-[128px] h-[128px] bg-white rounded-full flex items-center justify-center mx-auto mb-[0px]">
-          <img
+          <Image
             src="/logo-apae.svg"
             alt="APAE Logo"
-            className="w-[90px] h-[140px] mt-[3rem]"
+            width={90}
+            height={140}
+            className="mt-[3rem]"
+            priority
           />
         </div>
 

@@ -1,5 +1,6 @@
 import { api } from "@/services/axios";
 import { AxiosError } from "axios";
+import type { Anexo } from "../types";
 
 export async function enviarAnexo(formData: FormData) {
   try {
@@ -7,7 +8,7 @@ export async function enviarAnexo(formData: FormData) {
       headers: { "Content-Type": "multipart/form-data" },
     });
   } catch (error) {
-    const err = error as AxiosError<any>;
+    const err = error as AxiosError<{ message?: string; error?: string }>;
 
     const message =
       err.response?.data?.message ||
@@ -19,12 +20,12 @@ export async function enviarAnexo(formData: FormData) {
   }
 }
 
-export async function getAnexos(pacienteId: string) {
+export async function getAnexos(pacienteId: string): Promise<Anexo[]> {
   const res = await api.get(`/arquivo/${pacienteId}/1`);
   return res.data;
 }
 
-export async function apagarAnexo(objectName: string) {
+export async function apagarAnexo(objectName: string): Promise<void> {
   await api.delete(`/arquivo/delete`, {
     params: { objectName },
   });

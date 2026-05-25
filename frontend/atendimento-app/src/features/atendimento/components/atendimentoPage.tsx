@@ -10,7 +10,6 @@ import { AtendimentoModal } from "@/features/atendimento/components/atendimentoN
 import AtendimentoCard from "../components/atendimentoCard";
 import AtendimentoForm from "@/features/atendimento/components/atendimentoForm";
 import { useAtendimentos } from "../hooks/useAtendimentos";
-import { useQueryClient } from "@tanstack/react-query";
 
 const nunitoFont = Nunito({ weight: "700" });
 
