@@ -22,7 +22,7 @@ export async function carregarAtendimentos(pacienteId: string) {
   ]);
 
   const paciente =
-    pacientes.find((p) => String(p.id) === String(pacienteId)) ?? null;
+    pacientes.data.find((p) => String(p.id) === String(pacienteId)) ?? null;
 
   const atendimentos = grupos
     .flatMap((grupo) => grupo.atendimentos)

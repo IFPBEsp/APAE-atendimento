@@ -39,4 +39,4 @@ target/
 node_modules/
 firebase-service-account.json
 
-backend/docker/local-secrets.properties
+backend/atendimento/src/main/resources/local-secrets.properties
