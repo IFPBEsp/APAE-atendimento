@@ -32,7 +32,9 @@ const nunitoFont = Nunito({ weight: "700" });
 export default function AgendamentoPage() {
   const router = useRouter();
 
-  const [dataSelecionada, setDataSelecionada] = useState("");
+  const [dataSelecionada, setDataSelecionada] = useState(
+    () => new Date().toISOString().split("T")[0]
+  );
   const [openCreate, setOpenCreate] = useState(false);
   const [openDelete, setOpenDelete] = useState(false);
   const [agendamentoSelecionado, setAgendamentoSelecionado] =
