@@ -48,7 +48,7 @@ public class S3Service implements ObjectStorageService {
     }
 
     private void colocarArquivo(String objectName, MultipartFile file) {
-        try (InputStream is = file.getInputStream()) {
+        try {
             String contentType = file.getContentType();
             if (contentType == null) {
                 contentType = "application/octet-stream";
@@ -61,14 +61,17 @@ public class S3Service implements ObjectStorageService {
                     .contentLength(file.getSize())
                     .build();
 
-            client.putObject(request, RequestBody.fromInputStream(is, file.getSize()));
+            // MUDANÇA AQUI: Removido o try-with-resources do InputStream e usado fromBytes
+            client.putObject(request, RequestBody.fromBytes(file.getBytes()));
 
         } catch (Exception e) {
+            e.printStackTrace(); // <--- IMPORTANTE: Deixe isso aqui para ver o erro no terminal do docker caso
+                                 // algo falhe
             throw new CloudStorageException("Erro ao enviar arquivo para o armazenamento em nuvem.", e);
         }
     }
 
-    public void deletarArquivo(String objectName){
+    public void deletarArquivo(String objectName) {
         try {
             DeleteObjectRequest deleteRequest = DeleteObjectRequest.builder()
                     .bucket(BUCKET_NAME)
@@ -77,7 +80,7 @@ public class S3Service implements ObjectStorageService {
 
             client.deleteObject(deleteRequest);
 
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             throw new CloudStorageException("Erro de comunicação ao tentar apagar o arquivo na nuvem.", e);
         }
