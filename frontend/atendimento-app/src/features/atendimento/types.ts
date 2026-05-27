@@ -9,6 +9,7 @@ export interface Atendimento {
   data: string;
   hora: string;
   numeracao: number;
+  status: boolean;
   relatorio: Relatorio[];
 }
 

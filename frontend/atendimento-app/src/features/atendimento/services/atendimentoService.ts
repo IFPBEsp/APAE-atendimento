@@ -36,6 +36,10 @@ export async function editarAtendimento(
     `/atendimentos/${atendimentoId}`,
     payload
   );
-
-  return data;
+  return data; 
 }
+
+export const concluirAtendimento = async (atendimentoId: string): Promise<void> => {
+    await api.patch(`/atendimentos/${atendimentoId}/concluir`);
+};
+

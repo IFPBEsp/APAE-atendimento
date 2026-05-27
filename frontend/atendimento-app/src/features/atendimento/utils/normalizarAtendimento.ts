@@ -12,6 +12,7 @@ export default function normalizarAtendimento(item: Atendimento): Atendimento {
     hora: `${hora}:${minuto}`,
     numeracao: item.numeracao ?? 1,
     relatorio: item.relatorio,
+    status: item.status ?? false,
   };
 }
 

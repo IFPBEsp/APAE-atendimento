@@ -19,6 +19,7 @@ interface AtendimentoDetailsModalProps {
   numeracao: number;
   relatorios?: Relatorio[];
   atendimentos: Atendimento[];
+  status: boolean;
 }
 export function AtendimentoDetailsModal({
                                           isOpen,
@@ -29,6 +30,7 @@ export function AtendimentoDetailsModal({
                                           numeracao,
                                           relatorios,
                                           atendimentos,
+                                          status
                                         }: AtendimentoDetailsModalProps) {
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -145,6 +147,7 @@ export function AtendimentoDetailsModal({
                 data,
                 hora,
                 numeracao,
+                status,
                 relatorio: relatorios ?? [],
               }}
               onClose={() => {
