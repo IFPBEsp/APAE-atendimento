@@ -76,6 +76,7 @@ export function RelatorioViewModal({
   const renderizar = renderizarFormatoArquivo(
     data.nomeArquivo.split(".").pop() || "",
     data.presignedUrl || "",
+    'full',
   );
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4 py-6 animate-in fade-in duration-200">
@@ -96,7 +97,7 @@ export function RelatorioViewModal({
           {data.descricao}
         </p>
 
-        <div className=" bg-white rounded-[24px] w-full max-w-[632px] max-h-[90vh] flex flex-col shadow-2xl slide-in-from-bottom-10 overflow-y-auto">
+        <div className="bg-gray-50 flex items-center justify-center w-full min-h-[500px] px-4">
           {data.presignedUrl ? (
             renderizar
           ) : (

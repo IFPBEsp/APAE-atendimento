@@ -20,10 +20,14 @@ export default function RelatorioCard({
   onView,
   onDelete,
 }: RelatorioCardProps) {
+  const extensao = (fileName.split(".").pop() || "").toLowerCase();
+  
   const renderizar = renderizarFormatoArquivo(
-    fileName.split(".").pop() || "",
+    extensao,
     imageUrl || "",
+    'thumbnail',
   );
+
   return (
     <div className="w-full bg-white rounded-3xl shadow-md p-4 border border-gray-100 flex flex-col h-[320px] transition-all">
       <div className="flex items-center justify-between mb-3">

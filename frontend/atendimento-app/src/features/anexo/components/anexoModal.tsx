@@ -76,6 +76,7 @@ export function AnexoViewModal({
   const renderizar = renderizarFormatoArquivo(
     data.nomeArquivo.split(".").pop() || "",
     data.presignedUrl || "",
+    'full',
   );
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4 py-6 animate-in fade-in duration-200">
@@ -96,7 +97,7 @@ export function AnexoViewModal({
           {data.descricao}
         </p>
 
-        <div className="bg-gray-50 flex items-center justify-center w-full h-[400px] px-4">
+        <div className="bg-gray-50 flex items-center justify-center w-full min-h-[500px] px-4">
           {data.presignedUrl ? (
             renderizar
           ) : (

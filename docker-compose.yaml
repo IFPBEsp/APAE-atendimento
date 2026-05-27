@@ -44,6 +44,7 @@ services:
       DB_USER: ${POSTGRES_USER}
       DB_PASSWORD: ${POSTGRES_PASSWORD}
       S3_ENDPOINT: http://minio:9000
+      S3_EXTERNAL_ENDPOINT: http://localhost:9000
       S3_REGION: us-east-1
       S3_ACCESS_KEY: ${MINIO_ROOT_USER}
       S3_SECRET_KEY: ${MINIO_ROOT_PASSWORD}
