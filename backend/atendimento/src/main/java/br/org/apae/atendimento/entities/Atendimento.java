@@ -37,4 +37,7 @@ public class Atendimento {
     @JoinColumn(name = "profissional_id")
     private ProfissionalSaude profissional;
 
+    @Column(name = "status")
+    private boolean status;
+
 }

@@ -62,6 +62,7 @@ public class AtendimentoMapper extends AbstractMapper<Atendimento, AtendimentoRe
                 relatorio,
                 entidadePadraoAtendimento.getDataAtendimento().toLocalDate(),
                 entidadePadraoAtendimento.getDataAtendimento().toLocalTime(),
-                entidadePadraoAtendimento.getNumeracao());
+                entidadePadraoAtendimento.getNumeracao(),
+                entidadePadraoAtendimento.isStatus());
     }
 }

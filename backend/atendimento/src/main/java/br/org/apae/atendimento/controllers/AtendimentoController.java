@@ -66,4 +66,13 @@ public class AtendimentoController {
                 usuarioAutenticado.getId());
         return ResponseEntity.ok().body(atendimentoAtualizado);
     }
+
+    @PatchMapping("/{atendimentoId}/concluir")
+    public ResponseEntity<String> concluirAtendimento(
+            @PathVariable UUID atendimentoId,
+            @AuthenticationPrincipal UsuarioAutenticado usuarioAutenticado
+    ) {
+        atendimentoService.concluirAtendimento(usuarioAutenticado.getId(), atendimentoId);
+        return ResponseEntity.ok().body("Atendimento concluído com sucesso");
+    }
 }
