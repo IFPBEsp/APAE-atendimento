@@ -5,6 +5,7 @@ import { useState, useMemo } from "react";
 import { ArrowLeft, CalendarPlus } from "lucide-react";
 import { Nunito } from "next/font/google";
 import { toast } from "sonner";
+import { isAxiosError } from "axios";
 
 import Header from "@/components/shared/header";
 import { Button } from "@/components/ui/button";
@@ -70,13 +71,16 @@ export default function AgendamentoPage() {
       toast.success("Agendamento criado com sucesso!");
       setOpenCreate(false);
     } catch (error) {
-      if (error instanceof Error) {
-        if (error.message.includes("ja possui um agendamento")) {
+      if (isAxiosError(error) && error.response) {
+        const mensagemBackend = error.response.data.message || error.response.data.error || "Erro de validação";
+
+        if (mensagemBackend.includes("ja possui um agendamento")) {
           toast.warning("Já existe um agendamento para essa data e horário.");
           return;
         }
+        toast.error(`Falha: ${mensagemBackend}`);
+        return;
       }
-
       toast.error("Erro ao criar agendamento.");
     }
   }
@@ -153,11 +157,11 @@ export default function AgendamentoPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {itens.map((item) => (
                 <AgendamentoCard
+                  id={item.id} 
                   key={item.id}
                   paciente={item.paciente}
                   horario={item.horario}
                   numeroAtendimento={item.numeracao}
-                  status={item.status}
                   onDeleteClick={() => {
                     setAgendamentoSelecionado(item);
                     setOpenDelete(true);

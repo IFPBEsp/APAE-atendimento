@@ -72,8 +72,6 @@ public class AtendimentoService {
         try {
             tratarAgendamento(atendimentoRequestDTO.pacienteId(), atendimentoRequestDTO.data(), dadosPersistidos.getNumeracao());
         } catch (AgendamentoNotFoundException e) {
-            // Ignora a exceção propositalmente.
-            // Isso acontece quando é um atendimento de "encaixe" sem agendamento prévio.
         }
 
         return atendimentoMapper.toDTOPadrao(dadosPersistidos);
@@ -156,5 +154,13 @@ public class AtendimentoService {
         }
 
         return atendimentoMapper.toDTOPadrao(repository.save(atendimento));
+    }
+
+    @Transactional
+    public void concluirAtendimento(UUID profissionalId, UUID atendimentoId) {
+        if (!repository.existsById(atendimentoId)) {
+            throw new AtendimentoNotFoundException("O atendimento não existe.");
+        }
+        repository.concluirAtendimento(atendimentoId);
     }
 }

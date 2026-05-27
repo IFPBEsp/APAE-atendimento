@@ -2,20 +2,21 @@ import { Trash2, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface AgendamentoCardProps {
+  id: string;
   paciente: string;
   horario: string;
   numeroAtendimento: number;
-  status: boolean;
   onDeleteClick?: () => void;
 }
 
 export default function AgendamentoCard({
+  id,
   paciente,
   horario,
   numeroAtendimento,
-  status,
   onDeleteClick,
 }: AgendamentoCardProps) {
+
   return (
     <>
       <div className="bg-white border border-[#E5E7EB] rounded-2xl shadow-sm p-4 flex flex-col justify-between min-h-62.5">
@@ -43,25 +44,6 @@ export default function AgendamentoCard({
           <div className="bg-[#F8FAFD] w-full min-h-27.5 flex justify-center items-center">
             <span className="text-3xl font-bold text-[#344054]">{horario}</span>
           </div>
-        </div>
-
-        <div className="flex justify-center">
-          <Button
-            className={`h-8 px-3 rounded-full text-xs shadow-sm ${
-              status
-                ? "bg-green-500 hover:bg-green-600"
-                : "bg-white border border-[#3B82F6] hover:bg-[#F8FAFD] text-[#344054]"
-            }`}
-          >
-            {status ? (
-              <>
-                <Check size={14} className="mr-1" />
-                Concluído
-              </>
-            ) : (
-              <>Não concluído</>
-            )}
-          </Button>
         </div>
       </div>
     </>
