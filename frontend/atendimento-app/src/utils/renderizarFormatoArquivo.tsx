@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { JSX } from "react";
 import { FileText } from "lucide-react";
+import PdfPreview from "@/components/pdf/PdfViewner";
 
 type TipoNormalizado = 'pdf' | 'image';
 
@@ -38,22 +39,23 @@ export function renderizarFormatoArquivo(
 function renderizarPdf(url: string, modo: 'thumbnail' | 'full' | 'form'): JSX.Element {
   if (modo === 'thumbnail') {
     return (
-      <div className="flex flex-col items-center justify-center gap-2 w-full h-full text-[#0D4F97]">
-        <FileText size={48} strokeWidth={1.5} />
-        <span className="text-xs font-medium text-gray-500">Documento PDF</span>
+      <div className="flex flex-col items-center justify-center w-full h-full pointer-events-none overflow-hidden bg-[#f8fafd]">
+        <PdfPreview pdfUrl={url} width={300} />
       </div>
     );
   }
 
-  const alturaClasse = modo === 'form' ? 'h-full min-h-[200px]' : 'min-h-[500px]';
+
+  const limitesAltura = modo === 'form' ? 'max-h-[300px]' : 'max-h-[60vh]';
 
   return (
-    <iframe
-      src={`${url}#toolbar=1&navpanes=0`}
-      title="Pré-visualização PDF"
-      className={`w-full ${alturaClasse} border-0`}
-      style={{ backgroundColor: '#f5f5f5' }}
-    />
+    <div className={`flex flex-col items-center justify-center w-full h-full ${limitesAltura} overflow-hidden p-4`}>
+
+      <div className="w-full h-full flex items-center justify-center [&_canvas]:max-w-full [&_canvas]:max-h-full [&_canvas]:!w-auto [&_canvas]:!h-auto [&_canvas]:object-contain [&_canvas]:shadow-md [&_canvas]:rounded-lg">
+
+        <PdfPreview pdfUrl={url} width={800} />
+      </div>
+    </div>
   );
 }
 

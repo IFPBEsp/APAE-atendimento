@@ -19,24 +19,28 @@ public class S3PresignedUrlService implements PresignedUrlService {
     private final S3Presigner s3Presigner;
     @Value("${bucket.name}")
     private String BUCKET_NAME;
+    
     public S3PresignedUrlService(S3Presigner s3Presigner) {
         this.s3Presigner = s3Presigner;
     }
 
     @Cacheable(
             value = "presignedUrls",
-            key = "'presigned:' + ':' + #objectName",  // ← CHAVE EXPLÍCITA
+            key = "'presigned:' + ':' + #objectName", 
             unless = "#result == null"
     )
     public String gerarUrlPreAssinada(String objectName) {
         try {
-            GetObjectRequest getObjectRequest = GetObjectRequest.builder()
+            GetObjectRequest.Builder requestBuilder = GetObjectRequest.builder()
                     .bucket(BUCKET_NAME)
                     .key(objectName)
-                    .responseContentDisposition(
-        "attachment; filename=\"" + objectName + "\""
-    )
-                    .build();
+                    .responseContentDisposition("inline; filename=\"" + objectName + "\"");
+
+            if (objectName.toLowerCase().endsWith(".pdf")) {
+                requestBuilder.responseContentType("application/pdf");
+            }
+
+            GetObjectRequest getObjectRequest = requestBuilder.build();
 
             GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
                     .getObjectRequest(getObjectRequest)
