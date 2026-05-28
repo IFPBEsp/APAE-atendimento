@@ -25,21 +25,23 @@ public class MinioPresignedUrlService implements PresignedUrlService {
 
     @Cacheable(
             value = "presignedUrls",
-            key = "'presigned:' + ':' + #objectName",  // ← CHAVE EXPLÍCITA
+            key = "'presigned:' + ':' + #objectName", 
             unless = "#result == null"
     )
     public String gerarUrlPreAssinada(String objectName) {
         try {
+            java.util.Map<String, String> extraParams = new java.util.HashMap<>();
+            extraParams.put("response-content-disposition", "inline; filename=\"" + objectName + "\"");
+            
+            if (objectName.toLowerCase().endsWith(".pdf")) {
+                extraParams.put("response-content-type", "application/pdf");
+            }
+
             String url = client.getPresignedObjectUrl(
                     GetPresignedObjectUrlArgs.builder()
                             .bucket(BUCKET_NAME)
                             .object(objectName)
-                            .extraQueryParams(
-            Map.of(
-                "response-content-disposition",
-                "attachment; filename=" + objectName
-            )
-        )
+                            .extraQueryParams(extraParams) 
                             .method(io.minio.http.Method.GET)
                             .expiry(60 * 60)
                             .build()

@@ -107,7 +107,7 @@ export default function RelatorioForm({
   const renderizar =
     previewUrl &&
     arquivo &&
-    renderizarFormatoArquivo(arquivo[0].type, previewUrl);
+    renderizarFormatoArquivo(arquivo[0].type, previewUrl, 'form');
 
   const removerArquivo = () =>
     setValue("arquivo", [] as unknown as FileList, { shouldValidate: true });

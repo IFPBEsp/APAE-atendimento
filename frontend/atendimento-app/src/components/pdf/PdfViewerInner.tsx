@@ -1,12 +1,9 @@
-// components/PDFThumbnailSimple.tsx
 'use client';
 
-import { useState } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
-import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
-import 'react-pdf/dist/esm/Page/TextLayer.css';
 
-// Configuração do worker - Método mais confiável
+
+
 pdfjs.GlobalWorkerOptions.workerSrc = 
   `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
@@ -19,34 +16,22 @@ export default function PDFThumbnailSimple({
   pdfUrl, 
   width = 300 
 }: PDFThumbnailProps) {
-  const [numPages, setNumPages] = useState<number | null>(null);
-  const [pageNumber] = useState<number>(1);
-
-  function onDocumentLoadSuccess({ numPages }: { numPages: number }) {
-    setNumPages(numPages);
-  }
-
   return (
-    <div style={{ width: `${width}px` }}>
+    <div className="w-full h-full flex items-center justify-center overflow-hidden">
       <Document
         file={pdfUrl}
-        onLoadSuccess={onDocumentLoadSuccess}
-        loading={<div>Carregando PDF...</div>}
-        error={<div>Erro ao carregar PDF</div>}
+        loading={<div className="text-xs text-gray-400">Gerando thumbnail...</div>}
+        error={<div className="text-xs text-red-400">Sem preview</div>}
+        className="flex items-center justify-center"
       >                                                             
         <Page 
-          pageNumber={pageNumber} 
+          pageNumber={1} 
           width={width}                                                             
           renderTextLayer={false}
           renderAnnotationLayer={false}
+          className="pointer-events-none shadow-sm" 
         />
       </Document>
-      
-      {numPages && (
-        <p style={{ fontSize: '0.875rem', color: '#666', marginTop: '8px' }}>
-          Página {pageNumber} de {numPages}
-        </p>
-      )}
     </div>
   );
 }

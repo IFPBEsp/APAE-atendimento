@@ -23,6 +23,7 @@ export default function AnexoCard({
   const renderizar = renderizarFormatoArquivo(
     fileName.split(".").pop() || "",
     imageUrl || "",
+    'thumbnail',
   );
   return (
     <div className="w-full bg-white rounded-3xl shadow-md p-4 border border-gray-100 flex flex-col h-[320px] transition-all">

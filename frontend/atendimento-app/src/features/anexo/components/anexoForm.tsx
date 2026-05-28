@@ -71,7 +71,7 @@ export default function AnexoForm({ onSubmit }: AnexoFormProps) {
   const renderizar =
     previewUrl &&
     arquivo &&
-    renderizarFormatoArquivo(arquivo[0].type, previewUrl);
+    renderizarFormatoArquivo(arquivo[0].type, previewUrl, 'form');
 
   const removerArquivo = () => setValue("arquivo", undefined);
 
