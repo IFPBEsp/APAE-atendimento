@@ -124,7 +124,7 @@ CREATE SCHEMA IF NOT EXISTS atendimento;
 CREATE TABLE IF NOT EXISTS atendimento.atendimento (
     id                    UUID        PRIMARY KEY,
     numeracao             VARCHAR(50) NOT NULL,
-    data_atendimento      DATE        NOT NULL,
+    data_atendimento      TIMESTAMP   NOT NULL,
     paciente_id           UUID        NOT NULL,
     profissional_saude_id UUID        NOT NULL
 );
