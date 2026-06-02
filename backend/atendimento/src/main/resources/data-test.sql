@@ -28,7 +28,7 @@ VALUES (
            true
        );
 
-INSERT INTO vw_profissionais (id, nome, registro_profissional, especialidade, email, senha, perfil, status)
+INSERT INTO vw_profissional_saude (id, nome, registro_profissional, especialidade, email, senha, perfil, status)
 VALUES (
            '44444444-4444-4444-4444-444444444444',
            'Dr. Luiz Artur',
@@ -45,3 +45,8 @@ INSERT INTO profissional_paciente (profissional_id, paciente_id)
 VALUES
     ('44444444-4444-4444-4444-444444444444', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'),
     ('44444444-4444-4444-4444-444444444444', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb');
+
+INSERT INTO tipo_arquivo (id, tipo)
+VALUES
+    (1, 'Anexo'),
+    (2, 'Relatorio');
