@@ -1,4 +1,4 @@
-INSERT INTO vw_pacientes (id, nome, cpf, data_nascimento, contato, cidade, rua, bairro, numero_casa, responsaveis, transtornos, ativo)
+INSERT INTO vw_pacientes (paciente_id, nome, cpf, data_nascimento, contato, cidade, rua, bairro, numero_casa, responsaveis, transtornos)
 VALUES (
            'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
            'João Pedro Silva',
@@ -10,8 +10,7 @@ VALUES (
            'Centro',
            123,
            ARRAY['Maria Silva', 'José Silva'],
-           ARRAY['TEA', 'TDAH'],
-           true
+           ARRAY['TEA', 'TDAH']
        ),
        (
            'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
@@ -24,11 +23,10 @@ VALUES (
            'morro',
            '022',
            ARRAY['Rafaela santos', 'Francisco Alvez'],
-           ARRAY['TDA'],
-           true
+           ARRAY['TDA']
        );
 
-INSERT INTO vw_profissional_saude (id, nome, registro_profissional, especialidade, email, senha, perfil, status)
+INSERT INTO vw_profissional_saude (profissional_saude_id, nome, registro_profissional, especialidade, email, senha, perfil, ativo)
 VALUES (
            '44444444-4444-4444-4444-444444444444',
            'Dr. Luiz Artur',
@@ -37,7 +35,7 @@ VALUES (
            'teste@gmail.com',
            '$2a$10$05v1Sk1c9CnRWX9wOMcYP.eI0buevR1DltWhnE3MUA4Nv5IKDX60O',
            'ROLE_PROFISSIONAL',
-           'ATIVO'
+           true
        );
 
 

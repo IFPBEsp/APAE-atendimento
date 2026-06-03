@@ -1,35 +1,27 @@
 package br.org.apae.atendimento.entities;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Entity(name = "tipo_arquivo")
+@Entity
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Table(name = "tipo_arquivo", schema = "atendimento")
 public class TipoArquivo {
+
     @Id
+    @Column(name = "id")
     private Long id;
+
+    @Column(name = "tipo")
     private String tipo;
 
-    public TipoArquivo() {
-    }
-
-    public TipoArquivo(Long id, String tipo) {
-        this.id = id;
-        this.tipo = tipo;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getTipo() {
-        return tipo;
-    }
-
-    public void setTipo(String tipo) {
-        this.tipo = tipo;
-    }
 }

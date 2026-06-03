@@ -17,13 +17,14 @@ import java.util.UUID;
 public interface AtendimentoRepository extends JpaRepository<Atendimento, UUID> {
     List<Atendimento> findByPacienteIdAndProfissionalIdOrderByDataAtendimento(UUID pacienteId, UUID profissionalId);
 
-    @Query("""
-        SELECT MAX(a.numeracao)
-        FROM Atendimento a
-        WHERE MONTH(a.dataAtendimento) = :mes
-          AND YEAR(a.dataAtendimento) = :ano
-          AND a.profissional.id = :profissionalId
-    """)
+    @Query(value = """
+        SELECT MAX(CAST(numeracao AS BIGINT))
+        FROM atendimento.atendimento
+        WHERE EXTRACT(MONTH FROM data_atendimento) = :mes
+          AND EXTRACT(YEAR FROM data_atendimento) = :ano
+          AND profissional_id = :profissionalId
+          AND numeracao ~ '^[0-9]+$'
+    """, nativeQuery = true)
     Long findMaxNumeracaoByMesAndAno(@Param("mes") int mes, @Param("ano") int ano, @Param("profissionalId") UUID profissionalId);
 
     @Query("""

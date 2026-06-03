@@ -1,11 +1,11 @@
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
 import { getPacientes, FiltroPaciente } from "../services/homeService";
-import { usePrimeiroNomeProfissional } from "@/features/profissional/hooks/usePrimeiroNomeProfissional";
+import { useProfissional } from "@/features/profissional/hooks/useProfissional";
 import { useDebounce } from "@/utils/useDebounce";
 
 export function useHome() {
-  const { data: medicoNome, isLoading: loadingNome } = usePrimeiroNomeProfissional();
+  const { data: profissional, isLoading: loadingNome } = useProfissional();
 
   const [busca, setBusca] = useState("");
   const [filtro, setFiltro] = useState<"nome" | "cpf" | "cidade">("nome");
@@ -41,7 +41,7 @@ export function useHome() {
   });
 
   return {
-    medicoNome: medicoNome ?? "Profissional",
+    medicoNome: profissional?.nomeCompleto?.trim().split(/\s+/)[0] ?? "Profissional",
     pacientes: paginatedData?.data || [],
     pagination: paginatedData?.pagination,
     loading: loadingNome || loadingPacientes,

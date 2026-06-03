@@ -58,7 +58,7 @@ public class ProfissionalSaudeService {
     }
 
     public List<PacienteResponseDTO> getPacientesDoProfissional(UUID id) {
-        List<Paciente> pacientes = pacienteRepository.findByProfissionais_Id(id);
+        List<Paciente> pacientes = pacienteRepository.findByProfissionalId(id);
 
         return pacientes.stream()
                 .map(paciente -> {
@@ -69,19 +69,10 @@ public class ProfissionalSaudeService {
     }
 
     public List<PacienteOptionDTO> getPacienteOption(UUID profissionalId) {
-        List<Paciente> pacientes = pacienteRepository.findByProfissionais_Id(profissionalId);
+        List<Paciente> pacientes = pacienteRepository.findByProfissionalId(profissionalId);
         return pacientes.stream()
                 .map(paciente -> pacienteMapper.toOptionDTO(paciente))
                 .collect(toList());
-    }
-
-    public String getPrimeiroNome(UUID id) {
-        String nomeCompleto = repository.findNomeCompletoById(id);
-        if (nomeCompleto == null || nomeCompleto.isBlank()) {
-            return "Doutor(a)";
-        }
-        // Pega a primeira palavra do nome completo
-        return nomeCompleto.trim().split("\\s+")[0];
     }
 
     @Transactional(readOnly = true)

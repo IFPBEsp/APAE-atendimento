@@ -5,7 +5,6 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.hibernate.annotations.Immutable;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
@@ -14,15 +13,15 @@ import java.time.LocalDate;
 import java.util.*;
 
 @Entity
-@Immutable // SOMENTE LEITURA (View)
-@Table(name = "vw_pacientes")
+@Immutable
+@Table(name = "vw_pacientes", schema = "atendimento")
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Paciente {
 
     @Id
-    @Column(name = "id")
+    @Column(name = "paciente_id")
     private UUID id;
 
     @Column(name = "nome")
@@ -37,10 +36,6 @@ public class Paciente {
     @Column(name = "contato")
     private String contato;
 
-    @JdbcTypeCode(SqlTypes.ARRAY)
-    @Column(name = "responsaveis")
-    private Set<String> responsaveis = new HashSet<>();
-
     @Column(name = "cidade")
     private String cidade;
 
@@ -53,21 +48,16 @@ public class Paciente {
     @Column(name = "numero_casa")
     private Integer numeroCasa;
 
-    @Transient
-    private String fotoPreAssinada;
-
-    @Column(name = "ativo")
-    private Boolean ativo = true;
+    @JdbcTypeCode(SqlTypes.ARRAY)
+    @Column(name = "responsaveis")
+    private Set<String> responsaveis = new HashSet<>();
 
     @JdbcTypeCode(SqlTypes.ARRAY)
     @Column(name = "transtornos")
     private Set<String> transtornos = new HashSet<>();
 
-    @OneToMany(mappedBy = "paciente")
-    private Set<Atendimento> atendimentos = new HashSet<>();
-
+    @Transient
     @JsonIgnore
-    @ManyToMany(mappedBy = "pacientes")
-    private Set<ProfissionalSaude> profissionais = new HashSet<>();
+    private String fotoPreAssinada;
 
 }

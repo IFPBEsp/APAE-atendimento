@@ -25,6 +25,7 @@ public class AgendamentoMapper extends AbstractMapper<Agendamento, AgendamentoRe
 
     @Override
     public AgendamentoResponseDTO toDTOPadrao(Agendamento entidadePadrao) {
+
         return new AgendamentoResponseDTO(
                 entidadePadrao.getId(),
                 entidadePadrao.getPaciente().getId(),
