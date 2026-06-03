@@ -4,8 +4,6 @@ import br.org.apae.atendimento.dtos.request.AtendimentoRequestDTO;
 import br.org.apae.atendimento.dtos.response.AtendimentoResponseDTO;
 import br.org.apae.atendimento.dtos.response.MesAnoAtendimentoResponseDTO;
 import br.org.apae.atendimento.services.AtendimentoService;
-import br.org.apae.atendimento.services.PacienteService;
-import br.org.apae.atendimento.services.ProfissionalSaudeService;
 
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,12 +23,6 @@ public class AtendimentoController {
 
     @Autowired
     private AtendimentoService atendimentoService;
-
-    @Autowired
-    private PacienteService pacienteService;
-
-    @Autowired
-    private ProfissionalSaudeService profissionalSaudeService;
 
     @PostMapping
     public ResponseEntity<AtendimentoResponseDTO> criarAtendimento(

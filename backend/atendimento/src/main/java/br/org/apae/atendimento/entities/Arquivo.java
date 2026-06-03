@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 
 @Entity
@@ -43,13 +44,19 @@ public class Arquivo {
     @JoinColumn(name = "tipo_id", nullable = false)
     private TipoArquivo tipo;
 
+    @Column(name = "profissional_id", nullable = false)
+    private UUID profissionalId;
+
+    @Column(name = "paciente_id", nullable = false)
+    private UUID pacienteId;
+
     @JsonIgnore
-    @ManyToOne
-    @JoinColumn(name = "profissional_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "profissional_id", insertable = false, updatable = false)
     private ProfissionalSaude profissional;
 
     @JsonIgnore
-    @ManyToOne
-    @JoinColumn(name = "paciente_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "paciente_id", insertable = false, updatable = false)
     private Paciente paciente;
 }

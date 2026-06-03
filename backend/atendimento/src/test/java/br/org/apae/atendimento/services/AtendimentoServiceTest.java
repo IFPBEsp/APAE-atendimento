@@ -86,7 +86,7 @@ class AtendimentoServiceTest {
         when(repository.save(any())).thenReturn(entity);
         when(atendimentoMapper.toDTOPadrao(entity)).thenReturn(mock(AtendimentoResponseDTO.class));
 
-        when(agendamentoService.buscarAgendamentoPorDataEPaciente(any(), any()))
+        when(agendamentoService.buscarAgendamentoPorDataProfissionalEPaciente(any(), any(), any()))
                 .thenReturn(new Agendamento());
 
         AtendimentoResponseDTO response = service.addAtendimento(requestDTO, profissionalId);
@@ -203,7 +203,7 @@ class AtendimentoServiceTest {
 
         doThrow(new AgendamentoNotFoundException("nao encontrado"))
                 .when(agendamentoService)
-                .buscarAgendamentoPorDataEPaciente(any(), any());
+                .buscarAgendamentoPorDataProfissionalEPaciente(any(), any(), any());
 
         assertDoesNotThrow(() -> service.addAtendimento(requestDTO, profissionalId));
     }
@@ -221,7 +221,7 @@ class AtendimentoServiceTest {
         when(repository.save(any())).thenAnswer(inv -> inv.getArgument(0));
         when(atendimentoMapper.toDTOPadrao(any())).thenReturn(mock(AtendimentoResponseDTO.class));
 
-        when(agendamentoService.buscarAgendamentoPorDataEPaciente(any(), any()))
+        when(agendamentoService.buscarAgendamentoPorDataProfissionalEPaciente(any(), any(), any()))
                 .thenReturn(new Agendamento());
 
         service.addAtendimento(requestDTO, profissionalId);

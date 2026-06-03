@@ -35,9 +35,11 @@ public class PacienteService {
         this.storageService = storageService;
     }
 
-    public PacienteResponseDTO getPaciente(UUID id) {
-        Paciente paciente = getPacienteById(id);
-        return this.pacienteMapper.toDTOPadrao(paciente);
+    public PacienteResponseDTO getPaciente(UUID id, UUID profissionalId) {
+        Paciente paciente = repository.findByIdAndProfissionalId(id, profissionalId)
+                .orElseThrow(() -> new PacienteNotFoundException("Paciente nao encontrado para o profissional autenticado."));
+
+        return pacienteMapper.toDTOPadrao(paciente);
     }
 
     public Paciente getPacienteById(UUID id) {
@@ -49,11 +51,16 @@ public class PacienteService {
         return repository.existeRelacao(pacienteId, profissionalId);
     }
 
-    public String getNomeCompletoPacienteById(UUID id) {
-        String nome = repository.findNomeCompletoById(id);
-        if (nome == null) {
-            throw new PacienteNotFoundException("Não foi possível localizar o nome do paciente.");
+    public String getNomeCompletoPacienteById(UUID id, UUID profissionalId) {
+        if (!existeRelacao(id, profissionalId)) {
+            throw new PacienteNotFoundException("Paciente nao encontrado para o profissional autenticado.");
         }
+
+        String nome = repository.findNomeCompletoByIdAndProfissionalId(id, profissionalId);
+        if (nome == null) {
+            throw new PacienteNotFoundException("Nao foi possivel localizar o nome do paciente.");
+        }
+
         return nome;
     }
 
@@ -80,16 +87,16 @@ public class PacienteService {
         return new PaginatedResponseDTO<>(data, meta);
     }
 
-    public String adicionarFoto(MultipartFile file, UUID pacienteId){
-
-        if (!repository.existsById(pacienteId)) {
-            throw new PacienteNotFoundException("Não é possivel adicionar foto. Paciente não encontrado.");
+    public String adicionarFoto(MultipartFile file, UUID pacienteId, UUID profissionalId) {
+        if (!existeRelacao(pacienteId, profissionalId)) {
+            throw new PacienteNotFoundException("Paciente nao encontrado para o profissional autenticado.");
         }
-       return storageService.uploadArquivo(FOTO_PATH + pacienteId, file);
+
+        return storageService.uploadArquivo(FOTO_PATH + pacienteId, file);
     }
 
     @Transactional(readOnly = true)
-    public List<PacienteDropdownResponseDTO> listarParaDropdown() {
-        return repository.listarParaDropdown();
+    public List<PacienteDropdownResponseDTO> listarParaDropdown(UUID profissionalId) {
+        return repository.listarParaDropdown(profissionalId);
     }
 }
