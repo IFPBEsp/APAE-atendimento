@@ -1,0 +1,29 @@
+rules:
+  - id: react-dangerouslysetinnerhtml
+    languages:
+      - typescript
+      - javascript
+    severity: WARNING
+    message: "Uso de dangerouslySetInnerHTML detectado. Certifique-se de que o input passou por sanitização para evitar XSS."
+    pattern: |
+      <$TAG ... dangerouslySetInnerHTML={$X} ... />
+
+  - id: spring-unrestricted-request-mapping
+    languages:
+      - java
+    severity: WARNING
+    message: "Uso de @RequestMapping sem especificar o método HTTP. Isso expõe o endpoint para todos os verbos (GET, POST, etc). Use @GetMapping, @PostMapping, etc."
+    pattern: |
+      @RequestMapping($URL)
+      $RETURNTYPE $METHOD(...) { ... }
+
+  - id: spring-xxe-documentbuilderfactory
+    languages:
+      - java
+    severity: ERROR
+    message: "DocumentBuilderFactory instanciado sem desativar DTDs. Isso pode levar a ataques de XXE (XML External Entity)."
+    patterns:
+      - pattern: $FACTORY = DocumentBuilderFactory.newInstance();
+      - pattern-not-inside: |
+          $FACTORY.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+          ...

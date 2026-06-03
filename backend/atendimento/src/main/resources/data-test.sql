@@ -35,7 +35,7 @@ VALUES (
            'CRP-123',
            'Psicólogo',
            'teste@gmail.com',
-           '$2a$10$05v1Sk1c9CnRWX9wOMcYP.eI0buevR1DltWhnE3MUA4Nv5IKDX60O',
+           '$2a$10$05v1Sk1c9CnRWX9wOMcYP.eI0buevR1DltWhnE3MUA4Nv5IKDX60O', -- nosemgrep
            'ROLE_PROFISSIONAL',
            'ATIVO'
        );

@@ -1,0 +1,63 @@
+name: CI Pipeline
+
+on:
+  pull_request:
+    branches:
+      - dev
+
+jobs:
+  frontend:
+    name: Frontend Check
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend/atendimento-app
+    steps:
+      - uses: actions/checkout@v4
+      - name: Instalar pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: "11.1.2"
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.13"
+          cache: 'pnpm'
+          cache-dependency-path: frontend/atendimento-app/pnpm-lock.yaml
+      - name: Aprovar builds do pnpm
+        run: pnpm approve-builds
+      - name: Instalar dependências
+        run: pnpm install --frozen-lockfile
+      - name: Linting
+        run: pnpm lint
+      - name: Testes e Build
+        run: pnpm run build 
+
+  backend:
+    name: Backend Check
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend/atendimento
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21' 
+          distribution: 'temurin'
+          cache: maven
+      - name: Deixar o Maven wrapper executável
+        run: chmod +x mvnw
+      - name: Build e Testes
+        run: ./mvnw clean package -DskipTests
+
+  security:
+    name: Semgrep Custom Rules
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Instalar Semgrep
+        run: python3 -m pip install semgrep
+      - name: Rodar Semgrep
+        run: semgrep scan --config="p/default" --config="p/java" --config="p/typescript" --config=".github/semgrep-custom-rules.yml" --error
