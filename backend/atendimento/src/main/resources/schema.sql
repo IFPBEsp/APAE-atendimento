@@ -71,6 +71,8 @@ CREATE TABLE IF NOT EXISTS cadastro.profissionais_da_saude (
     id                     UUID         PRIMARY KEY,
     nome                   VARCHAR(255) NOT NULL,
     email                  VARCHAR(255) NOT NULL UNIQUE,
+    senha                  VARCHAR(255),
+    perfil                 VARCHAR(100),
     area_de_atendimento    VARCHAR(255) REFERENCES cadastro.areas_de_atendimento(area) ON UPDATE CASCADE,
     contato                VARCHAR(50)  NOT NULL,
     documento_profissional VARCHAR(100) UNIQUE,
@@ -136,6 +138,29 @@ CREATE TABLE IF NOT EXISTS atendimento.atendimento (
 -- vw_pacientes
 -- Pacientes não apagados com ao menos um vínculo profissional.
 CREATE OR REPLACE VIEW atendimento.vw_pacientes AS
+WITH ultimo_cadastro AS (
+    SELECT ca.paciente_id, MAX(ca.ano) AS ano
+    FROM cadastro.cadastros_anuais ca
+    GROUP BY ca.paciente_id
+),
+responsaveis_por_paciente AS (
+    SELECT r.paciente_id,
+           ARRAY_AGG(DISTINCT r.nome ORDER BY r.nome) AS responsaveis
+    FROM cadastro.responsaveis r
+    GROUP BY r.paciente_id
+),
+transtornos_por_paciente AS (
+    SELECT ca.paciente_id,
+           ARRAY_AGG(DISTINCT t.nome ORDER BY t.nome) AS transtornos
+    FROM cadastro.cadastros_anuais ca
+             INNER JOIN ultimo_cadastro uc
+                        ON uc.paciente_id = ca.paciente_id AND uc.ano = ca.ano
+             INNER JOIN cadastro.cadastro_anual_transtorno cat
+                        ON cat.cadastro_anual_id = ca.id
+             INNER JOIN cadastro.transtornos t
+                        ON t.id = cat.transtorno_id
+    GROUP BY ca.paciente_id
+)
 SELECT
     p.id                 AS paciente_id,
     p.nome_completo      AS nome,
@@ -143,9 +168,19 @@ SELECT
     p.cpf                AS cpf,
     p.contato            AS contato,
     p.is_apagado         AS is_apagado,
-    p.endereco_id        AS endereco_id
+    p.endereco_id        AS endereco_id,
+    pp.profissional_id   AS profissional_id,
+    e.cidade             AS cidade,
+    e.rua                AS rua,
+    e.bairro             AS bairro,
+    e.numero             AS numero_casa,
+    COALESCE(rp.responsaveis, ARRAY[]::varchar[]) AS responsaveis,
+    COALESCE(tp.transtornos, ARRAY[]::varchar[])  AS transtornos
 FROM cadastro.pacientes p
          INNER JOIN cadastro.profissional_paciente pp ON pp.paciente_id = p.id
+         INNER JOIN cadastro.enderecos e ON e.id = p.endereco_id
+         LEFT JOIN responsaveis_por_paciente rp ON rp.paciente_id = p.id
+         LEFT JOIN transtornos_por_paciente tp ON tp.paciente_id = p.id
 WHERE p.is_apagado = false;
 
 -- vw_enderecos_paciente
@@ -173,8 +208,8 @@ FROM cadastro.responsaveis r
 -- Transtornos concatenados do cadastro anual mais recente por paciente.
 CREATE OR REPLACE VIEW atendimento.vw_transtornos_paciente AS
 SELECT
-    vp.paciente_id                                   AS paciente_id,
-    STRING_AGG(t.nome, ', ' ORDER BY t.nome)         AS transtornos
+    vp.paciente_id                                      AS paciente_id,
+    ARRAY_AGG(DISTINCT t.nome ORDER BY t.nome)          AS transtornos
 FROM atendimento.vw_pacientes vp
          INNER JOIN cadastro.cadastros_anuais ca
                     ON  ca.paciente_id = vp.paciente_id
@@ -195,7 +230,11 @@ SELECT
     ps.id                  AS profissional_saude_id,
     ps.nome                AS nome,
     ps.email               AS email,
-    ps.ativo               AS status,
+    ps.senha               AS senha,
+    ps.perfil              AS perfil,
+    ps.contato             AS contato,
+    ps.ativo               AS ativo,
+    ps.documento_profissional AS registro_profissional,
     ps.area_de_atendimento AS especialidade_id,
     at.area                AS especialidade
 FROM cadastro.profissionais_da_saude ps

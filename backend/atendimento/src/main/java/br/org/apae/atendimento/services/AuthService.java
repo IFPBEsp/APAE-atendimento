@@ -34,7 +34,7 @@ public class AuthService{
         ProfissionalSaude usuario = profissionalRepository.findByEmailIgnoreCase(emailSanitizado)
                 .orElseThrow(() -> new BadCredentialsException(MSG_CREDENCIAIS_INVALIDAS));
 
-        if (!"ATIVO".equalsIgnoreCase(usuario.getStatus())) {
+        if (!Boolean.TRUE.equals(usuario.getAtivo())) {
             throw new BadCredentialsException(MSG_CREDENCIAIS_INVALIDAS);
         }
 

@@ -10,6 +10,6 @@ public record AgendamentoResponseDTO(
         String nomePaciente,
         LocalDate data,
         LocalTime time,
-        Long numeroAtendimento,
+        String numeroAtendimento,
         boolean status) {
 }

@@ -74,8 +74,8 @@ class AtendimentoServiceIntegrationTest {
 
         assertNotNull(created1);
         assertNotNull(created2);
-        assertEquals(1L, created1.numeracao());
-        assertEquals(2L, created2.numeracao());
+        assertEquals("1", created1.numeracao());
+        assertEquals("2", created2.numeracao());
 
         AtendimentoRequestDTO editRequest = new AtendimentoRequestDTO(
                 paciente.getId(),

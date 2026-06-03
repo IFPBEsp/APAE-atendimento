@@ -35,12 +35,6 @@ public class ProfissionalSaudeController {
         return ResponseEntity.ok().body(pacientes);
     }
 
-    @GetMapping("/primeiro-nome")
-    public ResponseEntity<String> obterPrimeiroNome(@AuthenticationPrincipal UsuarioAutenticado usuarioAutenticado) {
-        String nome = profissionalSaudeService.getPrimeiroNome(usuarioAutenticado.getId());
-        return ResponseEntity.ok().body(nome);
-    }
-
     @GetMapping("/pacientes-option")
     public ResponseEntity<List<PacienteOptionDTO>> pacientesOption(
             @AuthenticationPrincipal UsuarioAutenticado usuarioAutenticado) {

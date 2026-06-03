@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 @Entity
-@Table(name = "atendimento")
+@Table(name = "atendimento", schema = "atendimento")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -27,7 +27,7 @@ public class Atendimento {
     private LocalDateTime dataAtendimento;
 
     @Column(name = "numeracao")
-    private Long numeracao;
+    private String numeracao;
 
     @ManyToOne
     @JoinColumn(name = "paciente_id")

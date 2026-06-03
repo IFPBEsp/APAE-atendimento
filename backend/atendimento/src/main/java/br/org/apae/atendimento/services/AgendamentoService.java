@@ -135,9 +135,9 @@ public class AgendamentoService {
         agendamento.setStatus(true);
 
         if (existAtendimento) {
-            agendamento.setNumeracao(numeracaoAtual);
+            agendamento.setNumeracao(String.valueOf(numeracaoAtual));
         } else {
-            agendamento.setNumeracao(numeracaoAtual + 1);
+            agendamento.setNumeracao(String.valueOf(numeracaoAtual + 1));
         }
     }
 }

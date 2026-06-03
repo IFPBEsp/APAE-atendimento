@@ -43,7 +43,7 @@ class AuthServiceTest {
         ProfissionalSaude usuario = mock(ProfissionalSaude.class);
 
         when(profissionalRepository.findByEmailIgnoreCase("user@email.com")).thenReturn(Optional.of(usuario));
-        when(usuario.getStatus()).thenReturn("ATIVO");
+        when(usuario.getAtivo()).thenReturn(true);
         when(usuario.getSenha()).thenReturn("hash");
         when(passwordEncoder.matches("senha123", "hash")).thenReturn(true);
         when(jwtService.gerarToken(usuario)).thenReturn("jwt-token");
@@ -77,7 +77,7 @@ class AuthServiceTest {
         ProfissionalSaude usuario = mock(ProfissionalSaude.class);
 
         when(profissionalRepository.findByEmailIgnoreCase("user@email.com")).thenReturn(Optional.of(usuario));
-        when(usuario.getStatus()).thenReturn("INATIVO");
+        when(usuario.getAtivo()).thenReturn(false);
 
         BadCredentialsException ex = assertThrows(BadCredentialsException.class,
                 () -> authService.autenticar(requestDTO));
@@ -94,7 +94,7 @@ class AuthServiceTest {
         ProfissionalSaude usuario = mock(ProfissionalSaude.class);
 
         when(profissionalRepository.findByEmailIgnoreCase("user@email.com")).thenReturn(Optional.of(usuario));
-        when(usuario.getStatus()).thenReturn("ATIVO");
+        when(usuario.getAtivo()).thenReturn(true);
         when(usuario.getSenha()).thenReturn("hash");
         when(passwordEncoder.matches("senhaErrada", "hash")).thenReturn(false);
 

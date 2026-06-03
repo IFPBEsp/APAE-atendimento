@@ -89,7 +89,7 @@ public class AtendimentoService {
         }
     }
 
-    public void tratarAgendamento(UUID pacienteId, LocalDate data, Long numeracao) {
+    public void tratarAgendamento(UUID pacienteId, LocalDate data, String numeracao) {
         Agendamento agendamento = agendamentoService.buscarAgendamentoPorDataEPaciente(data, pacienteId);
         agendamento.setNumeracao(numeracao);
 
@@ -118,7 +118,7 @@ public class AtendimentoService {
         repository.deleteById(atendimentoId);
     }
 
-    public Long gerarProximaNumeracao(UUID profissionalId, LocalDate data) {
+    public String gerarProximaNumeracao(UUID profissionalId, LocalDate data) {
         Long maiorNumeracao = repository.findMaxNumeracaoByMesAndAno(
                 data.getMonthValue(),
                 data.getYear(),
@@ -126,7 +126,7 @@ public class AtendimentoService {
 
         long numeracaoAtual = (maiorNumeracao != null) ? maiorNumeracao : 0L;
 
-        return numeracaoAtual + 1;
+        return String.valueOf(numeracaoAtual + 1);
     }
 
     @Transactional(readOnly = false)
