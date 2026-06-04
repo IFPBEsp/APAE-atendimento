@@ -29,11 +29,17 @@ public class Agendamento {
     @Column(name = "numeracao")
     private String numeracao;
 
-    @ManyToOne
-    @JoinColumn(name = "profissional_id")
+    @Column(name = "profissional_id", nullable = false)
+    private UUID profissionalId;
+
+    @Column(name = "paciente_id", nullable = false)
+    private UUID pacienteId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "profissional_id", insertable = false, updatable = false)
     private ProfissionalSaude profissional;
 
-    @ManyToOne
-    @JoinColumn(name = "paciente_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "paciente_id", insertable = false, updatable = false)
     private Paciente paciente;
 }

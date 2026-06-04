@@ -29,12 +29,18 @@ public class Atendimento {
     @Column(name = "numeracao")
     private String numeracao;
 
-    @ManyToOne
-    @JoinColumn(name = "paciente_id")
+    @Column(name = "paciente_id", nullable = false)
+    private UUID pacienteId;
+
+    @Column(name = "profissional_id", nullable = false)
+    private UUID profissionalId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "paciente_id", insertable = false, updatable = false)
     private Paciente paciente;
 
-    @ManyToOne
-    @JoinColumn(name = "profissional_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "profissional_id", insertable = false, updatable = false)
     private ProfissionalSaude profissional;
 
     @Column(name = "status")

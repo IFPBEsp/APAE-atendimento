@@ -3,14 +3,13 @@ package br.org.apae.atendimento.services;
 import br.org.apae.atendimento.dtos.request.ArquivoRequestDTO;
 import br.org.apae.atendimento.dtos.response.ArquivoResponseDTO;
 import br.org.apae.atendimento.entities.Arquivo;
-import br.org.apae.atendimento.entities.ProfissionalSaude;
 import br.org.apae.atendimento.entities.TipoArquivo;
 import br.org.apae.atendimento.exceptions.invalid.AtendimentoInvalidException;
+import br.org.apae.atendimento.exceptions.invalid.RelacaoInvalidException;
 import br.org.apae.atendimento.exceptions.notfound.ArquivoNotFoundException;
 import br.org.apae.atendimento.exceptions.notfound.TipoArquivoNotFoundException;
 import br.org.apae.atendimento.mappers.ArquivoMapper;
 import br.org.apae.atendimento.repositories.AnexoRepository;
-import br.org.apae.atendimento.repositories.ProfissionalSaudeRepository;
 import br.org.apae.atendimento.repositories.TipoArquivoRepository;
 import br.org.apae.atendimento.services.storage.ObjectStorageService;
 import br.org.apae.atendimento.services.storage.PresignedUrlService;
@@ -36,10 +35,10 @@ public class ArquivoService {
     private TipoArquivoRepository tipoRepository;
 
     @Autowired
-    private ProfissionalSaudeRepository profissionalRepository;
+    private ObjectStorageService storageService;
 
     @Autowired
-    private ObjectStorageService storageService;
+    private PacienteService pacienteService;
 
     @Autowired
     private PresignedUrlService urlService;
@@ -56,6 +55,10 @@ public class ArquivoService {
 
     @Transactional
     public ArquivoResponseDTO salvar(MultipartFile file, ArquivoRequestDTO arquivoRequest, UUID profissionalId) {
+        if (!pacienteService.existeRelacao(arquivoRequest.pacienteId(), profissionalId)) {
+            throw new RelacaoInvalidException("Voce nao tem vinculo com este paciente para salvar arquivos.");
+        }
+
         validarIntegridadeArquivo(file);
         validarIntervaloData(arquivoRequest.data());
 
@@ -81,8 +84,7 @@ public class ArquivoService {
         arquivo.setNomeArquivo(nomeSanitizado);
         arquivo.setTipo(tipoArquivo);
 
-        ProfissionalSaude profissionalSaude = profissionalRepository.getReferenceById(profissionalId);
-        arquivo.setProfissional(profissionalSaude);
+        arquivo.setProfissionalId(profissionalId);
 
         Arquivo arquivoPersistido = repository.save(arquivo);
         arquivoPersistido.setPresignedUrl(url);
@@ -91,6 +93,10 @@ public class ArquivoService {
     }
 
     public List<ArquivoResponseDTO> listar(UUID profissionalId, UUID pacienteId, Long tipoId) {
+        if (!pacienteService.existeRelacao(pacienteId, profissionalId)) {
+            throw new RelacaoInvalidException("Não foi possível listar arquivos para esse paciente.");
+        }
+
         List<Arquivo> arquivos = repository.findByProfissionalIdAndPacienteIdAndTipoId(
                 profissionalId, pacienteId, tipoId
         );
@@ -104,6 +110,10 @@ public class ArquivoService {
     }
 
     public List<ArquivoResponseDTO> buscarPorData(UUID profissionalId, UUID pacienteId, Long tipoId, LocalDate data) {
+        if (!pacienteService.existeRelacao(pacienteId, profissionalId)) {
+            throw new RelacaoInvalidException("Voce nao tem vinculo com este paciente para buscar arquivos por data.");
+        }
+
         List<Arquivo> arquivos = repository.findByProfissionalIdAndPacienteIdAndDataAndTipoId(
                 profissionalId, pacienteId, data, tipoId
         );
@@ -116,12 +126,16 @@ public class ArquivoService {
                 }).collect(Collectors.toList());
     }
 
-    public void deletar(String objectName) {
-        if (!repository.existsById(objectName)) {
-            throw new ArquivoNotFoundException("O arquivo selecionado não existe ou já foi apagado.");
+    public void deletar(String objectName, UUID profissionalId) {
+
+        Arquivo arquivo = repository.findByObjectNameAndProfissionalId(objectName, profissionalId)
+                .orElseThrow(() -> new ArquivoNotFoundException("O arquivo selecionado nao existe ou nao pertence ao profissional autenticado."));
+
+        if (!pacienteService.existeRelacao(arquivo.getPacienteId(), profissionalId)) {
+            throw new RelacaoInvalidException("Voce nao tem vinculo com este paciente para excluir arquivos.");
         }
 
-        repository.deleteById(objectName);
+        repository.delete(arquivo);
         storageService.deletarArquivo(objectName);
     }
 

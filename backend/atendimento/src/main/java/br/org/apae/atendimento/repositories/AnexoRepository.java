@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -17,4 +18,6 @@ public interface AnexoRepository extends JpaRepository<Arquivo, String> {
             LocalDate data,
             Long tipoId
     );
+
+    Optional<Arquivo> findByObjectNameAndProfissionalId(String objectName, UUID profissionalId);
 }
