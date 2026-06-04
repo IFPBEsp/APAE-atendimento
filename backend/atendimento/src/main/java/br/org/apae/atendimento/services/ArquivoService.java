@@ -131,6 +131,10 @@ public class ArquivoService {
         Arquivo arquivo = repository.findByObjectNameAndProfissionalId(objectName, profissionalId)
                 .orElseThrow(() -> new ArquivoNotFoundException("O arquivo selecionado nao existe ou nao pertence ao profissional autenticado."));
 
+        if (!pacienteService.existeRelacao(arquivo.getPacienteId(), profissionalId)) {
+            throw new RelacaoInvalidException("Voce nao tem vinculo com este paciente para excluir arquivos.");
+        }
+
         repository.delete(arquivo);
         storageService.deletarArquivo(objectName);
     }

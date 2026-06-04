@@ -42,11 +42,6 @@ public class PacienteService {
         return pacienteMapper.toDTOPadrao(paciente);
     }
 
-    public Paciente getPacienteById(UUID id) {
-        return repository
-                .findById(id).orElseThrow(() -> new PacienteNotFoundException("Paciente não encontrado no sistema."));
-    }
-
     public boolean existeRelacao(UUID pacienteId, UUID profissionalId) {
         return repository.existeRelacao(pacienteId, profissionalId);
     }
