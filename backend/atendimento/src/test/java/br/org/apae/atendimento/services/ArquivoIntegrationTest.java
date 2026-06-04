@@ -69,11 +69,12 @@ class ArquivoIntegrationTest extends AbstractIntegrationTest {
         var response = arquivoService.salvar(file, requestDTO, profissionalId);
 
         assertNotNull(response);
+        assertEquals("http://mock-url", response.presignedUrl());
         assertTrue(anexoRepository.existsById(response.objectName()));
 
         Arquivo persistido = anexoRepository.findById(response.objectName()).orElseThrow();
         assertEquals("relatorio semestral", persistido.getTitulo());
-        assertNotNull(persistido.getPaciente());
-        assertNotNull(persistido.getProfissional());
+        assertEquals(pacienteId, persistido.getPacienteId());
+        assertEquals(profissionalId, persistido.getProfissionalId());
     }
 }

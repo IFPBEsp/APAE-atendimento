@@ -28,7 +28,4 @@ public class Topico {
     @Column(nullable = false)
     private String descricao;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "atendimento_id", nullable = false)
-    private Atendimento atendimento;
 }

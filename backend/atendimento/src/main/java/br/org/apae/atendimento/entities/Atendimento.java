@@ -19,8 +19,9 @@ public class Atendimento {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @OneToMany(mappedBy = "atendimento", cascade = CascadeType.ALL, orphanRemoval = true)
-    @OrderColumn(name = "ordem")
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "atendimento_id", nullable = false)
+    @OrderColumn(name = "ordem", nullable = false)
     private List<Topico> relatorio = new ArrayList<>();
 
     @Column(name = "data_atendimento")
