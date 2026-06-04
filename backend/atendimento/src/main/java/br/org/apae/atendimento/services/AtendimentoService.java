@@ -159,7 +159,6 @@ public class AtendimentoService {
             Topico topico = new Topico();
             topico.setTitulo(t.titulo());
             topico.setDescricao(t.descricao());
-            topico.setAtendimento(atendimento);
             atendimento.getRelatorio().add(topico);
         });
 

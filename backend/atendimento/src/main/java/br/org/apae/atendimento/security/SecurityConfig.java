@@ -37,7 +37,7 @@ public class SecurityConfig {
                         .accessDeniedHandler((req, res, err) -> res.sendError(403))
                 )
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/login", "/auth/logout", "/error", "/", "/h2/**","/actuator/health", "/actuator/health/**").permitAll()
+                        .requestMatchers("/auth/login", "/auth/logout", "/error", "/","/actuator/health", "/actuator/health/**").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .anyRequest().authenticated()
                 )
