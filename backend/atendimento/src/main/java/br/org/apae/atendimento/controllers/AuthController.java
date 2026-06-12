@@ -1,9 +1,12 @@
 package br.org.apae.atendimento.controllers;
 
 import br.org.apae.atendimento.dtos.request.LoginRequestDTO;
+import br.org.apae.atendimento.dtos.request.RedefinirSenhaRequestDTO;
 import br.org.apae.atendimento.dtos.response.LoginResponseDTO;
+import br.org.apae.atendimento.dtos.response.AutenticacaoResponseDTO;
 import br.org.apae.atendimento.security.JwtService;
 import br.org.apae.atendimento.security.TokenBlocklistService;
+import br.org.apae.atendimento.security.UsuarioAutenticado;
 import br.org.apae.atendimento.services.AuthService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -14,6 +17,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Duration;
@@ -46,9 +50,9 @@ public class AuthController {
     public ResponseEntity<LoginResponseDTO> login(@Valid @RequestBody LoginRequestDTO body,
                                                   HttpServletResponse response) {
         
-        String jwt = authService.autenticar(body);
+        AutenticacaoResponseDTO autenticacao = authService.autenticar(body);
 
-        ResponseCookie cookie = ResponseCookie.from(TOKEN_COOKIE_NAME, jwt)
+        ResponseCookie cookie = ResponseCookie.from(TOKEN_COOKIE_NAME, autenticacao.token())
                 .httpOnly(true)
                 .secure(cookieSecure)
                 .path("/")
@@ -58,8 +62,17 @@ public class AuthController {
         
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
-        return ResponseEntity.ok(new LoginResponseDTO(true, "Login realizado com sucesso"));
-    }                                
+        return ResponseEntity.ok(new LoginResponseDTO(true, "Login realizado com sucesso", autenticacao.primerioAcesso(), autenticacao.redirectTo()));
+    }
+
+    @PostMapping("/redefinir-senha")
+    public ResponseEntity<LoginResponseDTO> redefinirSenha(
+            @AuthenticationPrincipal UsuarioAutenticado usuarioAutenticado,
+            @Valid @RequestBody RedefinirSenhaRequestDTO body
+    ) {
+        authService.redefinirSenha(usuarioAutenticado.getId(), body);
+        return ResponseEntity.ok(new LoginResponseDTO(true, "Senha redefinida com sucesso"));
+    }
     
     @PostMapping("/logout")
     public ResponseEntity<LoginResponseDTO> logout(HttpServletRequest request,

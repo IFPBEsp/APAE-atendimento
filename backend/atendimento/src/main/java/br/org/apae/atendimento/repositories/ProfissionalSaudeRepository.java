@@ -23,4 +23,8 @@ public interface ProfissionalSaudeRepository extends JpaRepository<ProfissionalS
     @Query("SELECT new br.org.apae.atendimento.dtos.response.ProfissionalDropdownResponseDTO(p.id, p.nomeCompleto) " +
     "FROM ProfissionalSaude p WHERE p.ativo = true ORDER BY p.nomeCompleto ASC")
     List<ProfissionalDropdownResponseDTO> listarParaDropdown();
+
+    @Query(value = "SELECT apae_geral.definir_senha_primeiro_acesso(:usuarioId, :senhaHash)", nativeQuery = true)
+    Object definirSenhaPrimeiroAcesso(@Param("usuarioId") UUID usuarioId,
+                                      @Param("senhaHash") String senhaHash);
 }

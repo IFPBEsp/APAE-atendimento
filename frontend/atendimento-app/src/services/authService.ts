@@ -8,10 +8,19 @@ export type LoginPayload = {
 export type LoginResponse = {
   success: boolean;
   message: string;
+  primeiroAcesso?: boolean | null;
+  redirectTo?: string | null;
 };
 
 export async function login(payload: LoginPayload): Promise<LoginResponse> {
   const { data } = await api.post<LoginResponse>("/auth/login", payload);
+  return data;
+}
+
+export async function redefinirSenha(novaSenha: string): Promise<LoginResponse> {
+  const { data } = await api.post<LoginResponse>("/auth/redefinir-senha", {
+    novaSenha,
+  });
   return data;
 }
 
