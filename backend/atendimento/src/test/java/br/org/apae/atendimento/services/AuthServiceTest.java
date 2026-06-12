@@ -1,6 +1,7 @@
 package br.org.apae.atendimento.services;
 
 import br.org.apae.atendimento.dtos.request.LoginRequestDTO;
+import br.org.apae.atendimento.dtos.response.AutenticacaoResponseDTO;
 import br.org.apae.atendimento.entities.ProfissionalSaude;
 import br.org.apae.atendimento.repositories.ProfissionalSaudeRepository;
 import br.org.apae.atendimento.security.JwtService;
@@ -48,7 +49,8 @@ class AuthServiceTest {
         when(passwordEncoder.matches("senha123", "hash")).thenReturn(true);
         when(jwtService.gerarToken(usuario)).thenReturn("jwt-token");
 
-        String token = authService.autenticar(requestDTO);
+        AutenticacaoResponseDTO response = authService.autenticar(requestDTO);
+        String token = response.token();
 
         assertEquals("jwt-token", token);
         verify(profissionalRepository).findByEmailIgnoreCase("user@email.com");

@@ -70,7 +70,12 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      await login({ email, password });
+      const response = await login({ email: email.trim(), password });
+      if (response.primeiroAcesso && response.redirectTo) {
+        router.replace(response.redirectTo);
+        return;
+      }
+
       router.replace("/home");
     } catch (err) {
       if (isAxiosError(err)) {
@@ -129,6 +134,7 @@ export default function LoginPage() {
                       type="email"
                       value={email}
                       placeholder="seuemail@dominio.com"
+                      autoComplete="username"
                       onChange={(e) => {
                         setEmail(e.target.value);
                         setError("");

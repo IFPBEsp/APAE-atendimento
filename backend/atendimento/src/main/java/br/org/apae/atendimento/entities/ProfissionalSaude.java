@@ -21,8 +21,14 @@ public class ProfissionalSaude {
     @Column(name = "profissional_saude_id")
     private UUID id;
 
+    @Column(name = "usuario_id")
+    private UUID usuarioId;
+
     @Column(name = "nome")
     private String nomeCompleto;
+
+    @Column(name = "cpf")
+    private String cpf;
 
     @Column(name = "registro_profissional")
     private String registroProfissional;
@@ -42,6 +48,9 @@ public class ProfissionalSaude {
 
     @Column(name = "ativo")
     private Boolean ativo;
+
+    @Column(name = "primeiro_acesso")
+    private Boolean primeiroAcesso;
 
     @Column(name = "contato")
     private String contato;
