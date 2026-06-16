@@ -32,7 +32,8 @@ public class AgendamentoMapper extends AbstractMapper<Agendamento, AgendamentoRe
                 entidadePadrao.getDataHora().toLocalDate(),
                 entidadePadrao.getDataHora().toLocalTime(),
                 entidadePadrao.getNumeracao(),
-                entidadePadrao.isStatus()
+                entidadePadrao.isStatus(),
+                false
         );
     }
 

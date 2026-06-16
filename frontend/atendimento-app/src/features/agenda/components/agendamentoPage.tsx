@@ -46,7 +46,8 @@ export default function AgendamentoPage() {
 
   const agendamentosFiltrados = useMemo(() => {
     if (!dataSelecionada) return agendamentos;
-    return agendamentos.filter((a) => a.data === dataSelecionada);
+    const dataBR = isoParaBR(dataSelecionada); 
+    return agendamentos.filter((a) => a.data === dataBR);
   }, [agendamentos, dataSelecionada]);
 
   const gruposParaRenderizar = useMemo(
@@ -162,6 +163,8 @@ export default function AgendamentoPage() {
                   paciente={item.paciente}
                   horario={item.horario}
                   numeroAtendimento={item.numeracao}
+                  status={item.status} 
+                  externo={item.externo} 
                   onDeleteClick={() => {
                     setAgendamentoSelecionado(item);
                     setOpenDelete(true);
