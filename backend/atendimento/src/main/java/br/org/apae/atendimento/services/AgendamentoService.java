@@ -92,10 +92,12 @@ public class AgendamentoService {
                 .map(agendamentoMapper::toDTOPadrao)
                 .toList();
 
-        List<AgendamentoResponseDTO> externos = agendamentoExternoClient.buscarAgendamentos(profissionalId);
+        List<AgendamentoResponseDTO> externos = agendamentoExternoClient.buscarAgendamentosPorDataHora(profissionalId);
 
         List<AgendamentoResponseDTO> todosAgendamentos = new ArrayList<>(locais);
         todosAgendamentos.addAll(externos);
+        todosAgendamentos.sort(Comparator.comparing(AgendamentoResponseDTO::data)
+                .thenComparing(AgendamentoResponseDTO::time));
 
         return todosAgendamentos.stream()
                 .collect(Collectors.groupingBy(

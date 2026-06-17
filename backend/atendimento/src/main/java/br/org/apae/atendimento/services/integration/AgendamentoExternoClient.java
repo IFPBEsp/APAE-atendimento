@@ -59,7 +59,7 @@ public class AgendamentoExternoClient {
         }
     }
 
-    public List<AgendamentoResponseDTO> buscarAgendamentos(UUID profissionalId) {
+    public List<AgendamentoResponseDTO> buscarAgendamentosPorDataHora(UUID profissionalId) {
         String token = obterTokenSistemaGeral();
         if (token == null) return new ArrayList<>();
 
@@ -83,6 +83,8 @@ public class AgendamentoExternoClient {
                     .filter(map -> !Boolean.TRUE.equals(map.get("cancelled")))
                     .map(this::mapearParaLocalDTO)
                     .filter(Objects::nonNull)
+                    .sorted(Comparator.comparing(AgendamentoResponseDTO::data)
+                            .thenComparing(AgendamentoResponseDTO::time))
                     .collect(Collectors.toList());
 
         } catch (Exception e) {
