@@ -98,6 +98,68 @@ pnpm install
 pnpm dev
 ```
 
+# Integração com o Sistema Geral (apae-geral)
+
+A agenda do Sistema de Atendimento pode exibir, junto com os agendamentos locais, os **agendamentos gerados no Sistema Geral da APAE** (projeto `apae-geral`). A integração é feita pelo backend de atendimento, que se autentica no apae-geral e consulta os agendamentos do profissional logado.
+
+> **Componente responsável:** `backend/atendimento/src/main/java/br/org/apae/atendimento/services/integration/AgendamentoExternoClient.java`
+
+### Como funciona o fluxo
+1. Ao listar a agenda (`GET /agendamento`), o backend de atendimento busca os agendamentos **locais** no seu próprio banco.
+2. Em seguida, autentica no apae-geral (`POST /apae-geral/api/auth/signin`) e consulta os **agendamentos gerados** do profissional (`GET /apae-geral/api/appointments/professional/{profissionalId}/generated`).
+3. As duas listas são mescladas e retornadas. Os itens externos vêm com a flag `externo: true`.
+
+### Pré-requisitos
+- O projeto **apae-geral** clonado e rodando localmente (backend + banco PostgreSQL + MinIO).
+- O backend do apae-geral acessível em `http://localhost:8090/apae-geral`.
+
+> ⚠️ **Atenção ao caminho:** o apae-geral usa `spring.mvc.servlet.path: /api`, então **todos os endpoints REST ficam sob `/apae-geral/api/...`** (e não `/apae-geral/...`). Chamar o caminho sem o `/api` resulta em **HTTP 403** (a requisição cai na página de erro, que é protegida).
+
+### Passo a passo
+
+**1. Suba o apae-geral**
+
+No diretório do projeto apae-geral (ex.: `../APAE/apps/api`), com o `.env` preenchido (`DB_URL`, `DB_USERNAME`, `DB_PASSWORD`, `MINIO_*`, `API_PORT=8090`):
+```bash
+cd apps/api
+./mvnw spring-boot:run
+```
+Valide que subiu:
+```bash
+curl -X POST http://localhost:8090/apae-geral/api/auth/signin \
+  -H "Content-Type: application/json" \
+  -d '{"username":"admin@teste.com","password":"senha123"}'
+# Deve retornar 200 com {"token":"..."}
+```
+
+**2. Configure as credenciais/URL da integração (opcional)**
+
+Por padrão o cliente já aponta para `http://localhost:8090/apae-geral/api` e usa o usuário `admin@teste.com` / `senha123`. Para sobrescrever sem recompilar, adicione ao `backend/docker/docker-compose.properties`:
+```properties
+api.geral.url=http://localhost:8090/apae-geral/api
+api.geral.username=admin@teste.com
+api.geral.password=senha123
+```
+> Garanta que esse usuário existe no banco do apae-geral e que a senha confere (a senha é validada via BCrypt).
+
+**3. Alinhe o ID do profissional entre os dois sistemas**
+
+A integração busca a agenda usando o **ID do profissional logado** no atendimento. Para que os agendamentos externos apareçam, esse ID precisa ser **o mesmo** de um profissional que tenha agenda no apae-geral. Ou seja: o registro em `vw_profissionais` (atendimento) deve ter o mesmo `id` do profissional correspondente em `profissionais_da_saude` (apae-geral).
+
+**4. Suba o backend de atendimento e faça login**
+
+```bash
+cd backend/atendimento
+./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
+```
+Faça login no frontend com um profissional cujo ID esteja alinhado (passo 3) e abra a **Agenda**. Os agendamentos do sistema geral devem aparecer junto com os locais.
+
+### Solução de problemas
+- **Nada aparece / lista só com os locais:** confira o log do backend de atendimento. O `AgendamentoExternoClient` registra avisos (`log.warn`) com a causa — token nulo, 403, 401 etc.
+- **`Erro ao obter token do sistema geral: 403`:** a URL está sem o `/api` ou o apae-geral não está no ar.
+- **`401 - E-mail ou senha incorretos`:** o usuário/senha da integração não confere com o banco do apae-geral.
+- **Login OK mas lista vazia:** o ID do profissional logado não corresponde a nenhum profissional com agenda no apae-geral (ver passo 3).
+
 # Contribuições
 
 **1. Clone o repositório**

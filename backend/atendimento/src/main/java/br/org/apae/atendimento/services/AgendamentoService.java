@@ -10,6 +10,7 @@ import br.org.apae.atendimento.exceptions.invalid.RelacaoInvalidException;
 import br.org.apae.atendimento.mappers.AgendamentoMapper;
 import br.org.apae.atendimento.repositories.AgendamentoRepository;
 import br.org.apae.atendimento.repositories.AtendimentoRepository;
+import br.org.apae.atendimento.services.integration.AgendamentoExternoClient;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 import br.org.apae.atendimento.entities.ProfissionalPaciente;
@@ -18,6 +19,8 @@ import br.org.apae.atendimento.repositories.ProfissionalPacienteRepository;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -30,18 +33,21 @@ public class AgendamentoService {
     private AgendamentoMapper agendamentoMapper;
     private AtendimentoRepository atendimentoRepository;
     private final ProfissionalPacienteRepository profissionalPacienteRepository;
+    private AgendamentoExternoClient agendamentoExternoClient;
 
     public AgendamentoService(AgendamentoRepository repository,
                               PacienteService pacienteService,
                               AgendamentoMapper agendamentoMapper,
                               AtendimentoRepository atendimentoRepository,
                               ProfissionalPacienteRepository profissionalPacienteRepository) {
+                              AgendamentoExternoClient agendamentoExternoClient) { 
 
         this.repository = repository;
         this.pacienteService = pacienteService;
         this.agendamentoMapper = agendamentoMapper;
         this.atendimentoRepository = atendimentoRepository;
         this.profissionalPacienteRepository = profissionalPacienteRepository;
+        this.agendamentoExternoClient = agendamentoExternoClient; 
     }
 
     public Agendamento save(Agendamento agendamento) {
@@ -100,15 +106,31 @@ public class AgendamentoService {
 
     @Transactional
     public List<DiaAgendamentoResponseDTO> listarAgrupadoPorDia(UUID profissionalId) {
-        return repository.findByProfissionalIdOrderByDataHora(profissionalId)
+        List<AgendamentoResponseDTO> locais = repository.findByProfissionalIdOrderByDataHora(profissionalId)
                 .stream()
+                .map(agendamentoMapper::toDTOPadrao)
+                .toList();
+
+        List<AgendamentoResponseDTO> externos = agendamentoExternoClient.buscarAgendamentosPorDataHora(profissionalId);
+
+        List<AgendamentoResponseDTO> todosAgendamentos = new ArrayList<>(locais);
+        todosAgendamentos.addAll(externos);
+        todosAgendamentos.sort(Comparator.comparing(AgendamentoResponseDTO::data)
+                .thenComparing(AgendamentoResponseDTO::hora));
+
+        return todosAgendamentos.stream()
                 .collect(Collectors.groupingBy(
-                        a -> a.getDataHora().toLocalDate(),
-                        Collectors.mapping(agendamentoMapper::toDTOPadrao, Collectors.toList())
+                        AgendamentoResponseDTO::data,
+                        Collectors.toList()
                 ))
                 .entrySet().stream()
                 .sorted(Map.Entry.<LocalDate, List<AgendamentoResponseDTO>>comparingByKey().reversed())
-                .map(e -> new DiaAgendamentoResponseDTO(e.getKey(), e.getValue()))
+                .map(e -> {
+                    List<AgendamentoResponseDTO> ordenadosPorHora = e.getValue().stream()
+                            .sorted(Comparator.comparing(AgendamentoResponseDTO::hora))
+                            .toList();
+                    return new DiaAgendamentoResponseDTO(e.getKey(), ordenadosPorHora);
+                })
                 .toList();
     }
 
@@ -152,8 +174,6 @@ public class AgendamentoService {
         );
 
         long numeracaoAtual = (numero != null) ? numero : 0L;
-
-        agendamento.setStatus(true);
 
         if (existAtendimento) {
             agendamento.setNumeracao(String.valueOf(numeracaoAtual));

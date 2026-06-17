@@ -11,5 +11,7 @@ public record AgendamentoResponseDTO(
         LocalDate data,
         LocalTime hora,
         String numeracao,
-        boolean status) {
+        boolean status,
+        boolean externo
+) {
 }
