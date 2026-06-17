@@ -9,8 +9,8 @@ public record AgendamentoResponseDTO(
         UUID pacienteId,
         String nomePaciente,
         LocalDate data,
-        LocalTime time,
-        Long numeroAtendimento,
+        LocalTime hora,
+        String numeracao,
         boolean status,
         boolean externo
 ) {

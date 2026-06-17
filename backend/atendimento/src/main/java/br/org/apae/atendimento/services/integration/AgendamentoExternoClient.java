@@ -84,7 +84,7 @@ public class AgendamentoExternoClient {
                     .map(this::mapearParaLocalDTO)
                     .filter(Objects::nonNull)
                     .sorted(Comparator.comparing(AgendamentoResponseDTO::data)
-                            .thenComparing(AgendamentoResponseDTO::time))
+                            .thenComparing(AgendamentoResponseDTO::hora))
                     .collect(Collectors.toList());
 
         } catch (Exception e) {
@@ -125,7 +125,7 @@ public class AgendamentoExternoClient {
                     nomePaciente,
                     data,
                     hora,
-                    0L,
+                    "0",
                     Boolean.TRUE.equals(externalData.get("performed")),
                     true
             );
