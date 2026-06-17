@@ -16,7 +16,6 @@ import br.org.apae.atendimento.entities.Paciente;
 
 @Repository
 public interface PacienteRepository extends JpaRepository<Paciente, UUID> {
-
     @Query(value = """
     SELECT vp.*
     FROM atendimento.vw_pacientes vp

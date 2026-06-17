@@ -12,6 +12,8 @@ import br.org.apae.atendimento.repositories.AgendamentoRepository;
 import br.org.apae.atendimento.repositories.AtendimentoRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
+import br.org.apae.atendimento.entities.ProfissionalPaciente;
+import br.org.apae.atendimento.repositories.ProfissionalPacienteRepository;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -27,28 +29,39 @@ public class AgendamentoService {
     private PacienteService pacienteService;
     private AgendamentoMapper agendamentoMapper;
     private AtendimentoRepository atendimentoRepository;
+    private final ProfissionalPacienteRepository profissionalPacienteRepository;
 
     public AgendamentoService(AgendamentoRepository repository,
                               PacienteService pacienteService,
                               AgendamentoMapper agendamentoMapper,
-                              AtendimentoRepository atendimentoRepository) {
+                              AtendimentoRepository atendimentoRepository,
+                              ProfissionalPacienteRepository profissionalPacienteRepository) {
 
         this.repository = repository;
         this.pacienteService = pacienteService;
         this.agendamentoMapper = agendamentoMapper;
         this.atendimentoRepository = atendimentoRepository;
+        this.profissionalPacienteRepository = profissionalPacienteRepository;
     }
 
     public Agendamento save(Agendamento agendamento) {
         return repository.save(agendamento);
     }
 
-    public AgendamentoResponseDTO agendar(AgendamentoRequestDTO agendamentoRequest, UUID profissionalId) {
-        if (!pacienteService.existeRelacao(agendamentoRequest.pacienteId(), profissionalId)) {
-            throw new RelacaoInvalidException("Voce nao tem vinculo com este paciente para criar agendamento.");
-        }
+    public AgendamentoResponseDTO agendar(
+        AgendamentoRequestDTO agendamentoRequest, 
+        UUID profissionalId
+    ) {
+        associarPacienteAoProfissional(
+                profissionalId,
+                agendamentoRequest.pacienteId()
+        );
 
-        if (verificarAgendamentoExiste(profissionalId, agendamentoRequest.data(), agendamentoRequest.hora())) {
+        if (verificarAgendamentoExiste(
+            profissionalId, 
+            agendamentoRequest.data(), 
+            agendamentoRequest.hora())
+        ) {
             throw new AgendamentoInvalidException(
                     agendamentoRequest.data() + " - " + agendamentoRequest.hora() + " ja possui um agendamento");
         }
@@ -146,6 +159,28 @@ public class AgendamentoService {
             agendamento.setNumeracao(String.valueOf(numeracaoAtual));
         } else {
             agendamento.setNumeracao(String.valueOf(numeracaoAtual + 1));
+        }
+    }
+
+    private void associarPacienteAoProfissional(
+            UUID profissionalId,
+            UUID pacienteId
+    ) {
+
+        boolean existe =
+                profissionalPacienteRepository
+                        .existsByProfissionalIdAndPacienteId(
+                                profissionalId,
+                                pacienteId
+                        );
+
+        if (!existe) {
+            profissionalPacienteRepository.save(
+                    new ProfissionalPaciente(
+                            profissionalId,
+                            pacienteId
+                    )
+            );
         }
     }
 }
