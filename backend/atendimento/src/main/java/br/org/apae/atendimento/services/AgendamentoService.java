@@ -162,8 +162,6 @@ public class AgendamentoService {
 
         long numeracaoAtual = (numero != null) ? numero : 0L;
 
-        agendamento.setStatus(true);
-
         if (existAtendimento) {
             agendamento.setNumeracao(String.valueOf(numeracaoAtual));
         } else {
