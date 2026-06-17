@@ -6,7 +6,7 @@ export interface Agendamento {
   nomeProfissional: string;
   data: string;
   horario: string;
-  numeracao: number;
+  numeracao: string;
   status: boolean;
   externo: boolean;
 }
@@ -19,7 +19,7 @@ export interface AgendamentoResponse {
   nomeProfissional: string;
   data: string;
   time: string;
-  numeroAtendimento: number;
+  numeroAtendimento: string;
   status: boolean;
   externo?: boolean;
 }

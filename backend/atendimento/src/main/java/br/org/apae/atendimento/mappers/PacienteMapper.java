@@ -17,17 +17,13 @@ public class PacienteMapper extends AbstractMapper<Paciente, Void, PacienteRespo
 
     @Override
     public PacienteResponseDTO toDTOPadrao(Paciente paciente) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(paciente.getCidade())
-                .append(", ")
-                .append(paciente.getRua())
-                .append(", ")
-                .append(paciente.getBairro())
-                .append(", ")
-                .append(paciente.getNumeroCasa())
-                .append(".");
-
-        String endereco = sb.toString();
+        String endereco = String.format(
+                "%s, %s, %s, %s.",
+                paciente.getCidade(),
+                paciente.getRua(),
+                paciente.getBairro(),
+                paciente.getNumeroCasa()
+        );
 
         return new PacienteResponseDTO(
                 paciente.getId(),

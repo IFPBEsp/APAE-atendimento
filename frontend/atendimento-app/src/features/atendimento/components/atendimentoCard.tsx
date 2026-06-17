@@ -9,7 +9,7 @@ interface AtendimentoCardProps {
   id: string;
   data: string;
   hora: string;
-  numeracao: number;
+  numeracao: string;
   status: boolean; 
   relatorio?: Relatorio[];
   atendimentos: Atendimento[];

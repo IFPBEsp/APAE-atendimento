@@ -2,13 +2,12 @@ package br.org.apae.atendimento.services;
 
 import br.org.apae.atendimento.dtos.request.ArquivoRequestDTO;
 import br.org.apae.atendimento.entities.Arquivo;
-import br.org.apae.atendimento.entities.ProfissionalSaude;
 import br.org.apae.atendimento.entities.TipoArquivo;
 import br.org.apae.atendimento.exceptions.invalid.AtendimentoInvalidException;
+import br.org.apae.atendimento.exceptions.invalid.RelacaoInvalidException;
 import br.org.apae.atendimento.exceptions.notfound.TipoArquivoNotFoundException;
 import br.org.apae.atendimento.mappers.ArquivoMapper;
 import br.org.apae.atendimento.repositories.AnexoRepository;
-import br.org.apae.atendimento.repositories.ProfissionalSaudeRepository;
 import br.org.apae.atendimento.repositories.TipoArquivoRepository;
 import br.org.apae.atendimento.services.storage.ObjectStorageService;
 import br.org.apae.atendimento.services.storage.PresignedUrlService;
@@ -38,7 +37,7 @@ class ArquivoServiceTest {
 
     @Mock private AnexoRepository repository;
     @Mock private TipoArquivoRepository tipoRepository;
-    @Mock private ProfissionalSaudeRepository profissionalRepository;
+    @Mock private PacienteService pacienteService;
     @Mock private ObjectStorageService storageService;
     @Mock private PresignedUrlService urlService;
     @Mock private ArquivoMapper anexoMapper;
@@ -60,7 +59,7 @@ class ArquivoServiceTest {
         tipoArquivo.setId(1L);
         tipoArquivo.setTipo("PDF");
         lenient().when(tipoRepository.findById(1L)).thenReturn(Optional.of(tipoArquivo));
-        lenient().when(profissionalRepository.getReferenceById(profissionalId)).thenReturn(new ProfissionalSaude());
+        lenient().when(pacienteService.existeRelacao(pacienteId, profissionalId)).thenReturn(true);
     }
 
     @Test
@@ -170,5 +169,24 @@ class ArquivoServiceTest {
             assertFalse(a.getDescricao().startsWith(" "));
             return true;
         }));
+    }
+
+    @Test
+    @DisplayName("Deve lançar exceção quando profissional não possui vínculo com paciente")
+    void deveLancarExcecaoQuandoSemRelacaoPacienteProfissional() {
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "foto.jpg",
+                "image/jpeg",
+                "conteudo".getBytes()
+        );
+
+        when(pacienteService.existeRelacao(pacienteId, profissionalId)).thenReturn(false);
+
+        assertThrows(RelacaoInvalidException.class,
+                () -> service.salvar(file, requestDTO, profissionalId));
+
+        verify(storageService, never()).uploadArquivo(any(), any());
+        verify(repository, never()).save(any());
     }
 }

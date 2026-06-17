@@ -1,13 +1,11 @@
 package br.org.apae.atendimento;
 
+import br.org.apae.atendimento.integration.AbstractIntegrationTest;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
-class AtendimentoApplicationTests {
+class AtendimentoApplicationTests extends AbstractIntegrationTest {
 
 	@Test
 	void contextLoads() {
 	}
-
 }

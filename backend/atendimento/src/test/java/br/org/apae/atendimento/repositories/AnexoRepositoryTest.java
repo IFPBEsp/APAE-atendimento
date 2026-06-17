@@ -1,9 +1,11 @@
 package br.org.apae.atendimento.repositories;
 
 import br.org.apae.atendimento.entities.Arquivo;
+import br.org.apae.atendimento.integration.AbstractPostgresTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.dao.DataIntegrityViolationException;
 
@@ -14,7 +16,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DataJpaTest
-class AnexoRepositoryTest {
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+class AnexoRepositoryTest extends AbstractPostgresTest {
 
     @Autowired
     private AnexoRepository repository;
@@ -38,7 +41,7 @@ class AnexoRepositoryTest {
         arquivoInvalido.setObjectName(UUID.randomUUID() + "-overflow.pdf");
         arquivoInvalido.setNomeArquivo("overflow.pdf");
         arquivoInvalido.setData(LocalDate.now());
-        arquivoInvalido.setTitulo("A".repeat(300)); // acima de 255
+        arquivoInvalido.setTitulo("A".repeat(300));
 
         Exception ex = assertThrows(DataIntegrityViolationException.class, () -> repository.saveAndFlush(arquivoInvalido));
 
@@ -46,4 +49,3 @@ class AnexoRepositoryTest {
         assertTrue(msg.contains("value too long") || msg.contains("data exception") || msg.contains("too long") || msg.contains("null"));
     }
 }
-

@@ -5,24 +5,30 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
-import org.hibernate.annotations.Immutable; // IMPORTANTE
+import org.hibernate.annotations.Immutable;
 
 import java.util.*;
 
 @Entity
-@Immutable // Somente Leitura
-@Table(name = "vw_profissionais") // Aponta para a view exigida pelo PO
+@Immutable
+@Table(name = "vw_profissional_saude", schema = "atendimento")
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProfissionalSaude {
 
     @Id
+    @Column(name = "profissional_saude_id")
     private UUID id;
 
-    @Column(name = "nome") // Mapeado para a View
+    @Column(name = "usuario_id")
+    private UUID usuarioId;
+
+    @Column(name = "nome")
     private String nomeCompleto;
+
+    @Column(name = "cpf")
+    private String cpf;
 
     @Column(name = "registro_profissional")
     private String registroProfissional;
@@ -40,32 +46,13 @@ public class ProfissionalSaude {
     @Column(name = "perfil")
     private String perfil;
 
-    @Column(name = "status")
-    private String status;
+    @Column(name = "ativo")
+    private Boolean ativo;
 
-    // --- CAMPOS IGNORADOS PELO BANCO DE DADOS (@Transient) ---
-    @Transient
-    private String primeiroNome;
+    @Column(name = "primeiro_acesso")
+    private Boolean primeiroAcesso;
 
-    @Transient
+    @Column(name = "contato")
     private String contato;
-    // ---------------------------------------------------------
-
-    @JsonIgnore
-    @ManyToMany()
-    @JoinTable(
-            name = "profissional_paciente",
-            joinColumns = @JoinColumn(name = "profissional_id"),
-            inverseJoinColumns = @JoinColumn(name = "paciente_id")
-    )
-    private Set<Paciente> pacientes = new HashSet<>();
-
-    @JsonIgnore
-    @OneToMany(mappedBy = "profissional")
-    private Set<Atendimento> atendimentos = new HashSet<>();
-
-    @JsonIgnore
-    @OneToMany(mappedBy = "profissional")
-    private Set<Arquivo> arquivos = new HashSet<>();
 
 }

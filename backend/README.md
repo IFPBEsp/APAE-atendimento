@@ -9,7 +9,7 @@ Este diretório contém a API RESTful do Sistema de Atendimento da APAE, desenvo
 A infraestrutura e as bibliotecas utilizadas no projeto baseiam-se em:
 - **Linguagem:** Java 21
 - **Framework Core:** Spring Boot 3.5.6 (Web, Data JPA, Validation, Actuator)
-- **Banco de Dados:** PostgreSQL (Desenvolvimento/Produção) e H2 Database (Ambiente de Testes rápido)
+- **Banco de Dados:** PostgreSQL (desenvolvimento, produção e testes de integração), com schemas e migrations Flyway
 - **Armazenamento de Arquivos:** MinIO
 - **Autenticação & Segurança:** Autenticação robusta própria e verificação de tokens JWT nativa via **Spring Security**
 - **Cache:** Caffeine Cache
@@ -74,7 +74,7 @@ mvn clean install
 O projeto utiliza perfis do Spring Boot para diferenciar ambientes:
 
 * dev → Desenvolvimento com PostgreSQL local
-* test → Testes com H2 em memória
+* test → Testes com PostgreSQL, Flyway e schema `atendimento`
 * prod → Produção (configuração futura)
 
 Os arquivos correspondentes são:
@@ -117,7 +117,15 @@ cp backend/docker/local-secrets.properties.example backend/docker/local-secrets.
 
 ### Localmente em modo Test
 
-Não requer nenhuma configuração externa. Utiliza banco H2 em memória e autenticação mock com usuário fixo (`44444444-4444-4444-4444-444444444444`).
+O perfil `test` usa PostgreSQL e executa as migrations Flyway para montar os schemas, tabelas, views e dados mínimos de teste. Por padrão, os testes de integração usam Testcontainers. Para apontar para um PostgreSQL local ou container já existente, configure:
+
+```bash
+TEST_DATABASE_URL=jdbc:postgresql://localhost:5433/atendimento_test
+TEST_DATABASE_USERNAME=test
+TEST_DATABASE_PASSWORD=test
+```
+
+A autenticação de teste usa o usuário fixo `44444444-4444-4444-4444-444444444444`.
 
 ```bash
 mvn spring-boot:run -Dspring-boot.run.profiles=test
@@ -224,7 +232,7 @@ http://localhost:8080
 
 ## Executando os Testes
 
-O projeto possui testes unitários, de integração e de repositório, todos executados com o perfil `test` (H2 em memória).
+O projeto possui testes unitários, de integração e de repositório executados com o perfil `test`. Os testes que validam comportamento de banco usam PostgreSQL com Flyway, incluindo o contrato dos schemas `apae_geral` e `atendimento`, views e FKs cruzadas.
 
 ```bash
 mvn test

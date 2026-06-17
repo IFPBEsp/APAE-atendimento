@@ -1,6 +1,5 @@
 package br.org.apae.atendimento.security;
 
-import br.org.apae.atendimento.controllers.AgendamentoController;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -43,7 +42,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 || "/auth/logout".equals(path)
                 || "/".equals(path)
                 || "/error".equals(path)
-                || path.startsWith("/h2")
                 || path.startsWith("/actuator/health");
     }
 

@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 @Entity
-@Table(name = "atendimento")
+@Table(name = "atendimento", schema = "atendimento")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -19,22 +19,29 @@ public class Atendimento {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @OneToMany(mappedBy = "atendimento", cascade = CascadeType.ALL, orphanRemoval = true)
-    @OrderColumn(name = "ordem")
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "atendimento_id", nullable = false)
+    @OrderColumn(name = "ordem", nullable = false)
     private List<Topico> relatorio = new ArrayList<>();
 
     @Column(name = "data_atendimento")
     private LocalDateTime dataAtendimento;
 
     @Column(name = "numeracao")
-    private Long numeracao;
+    private String numeracao;
 
-    @ManyToOne
-    @JoinColumn(name = "paciente_id")
+    @Column(name = "paciente_id", nullable = false)
+    private UUID pacienteId;
+
+    @Column(name = "profissional_id", nullable = false)
+    private UUID profissionalId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "paciente_id", insertable = false, updatable = false)
     private Paciente paciente;
 
-    @ManyToOne
-    @JoinColumn(name = "profissional_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "profissional_id", insertable = false, updatable = false)
     private ProfissionalSaude profissional;
 
     @Column(name = "status")

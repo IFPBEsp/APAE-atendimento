@@ -15,23 +15,23 @@ import java.util.UUID;
 
 @Repository
 public interface AtendimentoRepository extends JpaRepository<Atendimento, UUID> {
-    List<Atendimento> findByPacienteIdAndProfissionalIdOrderByDataAtendimento(UUID pacienteId, UUID profissionalId);
 
-    @Query("""
-        SELECT MAX(a.numeracao)
-        FROM Atendimento a
-        WHERE MONTH(a.dataAtendimento) = :mes
-          AND YEAR(a.dataAtendimento) = :ano
-          AND a.profissional.id = :profissionalId
-    """)
+    @Query(value = """
+        SELECT MAX(CAST(numeracao AS BIGINT))
+        FROM atendimento.atendimento
+        WHERE EXTRACT(MONTH FROM data_atendimento) = :mes
+          AND EXTRACT(YEAR FROM data_atendimento) = :ano
+          AND profissional_id = :profissionalId
+          AND numeracao ~ '^[0-9]+$'
+    """, nativeQuery = true)
     Long findMaxNumeracaoByMesAndAno(@Param("mes") int mes, @Param("ano") int ano, @Param("profissionalId") UUID profissionalId);
 
     @Query("""
         SELECT DISTINCT a
         FROM Atendimento a
         LEFT JOIN FETCH a.relatorio
-        WHERE a.paciente.id = :pacienteid
-            AND a.profissional.id = :profissionalid
+        WHERE a.pacienteId = :pacienteid
+            AND a.profissionalId = :profissionalid
         ORDER BY a.dataAtendimento
     """)
     List<Atendimento> findByPacienteIdAndProfissionalIdComRelatorio(
@@ -52,8 +52,8 @@ public interface AtendimentoRepository extends JpaRepository<Atendimento, UUID> 
         FROM Atendimento a
         WHERE a.dataAtendimento >= :inicioDia
           AND a.dataAtendimento < :fimDia
-          AND a.profissional.id = :profissionalId
-          AND a.paciente.id = :pacienteId
+          AND a.profissionalId = :profissionalId
+          AND a.pacienteId = :pacienteId
     """)
     boolean existsAtendimentoNoDia(
             LocalDateTime inicioDia,
@@ -67,7 +67,19 @@ public interface AtendimentoRepository extends JpaRepository<Atendimento, UUID> 
             LocalDateTime dataAtendimento
     );
 
+    Optional<Atendimento> findByIdAndProfissionalIdAndPacienteId(
+            UUID id,
+            UUID profissionalId,
+            UUID pacienteId
+    );
+
     @Modifying
-    @Query("UPDATE Atendimento a SET a.status = true WHERE a.id = :id")
-    void concluirAtendimento(@Param("id") UUID id);
+    @Query("""
+    UPDATE Atendimento a
+    SET a.status = true
+    WHERE a.id = :id
+      AND a.profissionalId = :profissionalId
+""")
+    int concluirAtendimento(@Param("id") UUID id, @Param("profissionalId") UUID profissionalId);
+
 }

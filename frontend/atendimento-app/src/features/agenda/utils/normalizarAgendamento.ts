@@ -16,7 +16,7 @@ export function normalizarAgendamentos(
         nomeProfissional: a.nomeProfissional || "Não informado",
         horario: a.time.substring(0, 5), 
         data: isoParaBR(a.data),
-        numeracao: a.numeroAtendimento ?? 0,
+        numeracao: String(a.numeroAtendimento ?? "0"),
         status: a.status,
         externo: a.externo ?? false, 
       });
