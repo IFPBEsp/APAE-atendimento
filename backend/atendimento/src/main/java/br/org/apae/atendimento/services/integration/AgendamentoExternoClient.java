@@ -81,7 +81,7 @@ public class AgendamentoExternoClient {
 
             return response.getBody().stream()
                     .filter(map -> !Boolean.TRUE.equals(map.get("cancelled")))
-                    .map(this::mapearParaLocalDTO)
+                    .map(map -> mapearParaLocalDTO(map, profissionalId))
                     .filter(Objects::nonNull)
                     .sorted(Comparator.comparing(AgendamentoResponseDTO::data)
                             .thenComparing(AgendamentoResponseDTO::hora))
@@ -93,7 +93,7 @@ public class AgendamentoExternoClient {
         }
     }
 
-    private AgendamentoResponseDTO mapearParaLocalDTO(Map<String, Object> externalData) {
+    private AgendamentoResponseDTO mapearParaLocalDTO(Map<String, Object> externalData, UUID profissionalId) {
         try {
             String effectiveDateTime = (String) externalData.get("effectiveDateTime");
             if (effectiveDateTime == null || !effectiveDateTime.contains("T")) {
@@ -114,7 +114,7 @@ public class AgendamentoExternoClient {
 
             String nomePaciente = "Paciente (Sistema Geral)";
             try {
-                nomePaciente = pacienteService.getNomeCompletoPacienteById(patientId);
+                nomePaciente = pacienteService.getNomeCompletoPacienteById(patientId, profissionalId);
             } catch (Exception ignored) {
                 // paciente pode não existir localmente; mantém o rótulo padrão
             }
