@@ -14,10 +14,11 @@ export function normalizarAgendamentos(
         paciente: a.nomePaciente,
         profissionalId: a.profissionalId || "",
         nomeProfissional: a.nomeProfissional || "Não informado",
-        horario: a.time,
+        horario: a.time.substring(0, 5), 
         data: isoParaBR(a.data),
         numeracao: String(a.numeroAtendimento ?? "0"),
         status: a.status,
+        externo: a.externo ?? false, 
       });
     });
   });

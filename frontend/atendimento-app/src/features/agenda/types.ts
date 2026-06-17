@@ -8,6 +8,7 @@ export interface Agendamento {
   horario: string;
   numeracao: string;
   status: boolean;
+  externo: boolean;
 }
 
 export interface AgendamentoResponse {
@@ -20,6 +21,7 @@ export interface AgendamentoResponse {
   time: string;
   numeroAtendimento: string;
   status: boolean;
+  externo?: boolean;
 }
 
 export interface DiaAgendamento {
