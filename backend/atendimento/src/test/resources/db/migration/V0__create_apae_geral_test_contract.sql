@@ -61,3 +61,17 @@ CREATE TABLE IF NOT EXISTS apae_geral.cadastro_anual_transtorno (
     transtorno_id UUID NOT NULL REFERENCES apae_geral.transtornos(id),
     PRIMARY KEY (cadastro_anual_id, transtorno_id)
     );
+
+CREATE TABLE IF NOT EXISTS apae_geral.agendamentos (
+                                                     id UUID PRIMARY KEY,
+                                                     cadastro_anual_id UUID NOT NULL REFERENCES apae_geral.cadastros_anuais(id),
+    profissional_id UUID NOT NULL REFERENCES apae_geral.profissionais_da_saude(id),
+    frequencia_dias INTEGER NOT NULL DEFAULT 7,
+    hora TIME NOT NULL,
+    data_inicial DATE NOT NULL,
+    data_final DATE,
+    ativo BOOLEAN NOT NULL DEFAULT TRUE,
+    data_criacao TIMESTAMP,
+    substituido_por_id UUID,
+    atualizado_de_id UUID
+    );
