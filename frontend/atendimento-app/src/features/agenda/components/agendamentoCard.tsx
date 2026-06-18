@@ -9,16 +9,17 @@ interface AgendamentoCardProps {
   status: boolean;
   externo: boolean; 
   onDeleteClick?: () => void;
+  onConcluirClick?: () => void;
 }
 
 export default function AgendamentoCard({
-  id,
   paciente,
   horario,
-  numeracao,
+  numeroAtendimento,
   status,
   externo,
   onDeleteClick,
+  onConcluirClick,
 }: AgendamentoCardProps) {
 
   return (
@@ -41,7 +42,7 @@ export default function AgendamentoCard({
             {/* Oculta a numeração se for um agendamento externo */}
             {!externo && (
               <span className="text-[11px] font-semibold text-white bg-[#165BAA] w-6 h-6 flex items-center justify-center rounded-full">
-                {String(numeracao ?? "0").padStart(2, "0")}
+                {String(numeroAtendimento ?? "0").padStart(2, "0")}
               </span>
             )}
 
@@ -66,6 +67,12 @@ export default function AgendamentoCard({
 
         <div className="flex justify-center">
           <Button
+            onClick={() => {
+              if (!externo && !status) {
+                onConcluirClick?.();
+              }
+            }}
+            disabled={externo || status}
             className={`h-8 px-3 rounded-full text-xs shadow-sm ${
               status
                 ? "bg-green-500 hover:bg-green-600 text-white"

@@ -174,10 +174,27 @@ public class AtendimentoService {
 
     @Transactional
     public void concluirAtendimento(UUID profissionalId, UUID atendimentoId) {
+        Atendimento atendimento = repository.findById(atendimentoId)
+                .orElseThrow(() -> new AtendimentoNotFoundException("O atendimento nao existe ou nao pertence ao profissional autenticado."));
+
+        if (!atendimento.getProfissionalId().equals(profissionalId)) {
+            throw new AtendimentoNotFoundException("O atendimento nao existe ou nao pertence ao profissional autenticado.");
+        }
+
         int atualizados = repository.concluirAtendimento(atendimentoId, profissionalId);
 
         if (atualizados == 0) {
             throw new AtendimentoNotFoundException("O atendimento nao existe ou nao pertence ao profissional autenticado.");
+        }
+
+        try {
+            tratarAgendamento(
+                    profissionalId,
+                    atendimento.getPacienteId(),
+                    atendimento.getDataAtendimento().toLocalDate(),
+                    atendimento.getNumeracao()
+            );
+        } catch (AgendamentoNotFoundException e) {
         }
     }
 }

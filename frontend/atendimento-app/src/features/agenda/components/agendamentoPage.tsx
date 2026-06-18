@@ -21,6 +21,7 @@ import AgendamentoCard from "../components/agendamentoCard";
 import { useAgendamentos } from "../hooks/useAgendamentos";
 import { useCriarAgendamento } from "../hooks/useCriarAgendamento";
 import { useDeletarAgendamento } from "../hooks/useDeletarAgendamento";
+import { useConcluirAgendamento } from "../hooks/useConcluirAgendamento";
 
 import { agruparPorData } from "../utils/agruparPorData";
 
@@ -43,6 +44,7 @@ export default function AgendamentoPage() {
 
   const criarAgendamentoMutation = useCriarAgendamento();
   const deletarAgendamentoMutation = useDeletarAgendamento();
+  const concluirAgendamentoMutation = useConcluirAgendamento();
 
   const agendamentosFiltrados = useMemo(() => {
     if (!dataSelecionada) return agendamentos;
@@ -165,6 +167,12 @@ export default function AgendamentoPage() {
                   numeroAtendimento={item.numeracao}
                   status={item.status} 
                   externo={item.externo} 
+                  onConcluirClick={() => {
+                    concluirAgendamentoMutation.mutate({
+                      pacienteId: item.pacienteId,
+                      agendamentoId: item.id,
+                    });
+                  }}
                   onDeleteClick={() => {
                     setAgendamentoSelecionado(item);
                     setOpenDelete(true);
