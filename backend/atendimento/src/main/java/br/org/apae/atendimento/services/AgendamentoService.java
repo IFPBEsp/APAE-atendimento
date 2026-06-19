@@ -31,15 +31,14 @@ public class AgendamentoService {
     private PacienteService pacienteService;
     private AgendamentoMapper agendamentoMapper;
     private AtendimentoRepository atendimentoRepository;
-    private final ProfissionalPacienteRepository profissionalPacienteRepository;
-    private AgendamentoExternoClient agendamentoExternoClient;
+    private ProfissionalPacienteRepository profissionalPacienteRepository;
     private AgendamentoGeralReadRepository agendamentoGeralReadRepository;
 
     public AgendamentoService(AgendamentoRepository repository,
                               PacienteService pacienteService,
                               AgendamentoMapper agendamentoMapper,
                               AtendimentoRepository atendimentoRepository,
-                              AgendamentoExternoClient agendamentoExternoClient;
+                              ProfissionalPacienteRepository profissionalPacienteRepository,
                               AgendamentoGeralReadRepository agendamentoGeralReadRepository) {
 
         this.repository = repository;
@@ -47,7 +46,6 @@ public class AgendamentoService {
         this.agendamentoMapper = agendamentoMapper;
         this.atendimentoRepository = atendimentoRepository;
         this.profissionalPacienteRepository = profissionalPacienteRepository;
-        this.agendamentoExternoClient = agendamentoExternoClient; 
         this.agendamentoGeralReadRepository = agendamentoGeralReadRepository;
     }
 
