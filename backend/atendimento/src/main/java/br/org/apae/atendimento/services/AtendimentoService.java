@@ -13,7 +13,6 @@ import br.org.apae.atendimento.dtos.response.AtendimentoResponseDTO;
 import br.org.apae.atendimento.dtos.response.MesAnoAtendimentoResponseDTO;
 import br.org.apae.atendimento.entities.Agendamento;
 import br.org.apae.atendimento.entities.Atendimento;
-import br.org.apae.atendimento.entities.ProfissionalSaude;
 import br.org.apae.atendimento.entities.Topico;
 import br.org.apae.atendimento.exceptions.invalid.TopicoInvalidException;
 import br.org.apae.atendimento.exceptions.notfound.AgendamentoNotFoundException;
@@ -22,37 +21,34 @@ import br.org.apae.atendimento.exceptions.invalid.RelacaoInvalidException;
 import br.org.apae.atendimento.exceptions.notfound.AtendimentoNotFoundException;
 import br.org.apae.atendimento.mappers.AtendimentoMapper;
 import br.org.apae.atendimento.repositories.AtendimentoRepository;
-import br.org.apae.atendimento.repositories.ProfissionalSaudeRepository;
+import br.org.apae.atendimento.repositories.ProfissionalPacienteRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class AtendimentoService {
     private final AtendimentoRepository repository;
-    private final ProfissionalSaudeRepository profissionalRepository;
     private final AgendamentoService agendamentoService;
     private final AtendimentoMapper atendimentoMapper;
     private final PacienteService pacienteService;
+    private final ProfissionalPacienteRepository profissionalPacienteRepository;
 
     public AtendimentoService(AtendimentoRepository repository,
-                              ProfissionalSaudeRepository profissionalRepository,
                               AgendamentoService agendamentoService,
                               AtendimentoMapper atendimentoMapper,
-                              PacienteService pacienteService
+                              PacienteService pacienteService,
+                              ProfissionalPacienteRepository profissionalPacienteRepository
                               ) {
 
         this.repository = repository;
-        this.profissionalRepository = profissionalRepository;
         this.agendamentoService = agendamentoService;
         this.atendimentoMapper = atendimentoMapper;
         this.pacienteService = pacienteService;
+        this.profissionalPacienteRepository = profissionalPacienteRepository;
     }
 
+    @Transactional
     public AtendimentoResponseDTO addAtendimento(AtendimentoRequestDTO atendimentoRequestDTO, UUID profissionalId) {
-        if (!pacienteService.existeRelacao(atendimentoRequestDTO.pacienteId(), profissionalId)) {
-            throw new RelacaoInvalidException("Você não tem permissão para criar atendimentos deste paciente.");
-        }
-
         if (repository.existsByProfissionalIdAndDataAtendimento(
                 profissionalId,
                 LocalDateTime.of(atendimentoRequestDTO.data(), atendimentoRequestDTO.hora())
@@ -61,21 +57,30 @@ public class AtendimentoService {
         }
 
         Atendimento dadosConvertidos = atendimentoMapper.toEntityPadrao(atendimentoRequestDTO);
-        ProfissionalSaude profissional = profissionalRepository.getReferenceById(profissionalId);
-        dadosConvertidos.setProfissional(profissional);
+        dadosConvertidos.setProfissionalId(profissionalId);
 
         verificarRelatorio(atendimentoRequestDTO.relatorio());
 
         dadosConvertidos.setNumeracao(gerarProximaNumeracao(profissionalId, atendimentoRequestDTO.data()));
+        associarPacienteAoProfissional(profissionalId, atendimentoRequestDTO.pacienteId());
 
         Atendimento dadosPersistidos = repository.save(dadosConvertidos);
         try {
-            tratarAgendamento(atendimentoRequestDTO.pacienteId(), atendimentoRequestDTO.data(), dadosPersistidos.getNumeracao());
+            tratarAgendamento(
+                    profissionalId,
+                    atendimentoRequestDTO.pacienteId(),
+                    atendimentoRequestDTO.data(),
+                    dadosPersistidos.getNumeracao()
+            );
         } catch (AgendamentoNotFoundException e) {
         }
 
         return atendimentoMapper.toDTOPadrao(dadosPersistidos);
 
+    }
+
+    private void associarPacienteAoProfissional(UUID profissionalId, UUID pacienteId) {
+        profissionalPacienteRepository.associarSeNaoExistir(profissionalId, pacienteId);
     }
 
     private void verificarRelatorio(List<TopicoRequestDTO> relatorio) {
@@ -89,14 +94,21 @@ public class AtendimentoService {
         }
     }
 
-    public void tratarAgendamento(UUID pacienteId, LocalDate data, Long numeracao) {
-        Agendamento agendamento = agendamentoService.buscarAgendamentoPorDataEPaciente(data, pacienteId);
-        agendamento.setNumeracao(numeracao);
+    public void tratarAgendamento(UUID profissionalId, UUID pacienteId, LocalDate data, String numeracao) {
+        Agendamento agendamento = agendamentoService.buscarAgendamentoPorDataProfissionalEPaciente(
+                data,
+                profissionalId,
+                pacienteId
+        );
 
+        agendamento.setNumeracao(numeracao);
         agendamentoService.setStatus(agendamento);
     }
 
     public List<MesAnoAtendimentoResponseDTO> getAtendimentosAgrupadosPorMes(UUID pacienteId, UUID profissionalId) {
+        if (!pacienteService.existeRelacao(pacienteId, profissionalId)) {
+            throw new RelacaoInvalidException("Você não tem permissão para listar atendimentos deste paciente.");
+        }
 
         List<Atendimento> atendimentos = repository
                 .findByPacienteIdAndProfissionalIdComRelatorio(pacienteId, profissionalId);
@@ -115,10 +127,14 @@ public class AtendimentoService {
             throw new RelacaoInvalidException("Você não tem permissão para excluir atendimentos deste paciente.");
         }
 
-        repository.deleteById(atendimentoId);
+        Atendimento atendimento = repository
+                .findByIdAndProfissionalIdAndPacienteId(atendimentoId, profissionalId, pacienteId)
+                .orElseThrow(() -> new AtendimentoNotFoundException("O atendimento não foi encontrado."));
+
+        repository.delete(atendimento);
     }
 
-    public Long gerarProximaNumeracao(UUID profissionalId, LocalDate data) {
+    public String gerarProximaNumeracao(UUID profissionalId, LocalDate data) {
         Long maiorNumeracao = repository.findMaxNumeracaoByMesAndAno(
                 data.getMonthValue(),
                 data.getYear(),
@@ -126,17 +142,22 @@ public class AtendimentoService {
 
         long numeracaoAtual = (maiorNumeracao != null) ? maiorNumeracao : 0L;
 
-        return numeracaoAtual + 1;
+        return String.valueOf(numeracaoAtual + 1);
     }
 
     @Transactional(readOnly = false)
     public AtendimentoResponseDTO editar(AtendimentoRequestDTO requestDTO, UUID atendimentoId, UUID profissionalId) {
-        if (!pacienteService.existeRelacao(requestDTO.pacienteId(), profissionalId)) {
-            throw new RelacaoInvalidException("Você não tem permissão para editar atendimentos deste paciente.");
-        }
-
         Atendimento atendimento = repository.findByIdComRelatorio(atendimentoId)
                 .orElseThrow(() -> new AtendimentoNotFoundException("O atendimento que deseja editar não foi encontrado."));
+
+        if (!pacienteService.existeRelacao(requestDTO.pacienteId(), profissionalId)) {
+            throw new RelacaoInvalidException("Voce nao tem permissao para editar atendimentos deste paciente.");
+        }
+
+        if (!atendimento.getProfissionalId().equals(profissionalId)) {
+            throw new RelacaoInvalidException("Voce nao tem permissao para editar este atendimento.");
+        }
+
         verificarRelatorio(requestDTO.relatorio());
 
         atendimento.getRelatorio().clear();
@@ -144,7 +165,6 @@ public class AtendimentoService {
             Topico topico = new Topico();
             topico.setTitulo(t.titulo());
             topico.setDescricao(t.descricao());
-            topico.setAtendimento(atendimento);
             atendimento.getRelatorio().add(topico);
         });
 
@@ -153,14 +173,34 @@ public class AtendimentoService {
             atendimento.setDataAtendimento(LocalDateTime.of(requestDTO.data(), requestDTO.hora()));
         }
 
+        atendimento.setPacienteId(requestDTO.pacienteId());
+
         return atendimentoMapper.toDTOPadrao(repository.save(atendimento));
     }
 
     @Transactional
     public void concluirAtendimento(UUID profissionalId, UUID atendimentoId) {
-        if (!repository.existsById(atendimentoId)) {
-            throw new AtendimentoNotFoundException("O atendimento não existe.");
+        Atendimento atendimento = repository.findById(atendimentoId)
+                .orElseThrow(() -> new AtendimentoNotFoundException("O atendimento nao existe ou nao pertence ao profissional autenticado."));
+
+        if (!atendimento.getProfissionalId().equals(profissionalId)) {
+            throw new AtendimentoNotFoundException("O atendimento nao existe ou nao pertence ao profissional autenticado.");
         }
-        repository.concluirAtendimento(atendimentoId);
+
+        int atualizados = repository.concluirAtendimento(atendimentoId, profissionalId);
+
+        if (atualizados == 0) {
+            throw new AtendimentoNotFoundException("O atendimento nao existe ou nao pertence ao profissional autenticado.");
+        }
+
+        try {
+            tratarAgendamento(
+                    profissionalId,
+                    atendimento.getPacienteId(),
+                    atendimento.getDataAtendimento().toLocalDate(),
+                    atendimento.getNumeracao()
+            );
+        } catch (AgendamentoNotFoundException e) {
+        }
     }
 }

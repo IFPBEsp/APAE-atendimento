@@ -5,11 +5,13 @@ import java.time.LocalTime;
 import java.util.UUID;
 
 public record AgendamentoResponseDTO(
-        UUID atendimentoId,
+        UUID id,
         UUID pacienteId,
         String nomePaciente,
         LocalDate data,
-        LocalTime time,
-        Long numeroAtendimento,
-        boolean status) {
+        LocalTime hora,
+        String numeracao,
+        boolean status,
+        boolean externo
+) {
 }

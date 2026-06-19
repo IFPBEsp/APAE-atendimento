@@ -6,24 +6,26 @@ export interface Agendamento {
   nomeProfissional: string;
   data: string;
   horario: string;
-  numeracao: number;
+  numeracao: string;
   status: boolean;
+  externo: boolean;
 }
 
 export interface AgendamentoResponse {
-  atendimentoId: string;
+  id: string;
   pacienteId: string;
   nomePaciente: string;
-  profissionalId: string;
-  nomeProfissional: string;
+  profissionalId?: string;
+  nomeProfissional?: string;
   data: string;
-  time: string;
-  numeroAtendimento: number;
+  hora: string;
+  numeracao: string;
   status: boolean;
+  externo?: boolean;
 }
 
 export interface DiaAgendamento {
-  data: string;
+  dia: string;
   agendamentos: AgendamentoResponse[];
 }
 

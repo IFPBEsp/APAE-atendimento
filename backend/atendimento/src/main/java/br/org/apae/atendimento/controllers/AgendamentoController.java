@@ -46,4 +46,12 @@ public class AgendamentoController {
         service.deletar(usuarioAutenticado.getId(), pacienteId, agendamentoId);
         return ResponseEntity.ok().body("Agendamento excluído");
     }
+
+    @PatchMapping("/{pacienteId}/{agendamentoId}/concluir")
+    public ResponseEntity<String> concluirAgendamento(@PathVariable UUID pacienteId,
+                                                     @PathVariable UUID agendamentoId,
+                                                     @AuthenticationPrincipal UsuarioAutenticado usuarioAutenticado) {
+        service.concluir(usuarioAutenticado.getId(), pacienteId, agendamentoId);
+        return ResponseEntity.ok().body("Agendamento concluído");
+    }
 }

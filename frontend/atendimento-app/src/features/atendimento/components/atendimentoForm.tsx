@@ -21,12 +21,13 @@ interface AtendimentoFormProps {
   atendimentos: Atendimento[];
   atendimentoEditavel?: Atendimento;
   onClose: () => void;
+  pacienteId?: string;
 }
 
 interface AtendimentoFormValues {
   data: string;
   hora: string;
-  numeracao: number;
+  numeracao: string;
   relatorio: {
     titulo: string;
     descricao: string;
@@ -37,9 +38,10 @@ export default function AtendimentoForm({
   atendimentos,
   atendimentoEditavel,
   onClose,
+  pacienteId: pacienteIdProp,
 }: AtendimentoFormProps) {
   const { id } = useParams();
-  const pacienteId = typeof id === "string" ? id : undefined;
+  const pacienteId = pacienteIdProp ?? (typeof id === "string" ? id : undefined);
 
   function getTodayLocalDate() {
     const now = new Date();
@@ -55,7 +57,7 @@ export default function AtendimentoForm({
         ? {
             data: brParaISO(atendimentoEditavel.data.replace(/\//g, "-")),
             hora: atendimentoEditavel.hora,
-            numeracao: atendimentoEditavel.numeracao,
+            numeracao: String(atendimentoEditavel.numeracao),
             relatorio: atendimentoEditavel.relatorio.map((r) => ({
               titulo: r.titulo,
               descricao: r.descricao,
@@ -67,7 +69,7 @@ export default function AtendimentoForm({
               hour: "2-digit",
               minute: "2-digit",
             }),
-            numeracao: 1,
+            numeracao: "1",
             relatorio: [{ titulo: "", descricao: "" }],
           },
     });
@@ -76,6 +78,8 @@ export default function AtendimentoForm({
     mutationFn: criarAtendimento,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["atendimentos"] });
+      queryClient.invalidateQueries({ queryKey: ["pacientes"] });
+      queryClient.invalidateQueries({ queryKey: ["pacientes-dropdown"] });
       toast.success("Atendimento criado com sucesso.");
       reset();
       onClose();
@@ -115,7 +119,7 @@ export default function AtendimentoForm({
       const dataOriginalISO = brParaISO(atendimentoEditavel.data);
 
       if (dataSelecionada === dataOriginalISO) {
-        setValue("numeracao", atendimentoEditavel.numeracao);
+        setValue("numeracao", String(atendimentoEditavel.numeracao));
         return;
       }
     }
@@ -130,7 +134,7 @@ export default function AtendimentoForm({
       return mesBR === mes && anoBR === ano;
     });
 
-    setValue("numeracao", atendimentosDoMes.length + 1);
+    setValue("numeracao", String(atendimentosDoMes.length + 1));
   }, [dataSelecionada, atendimentos, atendimentoEditavel, setValue]);
 
   const { fields, append, remove } = useFieldArray({
@@ -198,7 +202,7 @@ export default function AtendimentoForm({
             type="number"
             required
             disabled
-            {...register("numeracao", { valueAsNumber: true })}
+            {...register("numeracao")}
             className="rounded-[30px] border-[#B2D7EC] focus-visible:ring-0 focus-visible:border-[#B2D7EC] text-center"
           />
         </div>

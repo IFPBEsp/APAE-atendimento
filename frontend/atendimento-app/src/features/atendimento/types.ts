@@ -8,7 +8,7 @@ export interface Atendimento {
   id: string;
   data: string;
   hora: string;
-  numeracao: number;
+  numeracao: string;
   status: boolean;
   relatorio: Relatorio[];
 }
@@ -17,7 +17,7 @@ export interface AtendimentoPayload {
   pacienteId: string;
   data: string;
   hora: string;
-  numeracao?: number;
+  numeracao?: string;
   relatorio: Omit<Relatorio, "id">[];
 }
 

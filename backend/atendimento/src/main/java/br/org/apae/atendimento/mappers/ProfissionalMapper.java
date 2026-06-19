@@ -17,11 +17,9 @@ public class ProfissionalMapper extends AbstractMapper<ProfissionalSaude, Void, 
     public ProfissionalResponseDTO toDTOPadrao(ProfissionalSaude profissional) {
         return new ProfissionalResponseDTO(
                 profissional.getId(),
-                profissional.getPrimeiroNome(),
                 profissional.getNomeCompleto(),
                 profissional.getEmail(),
                 profissional.getContato()
         );
     }
-
 }

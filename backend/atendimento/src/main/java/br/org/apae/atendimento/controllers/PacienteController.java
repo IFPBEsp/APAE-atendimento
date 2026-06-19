@@ -23,14 +23,19 @@ public class PacienteController {
     private PacienteService pacienteService;
 
     @GetMapping("/{id}")
-    public ResponseEntity<PacienteResponseDTO> buscarPorId(@PathVariable UUID id) {
-        PacienteResponseDTO paciente = pacienteService.getPaciente(id);
-        return ResponseEntity.ok(paciente);
+    public ResponseEntity<PacienteResponseDTO> buscarPorId(
+            @PathVariable UUID id,
+            @AuthenticationPrincipal UsuarioAutenticado usuarioAutenticado
+    ) {
+        return ResponseEntity.ok(pacienteService.getPaciente(id, usuarioAutenticado.getId()));
     }
 
     @GetMapping("/{id}/nome-completo")
-    public ResponseEntity<String> obterPrimeiroNome(@PathVariable UUID id) {
-        String nome = pacienteService.getNomeCompletoPacienteById(id);
+    public ResponseEntity<String> obterNomeCompleto(
+            @PathVariable UUID id,
+            @AuthenticationPrincipal UsuarioAutenticado usuarioAutenticado
+    ) {
+        String nome = pacienteService.getNomeCompletoPacienteById(id, usuarioAutenticado.getId());
         return ResponseEntity.ok().body(nome);
     }
     
@@ -50,15 +55,35 @@ public class PacienteController {
        return ResponseEntity.ok(paciente);
    }
 
-   @PostMapping("/{pacienteId}")
-   public ResponseEntity<String> adicionarFoto(@RequestPart("foto") MultipartFile foto, @PathVariable UUID pacienteId){
-        String urlFoto = pacienteService.adicionarFoto(foto, pacienteId);
+    @GetMapping("/todos/search")
+    public ResponseEntity<PaginatedResponseDTO<PacienteResponseDTO>> buscarTodosPacientes(
+            @RequestParam(required = false) String nome,
+            @RequestParam(required = false) String cpf,
+            @RequestParam(required = false) String cidade,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int limit
+            ) {
 
-        return  ResponseEntity.status(HttpStatus.CREATED).body(urlFoto);
+       PaginatedResponseDTO<PacienteResponseDTO> paciente = pacienteService.buscarTodosPacientes(
+               nome, cpf, cidade, page, limit
+       );
+       return ResponseEntity.ok(paciente);
    }
 
-   @GetMapping("/dropdown")
-   public ResponseEntity<List<PacienteDropdownResponseDTO>> listarParaDropdown() {
-        return ResponseEntity.ok(pacienteService.listarParaDropdown());
-   }
+    @PostMapping("/{pacienteId}")
+    public ResponseEntity<String> adicionarFoto(
+            @RequestPart("foto") MultipartFile foto,
+            @PathVariable UUID pacienteId,
+            @AuthenticationPrincipal UsuarioAutenticado usuarioAutenticado
+    ) {
+        String urlFoto = pacienteService.adicionarFoto(foto, pacienteId, usuarioAutenticado.getId());
+        return ResponseEntity.status(HttpStatus.CREATED).body(urlFoto);
+    }
+
+    @GetMapping("/dropdown")
+    public ResponseEntity<List<PacienteDropdownResponseDTO>> listarParaDropdown(
+            @AuthenticationPrincipal UsuarioAutenticado usuarioAutenticado
+    ) {
+        return ResponseEntity.ok(pacienteService.listarParaDropdown(usuarioAutenticado.getId()));
+    }
 }

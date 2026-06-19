@@ -1,6 +1,7 @@
 package br.org.apae.atendimento.services;
 
 import br.org.apae.atendimento.dtos.request.LoginRequestDTO;
+import br.org.apae.atendimento.dtos.response.AutenticacaoResponseDTO;
 import br.org.apae.atendimento.entities.ProfissionalSaude;
 import br.org.apae.atendimento.repositories.ProfissionalSaudeRepository;
 import br.org.apae.atendimento.security.JwtService;
@@ -43,12 +44,13 @@ class AuthServiceTest {
         ProfissionalSaude usuario = mock(ProfissionalSaude.class);
 
         when(profissionalRepository.findByEmailIgnoreCase("user@email.com")).thenReturn(Optional.of(usuario));
-        when(usuario.getStatus()).thenReturn("ATIVO");
+        when(usuario.getAtivo()).thenReturn(true);
         when(usuario.getSenha()).thenReturn("hash");
         when(passwordEncoder.matches("senha123", "hash")).thenReturn(true);
         when(jwtService.gerarToken(usuario)).thenReturn("jwt-token");
 
-        String token = authService.autenticar(requestDTO);
+        AutenticacaoResponseDTO response = authService.autenticar(requestDTO);
+        String token = response.token();
 
         assertEquals("jwt-token", token);
         verify(profissionalRepository).findByEmailIgnoreCase("user@email.com");
@@ -77,7 +79,7 @@ class AuthServiceTest {
         ProfissionalSaude usuario = mock(ProfissionalSaude.class);
 
         when(profissionalRepository.findByEmailIgnoreCase("user@email.com")).thenReturn(Optional.of(usuario));
-        when(usuario.getStatus()).thenReturn("INATIVO");
+        when(usuario.getAtivo()).thenReturn(false);
 
         BadCredentialsException ex = assertThrows(BadCredentialsException.class,
                 () -> authService.autenticar(requestDTO));
@@ -94,7 +96,7 @@ class AuthServiceTest {
         ProfissionalSaude usuario = mock(ProfissionalSaude.class);
 
         when(profissionalRepository.findByEmailIgnoreCase("user@email.com")).thenReturn(Optional.of(usuario));
-        when(usuario.getStatus()).thenReturn("ATIVO");
+        when(usuario.getAtivo()).thenReturn(true);
         when(usuario.getSenha()).thenReturn("hash");
         when(passwordEncoder.matches("senhaErrada", "hash")).thenReturn(false);
 

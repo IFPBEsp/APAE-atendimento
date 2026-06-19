@@ -10,6 +10,6 @@ public record AtendimentoResponseDTO(
     List<TopicoResponseDTO> relatorio,
     LocalDate data,
     LocalTime hora,
-    Long numeracao,
+    String numeracao,
     boolean status) {
 }

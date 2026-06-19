@@ -8,7 +8,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
@@ -21,7 +20,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
 @AutoConfigureMockMvc
 class ArquivoIntegrationTest extends AbstractIntegrationTest {
 
@@ -33,7 +31,7 @@ class ArquivoIntegrationTest extends AbstractIntegrationTest {
     @Autowired
     AnexoRepository anexoRepository;
 
-    UUID pacienteId = UUID.randomUUID();
+    UUID pacienteId = UUID.fromString("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
 
     @BeforeEach
     void clean() {
@@ -52,7 +50,7 @@ class ArquivoIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
-    @DisplayName("Título nulo -> 400 e nada persistido")
+    @DisplayName("Titulo nulo -> 400 e nada persistido")
     void tituloNulo() throws Exception {
         MockMultipartFile file = mockFile("ok.pdf", "application/pdf");
         MockMultipartFile meta = new MockMultipartFile("metadata", "metadata.json", "application/json",
@@ -85,7 +83,7 @@ class ArquivoIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
-    @DisplayName("MIME inválido -> 400")
+    @DisplayName("MIME invalido -> 400")
     void mimeInvalido() throws Exception {
         MockMultipartFile file = mockFile("musica.mp3", "audio/mp3");
         MockMultipartFile meta = metadata(LocalDate.now(), "Titulo", "Desc", 2L);

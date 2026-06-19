@@ -12,6 +12,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.security.Key;
+import java.security.SecureRandom;
+import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -27,9 +29,15 @@ public class JwtService {
 
     @PostConstruct
     public void validarChave() {
-        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
-        if (keyBytes.length < 32) {
-            throw new IllegalStateException("jwt.secret deve ter no mínimo 256 bits (32 bytes)");
+        if (this.secretKey == null || this.secretKey.isBlank()) {
+            byte[] randomBytes = new byte[32]; // 256 bits
+            new SecureRandom().nextBytes(randomBytes);
+            this.secretKey = Base64.getEncoder().encodeToString(randomBytes);
+        } else {
+            byte[] keyBytes = Decoders.BASE64.decode(secretKey);
+            if (keyBytes.length < 32) {
+                throw new IllegalStateException("jwt.secret deve ter no mínimo 256 bits (32 bytes)");
+            }
         }
     }
 

@@ -14,6 +14,8 @@ interface PacienteCardProps extends Paciente {
   onViewAtendimentos?: () => void;
   onViewRelatorios?: () => void;
   onViewAnexos?: () => void;
+  onCreateAtendimento?: () => void;
+  modo?: "meus" | "todos";
 }
 
 export function PacienteCard({
@@ -28,6 +30,8 @@ export function PacienteCard({
   onViewAtendimentos,
   onViewRelatorios,
   onViewAnexos,
+  onCreateAtendimento,
+  modo = "meus",
 }: PacienteCardProps) {
   return (
     <Card className="w-full max-w-md md:max-w-4xl md:h-fit rounded-2xl shadow-md border border-[#EAECF0] bg-white relative">
@@ -39,26 +43,37 @@ export function PacienteCard({
           className="w-48 bg-white rounded-xl shadow-lg border border-gray-200 p-4"
           sideOffset={8}
         >
-          <DropdownMenuItem
-            className="justify-center cursor-pointer"
-            onClick={onViewAtendimentos}
-          >
-            Ver Atendimentos
-          </DropdownMenuItem>
+          {modo === "todos" ? (
+            <DropdownMenuItem
+              className="justify-center cursor-pointer"
+              onClick={onCreateAtendimento}
+            >
+              Criar atendimento
+            </DropdownMenuItem>
+          ) : (
+            <>
+              <DropdownMenuItem
+                className="justify-center cursor-pointer"
+                onClick={onViewAtendimentos}
+              >
+                Ver Atendimentos
+              </DropdownMenuItem>
 
-          <DropdownMenuItem
-            className="justify-center cursor-pointer"
-            onClick={onViewRelatorios}
-          >
-            Criar relatório
-          </DropdownMenuItem>
+              <DropdownMenuItem
+                className="justify-center cursor-pointer"
+                onClick={onViewRelatorios}
+              >
+                Criar relatório
+              </DropdownMenuItem>
 
-          <DropdownMenuItem
-            className="justify-center cursor-pointer"
-            onClick={onViewAnexos}
-          >
-            Adicionar anexo
-          </DropdownMenuItem>
+              <DropdownMenuItem
+                className="justify-center cursor-pointer"
+                onClick={onViewAnexos}
+              >
+                Adicionar anexo
+              </DropdownMenuItem>
+            </>
+          )}
         </DropdownMenuContent>
       </DropdownMenu>
 

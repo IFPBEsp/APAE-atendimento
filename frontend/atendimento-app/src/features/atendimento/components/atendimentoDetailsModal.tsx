@@ -16,7 +16,7 @@ interface AtendimentoDetailsModalProps {
   atendimentoId: string;
   data: string;
   hora: string;
-  numeracao: number;
+  numeracao: string;
   relatorios?: Relatorio[];
   atendimentos: Atendimento[];
   status: boolean;

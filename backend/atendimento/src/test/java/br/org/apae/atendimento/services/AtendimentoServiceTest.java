@@ -6,7 +6,6 @@ import br.org.apae.atendimento.dtos.response.AtendimentoResponseDTO;
 import br.org.apae.atendimento.dtos.response.MesAnoAtendimentoResponseDTO;
 import br.org.apae.atendimento.entities.Agendamento;
 import br.org.apae.atendimento.entities.Atendimento;
-import br.org.apae.atendimento.entities.ProfissionalSaude;
 import br.org.apae.atendimento.entities.Topico;
 import br.org.apae.atendimento.exceptions.invalid.AtendimentoInvalidException;
 import br.org.apae.atendimento.exceptions.invalid.RelacaoInvalidException;
@@ -14,7 +13,7 @@ import br.org.apae.atendimento.exceptions.notfound.AgendamentoNotFoundException;
 import br.org.apae.atendimento.exceptions.notfound.AtendimentoNotFoundException;
 import br.org.apae.atendimento.mappers.AtendimentoMapper;
 import br.org.apae.atendimento.repositories.AtendimentoRepository;
-import br.org.apae.atendimento.repositories.ProfissionalSaudeRepository;
+import br.org.apae.atendimento.repositories.ProfissionalPacienteRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -45,9 +44,6 @@ class AtendimentoServiceTest {
     private AtendimentoRepository repository;
 
     @Mock
-    private ProfissionalSaudeRepository profissionalRepository;
-
-    @Mock
     private AgendamentoService agendamentoService;
 
     @Mock
@@ -55,6 +51,9 @@ class AtendimentoServiceTest {
 
     @Mock
     private PacienteService pacienteService;
+
+    @Mock
+    private ProfissionalPacienteRepository profissionalPacienteRepository;
 
     private UUID profissionalId;
     private UUID pacienteId;
@@ -76,46 +75,54 @@ class AtendimentoServiceTest {
     @Test
     @DisplayName("Deve criar atendimento com numeracao global incrementada")
     void deveCriarAtendimentoComNumeracaoGlobal() {
-        when(pacienteService.existeRelacao(pacienteId, profissionalId)).thenReturn(true);
         when(repository.existsByProfissionalIdAndDataAtendimento(any(), any())).thenReturn(false);
         when(repository.findMaxNumeracaoByMesAndAno(LocalDate.now().getMonthValue(), LocalDate.now().getYear(), profissionalId)).thenReturn(1L);
         when(atendimentoMapper.toEntityPadrao(requestDTO)).thenReturn(new Atendimento());
-        when(profissionalRepository.getReferenceById(profissionalId)).thenReturn(new ProfissionalSaude());
 
         Atendimento entity = new Atendimento();
         when(repository.save(any())).thenReturn(entity);
         when(atendimentoMapper.toDTOPadrao(entity)).thenReturn(mock(AtendimentoResponseDTO.class));
 
-        when(agendamentoService.buscarAgendamentoPorDataEPaciente(any(), any()))
+        when(agendamentoService.buscarAgendamentoPorDataProfissionalEPaciente(any(), any(), any()))
                 .thenReturn(new Agendamento());
 
         AtendimentoResponseDTO response = service.addAtendimento(requestDTO, profissionalId);
 
         assertNotNull(response);
         verify(repository).findMaxNumeracaoByMesAndAno(LocalDate.now().getMonthValue(), LocalDate.now().getYear(), profissionalId);
+        verify(profissionalPacienteRepository).associarSeNaoExistir(profissionalId, pacienteId);
         verify(repository).save(any());
     }
 
     @Test
-    @DisplayName("Deve lançar erro quando profissional não possui vínculo com paciente")
-    void deveLancarErroQuandoSemRelacao() {
-        when(pacienteService.existeRelacao(pacienteId, profissionalId)).thenReturn(false);
+    @DisplayName("Deve criar vinculo quando profissional ainda nao possui relacao com paciente")
+    void deveCriarVinculoQuandoSemRelacao() {
+        when(repository.existsByProfissionalIdAndDataAtendimento(any(), any())).thenReturn(false);
+        when(repository.findMaxNumeracaoByMesAndAno(LocalDate.now().getMonthValue(), LocalDate.now().getYear(), profissionalId)).thenReturn(0L);
+        when(atendimentoMapper.toEntityPadrao(requestDTO)).thenReturn(new Atendimento());
 
-        assertThrows(RelacaoInvalidException.class,
-                () -> service.addAtendimento(requestDTO, profissionalId));
+        Atendimento entity = new Atendimento();
+        when(repository.save(any())).thenReturn(entity);
+        when(atendimentoMapper.toDTOPadrao(entity)).thenReturn(mock(AtendimentoResponseDTO.class));
+        doThrow(new AgendamentoNotFoundException("nao encontrado"))
+                .when(agendamentoService)
+                .buscarAgendamentoPorDataProfissionalEPaciente(any(), any(), any());
 
-        verify(repository, never()).save(any());
+        assertDoesNotThrow(() -> service.addAtendimento(requestDTO, profissionalId));
+
+        verify(profissionalPacienteRepository).associarSeNaoExistir(profissionalId, pacienteId);
+        verify(repository).save(any());
     }
 
     @Test
     @DisplayName("Deve lançar erro quando já existe atendimento no horário")
     void deveLancarErroQuandoHorarioConflitante() {
-        when(pacienteService.existeRelacao(pacienteId, profissionalId)).thenReturn(true);
         when(repository.existsByProfissionalIdAndDataAtendimento(any(), any())).thenReturn(true);
 
         assertThrows(AtendimentoInvalidException.class,
                 () -> service.addAtendimento(requestDTO, profissionalId));
 
+        verify(profissionalPacienteRepository, never()).associarSeNaoExistir(any(), any());
         verify(repository, never()).save(any());
     }
 
@@ -129,7 +136,6 @@ class AtendimentoServiceTest {
                 LocalTime.of(10, 0)
         );
 
-        when(pacienteService.existeRelacao(pacienteId, profissionalId)).thenReturn(true);
         when(repository.existsByProfissionalIdAndDataAtendimento(any(), any())).thenReturn(false);
         when(atendimentoMapper.toEntityPadrao(dtoSemRelatorio)).thenReturn(new Atendimento());
 
@@ -148,6 +154,9 @@ class AtendimentoServiceTest {
         atendimento.setDataAtendimento(LocalDateTime.now());
         atendimento.getRelatorio().add(new Topico());
 
+        atendimento.setProfissionalId(profissionalId);
+        atendimento.setPacienteId(pacienteId);
+
         when(repository.findByIdComRelatorio(any())).thenReturn(Optional.of(atendimento));
         when(repository.save(atendimento)).thenReturn(atendimento);
         when(atendimentoMapper.toDTOPadrao(atendimento)).thenReturn(mock(AtendimentoResponseDTO.class));
@@ -161,7 +170,6 @@ class AtendimentoServiceTest {
     @Test
     @DisplayName("Deve lançar erro ao editar atendimento inexistente")
     void deveLancarErroQuandoAtendimentoNaoEncontrado() {
-        when(pacienteService.existeRelacao(pacienteId, profissionalId)).thenReturn(true);
         when(repository.findByIdComRelatorio(any())).thenReturn(Optional.empty());
 
         assertThrows(AtendimentoNotFoundException.class,
@@ -179,6 +187,7 @@ class AtendimentoServiceTest {
         when(repository.findByPacienteIdAndProfissionalIdComRelatorio(pacienteId, profissionalId))
                 .thenReturn(List.of(a1, a2));
         when(atendimentoMapper.toDTOPadrao(any())).thenReturn(mock(AtendimentoResponseDTO.class));
+        when(pacienteService.existeRelacao(pacienteId, profissionalId)).thenReturn(true);
 
         List<MesAnoAtendimentoResponseDTO> result =
                 service.getAtendimentosAgrupadosPorMes(pacienteId, profissionalId);
@@ -191,11 +200,9 @@ class AtendimentoServiceTest {
     @Test
     @DisplayName("Deve ignorar AgendamentoNotFoundException ao criar atendimento")
     void deveIgnorarAgendamentoNotFoundException() {
-        when(pacienteService.existeRelacao(pacienteId, profissionalId)).thenReturn(true);
         when(repository.existsByProfissionalIdAndDataAtendimento(any(), any())).thenReturn(false);
         when(repository.findMaxNumeracaoByMesAndAno(LocalDate.now().getMonthValue(), LocalDate.now().getYear(), profissionalId)).thenReturn(0L);
         when(atendimentoMapper.toEntityPadrao(requestDTO)).thenReturn(new Atendimento());
-        when(profissionalRepository.getReferenceById(profissionalId)).thenReturn(new ProfissionalSaude());
 
         Atendimento entity = new Atendimento();
         when(repository.save(any())).thenReturn(entity);
@@ -203,7 +210,7 @@ class AtendimentoServiceTest {
 
         doThrow(new AgendamentoNotFoundException("nao encontrado"))
                 .when(agendamentoService)
-                .buscarAgendamentoPorDataEPaciente(any(), any());
+                .buscarAgendamentoPorDataProfissionalEPaciente(any(), any(), any());
 
         assertDoesNotThrow(() -> service.addAtendimento(requestDTO, profissionalId));
     }
@@ -211,21 +218,19 @@ class AtendimentoServiceTest {
     @Test
     @DisplayName("Deve setar numeracao correta ao salvar atendimento")
     void deveSetarNumeracaoCorretaAoSalvar() {
-        when(pacienteService.existeRelacao(pacienteId, profissionalId)).thenReturn(true);
         when(repository.existsByProfissionalIdAndDataAtendimento(any(), any())).thenReturn(false);
         when(repository.findMaxNumeracaoByMesAndAno(LocalDate.now().getMonthValue(), LocalDate.now().getYear(), profissionalId)).thenReturn(5L);
 
         Atendimento entity = new Atendimento();
         when(atendimentoMapper.toEntityPadrao(requestDTO)).thenReturn(entity);
-        when(profissionalRepository.getReferenceById(profissionalId)).thenReturn(new ProfissionalSaude());
         when(repository.save(any())).thenAnswer(inv -> inv.getArgument(0));
         when(atendimentoMapper.toDTOPadrao(any())).thenReturn(mock(AtendimentoResponseDTO.class));
 
-        when(agendamentoService.buscarAgendamentoPorDataEPaciente(any(), any()))
+        when(agendamentoService.buscarAgendamentoPorDataProfissionalEPaciente(any(), any(), any()))
                 .thenReturn(new Agendamento());
 
         service.addAtendimento(requestDTO, profissionalId);
 
-        assertEquals(6L, entity.getNumeracao());
+        assertEquals("6", entity.getNumeracao());
     }
 }
