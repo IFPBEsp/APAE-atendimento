@@ -82,6 +82,28 @@ public class PacienteService {
         return new PaginatedResponseDTO<>(data, meta);
     }
 
+    public PaginatedResponseDTO<PacienteResponseDTO> buscarTodosPacientes(String nome, String cpf, String cidade, int page, int limit) {
+        Pageable pageable = PageRequest.of(page -1, limit);
+
+        Page<Paciente> pacientePage = repository.buscarTodosPacientes(nome, cpf, cidade, pageable);
+
+        List<PacienteResponseDTO> data = pacientePage.getContent()
+                .stream()
+                .map(pacienteMapper::toDTOPadrao)
+                .collect(Collectors.toList());
+
+        PaginationMetaDTO meta = new PaginationMetaDTO(
+                page,
+                limit,
+                pacientePage.getTotalElements(),
+                pacientePage.getTotalPages(),
+                pacientePage.hasNext(),
+                pacientePage.hasPrevious()
+        );
+
+        return new PaginatedResponseDTO<>(data, meta);
+    }
+
     public String adicionarFoto(MultipartFile file, UUID pacienteId, UUID profissionalId) {
         if (!existeRelacao(pacienteId, profissionalId)) {
             throw new PacienteNotFoundException("Paciente nao encontrado para o profissional autenticado.");

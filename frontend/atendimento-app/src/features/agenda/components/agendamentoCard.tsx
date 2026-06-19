@@ -12,10 +12,9 @@ interface AgendamentoCardProps {
 }
 
 export default function AgendamentoCard({
-  id,
   paciente,
   horario,
-  numeracao,
+  numeroAtendimento,
   status,
   externo,
   onDeleteClick,
@@ -41,7 +40,7 @@ export default function AgendamentoCard({
             {/* Oculta a numeração se for um agendamento externo */}
             {!externo && (
               <span className="text-[11px] font-semibold text-white bg-[#165BAA] w-6 h-6 flex items-center justify-center rounded-full">
-                {String(numeracao ?? "0").padStart(2, "0")}
+                {String(numeroAtendimento ?? "0").padStart(2, "0")}
               </span>
             )}
 

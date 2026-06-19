@@ -1,10 +1,15 @@
 import { useQuery } from "@tanstack/react-query";
-import { listarPacientesDropdown } from "@/services/pacienteService";
+import {
+    listarPacientesDropdown,
+    listarTodosPacientesDropdown,
+} from "@/services/pacienteService";
 
-export function usePacientesDropdown() {
+export type OrigemPacientes = "meus" | "todos";
+
+export function usePacientesDropdown(origem: OrigemPacientes = "meus") {
     return useQuery({
-        queryKey: ['pacientes-dropdown'],
-        queryFn: listarPacientesDropdown,
+        queryKey: ['pacientes-dropdown', origem],
+        queryFn: origem === "todos" ? listarTodosPacientesDropdown : listarPacientesDropdown,
         staleTime: 1000 * 60 * 5,
     });
 }

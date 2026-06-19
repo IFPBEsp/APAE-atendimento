@@ -15,14 +15,24 @@ import { PacienteCard } from "@/features/home/components/pacienteCard";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { useHome } from "../hooks/useHome";
+import { Paciente } from "../types";
+import { AtendimentoModal } from "@/features/atendimento/components/atendimentoNovoModal";
+import AtendimentoForm from "@/features/atendimento/components/atendimentoForm";
 
 export default function HomePage() {
   const router = useRouter();
   const [isMounted, setIsMounted] = useState(false);
+  const [pacienteSelecionado, setPacienteSelecionado] = useState<Paciente | null>(null);
+  const [openAtendimento, setOpenAtendimento] = useState(false);
   const {
     medicoNome, pacientes, pagination, loading, isFetching, erro,
-    busca, setBusca, filtro, setFiltro, setPage
+    busca, setBusca, filtro, setFiltro, origemPacientes, setOrigemPacientes, setPage
   } = useHome();
+
+  function abrirPrimeiroAtendimento(paciente: Paciente) {
+    setPacienteSelecionado(paciente);
+    setOpenAtendimento(true);
+  }
 
   useEffect(() => {
     setIsMounted(true);
@@ -48,11 +58,39 @@ export default function HomePage() {
                 Olá {medicoNome}!
               </h1>
               <h1 className="font-semibold text-[#344054] text-lg sm:text-xl sm:inline-block">
-                Esses são seus pacientes
+                {origemPacientes === "meus" ? "Esses são seus pacientes" : "Pesquise todos os pacientes"}
               </h1>
             </div>
 
-            <div className="flex flex-row justify-between gap-2 w-full max-w-md sm:w-auto sm:justify-end">
+            <div className="flex flex-col gap-2 w-full max-w-2xl sm:w-auto sm:flex-row sm:justify-end">
+              <div className="grid grid-cols-2 gap-1 rounded-full border border-[#D0D5DD] bg-white p-1">
+                <Button
+                    type="button"
+                    variant={origemPacientes === "meus" ? "default" : "ghost"}
+                    onClick={() => setOrigemPacientes("meus")}
+                    className={`h-[34px] rounded-full px-3 text-xs ${
+                        origemPacientes === "meus"
+                            ? "bg-[#165BAA] text-white hover:bg-[#13447D]"
+                            : "text-[#344054] hover:bg-[#EDF2FB]"
+                    }`}
+                >
+                  Meus Pacientes
+                </Button>
+
+                <Button
+                    type="button"
+                    variant={origemPacientes === "todos" ? "default" : "ghost"}
+                    onClick={() => setOrigemPacientes("todos")}
+                    className={`h-[34px] rounded-full px-3 text-xs ${
+                        origemPacientes === "todos"
+                            ? "bg-[#165BAA] text-white hover:bg-[#13447D]"
+                            : "text-[#344054] hover:bg-[#EDF2FB]"
+                    }`}
+                >
+                  Todos
+                </Button>
+              </div>
+
               <div className="relative flex-1 sm:w-64">
                 <Input
                     type="text"
@@ -138,7 +176,11 @@ export default function HomePage() {
                   <p className="text-lg font-medium text-gray-600">
                     Nenhum paciente encontrado
                   </p>
-                  <p className="text-sm">Tente ajustar os filtros de busca.</p>
+                  <p className="text-sm">
+                    {origemPacientes === "meus"
+                        ? "Pesquise em todos os pacientes para iniciar um atendimento."
+                        : "Tente ajustar os filtros de busca."}
+                  </p>
                 </div>
             )}
 
@@ -155,6 +197,8 @@ export default function HomePage() {
                           onViewAtendimentos={() => router.push(`/atendimento/${pac.id}`)}
                           onViewRelatorios={() => router.push(`/relatorio/${pac.id}`)}
                           onViewAnexos={() => router.push(`/anexo/${pac.id}`)}
+                          onCreateAtendimento={() => abrirPrimeiroAtendimento(pac)}
+                          modo={origemPacientes}
                       />
                   ))}
                 </div>
@@ -198,6 +242,24 @@ export default function HomePage() {
           >
             <CalendarClock size={28} className="text-white" />
           </button>
+
+          <AtendimentoModal
+              open={openAtendimento}
+              onOpenChange={(open) => {
+                setOpenAtendimento(open);
+                if (!open) setPacienteSelecionado(null);
+              }}
+          >
+            <AtendimentoForm
+                atendimentos={[]}
+                pacienteId={pacienteSelecionado?.id}
+                onClose={() => {
+                  setOpenAtendimento(false);
+                  setPacienteSelecionado(null);
+                  setOrigemPacientes("meus");
+                }}
+            />
+          </AtendimentoModal>
         </main>
       </>
   );

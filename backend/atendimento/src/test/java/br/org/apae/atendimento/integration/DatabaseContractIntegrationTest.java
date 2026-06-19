@@ -38,7 +38,6 @@ class DatabaseContractIntegrationTest extends AbstractIntegrationTest {
                 .orElseThrow(() -> new AssertionError("vw_pacientes nao retornou o paciente de teste"));
 
         assertEquals(PACIENTE_ID, paciente.getId());
-        assertEquals(PROFISSIONAL_ID, paciente.getProfissionalId());
         assertEquals("Joao Pedro Silva", paciente.getNomeCompleto());
         assertFalse(paciente.getResponsaveis().isEmpty());
         assertFalse(paciente.getTranstornos().isEmpty());

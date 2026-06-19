@@ -60,7 +60,4 @@ public class Paciente {
     @JsonIgnore
     private String fotoPreAssinada;
 
-    @Column(name = "profissional_id")
-    private UUID profissionalId;
-
 }

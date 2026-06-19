@@ -1,12 +1,13 @@
 "use client";
 
 import { useForm } from "react-hook-form";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { DialogFooter } from "@/components/ui/dialog";
 import { Nunito } from "next/font/google";
-import { Check } from "lucide-react";
+import { Check, Search, Users } from "lucide-react";
 
 import {
   Select,
@@ -43,6 +44,7 @@ function getTodayLocalDate() {
 export default function AgendamentoForm({
   onSubmit,
 }: AgendamentoFormProps) {
+  const [origemPacientes, setOrigemPacientes] = useState<"meus" | "todos">("meus");
   const { register, handleSubmit, setValue, watch } =
     useForm<AgendamentoFormData>({
       defaultValues: {
@@ -58,7 +60,7 @@ export default function AgendamentoForm({
   const pacienteId = watch("pacienteId");
   const profissionalId = watch("profissionalId")
 
-  const { data: pacientes = [], isLoading: isLoadingPacientes } = usePacientesDropdown();
+  const { data: pacientes = [], isLoading: isLoadingPacientes } = usePacientesDropdown(origemPacientes);
   const { data: profissionais = [], isLoading: isLoadingProfissionais } = useProfissionaisDropdown();
 
   function handleSelectPaciente(value: string) {
@@ -67,6 +69,12 @@ export default function AgendamentoForm({
 
     setValue("pacienteId", paciente.id);
     setValue("pacienteNome", paciente.nome);
+  }
+
+  function trocarOrigemPacientes(origem: "meus" | "todos") {
+    setOrigemPacientes(origem);
+    setValue("pacienteId", "");
+    setValue("pacienteNome", "");
   }
 
   function handleSelectProfissional(value: string) {
@@ -114,9 +122,41 @@ export default function AgendamentoForm({
       </div>
 
       <div className="grid gap-2">
-        <Label>
-          Paciente <span className="text-[#F28C38]">*</span>
-        </Label>
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <Label>
+            Paciente <span className="text-[#F28C38]">*</span>
+          </Label>
+
+          <div className="grid grid-cols-2 gap-1 rounded-full border border-[#D0D5DD] bg-white p-1">
+            <Button
+              type="button"
+              variant={origemPacientes === "meus" ? "default" : "ghost"}
+              onClick={() => trocarOrigemPacientes("meus")}
+              className={`h-8 rounded-full px-3 text-xs ${
+                origemPacientes === "meus"
+                  ? "bg-[#165BAA] text-white hover:bg-[#13447D]"
+                  : "text-[#344054] hover:bg-[#EDF2FB]"
+              }`}
+            >
+              <Users className="h-3.5 w-3.5" />
+              Meus Pacientes
+            </Button>
+
+            <Button
+              type="button"
+              variant={origemPacientes === "todos" ? "default" : "ghost"}
+              onClick={() => trocarOrigemPacientes("todos")}
+              className={`h-8 rounded-full px-3 text-xs ${
+                origemPacientes === "todos"
+                  ? "bg-[#165BAA] text-white hover:bg-[#13447D]"
+                  : "text-[#344054] hover:bg-[#EDF2FB]"
+              }`}
+            >
+              <Search className="h-3.5 w-3.5" />
+              Todos
+            </Button>
+          </div>
+        </div>
 
         <Select
             required

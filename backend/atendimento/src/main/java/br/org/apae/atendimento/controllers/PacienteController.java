@@ -55,6 +55,21 @@ public class PacienteController {
        return ResponseEntity.ok(paciente);
    }
 
+    @GetMapping("/todos/search")
+    public ResponseEntity<PaginatedResponseDTO<PacienteResponseDTO>> buscarTodosPacientes(
+            @RequestParam(required = false) String nome,
+            @RequestParam(required = false) String cpf,
+            @RequestParam(required = false) String cidade,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int limit
+            ) {
+
+       PaginatedResponseDTO<PacienteResponseDTO> paciente = pacienteService.buscarTodosPacientes(
+               nome, cpf, cidade, page, limit
+       );
+       return ResponseEntity.ok(paciente);
+   }
+
     @PostMapping("/{pacienteId}")
     public ResponseEntity<String> adicionarFoto(
             @RequestPart("foto") MultipartFile foto,

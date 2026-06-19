@@ -13,7 +13,6 @@ import br.org.apae.atendimento.repositories.AtendimentoRepository;
 import br.org.apae.atendimento.services.integration.AgendamentoExternoClient;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
-import br.org.apae.atendimento.entities.ProfissionalPaciente;
 import br.org.apae.atendimento.repositories.ProfissionalPacienteRepository;
 
 import java.time.LocalDate;
@@ -39,7 +38,7 @@ public class AgendamentoService {
                               PacienteService pacienteService,
                               AgendamentoMapper agendamentoMapper,
                               AtendimentoRepository atendimentoRepository,
-                              ProfissionalPacienteRepository profissionalPacienteRepository) {
+                              ProfissionalPacienteRepository profissionalPacienteRepository,
                               AgendamentoExternoClient agendamentoExternoClient) { 
 
         this.repository = repository;
@@ -54,15 +53,11 @@ public class AgendamentoService {
         return repository.save(agendamento);
     }
 
+    @Transactional
     public AgendamentoResponseDTO agendar(
         AgendamentoRequestDTO agendamentoRequest, 
         UUID profissionalId
     ) {
-        associarPacienteAoProfissional(
-                profissionalId,
-                agendamentoRequest.pacienteId()
-        );
-
         if (verificarAgendamentoExiste(
             profissionalId, 
             agendamentoRequest.data(), 
@@ -80,6 +75,11 @@ public class AgendamentoService {
                 profissionalId,
                 agendamentoRequest.pacienteId(),
                 agendamento
+        );
+
+        associarPacienteAoProfissional(
+                profissionalId,
+                agendamentoRequest.pacienteId()
         );
 
         return agendamentoMapper.toDTOPadrao(repository.save(agendamento));
@@ -186,21 +186,6 @@ public class AgendamentoService {
             UUID profissionalId,
             UUID pacienteId
     ) {
-
-        boolean existe =
-                profissionalPacienteRepository
-                        .existsByProfissionalIdAndPacienteId(
-                                profissionalId,
-                                pacienteId
-                        );
-
-        if (!existe) {
-            profissionalPacienteRepository.save(
-                    new ProfissionalPaciente(
-                            profissionalId,
-                            pacienteId
-                    )
-            );
-        }
+        profissionalPacienteRepository.associarSeNaoExistir(profissionalId, pacienteId);
     }
 }
