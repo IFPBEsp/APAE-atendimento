@@ -10,6 +10,7 @@
     <img src="https://img.shields.io/badge/pnpm-F69220?style=for-the-badge&logo=pnpm&logoColor=white" alt="pnpm">
   </p>
 </div>
+
 ---
 
 # Sistema de Atendimento da APAE
@@ -32,13 +33,14 @@ A intenção do sistema é modernizar e unificar o processo de acompanhamento do
 
 - Permite ao profissional visualizar seus **dados pessoais cadastrados no sistema**
 
-# Stack Tecnológico
-
-- **Front-end:** [React](https://react.dev) com [Shadcn/ui](https://ui.shadcn.com)
-- **Back-end:** [Spring Boot](https://spring.io/projects/spring-boot)
-- **Banco de Dados:** [PostgreSQL](https://www.postgresql.org/)
-- **Armazenamento de Arquivos:** [MinIO](https://min.io/)
-- **Autenticação e Autorização:** Geração própria e verificação de tokens JWT nativa via [Spring Security](https://spring.io/projects/spring-security)
+## Stack Tecnológica
+| Camada | Tecnologia |
+| :--- | :--- |
+| **Frontend** | [React](https://react.dev) + [Shadcn/ui](https://ui.shadcn.com) |
+| **Backend** | [Spring Boot](https://spring.io/) |
+| **Banco de Dados** | [PostgreSQL](https://www.postgresql.org/) |
+| **Armazenamento de Arquivos** | [MinIO](https://min.io/) |
+| **Autenticação e Autorização** | Geração própria e verificação de tokens JWT nativa via [Spring Security](https://spring.io/projects/spring-security) |
 
 ### Front-end
 
