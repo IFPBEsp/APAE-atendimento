@@ -34,12 +34,13 @@ A intenção do sistema é modernizar e unificar o processo de acompanhamento do
 - Permite ao profissional visualizar seus **dados pessoais cadastrados no sistema**
 
 ## Stack Tecnológica
-| Camada | Tecnologia |
-| :--- | :--- |
-| **Frontend** | [React](https://react.dev) + [Shadcn/ui](https://ui.shadcn.com) |
-| **Backend** | [Spring Boot](https://spring.io/) |
-| **Banco de Dados** | [PostgreSQL](https://www.postgresql.org/) |
-| **Armazenamento de Arquivos** | [MinIO](https://min.io/) |
+
+| Camada                         | Tecnologia                                                                                                           |
+| :----------------------------- | :------------------------------------------------------------------------------------------------------------------- |
+| **Frontend**                   | [React](https://react.dev) + [Shadcn/ui](https://ui.shadcn.com)                                                      |
+| **Backend**                    | [Spring Boot](https://spring.io/)                                                                                    |
+| **Banco de Dados**             | [PostgreSQL](https://www.postgresql.org/)                                                                            |
+| **Armazenamento de Arquivos**  | [MinIO](https://min.io/)                                                                                             |
 | **Autenticação e Autorização** | Geração própria e verificação de tokens JWT nativa via [Spring Security](https://spring.io/projects/spring-security) |
 
 ### Front-end
@@ -64,7 +65,7 @@ Para executar o sistema completo em sua máquina, siga os passos abaixo:
 
 ### 1. Preparação do Ambiente
 
-Clone o repositório e crie os arquivos de ambiente necessários:
+Clone o repositório e crie o arquivo de ambiente na raiz do projeto:
 
 ```bash
 # Clone o repositório
@@ -73,16 +74,13 @@ cd APAE-atendimento
 
 # No root do projeto, crie o .env baseado no exemplo
 cp .env.example .env
-
-# No diretório do backend, crie o local-secrets.properties
-cp backend/docker/local-secrets.properties.example backend/docker/local-secrets.properties
 ```
 
-> **Nota:** Certifique-se de preencher as variáveis sensíveis no `.env` e `local-secrets.properties` antes de prosseguir.
+> **Nota:** Certifique-se de preencher as variáveis sensíveis no `.env` (credenciais do banco e JWT) antes de prosseguir. **Não é mais necessário** configurar um arquivo `local-secrets.properties` separado, pois o backend agora lê automaticamente o `.env` da raiz.
 
 ---
 
-### 2. Executando com Docker Compose (Recomendado)
+### 2. Executando com Docker Compose (Recomendado para Produção)
 
 A forma mais simples de rodar toda a stack (Banco, Storage, Backend e Frontend) é via Docker Compose:
 
@@ -99,24 +97,34 @@ O sistema estará disponível em:
 
 ---
 
-### 3. Execução em Desenvolvimento (Manual)
+### 3. Execução Simplificada para Desenvolvimento (O Jeito Mais Fácil)
 
-Se desejar rodar os serviços separadamente para desenvolvimento:
+Se você deseja desenvolver e rodar o projeto localmente com auto-reload e debugging:
 
-#### Infraestrutura (Banco e MinIO)
+#### Passo 1: Infraestrutura (MinIO e Banco de Dados)
 
-```bash
-docker compose up postgres-db minio -d
-```
-
-#### Backend (Spring Boot)
+Na raiz do projeto, suba apenas os serviços de infraestrutura pelo Docker:
 
 ```bash
-cd backend/atendimento
-./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
+docker compose up minio postgres-db -d
 ```
 
-#### Frontend (Next.js)
+_(Se você usa um banco em nuvem como Neon, suba apenas o `minio`: `docker compose up minio -d`)_
+
+#### Passo 2: Backend (Spring Boot)
+
+Você não precisa mais configurar variáveis de ambiente na mão no IntelliJ! O Spring Boot **lê o `.env` da raiz automaticamente**.
+
+- **No IntelliJ:** Basta rodar a classe `AtendimentoApplication`. O profile `dev` ou `prod` vai pegar o `.env` sozinho.
+- **Via Terminal:**
+  ```bash
+  cd backend/atendimento
+  ./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
+  ```
+
+#### Passo 3: Frontend (Next.js)
+
+Abra outro terminal e rode o front:
 
 ```bash
 cd frontend/atendimento-app
