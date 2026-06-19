@@ -8,9 +8,9 @@ import br.org.apae.atendimento.exceptions.invalid.AgendamentoInvalidException;
 import br.org.apae.atendimento.exceptions.notfound.AgendamentoNotFoundException;
 import br.org.apae.atendimento.exceptions.invalid.RelacaoInvalidException;
 import br.org.apae.atendimento.mappers.AgendamentoMapper;
+import br.org.apae.atendimento.repositories.AgendamentoGeralReadRepository;
 import br.org.apae.atendimento.repositories.AgendamentoRepository;
 import br.org.apae.atendimento.repositories.AtendimentoRepository;
-import br.org.apae.atendimento.services.integration.AgendamentoExternoClient;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 import br.org.apae.atendimento.repositories.ProfissionalPacienteRepository;
@@ -33,13 +33,14 @@ public class AgendamentoService {
     private AtendimentoRepository atendimentoRepository;
     private final ProfissionalPacienteRepository profissionalPacienteRepository;
     private AgendamentoExternoClient agendamentoExternoClient;
+    private AgendamentoGeralReadRepository agendamentoGeralReadRepository;
 
     public AgendamentoService(AgendamentoRepository repository,
                               PacienteService pacienteService,
                               AgendamentoMapper agendamentoMapper,
                               AtendimentoRepository atendimentoRepository,
-                              ProfissionalPacienteRepository profissionalPacienteRepository,
-                              AgendamentoExternoClient agendamentoExternoClient) { 
+                              AgendamentoExternoClient agendamentoExternoClient;
+                              AgendamentoGeralReadRepository agendamentoGeralReadRepository) {
 
         this.repository = repository;
         this.pacienteService = pacienteService;
@@ -47,6 +48,7 @@ public class AgendamentoService {
         this.atendimentoRepository = atendimentoRepository;
         this.profissionalPacienteRepository = profissionalPacienteRepository;
         this.agendamentoExternoClient = agendamentoExternoClient; 
+        this.agendamentoGeralReadRepository = agendamentoGeralReadRepository;
     }
 
     public Agendamento save(Agendamento agendamento) {
@@ -111,7 +113,7 @@ public class AgendamentoService {
                 .map(agendamentoMapper::toDTOPadrao)
                 .toList();
 
-        List<AgendamentoResponseDTO> externos = agendamentoExternoClient.buscarAgendamentosPorDataHora(profissionalId);
+        List<AgendamentoResponseDTO> externos = agendamentoGeralReadRepository.findByProfissionalIdOrderByDataHora(profissionalId);
 
         List<AgendamentoResponseDTO> todosAgendamentos = new ArrayList<>(locais);
         todosAgendamentos.addAll(externos);
@@ -153,6 +155,14 @@ public class AgendamentoService {
 
         agendamento.setStatus(true);
         repository.save(agendamento);
+    }
+
+    public void concluir(UUID profissionalId, UUID pacienteId, UUID agendamentoId) {
+        Agendamento agendamento = repository
+                .findByIdAndProfissionalIdAndPacienteId(agendamentoId, profissionalId, pacienteId)
+                .orElseThrow(() -> new AgendamentoNotFoundException("O agendamento nao existe ou nao pertence ao profissional autenticado."));
+
+        setStatus(agendamento);
     }
 
     public boolean verificarAgendamentoExiste(UUID profissionalId, LocalDate data, LocalTime hora) {

@@ -21,6 +21,13 @@ export async function deletarAgendamento(
   );
 }
 
+export async function concluirAgendamento(
+  pacienteId: string,
+  agendamentoId: string,
+): Promise<void> {
+  await api.patch(`/agendamento/${pacienteId}/${agendamentoId}/concluir`);
+}
+
 export async function getPacientesPorProfissional(): Promise<PacienteOption[]> {
   const { data } = await api.get<PacienteOption[]>(
     `/profissionais/pacientes-option`,

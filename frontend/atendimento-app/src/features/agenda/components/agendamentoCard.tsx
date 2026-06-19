@@ -9,6 +9,7 @@ interface AgendamentoCardProps {
   status: boolean;
   externo: boolean; 
   onDeleteClick?: () => void;
+  onConcluirClick?: () => void;
 }
 
 export default function AgendamentoCard({
@@ -18,6 +19,7 @@ export default function AgendamentoCard({
   status,
   externo,
   onDeleteClick,
+  onConcluirClick,
 }: AgendamentoCardProps) {
 
   return (
@@ -65,6 +67,12 @@ export default function AgendamentoCard({
 
         <div className="flex justify-center">
           <Button
+            onClick={() => {
+              if (!externo && !status) {
+                onConcluirClick?.();
+              }
+            }}
+            disabled={externo || status}
             className={`h-8 px-3 rounded-full text-xs shadow-sm ${
               status
                 ? "bg-green-500 hover:bg-green-600 text-white"
