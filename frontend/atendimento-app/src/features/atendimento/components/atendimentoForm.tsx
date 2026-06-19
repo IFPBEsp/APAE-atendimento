@@ -21,6 +21,7 @@ interface AtendimentoFormProps {
   atendimentos: Atendimento[];
   atendimentoEditavel?: Atendimento;
   onClose: () => void;
+  pacienteId?: string;
 }
 
 interface AtendimentoFormValues {
@@ -37,9 +38,10 @@ export default function AtendimentoForm({
   atendimentos,
   atendimentoEditavel,
   onClose,
+  pacienteId: pacienteIdProp,
 }: AtendimentoFormProps) {
   const { id } = useParams();
-  const pacienteId = typeof id === "string" ? id : undefined;
+  const pacienteId = pacienteIdProp ?? (typeof id === "string" ? id : undefined);
 
   function getTodayLocalDate() {
     const now = new Date();
@@ -76,6 +78,8 @@ export default function AtendimentoForm({
     mutationFn: criarAtendimento,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["atendimentos"] });
+      queryClient.invalidateQueries({ queryKey: ["pacientes"] });
+      queryClient.invalidateQueries({ queryKey: ["pacientes-dropdown"] });
       toast.success("Atendimento criado com sucesso.");
       reset();
       onClose();

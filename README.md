@@ -29,8 +29,6 @@ A intenção do sistema é modernizar e unificar o processo de acompanhamento do
 
 [**🧩 Caminho referente ao Front-end do sistema**](https://github.com/IFPBEsp/APAE-atendimento/tree/dev/frontend#-tecnologias)
 
-
-
 ### Back-end
 
 [**🧩 Caminho referente ao Back-end do sistema**](https://github.com/IFPBEsp/APAE-atendimento/tree/dev/backend#-pré-requisitos)

@@ -13,6 +13,7 @@ import br.org.apae.atendimento.repositories.AgendamentoRepository;
 import br.org.apae.atendimento.repositories.AtendimentoRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
+import br.org.apae.atendimento.repositories.ProfissionalPacienteRepository;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -30,18 +31,23 @@ public class AgendamentoService {
     private PacienteService pacienteService;
     private AgendamentoMapper agendamentoMapper;
     private AtendimentoRepository atendimentoRepository;
+    private final ProfissionalPacienteRepository profissionalPacienteRepository;
+    private AgendamentoExternoClient agendamentoExternoClient;
     private AgendamentoGeralReadRepository agendamentoGeralReadRepository;
 
     public AgendamentoService(AgendamentoRepository repository,
                               PacienteService pacienteService,
                               AgendamentoMapper agendamentoMapper,
                               AtendimentoRepository atendimentoRepository,
+                              AgendamentoExternoClient agendamentoExternoClient;
                               AgendamentoGeralReadRepository agendamentoGeralReadRepository) {
 
         this.repository = repository;
         this.pacienteService = pacienteService;
         this.agendamentoMapper = agendamentoMapper;
         this.atendimentoRepository = atendimentoRepository;
+        this.profissionalPacienteRepository = profissionalPacienteRepository;
+        this.agendamentoExternoClient = agendamentoExternoClient; 
         this.agendamentoGeralReadRepository = agendamentoGeralReadRepository;
     }
 
@@ -49,12 +55,16 @@ public class AgendamentoService {
         return repository.save(agendamento);
     }
 
-    public AgendamentoResponseDTO agendar(AgendamentoRequestDTO agendamentoRequest, UUID profissionalId) {
-        if (!pacienteService.existeRelacao(agendamentoRequest.pacienteId(), profissionalId)) {
-            throw new RelacaoInvalidException("Voce nao tem vinculo com este paciente para criar agendamento.");
-        }
-
-        if (verificarAgendamentoExiste(profissionalId, agendamentoRequest.data(), agendamentoRequest.hora())) {
+    @Transactional
+    public AgendamentoResponseDTO agendar(
+        AgendamentoRequestDTO agendamentoRequest, 
+        UUID profissionalId
+    ) {
+        if (verificarAgendamentoExiste(
+            profissionalId, 
+            agendamentoRequest.data(), 
+            agendamentoRequest.hora())
+        ) {
             throw new AgendamentoInvalidException(
                     agendamentoRequest.data() + " - " + agendamentoRequest.hora() + " ja possui um agendamento");
         }
@@ -67,6 +77,11 @@ public class AgendamentoService {
                 profissionalId,
                 agendamentoRequest.pacienteId(),
                 agendamento
+        );
+
+        associarPacienteAoProfissional(
+                profissionalId,
+                agendamentoRequest.pacienteId()
         );
 
         return agendamentoMapper.toDTOPadrao(repository.save(agendamento));
@@ -175,5 +190,12 @@ public class AgendamentoService {
         } else {
             agendamento.setNumeracao(String.valueOf(numeracaoAtual + 1));
         }
+    }
+
+    private void associarPacienteAoProfissional(
+            UUID profissionalId,
+            UUID pacienteId
+    ) {
+        profissionalPacienteRepository.associarSeNaoExistir(profissionalId, pacienteId);
     }
 }

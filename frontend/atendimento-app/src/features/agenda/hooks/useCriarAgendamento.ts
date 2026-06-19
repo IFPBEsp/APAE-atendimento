@@ -10,6 +10,12 @@ export function useCriarAgendamento() {
       queryClient.invalidateQueries({
         queryKey: ["agendamentos"],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["pacientes"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["pacientes-dropdown"],
+      });
     },
   });
 }

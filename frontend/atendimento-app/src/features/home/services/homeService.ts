@@ -10,13 +10,16 @@ export type FiltroPaciente = {
   limit?: number;
 };
 
+export type OrigemPacientes = "meus" | "todos";
+
 type PacientesApiResponse = {
   data: Paciente[];
   paginationMetaDTO: PaginationMeta;
 };
 
 export async function getPacientes(
-  filtros: FiltroPaciente = { page: 1, limit: 10 }
+  filtros: FiltroPaciente = { page: 1, limit: 10 },
+  origem: OrigemPacientes = "meus"
 ): Promise<PaginatedResponse<Paciente>> {
 
   const params = new URLSearchParams();
@@ -25,7 +28,7 @@ export async function getPacientes(
   });
 
   const { data } = await api.get<PacientesApiResponse>(
-      `/pacientes/search?${params.toString()}`
+      `/pacientes/${origem === "todos" ? "todos/search" : "search"}?${params.toString()}`
   );
 
   return {

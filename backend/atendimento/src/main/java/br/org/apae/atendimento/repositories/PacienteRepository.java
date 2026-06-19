@@ -16,12 +16,13 @@ import br.org.apae.atendimento.entities.Paciente;
 
 @Repository
 public interface PacienteRepository extends JpaRepository<Paciente, UUID> {
-
     @Query(value = """
-    SELECT vp.*
+    SELECT DISTINCT vp.*
     FROM atendimento.vw_pacientes vp
+    INNER JOIN atendimento.profissional_paciente pp
+            ON pp.paciente_id = vp.paciente_id
     WHERE vp.paciente_id = :id
-      AND vp.profissional_id = :profissionalId
+      AND pp.profissional_id = :profissionalId
 """, nativeQuery = true)
     Optional<Paciente> findByIdAndProfissionalId(
             @Param("id") UUID id,
@@ -34,33 +35,42 @@ public interface PacienteRepository extends JpaRepository<Paciente, UUID> {
             nativeQuery = true)
     boolean existeRelacao(@Param("pacienteId") UUID pacienteId, @Param("profissionalId") UUID profissionalId);
 
-    @Query("""
-    SELECT p.nomeCompleto
-    FROM Paciente p
-    WHERE p.id = :pacienteId
-      AND p.profissionalId = :profissionalId
-""")
+    @Query(value = """
+    SELECT vp.nome
+    FROM atendimento.vw_pacientes vp
+    INNER JOIN atendimento.profissional_paciente pp
+            ON pp.paciente_id = vp.paciente_id
+    WHERE vp.paciente_id = :pacienteId
+      AND pp.profissional_id = :profissionalId
+""", nativeQuery = true)
     String findNomeCompletoByIdAndProfissionalId(
             @Param("pacienteId") UUID pacienteId,
             @Param("profissionalId") UUID profissionalId
     );
 
-    @Query(value = "SELECT vp.* FROM atendimento.vw_pacientes vp " +
-            "WHERE vp.profissional_id = :profissionalId",
+    @Query(value = """
+            SELECT DISTINCT vp.*
+            FROM atendimento.vw_pacientes vp
+            INNER JOIN atendimento.profissional_paciente pp
+                    ON pp.paciente_id = vp.paciente_id
+            WHERE pp.profissional_id = :profissionalId
+            """,
             nativeQuery = true)
     List<Paciente> findByProfissionalId(@Param("profissionalId") UUID profissionalId);
 
     @Query(value = "" +
             "SELECT DISTINCT vp.* " +
             "FROM atendimento.vw_pacientes vp " +
-            "WHERE vp.profissional_id = :profissionalId " +
+            "INNER JOIN atendimento.profissional_paciente pp ON pp.paciente_id = vp.paciente_id " +
+            "WHERE pp.profissional_id = :profissionalId " +
             "  AND (:nome IS NULL OR LOWER(vp.nome) LIKE CONCAT('%', LOWER(:nome), '%')) " +
             "  AND (:cpf IS NULL OR vp.cpf LIKE CONCAT('%', :cpf, '%')) " +
             "  AND (:cidade IS NULL OR LOWER(vp.cidade) LIKE CONCAT('%', LOWER(:cidade), '%'))",
             countQuery = "" +
                     "SELECT COUNT(DISTINCT vp.paciente_id) " +
                     "FROM atendimento.vw_pacientes vp " +
-                    "WHERE vp.profissional_id = :profissionalId " +
+                    "INNER JOIN atendimento.profissional_paciente pp ON pp.paciente_id = vp.paciente_id " +
+                    "WHERE pp.profissional_id = :profissionalId " +
                     "  AND (:nome IS NULL OR LOWER(vp.nome) LIKE CONCAT('%', LOWER(:nome), '%')) " +
                     "  AND (:cpf IS NULL OR vp.cpf LIKE CONCAT('%', :cpf, '%')) " +
                     "  AND (:cidade IS NULL OR LOWER(vp.cidade) LIKE CONCAT('%', LOWER(:cidade), '%'))",
@@ -76,8 +86,30 @@ public interface PacienteRepository extends JpaRepository<Paciente, UUID> {
     @Query("""
     SELECT DISTINCT new br.org.apae.atendimento.dtos.response.PacienteDropdownResponseDTO(p.id, p.nomeCompleto)
     FROM Paciente p
-    WHERE p.profissionalId = :profissionalId
+    INNER JOIN ProfissionalPaciente pp
+            ON pp.pacienteId = p.id
+    WHERE pp.profissionalId = :profissionalId
     ORDER BY p.nomeCompleto ASC
 """)
     List<PacienteDropdownResponseDTO> listarParaDropdown(@Param("profissionalId") UUID profissionalId);
+
+    @Query(value = "" +
+            "SELECT DISTINCT vp.* " +
+            "FROM atendimento.vw_pacientes vp " +
+            "WHERE (:nome IS NULL OR LOWER(vp.nome) LIKE CONCAT('%', LOWER(:nome), '%')) " +
+            "  AND (:cpf IS NULL OR vp.cpf LIKE CONCAT('%', :cpf, '%')) " +
+            "  AND (:cidade IS NULL OR LOWER(vp.cidade) LIKE CONCAT('%', LOWER(:cidade), '%'))",
+            countQuery = "" +
+                    "SELECT COUNT(DISTINCT vp.paciente_id) " +
+                    "FROM atendimento.vw_pacientes vp " +
+                    "WHERE (:nome IS NULL OR LOWER(vp.nome) LIKE CONCAT('%', LOWER(:nome), '%')) " +
+                    "  AND (:cpf IS NULL OR vp.cpf LIKE CONCAT('%', :cpf, '%')) " +
+                    "  AND (:cidade IS NULL OR LOWER(vp.cidade) LIKE CONCAT('%', LOWER(:cidade), '%'))",
+            nativeQuery = true)
+    Page<Paciente> buscarTodosPacientes(
+            @Param("nome") String nome,
+            @Param("cpf") String cpf,
+            @Param("cidade") String cidade,
+            Pageable pageable
+    );
 }
