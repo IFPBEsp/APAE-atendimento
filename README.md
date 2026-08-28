@@ -53,6 +53,51 @@ A intenção do sistema é modernizar e unificar o processo de acompanhamento do
 
 # Como Rodar o Projeto
 
+## Desenvolvimento local autonomo
+
+O Atendimento pode ser executado sem iniciar o APAE-Geral ou o Gestao Escolar.
+O PostgreSQL local reproduz os tres schemas do Neon:
+
+- `atendimento`: schema real do produto, versionado pelas migrations Flyway V1-V9;
+- `apae_geral`: contrato minimo mockado com usuarios, profissionais, pacientes e agenda externa;
+- `gestao_escolar`: schema presente, mas vazio, pois o Atendimento nao o consulta.
+
+Na raiz do repositorio:
+
+```bash
+cp .env.example .env
+pnpm --dir frontend/atendimento-app install
+pnpm db:prepare
+pnpm dev
+```
+
+Servicos locais:
+
+- Frontend: `http://localhost:3001`
+- Backend: `http://localhost:8082/atendimento`
+- Health check: `http://localhost:8082/atendimento/actuator/health`
+- PostgreSQL: `localhost:5300`
+- MinIO: `http://localhost:9100` (console em `http://localhost:9101`)
+
+Credenciais ficticias:
+
+- E-mail: `profissional@teste.local`
+- Senha: `12345678`
+
+Comandos uteis:
+
+```bash
+pnpm db:prepare    # contratos, migrations, seed e MinIO
+pnpm db:migrate    # reaplica apenas as migrations pendentes
+pnpm db:seed       # reaplica o seed idempotente
+pnpm docker:down   # para containers e preserva volumes
+pnpm docker:drop   # apaga os volumes e todos os dados locais
+```
+
+Os objetos de `apae_geral` sao contratos locais de desenvolvimento, nao uma copia
+do schema pertencente ao APAE-Geral. Alteracoes reais desse contrato devem ser
+sincronizadas manualmente quando o produto de origem mudar.
+
 Para executar o sistema completo em sua máquina, siga os passos abaixo:
 
 ### Pré-requisitos

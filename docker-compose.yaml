@@ -1,32 +1,86 @@
+name: apae-atendimento
+
 services:
   postgres-db:
     image: postgres:16
     container_name: postgres-atendimento-apae
-    restart: always
+    restart: unless-stopped
     environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DATABASE}
+      POSTGRES_USER: ${POSTGRES_USER:-atendimento_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-atendimento_pass}
+      POSTGRES_DB: ${POSTGRES_DATABASE:-atendimento_local}
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT:-5300}:5432"
     volumes:
       - db-data:/var/lib/postgresql/data
-    command: >
-      postgres
-      -c listen_addresses='*'
-      -c port=5432
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-atendimento_user} -d ${POSTGRES_DATABASE:-atendimento_local}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  db-contract:
+    image: postgres:16
+    profiles: ["tools"]
+    environment:
+      PGHOST: postgres-db
+      PGPORT: 5432
+      PGDATABASE: ${POSTGRES_DATABASE:-atendimento_local}
+      PGUSER: ${POSTGRES_USER:-atendimento_user}
+      PGPASSWORD: ${POSTGRES_PASSWORD:-atendimento_pass}
+    command: ["psql", "-v", "ON_ERROR_STOP=1", "-f", "/contracts/apae-geral.sql"]
+    volumes:
+      - ./.scripts/db/apae-geral-contract.sql:/contracts/apae-geral.sql:ro,z
+    depends_on:
+      postgres-db:
+        condition: service_healthy
+
+  db-migrate:
+    image: flyway/flyway:11.7.2
+    profiles: ["tools"]
+    command:
+      - -url=jdbc:postgresql://postgres-db:5432/${POSTGRES_DATABASE:-atendimento_local}
+      - -user=${POSTGRES_USER:-atendimento_user}
+      - -password=${POSTGRES_PASSWORD:-atendimento_pass}
+      - -schemas=atendimento
+      - -defaultSchema=atendimento
+      - -createSchemas=true
+      - -locations=filesystem:/flyway/sql
+      - -connectRetries=20
+      - migrate
+    volumes:
+      - ./backend/atendimento/src/main/resources/db/migration:/flyway/sql:ro,z
+    depends_on:
+      db-contract:
+        condition: service_completed_successfully
+
+  db-seed:
+    image: postgres:16
+    profiles: ["tools"]
+    environment:
+      PGHOST: postgres-db
+      PGPORT: 5432
+      PGDATABASE: ${POSTGRES_DATABASE:-atendimento_local}
+      PGUSER: ${POSTGRES_USER:-atendimento_user}
+      PGPASSWORD: ${POSTGRES_PASSWORD:-atendimento_pass}
+    command: ["psql", "-v", "ON_ERROR_STOP=1", "-f", "/seed/local-development.sql"]
+    volumes:
+      - ./.scripts/seed/local-development.sql:/seed/local-development.sql:ro,z
+    depends_on:
+      db-migrate:
+        condition: service_completed_successfully
 
   minio:
     image: minio/minio:latest
     container_name: minio-atendimento-apae
     command: server /data --console-address ":9001"
-    restart: always
+    restart: unless-stopped
     environment:
-      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
-      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-atendimento_minio}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-atendimento_minio_123}
     ports:
-      - "9000:9000"
-      - "9001:9001"
+      - "${MINIO_API_PORT:-9100}:9000"
+      - "${MINIO_CONSOLE_PORT:-9101}:9001"
     volumes:
       - minio-data:/data
 
@@ -40,30 +94,24 @@ services:
       - .env
     environment:
       SPRING_PROFILES_ACTIVE: prod
-      DB_URL: jdbc:postgresql://postgres-db:5432/${POSTGRES_DATABASE}
-      DB_USER: ${POSTGRES_USER}
-      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      SERVER_PORT: 8080
+      DB_URL: jdbc:postgresql://postgres-db:5432/${POSTGRES_DATABASE:-atendimento_local}
+      DB_USER: ${POSTGRES_USER:-atendimento_user}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-atendimento_pass}
       S3_ENDPOINT: http://minio:9000
-      S3_EXTERNAL_ENDPOINT: http://localhost:9000
+      S3_EXTERNAL_ENDPOINT: http://localhost:${MINIO_API_PORT:-9100}
       S3_REGION: us-east-1
-      S3_ACCESS_KEY: ${MINIO_ROOT_USER}
-      S3_SECRET_KEY: ${MINIO_ROOT_PASSWORD}
-      BUCKET_NAME: ${BUCKET_NAME}
-      FRONT_END_URL: ${FRONT_END_URL}
+      S3_ACCESS_KEY: ${MINIO_ROOT_USER:-atendimento_minio}
+      S3_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-atendimento_minio_123}
+      BUCKET_NAME: ${BUCKET_NAME:-apae-atendimento}
+      FRONT_END_URL: ${FRONT_END_URL:-http://localhost:3001}
     ports:
       - "8080:8080"
     depends_on:
-      - postgres-db
-      - minio
-    healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "curl -fsS http://localhost:8080/actuator/health > /dev/null || exit 1",
-        ]
-      interval: 30s
-      timeout: 5s
-      retries: 3
+      db-migrate:
+        condition: service_completed_successfully
+      minio:
+        condition: service_started
     profiles: ["PROD"]
 
   frontend:
@@ -72,23 +120,14 @@ services:
       context: ./frontend/atendimento-app
       dockerfile: Dockerfile
       args:
-        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8080/atendimento}
     restart: unless-stopped
     environment:
-      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8080/atendimento}
     ports:
-      - "80:3000"
+      - "3001:3000"
     depends_on:
       - backend
-    healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "curl -fsS http://localhost:3000/login > /dev/null || exit 1",
-        ]
-      interval: 30s
-      timeout: 5s
-      retries: 3
     profiles: ["PROD"]
 
 volumes:
