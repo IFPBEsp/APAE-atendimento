@@ -28,6 +28,8 @@ WORKDIR /app
 COPY --from=build --chown=65532:65532 \
     /app/target/*.jar app.jar
 
+USER 65532:65532
+
 EXPOSE 8080
 
 ENTRYPOINT ["/usr/bin/java"]
