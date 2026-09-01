@@ -17,7 +17,7 @@ VALUES
         'a2000000-0000-4000-8000-000000000001',
         'profissional@teste.local',
         '000.000.010-82',
-        '$2y$10$EwPTyxIGnTEnI8CjJ.zYOOTWYgdGCrXYl3ZIbrnGqLUoaw9SQoiBe',
+        crypt('12345678', gen_salt('bf', 10)),
         'Profissional de Atendimento Ficticio',
         'ATENDIMENTO',
         '(83) 90000-0010',
