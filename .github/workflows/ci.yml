@@ -61,3 +61,4 @@ jobs:
         run: python3 -m pip install semgrep
       - name: Rodar Semgrep
         run: semgrep scan --config="p/default" --config="p/java" --config="p/typescript" --config=".github/semgrep-custom-rules.yml" --error
+        
