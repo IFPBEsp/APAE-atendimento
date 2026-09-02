@@ -53,6 +53,6 @@ export function normalizarAgendamentos(
   });
 
   return flatten.sort((a, b) => {
-    return dataHoraParaOrdenacao(a.data, a.horario) - dataHoraParaOrdenacao(b.data, b.horario);
+    return dataHoraParaOrdenacao(b.data, b.horario) - dataHoraParaOrdenacao(a.data, a.horario);
   });
 }
