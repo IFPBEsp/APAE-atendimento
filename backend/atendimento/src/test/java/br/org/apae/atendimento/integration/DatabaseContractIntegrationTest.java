@@ -48,6 +48,9 @@ class DatabaseContractIntegrationTest extends AbstractIntegrationTest {
         assertEquals(PROFISSIONAL_ID, profissional.getId());
         assertEquals("Dr. Luiz Artur", profissional.getNomeCompleto());
         assertEquals("CRP-123", profissional.getRegistroProfissional());
+        assertEquals("123.456.789-00", profissional.getCpf());
+        assertNotNull(profissional.getPrimeiroAcesso());
+        assertFalse(profissional.getPrimeiroAcesso());
         assertTrue(profissional.getAtivo());
 
         Atendimento atendimento = new Atendimento();
