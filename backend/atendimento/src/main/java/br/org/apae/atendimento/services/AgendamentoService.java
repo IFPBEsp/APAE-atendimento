@@ -106,28 +106,26 @@ public class AgendamentoService {
 
     @Transactional
     public List<DiaAgendamentoResponseDTO> listarAgrupadoPorDia(UUID profissionalId) {
-        List<AgendamentoResponseDTO> locais = repository.findByProfissionalIdOrderByDataHora(profissionalId)
+        List<AgendamentoResponseDTO> locais = repository.findByProfissionalIdOrderByDataHoraDesc(profissionalId)
                 .stream()
                 .map(agendamentoMapper::toDTOPadrao)
                 .toList();
 
-        List<AgendamentoResponseDTO> externos = agendamentoGeralReadRepository.findByProfissionalIdOrderByDataHora(profissionalId);
+        List<AgendamentoResponseDTO> externos = agendamentoGeralReadRepository.findByProfissionalIdOrderByDataHoraDesc(profissionalId);
 
         List<AgendamentoResponseDTO> todosAgendamentos = new ArrayList<>(locais);
         todosAgendamentos.addAll(externos);
-        todosAgendamentos.sort(Comparator.comparing(AgendamentoResponseDTO::data)
-                .thenComparing(AgendamentoResponseDTO::hora));
 
         return todosAgendamentos.stream()
                 .collect(Collectors.groupingBy(
                         AgendamentoResponseDTO::data,
+                        () -> new java.util.TreeMap<>(Comparator.reverseOrder()), 
                         Collectors.toList()
                 ))
                 .entrySet().stream()
-                .sorted(Map.Entry.<LocalDate, List<AgendamentoResponseDTO>>comparingByKey().reversed())
                 .map(e -> {
                     List<AgendamentoResponseDTO> ordenadosPorHora = e.getValue().stream()
-                            .sorted(Comparator.comparing(AgendamentoResponseDTO::hora))
+                            .sorted(Comparator.comparing(AgendamentoResponseDTO::hora).reversed())
                             .toList();
                     return new DiaAgendamentoResponseDTO(e.getKey(), ordenadosPorHora);
                 })
