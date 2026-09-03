@@ -47,29 +47,38 @@ export function PacienteCard({
   modo = "meus",
 }: PacienteCardProps) {
   return (
-    <Card className="group w-full max-w-md md:max-w-4xl md:h-fit rounded-2xl shadow-sm hover:shadow-md border border-[#EAECF0] border-t-[6px] border-t-blue-700 bg-white relative flex flex-col transition-shadow duration-300 overflow-hidden">
+    <Card className="group w-full max-w-md md:max-w-4xl md:h-fit rounded-2xl shadow-sm hover:shadow-md border border-[#EAECF0] border-t-[6px] border-t-[#165BAA] bg-white relative flex flex-col transition-shadow duration-300 overflow-hidden">
       
       {modo === "todos" && (
-        <DropdownMenu>
-          <DropdownMenuTrigger className="absolute top-2 right-2 p-1 rounded-full hover:bg-gray-100 cursor-pointer transition-colors">
-            <MoreVertical className="w-5 h-5 text-gray-500" />
-          </DropdownMenuTrigger>
-          <DropdownMenuContent
-            className="w-48 bg-white rounded-xl shadow-lg border border-gray-200 p-4"
-            sideOffset={8}
-          >
-            <DropdownMenuItem
-              className="justify-center cursor-pointer"
-              onClick={onCreateAtendimento}
+        <div className="absolute top-4 right-4 z-10">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button 
+                variant="outline" 
+                size="icon" 
+                className="w-8 h-8 rounded-full border-gray-300 bg-white shadow-sm text-[#165BAA] hover:bg-gray-100 transition-colors"
+                title="Opções"
+              >
+                <MoreVertical className="w-4 h-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              className="w-48 bg-white rounded-xl shadow-lg border border-gray-200 p-2"
+              sideOffset={8}
+              align="end"
             >
-              Criar atendimento
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+              <DropdownMenuItem
+                className="justify-center cursor-pointer font-medium text-[#165BAA] hover:bg-[#165BAA]/10 rounded-md py-2 transition-colors"
+                onClick={onCreateAtendimento}
+              >
+                Criar atendimento
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       )}
 
-      <CardContent className="p-5 flex flex-col md:flex-row md:gap-8 flex-1">
-
+      <CardContent className="p-5 flex flex-col md:flex-row md:gap-8 flex-1 relative">
         <div className="flex items-center gap-3 md:flex-col md:items-start md:w-36 shrink-0">
           <Avatar className="w-24 h-24 md:w-32 md:h-32 rounded-xl bg-[#F2F4F7]">
             {fotoPreAssinada ? (
@@ -91,7 +100,7 @@ export function PacienteCard({
 
         <div className="flex flex-col justify-start flex-1 min-w-0 pt-1">
           <h2
-            className="hidden md:block font-bold text-[#101828] text-xl mb-4 text-left truncate"
+            className="hidden md:block font-bold text-[#101828] text-xl mb-4 text-left truncate pr-12"
             title={nomeCompleto}
           >
             {nomeCompleto}
@@ -101,35 +110,35 @@ export function PacienteCard({
             
             <div className="flex flex-wrap items-center gap-x-8 gap-y-3">
               <div className="flex items-center gap-2">
-                <IdCard className="w-4 h-4 text-blue-500 shrink-0" />
+                <IdCard className="w-4 h-4 text-[#165BAA] shrink-0" />
                 <span><span className="font-semibold text-[#344054]">CPF:</span> {cpf}</span>
               </div>
               <div className="flex items-center gap-2">
-                <Calendar className="w-4 h-4 text-blue-500 shrink-0" />
+                <Calendar className="w-4 h-4 text-[#165BAA] shrink-0" />
                 <span>{formatarData(dataDeNascimento)}</span>
               </div>
             </div>
 
             <div className="flex items-center gap-2">
-              <Phone className="w-4 h-4 text-blue-500 shrink-0" />
+              <Phone className="w-4 h-4 text-[#165BAA] shrink-0" />
               <span>{contato}</span>
             </div>
             
             <div className="flex items-center gap-2">
-              <MapPin className="w-4 h-4 text-blue-500 shrink-0" />
+              <MapPin className="w-4 h-4 text-[#165BAA] shrink-0" />
               <span className="truncate" title={endereco}>{endereco}</span>
             </div>
             
             <div className="flex items-center gap-2">
-              <Users className="w-4 h-4 text-blue-500 shrink-0" />
+              <Users className="w-4 h-4 text-[#165BAA] shrink-0" />
               <span className="truncate" title={responsaveis.join(", ")}>
                 <span className="font-semibold text-[#344054]">Responsáveis:</span> {responsaveis.join(", ")}
               </span>
             </div>
             
             <div className="flex items-center gap-2 mt-2">
-              <Activity className="w-4 h-4 text-blue-500 shrink-0" />
-              <span className="font-medium text-blue-700 bg-blue-50 px-2.5 py-0.5 rounded-md truncate max-w-fit" title={transtornos.join(", ")}>
+              <Activity className="w-4 h-4 text-[#165BAA] shrink-0" />
+              <span className="font-medium text-[#165BAA] bg-[#165BAA]/10 px-2.5 py-0.5 rounded-md truncate max-w-fit" title={transtornos.join(", ")}>
                 {transtornos.join(", ")}
               </span>
             </div>
@@ -137,36 +146,35 @@ export function PacienteCard({
         </div>
       </CardContent>
 
-      {modo === "meus" && (
-        <CardFooter className="px-5 pb-5 pt-0 flex flex-wrap gap-3 md:justify-start md:ml-[11rem] opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 ease-out">
-          <Button 
-            variant="outline" 
-            className="flex-1 md:flex-none text-blue-700 border-blue-200 bg-white hover:bg-blue-700 hover:text-white transition-colors duration-200 flex items-center gap-2"
-            onClick={onViewAtendimentos}
-          >
-            <ClipboardList className="w-4 h-4" />
-            Prontuário
-          </Button>
-          
-          <Button 
-            variant="outline" 
-            className="flex-1 md:flex-none text-blue-700 border-blue-200 bg-white hover:bg-blue-700 hover:text-white transition-colors duration-200 flex items-center gap-2"
-            onClick={onViewRelatorios}
-          >
-            <FileText className="w-4 h-4" />
-            Relatórios
-          </Button>
-          
-          <Button 
-            variant="outline" 
-            className="flex-1 md:flex-none text-blue-700 border-blue-200 bg-white hover:bg-blue-700 hover:text-white transition-colors duration-200 flex items-center gap-2"
-            onClick={onViewAnexos}
-          >
-            <Paperclip className="w-4 h-4" />
-            Anexos
-          </Button>
-        </CardFooter>
-      )}
+      <CardFooter className="px-5 pb-5 pt-0 flex flex-wrap gap-3 md:justify-start md:ml-[11rem] opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 ease-out">
+        <Button 
+          variant="outline" 
+          className="flex-1 md:flex-none text-[#165BAA] border-[#165BAA]/30 bg-white hover:bg-[#165BAA] hover:text-white transition-colors duration-200 flex items-center gap-2"
+          onClick={onViewAtendimentos}
+        >
+          <ClipboardList className="w-4 h-4" />
+          Prontuário
+        </Button>
+        
+        <Button 
+          variant="outline" 
+          className="flex-1 md:flex-none text-[#165BAA] border-[#165BAA]/30 bg-white hover:bg-[#165BAA] hover:text-white transition-colors duration-200 flex items-center gap-2"
+          onClick={onViewRelatorios}
+        >
+          <FileText className="w-4 h-4" />
+          Relatórios
+        </Button>
+        
+        <Button 
+          variant="outline" 
+          className="flex-1 md:flex-none text-[#165BAA] border-[#165BAA]/30 bg-white hover:bg-[#165BAA] hover:text-white transition-colors duration-200 flex items-center gap-2"
+          onClick={onViewAnexos}
+        >
+          <Paperclip className="w-4 h-4" />
+          Anexos
+        </Button>
+      </CardFooter>
+
     </Card>
   );
 }
