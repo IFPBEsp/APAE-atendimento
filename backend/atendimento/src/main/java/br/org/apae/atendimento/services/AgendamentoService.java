@@ -116,16 +116,19 @@ public class AgendamentoService {
         List<AgendamentoResponseDTO> todosAgendamentos = new ArrayList<>(locais);
         todosAgendamentos.addAll(externos);
 
+        todosAgendamentos.sort(Comparator.comparing(AgendamentoResponseDTO::data).reversed()
+                .thenComparing(AgendamentoResponseDTO::hora));
+
         return todosAgendamentos.stream()
                 .collect(Collectors.groupingBy(
                         AgendamentoResponseDTO::data,
-                        () -> new java.util.TreeMap<>(Comparator.reverseOrder()), 
+                        java.util.LinkedHashMap::new,
                         Collectors.toList()
                 ))
                 .entrySet().stream()
                 .map(e -> {
                     List<AgendamentoResponseDTO> ordenadosPorHora = e.getValue().stream()
-                            .sorted(Comparator.comparing(AgendamentoResponseDTO::hora).reversed())
+                            .sorted(Comparator.comparing(AgendamentoResponseDTO::hora))
                             .toList();
                     return new DiaAgendamentoResponseDTO(e.getKey(), ordenadosPorHora);
                 })
