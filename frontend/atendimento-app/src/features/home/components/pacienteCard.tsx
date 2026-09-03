@@ -1,6 +1,5 @@
 import { 
   User, 
-  MoreVertical, 
   IdCard, 
   Calendar, 
   MapPin, 
@@ -9,16 +8,11 @@ import {
   Activity, 
   ClipboardList, 
   FileText, 
-  Paperclip 
+  Paperclip,
+  PlusCircle
 } from "lucide-react";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-} from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Paciente } from "../types";
 import { formatarData } from "@/utils/formatarData";
@@ -49,35 +43,6 @@ export function PacienteCard({
   return (
     <Card className="group w-full max-w-md md:max-w-4xl md:h-fit rounded-2xl shadow-sm hover:shadow-md border border-[#EAECF0] border-t-[6px] border-t-[#165BAA] bg-white relative flex flex-col transition-shadow duration-300 overflow-hidden">
       
-      {modo === "todos" && (
-        <div className="absolute top-4 right-4 z-10">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button 
-                variant="outline" 
-                size="icon" 
-                className="w-8 h-8 rounded-full border-gray-300 bg-white shadow-sm text-[#165BAA] hover:bg-gray-100 transition-colors"
-                title="Opções"
-              >
-                <MoreVertical className="w-4 h-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent
-              className="w-48 bg-white rounded-xl shadow-lg border border-gray-200 p-2"
-              sideOffset={8}
-              align="end"
-            >
-              <DropdownMenuItem
-                className="justify-center cursor-pointer font-medium text-[#165BAA] hover:bg-[#165BAA]/10 rounded-md py-2 transition-colors"
-                onClick={onCreateAtendimento}
-              >
-                Criar atendimento
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      )}
-
       <CardContent className="p-5 flex flex-col md:flex-row md:gap-8 flex-1 relative">
         <div className="flex items-center gap-3 md:flex-col md:items-start md:w-36 shrink-0">
           <Avatar className="w-24 h-24 md:w-32 md:h-32 rounded-xl bg-[#F2F4F7]">
@@ -100,7 +65,7 @@ export function PacienteCard({
 
         <div className="flex flex-col justify-start flex-1 min-w-0 pt-1">
           <h2
-            className="hidden md:block font-bold text-[#101828] text-xl mb-4 text-left truncate pr-12"
+            className="hidden md:block font-bold text-[#101828] text-xl mb-4 text-left truncate"
             title={nomeCompleto}
           >
             {nomeCompleto}
@@ -146,34 +111,46 @@ export function PacienteCard({
         </div>
       </CardContent>
 
-      <CardFooter className="px-5 pb-5 pt-0 flex flex-wrap gap-3 md:justify-start md:ml-[11rem] opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 ease-out">
-        <Button 
-          variant="outline" 
-          className="flex-1 md:flex-none text-[#165BAA] border-[#165BAA]/30 bg-white hover:bg-[#165BAA] hover:text-white transition-colors duration-200 flex items-center gap-2"
-          onClick={onViewAtendimentos}
-        >
-          <ClipboardList className="w-4 h-4" />
-          Prontuário
-        </Button>
-        
-        <Button 
-          variant="outline" 
-          className="flex-1 md:flex-none text-[#165BAA] border-[#165BAA]/30 bg-white hover:bg-[#165BAA] hover:text-white transition-colors duration-200 flex items-center gap-2"
-          onClick={onViewRelatorios}
-        >
-          <FileText className="w-4 h-4" />
-          Relatórios
-        </Button>
-        
-        <Button 
-          variant="outline" 
-          className="flex-1 md:flex-none text-[#165BAA] border-[#165BAA]/30 bg-white hover:bg-[#165BAA] hover:text-white transition-colors duration-200 flex items-center gap-2"
-          onClick={onViewAnexos}
-        >
-          <Paperclip className="w-4 h-4" />
-          Anexos
-        </Button>
-      </CardFooter>
+      {modo === "meus" ? (
+        <CardFooter className="px-5 pb-5 pt-0 flex flex-wrap gap-3 md:justify-start md:ml-[11rem] opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 ease-out">
+          <Button 
+            variant="outline" 
+            className="flex-1 md:flex-none text-[#165BAA] border-[#165BAA]/30 bg-white hover:bg-[#165BAA] hover:text-white transition-colors duration-200 flex items-center gap-2"
+            onClick={onViewAtendimentos}
+          >
+            <ClipboardList className="w-4 h-4" />
+            Prontuário
+          </Button>
+          
+          <Button 
+            variant="outline" 
+            className="flex-1 md:flex-none text-[#165BAA] border-[#165BAA]/30 bg-white hover:bg-[#165BAA] hover:text-white transition-colors duration-200 flex items-center gap-2"
+            onClick={onViewRelatorios}
+          >
+            <FileText className="w-4 h-4" />
+            Relatórios
+          </Button>
+          
+          <Button 
+            variant="outline" 
+            className="flex-1 md:flex-none text-[#165BAA] border-[#165BAA]/30 bg-white hover:bg-[#165BAA] hover:text-white transition-colors duration-200 flex items-center gap-2"
+            onClick={onViewAnexos}
+          >
+            <Paperclip className="w-4 h-4" />
+            Anexos
+          </Button>
+        </CardFooter>
+      ) : (
+        <CardFooter className="px-5 pb-5 pt-0 md:ml-[11rem]">
+          <Button 
+            className="bg-[#165BAA] hover:bg-[#134e8f] text-white font-medium flex items-center gap-2 px-5 py-2 rounded-xl transition-colors"
+            onClick={onCreateAtendimento}
+          >
+            <PlusCircle className="w-4 h-4" />
+            Iniciar Novo Atendimento
+          </Button>
+        </CardFooter>
+      )}
 
     </Card>
   );
