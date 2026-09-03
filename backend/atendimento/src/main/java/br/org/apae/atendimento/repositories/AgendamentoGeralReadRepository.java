@@ -18,7 +18,7 @@ public class AgendamentoGeralReadRepository {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public List<AgendamentoResponseDTO> findByProfissionalIdOrderByDataHora(UUID profissionalId) {
+    public List<AgendamentoResponseDTO> findByProfissionalIdOrderByDataHoraDesc(UUID profissionalId) {
         String sql = """
                 SELECT
                     (
@@ -44,7 +44,7 @@ public class AgendamentoGeralReadRepository {
                 ) AS gs(data)
                 WHERE a.profissional_id = ?
                   AND a.ativo = TRUE
-                ORDER BY data_hora
+                ORDER BY data_hora DESC
                 """;
 
         return jdbcTemplate.query(sql, (rs, rowNum) -> {

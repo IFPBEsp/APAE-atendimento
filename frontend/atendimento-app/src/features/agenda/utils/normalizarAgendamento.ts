@@ -15,19 +15,15 @@ function normalizarData(data: string): string {
   return data;
 }
 
-function dataHoraParaOrdenacao(data: string, hora: string): number {
+function dataParaTimestamp(data: string): number {
   const dataNormalizada = normalizarData(data);
-
   const [dia, mes, ano] = dataNormalizada.split("-");
-  const [horas = "00", minutos = "00"] = hora.split(":");
+  return new Date(Number(ano), Number(mes) - 1, Number(dia)).getTime();
+}
 
-  return new Date(
-      Number(ano),
-      Number(mes) - 1,
-      Number(dia),
-      Number(horas),
-      Number(minutos)
-  ).getTime();
+function horaParaMinutos(hora: string): number {
+  const [h = "00", m = "00"] = (hora || "").split(":");
+  return Number(h) * 60 + Number(m);
 }
 
 export function normalizarAgendamentos(
@@ -53,6 +49,11 @@ export function normalizarAgendamentos(
   });
 
   return flatten.sort((a, b) => {
-    return dataHoraParaOrdenacao(a.data, a.horario) - dataHoraParaOrdenacao(b.data, b.horario);
+    const diffData = dataParaTimestamp(b.data) - dataParaTimestamp(a.data);
+    if (diffData !== 0) {
+      return diffData;
+    }
+
+    return horaParaMinutos(a.horario) - horaParaMinutos(b.horario);
   });
 }
