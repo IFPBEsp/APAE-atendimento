@@ -1,11 +1,18 @@
-import { User, MoreVertical } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-} from "@/components/ui/dropdown-menu";
+import { 
+  User, 
+  IdCard, 
+  Calendar, 
+  MapPin, 
+  Phone, 
+  Users, 
+  Activity, 
+  ClipboardList, 
+  FileText, 
+  Paperclip,
+  PlusCircle
+} from "lucide-react";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Paciente } from "../types";
 import { formatarData } from "@/utils/formatarData";
@@ -34,101 +41,117 @@ export function PacienteCard({
   modo = "meus",
 }: PacienteCardProps) {
   return (
-    <Card className="w-full max-w-md md:max-w-4xl md:h-fit rounded-2xl shadow-md border border-[#EAECF0] bg-white relative">
-      <DropdownMenu>
-        <DropdownMenuTrigger className="absolute top-2 right-2 p-1 rounded-full hover:bg-gray-100 cursor-pointer">
-          <MoreVertical className="w-5 h-5 text-gray-500" />
-        </DropdownMenuTrigger>
-        <DropdownMenuContent
-          className="w-48 bg-white rounded-xl shadow-lg border border-gray-200 p-4"
-          sideOffset={8}
-        >
-          {modo === "todos" ? (
-            <DropdownMenuItem
-              className="justify-center cursor-pointer"
-              onClick={onCreateAtendimento}
-            >
-              Criar atendimento
-            </DropdownMenuItem>
-          ) : (
-            <>
-              <DropdownMenuItem
-                className="justify-center cursor-pointer"
-                onClick={onViewAtendimentos}
-              >
-                Ver Atendimentos
-              </DropdownMenuItem>
-
-              <DropdownMenuItem
-                className="justify-center cursor-pointer"
-                onClick={onViewRelatorios}
-              >
-                Criar relatório
-              </DropdownMenuItem>
-
-              <DropdownMenuItem
-                className="justify-center cursor-pointer"
-                onClick={onViewAnexos}
-              >
-                Adicionar anexo
-              </DropdownMenuItem>
-            </>
-          )}
-        </DropdownMenuContent>
-      </DropdownMenu>
-
-      <CardContent className="p-4 flex flex-col md:flex-row md:gap-6 ">
-        <div className="flex items-center gap-3 md:flex-col md:items-start md:gap-4 md:w-40 pb-2">
-          <Avatar className="w-40 h-40 rounded-xl bg-[#F2F4F7]">
+    <Card className="group w-full max-w-md md:max-w-4xl md:h-fit rounded-2xl shadow-sm hover:shadow-md border border-[#EAECF0] border-t-[6px] border-t-[#165BAA] bg-white relative flex flex-col transition-shadow duration-300 overflow-hidden">
+      
+      <CardContent className="p-5 flex flex-col md:flex-row md:gap-8 flex-1 relative">
+        <div className="flex items-center gap-3 md:flex-col md:items-start md:w-36 shrink-0">
+          <Avatar className="w-24 h-24 md:w-32 md:h-32 rounded-xl bg-[#F2F4F7]">
             {fotoPreAssinada ? (
-              <AvatarImage src={fotoPreAssinada} alt="Avatar" />
+              <AvatarImage src={fotoPreAssinada} alt={`Foto de ${nomeCompleto}`} className="object-cover" />
             ) : (
               <AvatarFallback>
-                <User className="w-6 h-6 text-gray-500 md:w-10 md:h-10" />
+                <User className="w-10 h-10 text-gray-400" />
               </AvatarFallback>
             )}
           </Avatar>
 
-          {/* Nome visível SOMENTE no mobile */}
           <h2
-            className="font-semibold text-[#344054] text-base md:hidden text-left line-clamp-2"
+            className="font-bold text-[#101828] text-base md:hidden text-left line-clamp-2"
             title={nomeCompleto}
           >
             {nomeCompleto}
           </h2>
         </div>
 
-        <div className="flex flex-col justify-center flex-1 min-w-0">
-          {" "}
+        <div className="flex flex-col justify-start flex-1 min-w-0 pt-1">
           <h2
-            className="hidden md:block font-semibold text-[#344054] text-lg mb-3 text-left truncate"
+            className="hidden md:block font-bold text-[#101828] text-xl mb-4 text-left truncate"
             title={nomeCompleto}
           >
             {nomeCompleto}
           </h2>
-          <div className="text-left text-sm text-[#344054] leading-relaxed space-y-1">
-            <p>
-              <strong>CPF:</strong> {cpf}
-            </p>
-            <p className="truncate" title={endereco}>
-              <strong>Endereço:</strong> {endereco}
-            </p>
-            <p>
-              <strong>Contato:</strong> {contato}
-            </p>
-            <p>
-              <strong>Data de nascimento:</strong>{" "}
-              {formatarData(dataDeNascimento)}
-            </p>
-            <p className="truncate" title={transtornos.join(", ")}>
-              <strong>Transtornos:</strong> {transtornos.join(", ")}
-            </p>
-            <p className="truncate" title={responsaveis.join(", ")}>
-              <strong>Responsáveis:</strong> {responsaveis.join(", ")}
-            </p>
+          
+          <div className="text-left text-sm text-[#475467] leading-relaxed space-y-3">
+            
+            <div className="flex flex-wrap items-center gap-x-8 gap-y-3">
+              <div className="flex items-center gap-2">
+                <IdCard className="w-4 h-4 text-[#165BAA] shrink-0" />
+                <span><span className="font-semibold text-[#344054]">CPF:</span> {cpf}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Calendar className="w-4 h-4 text-[#165BAA] shrink-0" />
+                <span>{formatarData(dataDeNascimento)}</span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <Phone className="w-4 h-4 text-[#165BAA] shrink-0" />
+              <span>{contato}</span>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <MapPin className="w-4 h-4 text-[#165BAA] shrink-0" />
+              <span className="truncate" title={endereco}>{endereco}</span>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <Users className="w-4 h-4 text-[#165BAA] shrink-0" />
+              <span className="truncate" title={responsaveis.join(", ")}>
+                <span className="font-semibold text-[#344054]">Responsáveis:</span> {responsaveis.join(", ")}
+              </span>
+            </div>
+            
+            <div className="flex items-center gap-2 mt-2">
+              <Activity className="w-4 h-4 text-[#165BAA] shrink-0" />
+              <span className="font-medium text-[#165BAA] bg-[#165BAA]/10 px-2.5 py-0.5 rounded-md truncate max-w-fit" title={transtornos.join(", ")}>
+                {transtornos.join(", ")}
+              </span>
+            </div>
           </div>
         </div>
       </CardContent>
+
+      {modo === "meus" ? (
+        <CardFooter className="px-5 pb-5 pt-0 flex flex-wrap gap-3 md:justify-start md:ml-[11rem] opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 ease-out">
+          <Button 
+            variant="outline" 
+            className="flex-1 md:flex-none text-[#165BAA] border-[#165BAA]/30 bg-white hover:bg-[#165BAA] hover:text-white transition-colors duration-200 flex items-center gap-2"
+            onClick={onViewAtendimentos}
+          >
+            <ClipboardList className="w-4 h-4" />
+            Prontuário
+          </Button>
+          
+          <Button 
+            variant="outline" 
+            className="flex-1 md:flex-none text-[#165BAA] border-[#165BAA]/30 bg-white hover:bg-[#165BAA] hover:text-white transition-colors duration-200 flex items-center gap-2"
+            onClick={onViewRelatorios}
+          >
+            <FileText className="w-4 h-4" />
+            Relatórios
+          </Button>
+          
+          <Button 
+            variant="outline" 
+            className="flex-1 md:flex-none text-[#165BAA] border-[#165BAA]/30 bg-white hover:bg-[#165BAA] hover:text-white transition-colors duration-200 flex items-center gap-2"
+            onClick={onViewAnexos}
+          >
+            <Paperclip className="w-4 h-4" />
+            Anexos
+          </Button>
+        </CardFooter>
+      ) : (
+        <CardFooter className="px-5 pb-5 pt-0 md:ml-[11rem]">
+          <Button 
+            className="bg-[#165BAA] hover:bg-[#134e8f] text-white font-medium flex items-center gap-2 px-5 py-2 rounded-xl transition-colors"
+            onClick={onCreateAtendimento}
+          >
+            <PlusCircle className="w-4 h-4" />
+            Iniciar Novo Atendimento
+          </Button>
+        </CardFooter>
+      )}
+
     </Card>
   );
 }
