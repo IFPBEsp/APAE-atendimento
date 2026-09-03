@@ -1,29 +1,29 @@
 package br.org.apae.atendimento.services;
 
-import br.org.apae.atendimento.dtos.request.AgendamentoRequestDTO;
-import br.org.apae.atendimento.dtos.response.AgendamentoResponseDTO;
-import br.org.apae.atendimento.dtos.response.DiaAgendamentoResponseDTO;
-import br.org.apae.atendimento.entities.Agendamento;
-import br.org.apae.atendimento.exceptions.invalid.AgendamentoInvalidException;
-import br.org.apae.atendimento.exceptions.notfound.AgendamentoNotFoundException;
-import br.org.apae.atendimento.exceptions.invalid.RelacaoInvalidException;
-import br.org.apae.atendimento.mappers.AgendamentoMapper;
-import br.org.apae.atendimento.repositories.AgendamentoGeralReadRepository;
-import br.org.apae.atendimento.repositories.AgendamentoRepository;
-import br.org.apae.atendimento.repositories.AtendimentoRepository;
-import jakarta.transaction.Transactional;
-import org.springframework.stereotype.Service;
-import br.org.apae.atendimento.repositories.ProfissionalPacienteRepository;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+
+import br.org.apae.atendimento.dtos.request.AgendamentoRequestDTO;
+import br.org.apae.atendimento.dtos.response.AgendamentoResponseDTO;
+import br.org.apae.atendimento.dtos.response.DiaAgendamentoResponseDTO;
+import br.org.apae.atendimento.entities.Agendamento;
+import br.org.apae.atendimento.exceptions.invalid.AgendamentoInvalidException;
+import br.org.apae.atendimento.exceptions.invalid.RelacaoInvalidException;
+import br.org.apae.atendimento.exceptions.notfound.AgendamentoNotFoundException;
+import br.org.apae.atendimento.mappers.AgendamentoMapper;
+import br.org.apae.atendimento.repositories.AgendamentoGeralReadRepository;
+import br.org.apae.atendimento.repositories.AgendamentoRepository;
+import br.org.apae.atendimento.repositories.AtendimentoRepository;
+import br.org.apae.atendimento.repositories.ProfissionalPacienteRepository;
+import jakarta.transaction.Transactional;
 
 @Service
 public class AgendamentoService {
@@ -84,6 +84,44 @@ public class AgendamentoService {
 
         return agendamentoMapper.toDTOPadrao(repository.save(agendamento));
     }
+
+    @Transactional
+    public AgendamentoResponseDTO editar(
+            UUID agendamentoId,
+            UUID profissionalId,
+            AgendamentoRequestDTO agendamentoRequest
+    ) {
+       
+        Agendamento agendamento = repository
+                .findByIdAndProfissionalIdAndPacienteId(agendamentoId, profissionalId, agendamentoRequest.pacienteId())
+                .orElseThrow(() -> new AgendamentoNotFoundException("O agendamento nao existe ou nao pertence ao profissional autenticado."));
+
+    
+        if (agendamento.isStatus()) {
+            throw new AgendamentoInvalidException("Nao e possivel editar um agendamento que ja foi concluido.");
+        }
+
+        LocalDateTime novaDataHora = LocalDateTime.of(agendamentoRequest.data(), agendamentoRequest.hora());
+
+        if (!novaDataHora.equals(agendamento.getDataHora())) {
+            if (verificarAgendamentoExiste(profissionalId, agendamentoRequest.data(), agendamentoRequest.hora())) {
+                throw new AgendamentoInvalidException(
+                        agendamentoRequest.data() + " - " + agendamentoRequest.hora() + " ja possui um agendamento");
+            }
+
+            agendamento.setDataHora(novaDataHora);
+
+            verificarAtendimentos(
+                    agendamentoRequest.data(),
+                    profissionalId,
+                    agendamentoRequest.pacienteId(),
+                    agendamento
+            );
+        }
+
+        return agendamentoMapper.toDTOPadrao(repository.save(agendamento));
+    }
+    
 
     public Agendamento buscarAgendamentoPorDataProfissionalEPaciente(
             LocalDate data,
