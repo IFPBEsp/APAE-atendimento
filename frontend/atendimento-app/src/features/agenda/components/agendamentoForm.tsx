@@ -41,6 +41,12 @@ function getTodayLocalDate() {
   return new Date(now.getTime() - offset).toISOString().split("T")[0];
 }
 
+function getNowLocalTime() {
+  const now = new Date();
+  const offset = now.getTimezoneOffset() * 60000;
+  return new Date(now.getTime() - offset).toISOString().split("T")[1].slice(0, 5);
+}
+
 export default function AgendamentoForm({
   onSubmit,
 }: AgendamentoFormProps) {
@@ -58,7 +64,12 @@ export default function AgendamentoForm({
     });
 
   const pacienteId = watch("pacienteId");
-  const profissionalId = watch("profissionalId")
+  const profissionalId = watch("profissionalId");
+  const dataSelecionada = watch("data");
+
+  const hoje = getTodayLocalDate();
+  const isDataHoje = dataSelecionada === hoje;
+  const horarioMinimo = isDataHoje ? getNowLocalTime() : undefined;
 
   const { data: pacientes = [], isLoading: isLoadingPacientes } = usePacientesDropdown(origemPacientes);
   const { data: profissionais = [], isLoading: isLoadingProfissionais } = useProfissionaisDropdown();
@@ -191,7 +202,12 @@ export default function AgendamentoForm({
           </Label>
           <Input
             type="date"
-            {...register("data", { required: true })}
+            min={hoje}
+            {...register("data", {
+              required: true,
+              validate: (value) =>
+                value >= hoje || "A data não pode estar no passado",
+            })}
             className="rounded-[30px] border-[#3B82F6] focus-visible:ring-0"
           />
         </div>
@@ -202,7 +218,14 @@ export default function AgendamentoForm({
           </Label>
           <Input
             type="time"
-            {...register("horario", { required: true })}
+            min={horarioMinimo}
+            {...register("horario", {
+              required: true,
+              validate: (value) =>
+                !isDataHoje ||
+                value >= horarioMinimo! ||
+                "O horário não pode estar no passado",
+            })}
             className="rounded-[30px] border-[#3B82F6] focus-visible:ring-0"
           />
         </div>
