@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 
 import { AgendamentoModal } from "../components/agendamentoModal";
 import { AgendamentoModalDeletar } from "../components/agendamentoModalDeletar";
-import { AgendamentoModalConcluir } from "../components/agendamentoModalConcluir"; 
+import { AgendamentoModalConcluir } from "../components/agendamentoModalConcluir";
 import AgendamentoForm, {
   AgendamentoFormData,
 } from "../components/agendamentoForm";
@@ -32,13 +32,19 @@ import { isoParaBR } from "@/utils/formatarData";
 
 const nunitoFont = Nunito({ weight: "700" });
 
+function getTodayLocalDate() {
+  const now = new Date();
+  const offset = now.getTimezoneOffset() * 60000;
+  return new Date(now.getTime() - offset).toISOString().split("T")[0];
+}
+
 export default function AgendamentoPage() {
   const router = useRouter();
 
-  const [dataSelecionada, setDataSelecionada] = useState("");
+  const [dataSelecionada, setDataSelecionada] = useState(getTodayLocalDate());
   const [openCreate, setOpenCreate] = useState(false);
   const [openDelete, setOpenDelete] = useState(false);
-  const [openConcluir, setOpenConcluir] = useState(false); 
+  const [openConcluir, setOpenConcluir] = useState(false);
   const [agendamentoSelecionado, setAgendamentoSelecionado] =
     useState<Agendamento | null>(null);
 
@@ -50,7 +56,7 @@ export default function AgendamentoPage() {
 
   const agendamentosFiltrados = useMemo(() => {
     if (!dataSelecionada) return agendamentos;
-    const dataBR = isoParaBR(dataSelecionada); 
+    const dataBR = isoParaBR(dataSelecionada);
     return agendamentos.filter((a) => a.data === dataBR);
   }, [agendamentos, dataSelecionada]);
 
@@ -179,13 +185,13 @@ export default function AgendamentoPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {itens.map((item) => (
                 <AgendamentoCard
-                  id={item.id} 
+                  id={item.id}
                   key={item.id}
                   paciente={item.paciente}
                   horario={item.horario}
                   numeroAtendimento={item.numeracao}
-                  status={item.status} 
-                  externo={item.externo} 
+                  status={item.status}
+                  externo={item.externo}
                   onConcluirClick={() => {
                     setAgendamentoSelecionado(item);
                     setOpenConcluir(true);
