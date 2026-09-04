@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 
 import { AgendamentoModal } from "../components/agendamentoModal";
 import { AgendamentoModalDeletar } from "../components/agendamentoModalDeletar";
+import { AgendamentoModalConcluir } from "../components/agendamentoModalConcluir"; 
 import AgendamentoForm, {
   AgendamentoFormData,
 } from "../components/agendamentoForm";
@@ -37,6 +38,7 @@ export default function AgendamentoPage() {
   const [dataSelecionada, setDataSelecionada] = useState("");
   const [openCreate, setOpenCreate] = useState(false);
   const [openDelete, setOpenDelete] = useState(false);
+  const [openConcluir, setOpenConcluir] = useState(false); 
   const [agendamentoSelecionado, setAgendamentoSelecionado] =
     useState<Agendamento | null>(null);
 
@@ -105,6 +107,23 @@ export default function AgendamentoPage() {
     }
   }
 
+  async function confirmarConcluirAgendamento() {
+    if (!agendamentoSelecionado) return;
+
+    try {
+      await concluirAgendamentoMutation.mutateAsync({
+        pacienteId: agendamentoSelecionado.pacienteId,
+        agendamentoId: agendamentoSelecionado.id,
+      });
+
+      toast.success("Agendamento concluído com sucesso!");
+      setOpenConcluir(false);
+      setAgendamentoSelecionado(null);
+    } catch {
+      toast.error("Erro ao concluir agendamento.");
+    }
+  }
+
   return (
     <div className="min-h-screen w-full bg-[#F8FAFD]">
       <Header />
@@ -168,10 +187,8 @@ export default function AgendamentoPage() {
                   status={item.status} 
                   externo={item.externo} 
                   onConcluirClick={() => {
-                    concluirAgendamentoMutation.mutate({
-                      pacienteId: item.pacienteId,
-                      agendamentoId: item.id,
-                    });
+                    setAgendamentoSelecionado(item);
+                    setOpenConcluir(true);
                   }}
                   onDeleteClick={() => {
                     setAgendamentoSelecionado(item);
@@ -223,6 +240,15 @@ export default function AgendamentoPage() {
           setAgendamentoSelecionado(null);
         }}
         onConfirm={confirmarDeleteAgendamento}
+      />
+
+      <AgendamentoModalConcluir
+        isOpen={openConcluir}
+        onClose={() => {
+          setOpenConcluir(false);
+          setAgendamentoSelecionado(null);
+        }}
+        onConfirm={confirmarConcluirAgendamento}
       />
     </div>
   );
