@@ -96,6 +96,8 @@ export default function AtendimentoPage() {
         <AtendimentoModal open={open} onOpenChange={setOpen}>
           <AtendimentoForm
             atendimentos={atendimentos}
+            pacienteNome={paciente?.nomeCompleto}
+            pacienteId={pacienteId}
             onClose={() => setOpen(false)}
           />
         </AtendimentoModal>

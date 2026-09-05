@@ -8,7 +8,6 @@ import {
 import { ReactNode } from "react";
 import { Nunito } from "next/font/google";
 import { X } from "lucide-react";
-import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface AtendimentoModalProps {
   open: boolean;
@@ -28,25 +27,23 @@ export function AtendimentoModal({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className={`sm:max-w-[632px] rounded-[30px] max-h-[560px] p-1 pb-8 ${nunitoFont.className}`}
+        className={`sm:max-w-[950px] w-[95vw] rounded-[28px] max-h-[90vh] overflow-y-auto p-8 ${nunitoFont.className}`}
       >
-        <ScrollArea className="max-h-[480px] px-4 ">
-          <div className="relative mb-4">
-            <DialogClose className="mt-2 absolute right-0 top-0 rounded-full p-1 hover:bg-gray-100 transition-colors outline-none cursor-pointer">
-              <X className="h-6 w-6" />
-            </DialogClose>
+        <div className="relative">
+          <DialogClose className="absolute right-0 top-0 text-gray-500 hover:text-black transition-colors outline-none cursor-pointer">
+            <X className="h-6 w-6" />
+          </DialogClose>
 
-            <DialogHeader className="pt-6">
-              <DialogTitle className="text-xl text-center text-[#344054]">
-                {modo === "edit"
-                  ? "Editar atendimento"
-                  : "Adicionar novo atendimento"}
-              </DialogTitle>
-            </DialogHeader>
-          </div>
+          <DialogHeader className="pt-2 pb-6">
+            <DialogTitle className="text-[22px] font-bold text-center text-[#102A43]">
+              {modo === "edit"
+                ? "Editar atendimento"
+                : "Adicionar novo atendimento"}
+            </DialogTitle>
+          </DialogHeader>
 
           {children}
-        </ScrollArea>
+        </div>
       </DialogContent>
     </Dialog>
   );
