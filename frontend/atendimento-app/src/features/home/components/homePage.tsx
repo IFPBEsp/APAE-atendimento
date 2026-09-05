@@ -253,6 +253,7 @@ export default function HomePage() {
             <AtendimentoForm
                 atendimentos={[]}
                 pacienteId={pacienteSelecionado?.id}
+                pacienteNome={pacienteSelecionado?.nomeCompleto}
                 onClose={() => {
                   setOpenAtendimento(false);
                   setPacienteSelecionado(null);
