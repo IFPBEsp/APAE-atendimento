@@ -55,15 +55,6 @@ services:
     depends_on:
       - postgres-db
       - minio
-    healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "curl -fsS http://localhost:8080/actuator/health > /dev/null || exit 1",
-        ]
-      interval: 30s
-      timeout: 5s
-      retries: 3
     profiles: ["PROD"]
 
   frontend:
@@ -80,15 +71,6 @@ services:
       - "80:3000"
     depends_on:
       - backend
-    healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "curl -fsS http://localhost:3000/login > /dev/null || exit 1",
-        ]
-      interval: 30s
-      timeout: 5s
-      retries: 3
     profiles: ["PROD"]
 
 volumes:

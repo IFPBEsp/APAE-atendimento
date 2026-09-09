@@ -7,7 +7,7 @@ WORKDIR /app
 COPY pom.xml .
 COPY src ./src
 
-RUN --mount=type=cache,target=/root/.m2 \
+RUN --mount=type=cache,id=atendimento-m2,target=/root/.m2 \
     mvn -B package -DskipTests
 
 
