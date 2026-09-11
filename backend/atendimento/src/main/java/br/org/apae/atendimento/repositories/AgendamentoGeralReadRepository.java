@@ -58,6 +58,8 @@ public class AgendamentoGeralReadRepository {
                     rs.getObject("id", UUID.class),
                     rs.getObject("paciente_id", UUID.class),
                     rs.getString("nome_paciente"),
+                    profissionalId,
+                    null,
                     dataHora.toLocalDate(),
                     dataHora.toLocalTime(),
                     "0",
