@@ -12,6 +12,14 @@ export async function criarAgendamento(payload: CriarAgendamentoPayload) {
   return data;
 }
 
+export async function editarAgendamento(
+  agendamentoId: string,
+  payload: CriarAgendamentoPayload
+) {
+  const { data } = await api.put(`/agendamento/${agendamentoId}`, payload);
+  return data;
+}
+
 export async function deletarAgendamento(
   pacienteId: string,
   agendamentoId: string,
