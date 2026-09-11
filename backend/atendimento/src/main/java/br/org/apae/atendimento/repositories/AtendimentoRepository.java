@@ -32,7 +32,7 @@ public interface AtendimentoRepository extends JpaRepository<Atendimento, UUID> 
         LEFT JOIN FETCH a.relatorio
         WHERE a.pacienteId = :pacienteid
             AND a.profissionalId = :profissionalid
-        ORDER BY a.dataAtendimento
+        ORDER BY a.dataAtendimento DESC
     """)
     List<Atendimento> findByPacienteIdAndProfissionalIdComRelatorio(
             @Param("pacienteid") UUID pacienteId,
