@@ -25,7 +25,7 @@ export default function AtendimentoCard({
   atendimentos,
 }: AtendimentoCardProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { mutate: concluir, isPending } = useConcluirAtendimento(); // Inicializa o hook
+  const { mutate: concluir, isPending } = useConcluirAtendimento();
 
   const primeiroRelatorio =
     relatorio && relatorio.length > 0 ? relatorio[0] : null;
@@ -53,10 +53,10 @@ export default function AtendimentoCard({
 
           <div className="w-full h-[2px] bg-[#E8EEF7] mb-3"></div>
 
-          <h2 className="text-[15px] font-semibold text-[#344054] mb-1">
+          <h2 className="text-[15px] font-semibold text-[#344054] mb-1 break-words">
             {primeiroRelatorio?.titulo || "Sem título"}
           </h2>
-          <p className="text-sm text-[#222222] leading-relaxed mb-4">
+          <p className="text-sm text-[#222222] leading-relaxed mb-4 break-words">
             {primeiroRelatorio?.descricao || "Nenhum relatório adicionado."}
           </p>
         </div>
