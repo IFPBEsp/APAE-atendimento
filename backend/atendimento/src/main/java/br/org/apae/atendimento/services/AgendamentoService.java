@@ -183,7 +183,12 @@ public class AgendamentoService {
         todosAgendamentos.sort(Comparator.comparing(AgendamentoResponseDTO::data).reversed()
                 .thenComparing(AgendamentoResponseDTO::hora));
 
-        List<DiaAgendamentoResponseDTO> agrupados = todosAgendamentos.stream()
+        int totalElementos = todosAgendamentos.size();
+        int inicio = Math.min(page * size, totalElementos);
+        int fim = Math.min(inicio + size, totalElementos);
+        List<AgendamentoResponseDTO> paginaDeAgendamentos = todosAgendamentos.subList(inicio, fim);
+
+        List<DiaAgendamentoResponseDTO> agrupados = paginaDeAgendamentos.stream()
                 .collect(Collectors.groupingBy(
                         AgendamentoResponseDTO::data,
                         java.util.LinkedHashMap::new,
@@ -198,13 +203,8 @@ public class AgendamentoService {
                 })
                 .toList();
 
-        int totalElementos = agrupados.size();
-        int inicio = Math.min(page * size, totalElementos);
-        int fim = Math.min(inicio + size, totalElementos);
-        List<DiaAgendamentoResponseDTO> conteudoPagina = agrupados.subList(inicio, fim);
-
         Pageable pageable = PageRequest.of(page, size);
-        return new PageImpl<>(conteudoPagina, pageable, totalElementos);
+        return new PageImpl<>(agrupados, pageable, totalElementos);
     }
 
     public void deletar(UUID profissionalId, UUID pacienteId, UUID agendamentoId) {
