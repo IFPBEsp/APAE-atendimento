@@ -45,6 +45,7 @@ class AuthServiceTest {
 
         when(profissionalRepository.findByEmailIgnoreCase("user@email.com")).thenReturn(Optional.of(usuario));
         when(usuario.getAtivo()).thenReturn(true);
+        when(usuario.getPerfil()).thenReturn("ATENDIMENTO");
         when(usuario.getSenha()).thenReturn("hash");
         when(passwordEncoder.matches("senha123", "hash")).thenReturn(true);
         when(jwtService.gerarToken(usuario)).thenReturn("jwt-token");
@@ -97,6 +98,7 @@ class AuthServiceTest {
 
         when(profissionalRepository.findByEmailIgnoreCase("user@email.com")).thenReturn(Optional.of(usuario));
         when(usuario.getAtivo()).thenReturn(true);
+        when(usuario.getPerfil()).thenReturn("ATENDIMENTO");
         when(usuario.getSenha()).thenReturn("hash");
         when(passwordEncoder.matches("senhaErrada", "hash")).thenReturn(false);
 
@@ -107,4 +109,3 @@ class AuthServiceTest {
         verify(jwtService, never()).gerarToken(any());
     }
 }
-
