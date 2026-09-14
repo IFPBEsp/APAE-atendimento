@@ -9,6 +9,10 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import br.org.apae.atendimento.dtos.request.AgendamentoRequestDTO;
@@ -55,12 +59,12 @@ public class AgendamentoService {
 
     @Transactional
     public AgendamentoResponseDTO agendar(
-        AgendamentoRequestDTO agendamentoRequest, 
+        AgendamentoRequestDTO agendamentoRequest,
         UUID profissionalId
     ) {
         if (verificarAgendamentoExiste(
-            profissionalId, 
-            agendamentoRequest.data(), 
+            profissionalId,
+            agendamentoRequest.data(),
             agendamentoRequest.hora())
         ) {
             throw new AgendamentoInvalidException(
@@ -91,12 +95,12 @@ public class AgendamentoService {
             UUID profissionalId,
             AgendamentoRequestDTO agendamentoRequest
     ) {
-       
+
         Agendamento agendamento = repository
                 .findByIdAndProfissionalIdAndPacienteId(agendamentoId, profissionalId, agendamentoRequest.pacienteId())
                 .orElseThrow(() -> new AgendamentoNotFoundException("O agendamento nao existe ou nao pertence ao profissional autenticado."));
 
-    
+
         if (agendamento.isStatus()) {
             throw new AgendamentoInvalidException("Nao e possivel editar um agendamento que ja foi concluido.");
         }
@@ -121,7 +125,7 @@ public class AgendamentoService {
 
         return agendamentoMapper.toDTOPadrao(repository.save(agendamento));
     }
-    
+
 
     public Agendamento buscarAgendamentoPorDataProfissionalEPaciente(
             LocalDate data,
@@ -143,13 +147,35 @@ public class AgendamentoService {
 
 
     @Transactional
-    public List<DiaAgendamentoResponseDTO> listarAgrupadoPorDia(UUID profissionalId) {
-        List<AgendamentoResponseDTO> locais = repository.findByProfissionalIdOrderByDataHoraDesc(profissionalId)
-                .stream()
-                .map(agendamentoMapper::toDTOPadrao)
-                .toList();
+    public Page<DiaAgendamentoResponseDTO> listarAgrupadoPorDia(
+            UUID profissionalId,
+            LocalDate data,
+            int page,
+            int size
+    ) {
+        List<AgendamentoResponseDTO> locais;
+        List<AgendamentoResponseDTO> externos;
 
-        List<AgendamentoResponseDTO> externos = agendamentoGeralReadRepository.findByProfissionalIdOrderByDataHoraDesc(profissionalId);
+        if (data != null) {
+            LocalDateTime dataInicio = data.atStartOfDay();
+            LocalDateTime dataFim = dataInicio.plusDays(1);
+
+            locais = repository
+                    .findByProfissionalIdAndDataHoraBetweenOrderByDataHoraDesc(profissionalId, dataInicio, dataFim)
+                    .stream()
+                    .map(agendamentoMapper::toDTOPadrao)
+                    .toList();
+
+            externos = agendamentoGeralReadRepository
+                    .findByProfissionalIdAndDataOrderByDataHoraDesc(profissionalId, data);
+        } else {
+            locais = repository.findByProfissionalIdOrderByDataHoraDesc(profissionalId)
+                    .stream()
+                    .map(agendamentoMapper::toDTOPadrao)
+                    .toList();
+
+            externos = agendamentoGeralReadRepository.findByProfissionalIdOrderByDataHoraDesc(profissionalId);
+        }
 
         List<AgendamentoResponseDTO> todosAgendamentos = new ArrayList<>(locais);
         todosAgendamentos.addAll(externos);
@@ -157,7 +183,12 @@ public class AgendamentoService {
         todosAgendamentos.sort(Comparator.comparing(AgendamentoResponseDTO::data).reversed()
                 .thenComparing(AgendamentoResponseDTO::hora));
 
-        return todosAgendamentos.stream()
+        int totalElementos = todosAgendamentos.size();
+        int inicio = Math.min(page * size, totalElementos);
+        int fim = Math.min(inicio + size, totalElementos);
+        List<AgendamentoResponseDTO> paginaDeAgendamentos = todosAgendamentos.subList(inicio, fim);
+
+        List<DiaAgendamentoResponseDTO> agrupados = paginaDeAgendamentos.stream()
                 .collect(Collectors.groupingBy(
                         AgendamentoResponseDTO::data,
                         java.util.LinkedHashMap::new,
@@ -171,6 +202,9 @@ public class AgendamentoService {
                     return new DiaAgendamentoResponseDTO(e.getKey(), ordenadosPorHora);
                 })
                 .toList();
+
+        Pageable pageable = PageRequest.of(page, size);
+        return new PageImpl<>(agrupados, pageable, totalElementos);
     }
 
     public void deletar(UUID profissionalId, UUID pacienteId, UUID agendamentoId) {

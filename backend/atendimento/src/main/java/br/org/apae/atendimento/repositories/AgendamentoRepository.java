@@ -14,6 +14,9 @@ import java.util.UUID;
 public interface AgendamentoRepository extends JpaRepository<Agendamento, UUID> {
     List<Agendamento> findByProfissionalIdOrderByDataHoraDesc(UUID profissionalId);
 
+    List<Agendamento> findByProfissionalIdAndDataHoraBetweenOrderByDataHoraDesc(
+            UUID profissionalId, LocalDateTime dataInicio, LocalDateTime dataFim);
+
     @Query("""
        SELECT a
        FROM Agendamento a

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { Mail, Lock } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff } from "lucide-react"; 
 import { Nunito, Baloo_2 } from "next/font/google";
 import { Card, CardContent } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
@@ -29,6 +29,7 @@ const baloo2Font = Baloo_2({
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false); 
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isCheckingSession, setIsCheckingSession] = useState(true);
@@ -160,7 +161,7 @@ export default function LoginPage() {
                     <InputGroupInput
                       id="password"
                       className={nunitoFont.className}
-                      type="password"
+                      type={showPassword ? "text" : "password"}
                       value={password}
                       placeholder="********"
                       minLength={8}
@@ -172,7 +173,14 @@ export default function LoginPage() {
                       required
                     />
                     <InputGroupAddon>
-                      <Lock />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="text-gray-500 hover:text-gray-800 focus:outline-none transition-colors flex items-center justify-center w-full h-full"
+                        title={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                      >
+                        {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                      </button>
                     </InputGroupAddon>
                   </InputGroup>
                 </div>
