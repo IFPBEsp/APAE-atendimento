@@ -74,7 +74,6 @@ export default function AgendamentoPage() {
     try {
       await criarAgendamentoMutation.mutateAsync({
         pacienteId: data.pacienteId,
-        profissionalId: data.profissionalId,
         data: isoParaBR(data.data),
         hora: data.horario,
       });
