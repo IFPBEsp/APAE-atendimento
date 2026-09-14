@@ -3,8 +3,8 @@ import { api } from "@/services/axios";
 import { CriarAgendamentoPayload, PacienteOption } from "../types";
 
 export async function listarAgendamentos() {
-  const { data } = await api.get(`/agendamento`);
-  return data;
+  const { data } = await api.get(`/agendamento?size=1000`);
+  return data.content || data;
 }
 
 export async function criarAgendamento(payload: CriarAgendamentoPayload) {
