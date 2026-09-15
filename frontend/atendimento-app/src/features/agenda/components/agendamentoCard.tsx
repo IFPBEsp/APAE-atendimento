@@ -113,17 +113,16 @@ export default function AgendamentoCard({
               Concluir Atendimento
             </Button>
 
-            <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-              
-              <button
-                onClick={onEditClick}
-                className="w-9 h-9 flex items-center justify-center text-gray-400 border border-transparent bg-white rounded-[10px] hover:border-[#165BAA] hover:text-[#165BAA] hover:bg-blue-50 transition-all cursor-pointer"
-                title="Editar agendamento"
-              >
-                <Pencil size={15} />
-              </button>
+            {!externo && (
+              <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <button
+                  onClick={onEditClick}
+                  className="w-9 h-9 flex items-center justify-center text-gray-400 border border-transparent bg-white rounded-[10px] hover:border-[#165BAA] hover:text-[#165BAA] hover:bg-blue-50 transition-all cursor-pointer"
+                  title="Editar agendamento"
+                >
+                  <Pencil size={15} />
+                </button>
 
-              {!externo && (
                 <button
                   onClick={onDeleteClick}
                   className="w-9 h-9 flex items-center justify-center text-gray-400 border border-transparent bg-white rounded-[10px] hover:bg-[#fa2c37] hover:text-white hover:border-[#fa2c37] transition-all cursor-pointer"
@@ -131,8 +130,8 @@ export default function AgendamentoCard({
                 >
                   <Trash2 size={15} />
                 </button>
-              )}
-            </div>
+              </div>
+            )}
             
           </div>
         )}

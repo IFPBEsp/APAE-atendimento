@@ -23,6 +23,7 @@ import { useAgendamentos } from "../hooks/useAgendamentos";
 import { useCriarAgendamento } from "../hooks/useCriarAgendamento";
 import { useDeletarAgendamento } from "../hooks/useDeletarAgendamento";
 import { useConcluirAgendamento } from "../hooks/useConcluirAgendamento";
+import { useEditarAgendamento } from "../hooks/useEditarAgendamento";
 
 import { agruparPorData } from "../utils/agruparPorData";
 
@@ -43,6 +44,7 @@ export default function AgendamentoPage() {
 
   const [dataSelecionada, setDataSelecionada] = useState(getTodayLocalDate());
   const [openCreate, setOpenCreate] = useState(false);
+  const [openEdit, setOpenEdit] = useState(false);
   const [openDelete, setOpenDelete] = useState(false);
   const [openConcluir, setOpenConcluir] = useState(false);
   const [agendamentoSelecionado, setAgendamentoSelecionado] =
@@ -51,6 +53,7 @@ export default function AgendamentoPage() {
   const { data: agendamentos = [], isLoading } = useAgendamentos();
 
   const criarAgendamentoMutation = useCriarAgendamento();
+  const editarAgendamentoMutation = useEditarAgendamento();
   const deletarAgendamentoMutation = useDeletarAgendamento();
   const concluirAgendamentoMutation = useConcluirAgendamento();
 
@@ -93,6 +96,43 @@ export default function AgendamentoPage() {
         return;
       }
       toast.error("Erro ao criar agendamento.");
+    }
+  }
+
+  async function handleEditAgendamento(data: AgendamentoFormData) {
+    if (!agendamentoSelecionado) return;
+
+    if (!data.pacienteId) {
+      toast.error("Selecione um paciente válido.");
+      return;
+    }
+
+    try {
+      await editarAgendamentoMutation.mutateAsync({
+        agendamentoId: agendamentoSelecionado.id,
+        payload: {
+          pacienteId: data.pacienteId,
+          profissionalId: data.profissionalId,
+          data: isoParaBR(data.data),
+          hora: data.horario,
+        },
+      });
+
+      toast.success("Agendamento atualizado com sucesso!");
+      setOpenEdit(false);
+      setAgendamentoSelecionado(null);
+    } catch (error) {
+      if (isAxiosError(error) && error.response) {
+        const mensagemBackend = error.response.data.message || error.response.data.error || "Erro de validação";
+
+        if (mensagemBackend.includes("ja possui um agendamento")) {
+          toast.warning("Já existe um agendamento para essa data e horário.");
+          return;
+        }
+        toast.error(`Falha: ${mensagemBackend}`);
+        return;
+      }
+      toast.error("Erro ao atualizar agendamento.");
     }
   }
 
@@ -192,6 +232,10 @@ export default function AgendamentoPage() {
                   numeroAtendimento={item.numeracao}
                   status={item.status}
                   externo={item.externo}
+                  onEditClick={() => {
+                    setAgendamentoSelecionado(item);
+                    setOpenEdit(true);
+                  }}
                   onConcluirClick={() => {
                     setAgendamentoSelecionado(item);
                     setOpenConcluir(true);
@@ -228,6 +272,26 @@ export default function AgendamentoPage() {
           <AgendamentoForm
             onSubmit={handleCreateAgendamento}
           />
+        </AgendamentoModal>
+
+        <AgendamentoModal open={openEdit} onOpenChange={(open) => {
+          setOpenEdit(open);
+          if (!open) setAgendamentoSelecionado(null);
+        }}>
+          {agendamentoSelecionado && (
+            <AgendamentoForm
+              isEditing
+              initialData={{
+                pacienteId: agendamentoSelecionado.pacienteId,
+                pacienteNome: agendamentoSelecionado.paciente,
+                profissionalId: agendamentoSelecionado.profissionalId,
+                profissionalNome: agendamentoSelecionado.nomeProfissional,
+                data: agendamentoSelecionado.data.split('-').reverse().join('-'),
+                horario: agendamentoSelecionado.horario,
+              }}
+              onSubmit={handleEditAgendamento}
+            />
+          )}
         </AgendamentoModal>
       </section>
 

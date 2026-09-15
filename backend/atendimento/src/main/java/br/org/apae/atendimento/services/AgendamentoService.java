@@ -19,13 +19,16 @@ import br.org.apae.atendimento.dtos.request.AgendamentoRequestDTO;
 import br.org.apae.atendimento.dtos.response.AgendamentoResponseDTO;
 import br.org.apae.atendimento.dtos.response.DiaAgendamentoResponseDTO;
 import br.org.apae.atendimento.entities.Agendamento;
+import br.org.apae.atendimento.entities.Paciente;
 import br.org.apae.atendimento.exceptions.invalid.AgendamentoInvalidException;
 import br.org.apae.atendimento.exceptions.invalid.RelacaoInvalidException;
 import br.org.apae.atendimento.exceptions.notfound.AgendamentoNotFoundException;
+import br.org.apae.atendimento.exceptions.notfound.PacienteNotFoundException;
 import br.org.apae.atendimento.mappers.AgendamentoMapper;
 import br.org.apae.atendimento.repositories.AgendamentoGeralReadRepository;
 import br.org.apae.atendimento.repositories.AgendamentoRepository;
 import br.org.apae.atendimento.repositories.AtendimentoRepository;
+import br.org.apae.atendimento.repositories.PacienteRepository;
 import br.org.apae.atendimento.repositories.ProfissionalPacienteRepository;
 import jakarta.transaction.Transactional;
 
@@ -33,6 +36,7 @@ import jakarta.transaction.Transactional;
 public class AgendamentoService {
     private AgendamentoRepository repository;
     private PacienteService pacienteService;
+    private PacienteRepository pacienteRepository;
     private AgendamentoMapper agendamentoMapper;
     private AtendimentoRepository atendimentoRepository;
     private ProfissionalPacienteRepository profissionalPacienteRepository;
@@ -40,6 +44,7 @@ public class AgendamentoService {
 
     public AgendamentoService(AgendamentoRepository repository,
                               PacienteService pacienteService,
+                              PacienteRepository pacienteRepository,
                               AgendamentoMapper agendamentoMapper,
                               AtendimentoRepository atendimentoRepository,
                               ProfissionalPacienteRepository profissionalPacienteRepository,
@@ -47,6 +52,7 @@ public class AgendamentoService {
 
         this.repository = repository;
         this.pacienteService = pacienteService;
+        this.pacienteRepository = pacienteRepository;
         this.agendamentoMapper = agendamentoMapper;
         this.atendimentoRepository = atendimentoRepository;
         this.profissionalPacienteRepository = profissionalPacienteRepository;
@@ -95,11 +101,9 @@ public class AgendamentoService {
             UUID profissionalId,
             AgendamentoRequestDTO agendamentoRequest
     ) {
-
         Agendamento agendamento = repository
-                .findByIdAndProfissionalIdAndPacienteId(agendamentoId, profissionalId, agendamentoRequest.pacienteId())
+                .findByIdAndProfissionalId(agendamentoId, profissionalId)
                 .orElseThrow(() -> new AgendamentoNotFoundException("O agendamento nao existe ou nao pertence ao profissional autenticado."));
-
 
         if (agendamento.isStatus()) {
             throw new AgendamentoInvalidException("Nao e possivel editar um agendamento que ja foi concluido.");
@@ -114,14 +118,22 @@ public class AgendamentoService {
             }
 
             agendamento.setDataHora(novaDataHora);
-
-            verificarAtendimentos(
-                    agendamentoRequest.data(),
-                    profissionalId,
-                    agendamentoRequest.pacienteId(),
-                    agendamento
-            );
         }
+
+        if (!agendamentoRequest.pacienteId().equals(agendamento.getPacienteId())) {
+            Paciente novoPaciente = pacienteRepository.findById(agendamentoRequest.pacienteId())
+                    .orElseThrow(() -> new PacienteNotFoundException("Paciente nao encontrado."));
+            agendamento.setPacienteId(novoPaciente.getId());
+            agendamento.setPaciente(novoPaciente);
+            associarPacienteAoProfissional(profissionalId, agendamentoRequest.pacienteId());
+        }
+
+        verificarAtendimentos(
+                agendamentoRequest.data(),
+                profissionalId,
+                agendamentoRequest.pacienteId(),
+                agendamento
+        );
 
         return agendamentoMapper.toDTOPadrao(repository.save(agendamento));
     }

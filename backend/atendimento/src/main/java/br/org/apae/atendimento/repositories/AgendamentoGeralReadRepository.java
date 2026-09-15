@@ -50,7 +50,7 @@ public class AgendamentoGeralReadRepository {
                 ORDER BY data_hora DESC
                 """;
 
-        return jdbcTemplate.query(sql, (rs, rowNum) -> mapRow(rs), profissionalId);
+        return jdbcTemplate.query(sql, (rs, rowNum) -> mapRow(rs, profissionalId), profissionalId);
     }
 
     public List<AgendamentoResponseDTO> findByProfissionalIdAndDataOrderByDataHoraDesc(UUID profissionalId, LocalDate data) {
@@ -83,10 +83,10 @@ public class AgendamentoGeralReadRepository {
                 ORDER BY data_hora DESC
                 """;
 
-        return jdbcTemplate.query(sql, (rs, rowNum) -> mapRow(rs), profissionalId, java.sql.Date.valueOf(data));
+        return jdbcTemplate.query(sql, (rs, rowNum) -> mapRow(rs, profissionalId), profissionalId, java.sql.Date.valueOf(data));
     }
 
-    private AgendamentoResponseDTO mapRow(ResultSet rs) throws SQLException {
+    private AgendamentoResponseDTO mapRow(ResultSet rs, UUID profissionalId) throws SQLException {
         LocalDateTime dataHora = rs.getObject("data_hora", LocalDateTime.class);
         if (dataHora == null) {
             Timestamp timestamp = rs.getTimestamp("data_hora");
@@ -97,6 +97,8 @@ public class AgendamentoGeralReadRepository {
                 rs.getObject("id", UUID.class),
                 rs.getObject("paciente_id", UUID.class),
                 rs.getString("nome_paciente"),
+                profissionalId,
+                null,
                 dataHora.toLocalDate(),
                 dataHora.toLocalTime(),
                 "0",
