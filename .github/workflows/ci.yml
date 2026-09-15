@@ -30,7 +30,9 @@ jobs:
         run: pnpm install --frozen-lockfile
       - name: Linting
         run: pnpm lint
-      - name: Testes e Build
+      - name: Executar testes de unidade e cobertura
+        run: pnpm test:coverage
+      - name: Build do frontend
         run: pnpm run build 
 
   backend:
