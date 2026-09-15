@@ -1,14 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Roda a analise SonarQube do frontend (frontend/atendimento-app) via container,
-# sem instalar o sonar-scanner na maquina nem adicionar dependencia ao package.json.
-#
-# Em Linux, --network=host aponta o container direto para a rede do host, entao
-# SONAR_HOST_URL=http://localhost:9501 funciona sem ajuste. No Docker Desktop
-# (macOS/Windows), --network=host nao tem efeito da mesma forma: troque
-# SONAR_HOST_URL para http://host.docker.internal:9501 ao rodar o script.
-
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 FRONTEND_DIR="$(cd "${SCRIPT_DIR}/../frontend/atendimento-app" && pwd)"
 
