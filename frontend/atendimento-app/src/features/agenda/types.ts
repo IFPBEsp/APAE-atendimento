@@ -31,7 +31,6 @@ export interface DiaAgendamento {
 
 export type CriarAgendamentoPayload = {
   pacienteId: string;
-  profissionalId: string;
   data: string;
   hora: string;
 };

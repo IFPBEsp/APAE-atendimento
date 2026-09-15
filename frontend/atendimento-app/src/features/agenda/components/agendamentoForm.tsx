@@ -23,8 +23,6 @@ import { useProfissionaisDropdown } from "@/features/agenda/hooks/useProfissiona
 export type AgendamentoFormData = {
   pacienteId: string;
   pacienteNome?: string;
-  profissionalId: string;
-  profissionalNome?: string;
   data: string;
   horario: string;
 };
@@ -54,29 +52,24 @@ export default function AgendamentoForm({
   initialData,
   isEditing = false,
 }: AgendamentoFormProps) {
-  const [origemPacientes, setOrigemPacientes] = useState<"meus" | "todos">("meus");
   const { register, handleSubmit, setValue, watch } =
     useForm<AgendamentoFormData>({
       defaultValues: initialData || {
         pacienteId: "",
         pacienteNome: "",
-        profissionalId: "",
-        profissionalNome: "",
         data: getTodayLocalDate(),
         horario: "",
       },
     });
 
   const pacienteId = watch("pacienteId");
-  const profissionalId = watch("profissionalId");
   const dataSelecionada = watch("data");
 
   const hoje = getTodayLocalDate();
   const isDataHoje = dataSelecionada === hoje;
   const horarioMinimo = isDataHoje ? getNowLocalTime() : undefined;
 
-  const { data: pacientes = [], isLoading: isLoadingPacientes } = usePacientesDropdown(origemPacientes);
-  const { data: profissionais = [], isLoading: isLoadingProfissionais } = useProfissionaisDropdown();
+  const { data: pacientes = [], isLoading: isLoadingPacientes } = usePacientesDropdown("meus");
 
   function handleSelectPaciente(value: string) {
     const paciente = pacientes.find((p) => p.id === value);
@@ -86,20 +79,6 @@ export default function AgendamentoForm({
     setValue("pacienteNome", paciente.nome);
   }
 
-  function trocarOrigemPacientes(origem: "meus" | "todos") {
-    setOrigemPacientes(origem);
-    setValue("pacienteId", "");
-    setValue("pacienteNome", "");
-  }
-
-  function handleSelectProfissional(value: string) {
-    const profissional = profissionais.find((p) => p.id === value);
-    if (!profissional) return;
-
-    setValue("profissionalId", profissional.id);
-    setValue("profissionalNome", profissional.nome);
-  }
-
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
@@ -107,71 +86,8 @@ export default function AgendamentoForm({
     >
       <div className="grid gap-2">
         <Label>
-          Profissional <span className="text-[#F28C38]">*</span>
+          Paciente <span className="text-[#F28C38]">*</span>
         </Label>
-
-        <Select
-            required
-            value={profissionalId}
-            onValueChange={handleSelectProfissional}
-            disabled={isLoadingProfissionais || profissionais.length === 0}
-        >
-          <SelectTrigger className="bg-white border border-[#3B82F6] rounded-full text-sm focus:ring-0 w-full disabled:opacity-50 disabled:cursor-not-allowed">
-            <SelectValue
-                placeholder={
-                  isLoadingProfissionais ? "Carregando..." :
-                      profissionais.length === 0 ? "Nenhum profissional encontrado" :
-                          "Selecione o profissional"
-                }
-            />
-          </SelectTrigger>
-
-          <SelectContent>
-            {profissionais.map((p) => (
-                <SelectItem key={p.id} value={p.id} className="cursor-pointer">
-                  <span className="text-sm font-medium">{p.nome}</span>
-                </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div className="grid gap-2">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <Label>
-            Paciente <span className="text-[#F28C38]">*</span>
-          </Label>
-
-          <div className="grid grid-cols-2 gap-1 rounded-full border border-[#D0D5DD] bg-white p-1">
-            <Button
-              type="button"
-              variant={origemPacientes === "meus" ? "default" : "ghost"}
-              onClick={() => trocarOrigemPacientes("meus")}
-              className={`h-8 rounded-full px-3 text-xs ${
-                origemPacientes === "meus"
-                  ? "bg-[#165BAA] text-white hover:bg-[#13447D]"
-                  : "text-[#344054] hover:bg-[#EDF2FB]"
-              }`}
-            >
-              <Users className="h-3.5 w-3.5" />
-              Meus Pacientes
-            </Button>
-
-            <Button
-              type="button"
-              variant={origemPacientes === "todos" ? "default" : "ghost"}
-              onClick={() => trocarOrigemPacientes("todos")}
-              className={`h-8 rounded-full px-3 text-xs ${
-                origemPacientes === "todos"
-                  ? "bg-[#165BAA] text-white hover:bg-[#13447D]"
-                  : "text-[#344054] hover:bg-[#EDF2FB]"
-              }`}
-            >
-              <Search className="h-3.5 w-3.5" />
-              Todos
-            </Button>
-          </div>
-        </div>
 
         <Select
             required
@@ -233,16 +149,6 @@ export default function AgendamentoForm({
             className="rounded-[30px] border-[#3B82F6] focus-visible:ring-0"
           />
         </div>
-      </div>
-
-      <div className="grid gap-2">
-        <Label htmlFor="numeracao">Numeração</Label>
-        <Input
-          id="numeracao"
-          value="Gerada automaticamente"
-          disabled
-          className="w-full rounded-[30px] border border-[#3B82F6] text-center bg-gray-100 text-gray-500 cursor-not-allowed italic"
-        />
       </div>
 
       <DialogFooter>
