@@ -1,0 +1,21 @@
+services:
+  sonarqube:
+    image: sonarqube:26.9.0.129388-community
+    container_name: sonarqube-atendimento-apae
+    restart: unless-stopped
+    ports:
+      - "${SONAR_PORT:-9501}:9000"
+    volumes:
+      - sonarqube-data:/opt/sonarqube/data
+      - sonarqube-extensions:/opt/sonarqube/extensions
+      - sonarqube-logs:/opt/sonarqube/logs
+    networks:
+      - sonarqube-net
+
+networks:
+  sonarqube-net:
+
+volumes:
+  sonarqube-data:
+  sonarqube-extensions:
+  sonarqube-logs:
