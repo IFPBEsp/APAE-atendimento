@@ -14,11 +14,12 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/profissionais")
-public class ProfissionalSaudeController {
+public class ProfissionalSaudeController implements ProfissionalSaudeControllerDocs {
 
     @Autowired
     private ProfissionalSaudeService profissionalSaudeService;
 
+    @Override
     @GetMapping
     public ResponseEntity<ProfissionalResponseDTO> buscarPorId(
             @AuthenticationPrincipal UsuarioAutenticado usuarioAutenticado) {
@@ -27,6 +28,7 @@ public class ProfissionalSaudeController {
         return ResponseEntity.ok().body(profissional);
     }
 
+    @Override
     @GetMapping("/pacientes")
     public ResponseEntity<List<PacienteResponseDTO>> listarPacientesDoProfissional(
             @AuthenticationPrincipal UsuarioAutenticado usuarioAutenticado) {
@@ -35,12 +37,14 @@ public class ProfissionalSaudeController {
         return ResponseEntity.ok().body(pacientes);
     }
 
+    @Override
     @GetMapping("/pacientes-option")
     public ResponseEntity<List<PacienteOptionDTO>> pacientesOption(
             @AuthenticationPrincipal UsuarioAutenticado usuarioAutenticado) {
         return ResponseEntity.ok().body(profissionalSaudeService.getPacienteOption(usuarioAutenticado.getId()));
     }
 
+    @Override
     @GetMapping("/dropdown")
     public ResponseEntity<List<ProfissionalDropdownResponseDTO>> listarParaDropdown() {
         return ResponseEntity.ok(profissionalSaudeService.listarParaDropdown());

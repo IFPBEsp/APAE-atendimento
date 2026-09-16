@@ -17,11 +17,12 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/pacientes")
-public class PacienteController {
+public class PacienteController implements PacienteControllerDocs {
 
     @Autowired
     private PacienteService pacienteService;
 
+    @Override
     @GetMapping("/{id}")
     public ResponseEntity<PacienteResponseDTO> buscarPorId(
             @PathVariable UUID id,
@@ -30,6 +31,7 @@ public class PacienteController {
         return ResponseEntity.ok(pacienteService.getPaciente(id, usuarioAutenticado.getId()));
     }
 
+    @Override
     @GetMapping("/{id}/nome-completo")
     public ResponseEntity<String> obterNomeCompleto(
             @PathVariable UUID id,
@@ -38,7 +40,8 @@ public class PacienteController {
         String nome = pacienteService.getNomeCompletoPacienteById(id, usuarioAutenticado.getId());
         return ResponseEntity.ok().body(nome);
     }
-    
+
+    @Override
     @GetMapping("/search")
     public ResponseEntity<PaginatedResponseDTO<PacienteResponseDTO>> buscarPacientes(
             @RequestParam(required = false) String nome,
@@ -55,6 +58,7 @@ public class PacienteController {
        return ResponseEntity.ok(paciente);
    }
 
+    @Override
     @GetMapping("/todos/search")
     public ResponseEntity<PaginatedResponseDTO<PacienteResponseDTO>> buscarTodosPacientes(
             @RequestParam(required = false) String nome,
@@ -70,6 +74,7 @@ public class PacienteController {
        return ResponseEntity.ok(paciente);
    }
 
+    @Override
     @PostMapping("/{pacienteId}")
     public ResponseEntity<String> adicionarFoto(
             @RequestPart("foto") MultipartFile foto,
@@ -80,6 +85,7 @@ public class PacienteController {
         return ResponseEntity.status(HttpStatus.CREATED).body(urlFoto);
     }
 
+    @Override
     @GetMapping("/dropdown")
     public ResponseEntity<List<PacienteDropdownResponseDTO>> listarParaDropdown(
             @AuthenticationPrincipal UsuarioAutenticado usuarioAutenticado
