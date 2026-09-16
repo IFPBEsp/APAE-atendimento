@@ -1,8 +1,13 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState, useMemo } from "react";
-import { ArrowLeft, CalendarPlus } from "lucide-react";
+import { useState } from "react";
+import {
+  ArrowLeft,
+  CalendarPlus,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import { Nunito } from "next/font/google";
 import { toast } from "sonner";
 import { isAxiosError } from "axios";
@@ -43,6 +48,8 @@ export default function AgendamentoPage() {
   const router = useRouter();
 
   const [dataSelecionada, setDataSelecionada] = useState(getTodayLocalDate());
+  const [page, setPage] = useState(1);
+const size = 10;
   const [openCreate, setOpenCreate] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
   const [openDelete, setOpenDelete] = useState(false);
@@ -50,23 +57,26 @@ export default function AgendamentoPage() {
   const [agendamentoSelecionado, setAgendamentoSelecionado] =
     useState<Agendamento | null>(null);
 
-  const { data: agendamentos = [], isLoading } = useAgendamentos();
+  const {
+  data: agendamentosData,
+  isLoading,
+  isFetching,
+} = useAgendamentos({
+  data: dataSelecionada || undefined,
+  page,
+  size,
+});
+
+const agendamentos = agendamentosData?.agendamentos ?? [];
+const pagination = agendamentosData?.pagination;
 
   const criarAgendamentoMutation = useCriarAgendamento();
   const editarAgendamentoMutation = useEditarAgendamento();
   const deletarAgendamentoMutation = useDeletarAgendamento();
   const concluirAgendamentoMutation = useConcluirAgendamento();
 
-  const agendamentosFiltrados = useMemo(() => {
-    if (!dataSelecionada) return agendamentos;
-    const dataBR = isoParaBR(dataSelecionada);
-    return agendamentos.filter((a) => a.data === dataBR);
-  }, [agendamentos, dataSelecionada]);
 
-  const gruposParaRenderizar = useMemo(
-    () => agruparPorData(agendamentosFiltrados),
-    [agendamentosFiltrados],
-  );
+  const gruposParaRenderizar = agruparPorData(agendamentos);
 
   async function handleCreateAgendamento(data: AgendamentoFormData) {
     if (!data.pacienteId) {
@@ -196,7 +206,10 @@ export default function AgendamentoPage() {
             <Input
               type="date"
               value={dataSelecionada}
-              onChange={(e) => setDataSelecionada(e.target.value)}
+              onChange={(e) => {
+                setDataSelecionada(e.target.value);
+                setPage(1);
+}}
               className="bg-white border border-[#3B82F6] rounded-full w-37.5 text-gray-600 text-sm"
             />
           </div>
@@ -250,7 +263,7 @@ export default function AgendamentoPage() {
           </div>
         ))}
 
-        {agendamentosFiltrados.length === 0 && !isLoading && (
+        {agendamentos.length === 0 && !isLoading && (
           <div className="text-center mt-20">
             <p className="text-[#344054] text-[15px] font-medium">
               Nenhum agendamento encontrado.
@@ -259,7 +272,10 @@ export default function AgendamentoPage() {
             {dataSelecionada && (
               <Button
                 variant="link"
-                onClick={() => setDataSelecionada("")}
+                onClick={() => {
+  setDataSelecionada("");
+  setPage(1);
+}}
                 className="text-[#165BAA] underline text-sm"
               >
                 Limpar filtro
@@ -267,7 +283,36 @@ export default function AgendamentoPage() {
             )}
           </div>
         )}
+{!isLoading && pagination && pagination.totalElements > 0 && (
+  <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 border-t border-gray-100 pt-6 px-2 w-full">
+    <span className="text-sm text-gray-500 font-medium">
+      Página {pagination.page} de {pagination.totalPages} (
+      {pagination.totalElements} agendamentos)
+    </span>
 
+    <div className="flex gap-3">
+      <Button
+        variant="outline"
+        onClick={() => setPage((p) => Math.max(1, p - 1))}
+        disabled={pagination.first || isFetching}
+        className="rounded-full shadow-sm hover:bg-gray-50 flex items-center"
+      >
+        <ChevronLeft className="h-4 w-4 mr-1" />
+        Anterior
+      </Button>
+
+      <Button
+        variant="outline"
+        onClick={() => setPage((p) => p + 1)}
+        disabled={pagination.last || isFetching}
+        className="rounded-full shadow-sm hover:bg-gray-50 flex items-center"
+      >
+        Próxima
+        <ChevronRight className="h-4 w-4 ml-1" />
+      </Button>
+    </div>
+  </div>
+)}
         <AgendamentoModal open={openCreate} onOpenChange={setOpenCreate}>
           <AgendamentoForm
             onSubmit={handleCreateAgendamento}
