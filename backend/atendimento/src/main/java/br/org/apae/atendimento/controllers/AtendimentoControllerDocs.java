@@ -9,10 +9,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 import java.util.UUID;
@@ -27,7 +24,7 @@ public interface AtendimentoControllerDocs {
             @ApiResponse(responseCode = "401", description = "Não autorizado")
     })
     ResponseEntity<AtendimentoResponseDTO> criarAtendimento(
-            @Valid @RequestBody AtendimentoRequestDTO atendimento,
+            AtendimentoRequestDTO atendimento,
             @Parameter(hidden = true) UsuarioAutenticado usuarioAutenticado
     );
 
@@ -39,7 +36,7 @@ public interface AtendimentoControllerDocs {
     })
     ResponseEntity<List<MesAnoAtendimentoResponseDTO>> listarAtendimentosDoPaciente(
             @Parameter(description = "ID do paciente")
-            @PathVariable UUID pacienteId,
+            UUID pacienteId,
             @Parameter(hidden = true) UsuarioAutenticado usuarioAutenticado
     );
 
@@ -52,9 +49,9 @@ public interface AtendimentoControllerDocs {
     })
     ResponseEntity<String> deletar(
             @Parameter(description = "ID do paciente")
-            @PathVariable UUID pacienteId,
+            UUID pacienteId,
             @Parameter(description = "ID do atendimento a ser excluído")
-            @PathVariable UUID atendimentoId,
+            UUID atendimentoId,
             @Parameter(hidden = true) UsuarioAutenticado usuarioAutenticado
     );
 
@@ -66,9 +63,9 @@ public interface AtendimentoControllerDocs {
             @ApiResponse(responseCode = "404", description = "Atendimento não encontrado")
     })
     ResponseEntity<AtendimentoResponseDTO> editarTopicos(
-            @Valid @RequestBody AtendimentoRequestDTO updateDTO,
+            AtendimentoRequestDTO updateDTO,
             @Parameter(description = "ID do atendimento a ser editado")
-            @PathVariable UUID atendimentoId,
+            UUID atendimentoId,
             @Parameter(hidden = true) UsuarioAutenticado usuarioAutenticado
     );
 
@@ -81,7 +78,7 @@ public interface AtendimentoControllerDocs {
     })
     ResponseEntity<String> concluirAtendimento(
             @Parameter(description = "ID do atendimento a ser concluído")
-            @PathVariable UUID atendimentoId,
+            UUID atendimentoId,
             @Parameter(hidden = true) UsuarioAutenticado usuarioAutenticado
     );
 }

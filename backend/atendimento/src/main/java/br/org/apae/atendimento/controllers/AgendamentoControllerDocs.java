@@ -9,13 +9,8 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDate;
 import java.util.UUID;
@@ -30,7 +25,7 @@ public interface AgendamentoControllerDocs {
             @ApiResponse(responseCode = "401", description = "Não autorizado")
     })
     ResponseEntity<AgendamentoResponseDTO> agendarPaciente(
-            @Valid @RequestBody AgendamentoRequestDTO agendamentoRequest,
+            AgendamentoRequestDTO agendamentoRequest,
             @Parameter(hidden = true) UsuarioAutenticado usuarioAutenticado
     );
 
@@ -43,8 +38,8 @@ public interface AgendamentoControllerDocs {
     })
     ResponseEntity<AgendamentoResponseDTO> editarAgendamento(
             @Parameter(description = "ID do agendamento a ser editado")
-            @PathVariable UUID agendamentoId,
-            @Valid @RequestBody AgendamentoRequestDTO agendamentoRequest,
+            UUID agendamentoId,
+            AgendamentoRequestDTO agendamentoRequest,
             @Parameter(hidden = true) UsuarioAutenticado usuarioAutenticado
     );
 
@@ -54,12 +49,12 @@ public interface AgendamentoControllerDocs {
             @ApiResponse(responseCode = "401", description = "Não autorizado")
     })
     ResponseEntity<Page<DiaAgendamentoResponseDTO>> listarAgendamentoAgrupadoPorDia(
-            @Parameter(description = "Data para filtro dos agendamentos (formato: YYYY-MM-DD)")
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate data,
-            @Parameter(description = "Número da página (iniciando em 0)")
-            @RequestParam(defaultValue = "0") int page,
-            @Parameter(description = "Quantidade de agendamentos por página")
-            @RequestParam(defaultValue = "10") int size,
+            @Parameter(description = "Data para filtro dos agendamentos", example = "2026-09-16")
+            LocalDate data,
+            @Parameter(description = "Número da página (iniciando em 0)", example = "0")
+            int page,
+            @Parameter(description = "Quantidade de agendamentos por página", example = "10")
+            int size,
             @Parameter(hidden = true) UsuarioAutenticado usuarioAutenticado
     );
 
@@ -72,9 +67,9 @@ public interface AgendamentoControllerDocs {
     })
     ResponseEntity<String> deletarAgendamento(
             @Parameter(description = "ID do paciente")
-            @PathVariable UUID pacienteId,
+            UUID pacienteId,
             @Parameter(description = "ID do agendamento a ser excluído")
-            @PathVariable UUID agendamentoId,
+            UUID agendamentoId,
             @Parameter(hidden = true) UsuarioAutenticado usuarioAutenticado
     );
 
@@ -86,9 +81,9 @@ public interface AgendamentoControllerDocs {
     })
     ResponseEntity<String> concluirAgendamento(
             @Parameter(description = "ID do paciente")
-            @PathVariable UUID pacienteId,
+            UUID pacienteId,
             @Parameter(description = "ID do agendamento a ser concluído")
-            @PathVariable UUID agendamentoId,
+            UUID agendamentoId,
             @Parameter(hidden = true) UsuarioAutenticado usuarioAutenticado
     );
 }
