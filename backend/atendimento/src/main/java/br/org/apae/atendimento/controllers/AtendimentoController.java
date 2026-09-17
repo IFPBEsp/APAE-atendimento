@@ -19,11 +19,12 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/atendimentos")
-public class AtendimentoController {
+public class AtendimentoController implements AtendimentoControllerDocs {
 
     @Autowired
     private AtendimentoService atendimentoService;
 
+    @Override
     @PostMapping
     public ResponseEntity<AtendimentoResponseDTO> criarAtendimento(
             @Valid @RequestBody AtendimentoRequestDTO atendimento,
@@ -33,6 +34,7 @@ public class AtendimentoController {
         return ResponseEntity.status(HttpStatus.CREATED).body(novoAtendimento);
     }
 
+    @Override
     @GetMapping("/{pacienteId}")
     public ResponseEntity<List<MesAnoAtendimentoResponseDTO>> listarAtendimentosDoPaciente(
             @PathVariable UUID pacienteId,
@@ -42,6 +44,7 @@ public class AtendimentoController {
         return ResponseEntity.ok().body(atendimentos);
     }
 
+    @Override
     @DeleteMapping("/{pacienteId}/{atendimentoId}")
     public ResponseEntity<String> deletar(@PathVariable UUID pacienteId,
             @PathVariable UUID atendimentoId,
@@ -50,6 +53,7 @@ public class AtendimentoController {
         return ResponseEntity.ok().body("Atendimento excluído");
     }
 
+    @Override
     @PutMapping("/{atendimentoId}")
     public ResponseEntity<AtendimentoResponseDTO> editarTopicos(@Valid @RequestBody AtendimentoRequestDTO updateDTO,
             @PathVariable UUID atendimentoId,
@@ -59,6 +63,7 @@ public class AtendimentoController {
         return ResponseEntity.ok().body(atendimentoAtualizado);
     }
 
+    @Override
     @PatchMapping("/{atendimentoId}/concluir")
     public ResponseEntity<String> concluirAtendimento(
             @PathVariable UUID atendimentoId,

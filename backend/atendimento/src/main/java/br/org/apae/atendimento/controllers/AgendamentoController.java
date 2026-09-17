@@ -30,19 +30,21 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/agendamento")
-public class AgendamentoController {
+public class AgendamentoController implements AgendamentoControllerDocs {
     @Autowired
     private AgendamentoService service;
 
+    @Override
     @PostMapping()
     public ResponseEntity<AgendamentoResponseDTO> agendarPaciente(
             @Valid @RequestBody AgendamentoRequestDTO agendamentoRequest,
-            @AuthenticationPrincipal UsuarioAutenticado usuarioAtenticado
+            @AuthenticationPrincipal UsuarioAutenticado usuarioAutenticado
     ){
-        AgendamentoResponseDTO agendamento = service.agendar(agendamentoRequest, usuarioAtenticado.getId());
+        AgendamentoResponseDTO agendamento = service.agendar(agendamentoRequest, usuarioAutenticado.getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(agendamento);
     }
 
+    @Override
     @PutMapping("/{agendamentoId}")
     public ResponseEntity<AgendamentoResponseDTO> editarAgendamento(
             @PathVariable UUID agendamentoId,
@@ -53,18 +55,20 @@ public class AgendamentoController {
         return ResponseEntity.ok(response);
     }
 
+    @Override
     @GetMapping()
     public ResponseEntity<Page<DiaAgendamentoResponseDTO>> listarAgendamentoAgrupadoPorDia(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate data,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @AuthenticationPrincipal UsuarioAutenticado usuarioAtenticado
+            @AuthenticationPrincipal UsuarioAutenticado usuarioAutenticado
             ){
         Page<DiaAgendamentoResponseDTO> agendamentos = service.listarAgrupadoPorDia(
-                usuarioAtenticado.getId(), data, page, size);
+                usuarioAutenticado.getId(), data, page, size);
         return ResponseEntity.ok().body(agendamentos);
     }
 
+    @Override
     @DeleteMapping("/{pacienteId}/{agendamentoId}")
     public ResponseEntity<String> deletarAgendamento(@PathVariable UUID pacienteId,
                                                      @PathVariable UUID agendamentoId,
@@ -73,6 +77,7 @@ public class AgendamentoController {
         return ResponseEntity.ok().body("Agendamento excluído");
     }
 
+    @Override
     @PatchMapping("/{pacienteId}/{agendamentoId}/concluir")
     public ResponseEntity<String> concluirAgendamento(@PathVariable UUID pacienteId,
                                                      @PathVariable UUID agendamentoId,
