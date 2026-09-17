@@ -87,7 +87,6 @@ const pagination = agendamentosData?.pagination;
     try {
       await criarAgendamentoMutation.mutateAsync({
         pacienteId: data.pacienteId,
-        profissionalId: data.profissionalId,
         data: isoParaBR(data.data),
         hora: data.horario,
       });
@@ -122,7 +121,6 @@ const pagination = agendamentosData?.pagination;
         agendamentoId: agendamentoSelecionado.id,
         payload: {
           pacienteId: data.pacienteId,
-          profissionalId: data.profissionalId,
           data: isoParaBR(data.data),
           hora: data.horario,
         },
@@ -329,8 +327,6 @@ const pagination = agendamentosData?.pagination;
               initialData={{
                 pacienteId: agendamentoSelecionado.pacienteId,
                 pacienteNome: agendamentoSelecionado.paciente,
-                profissionalId: agendamentoSelecionado.profissionalId,
-                profissionalNome: agendamentoSelecionado.nomeProfissional,
                 data: agendamentoSelecionado.data.split('-').reverse().join('-'),
                 horario: agendamentoSelecionado.horario,
               }}
