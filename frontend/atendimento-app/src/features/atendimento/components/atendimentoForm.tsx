@@ -47,10 +47,11 @@ export default function AtendimentoForm({
       return [
         {
           id: atendimentoEditavel.id,
-          condicao:
+          condicao: (
             atendimentoEditavel.relatorio?.[0]?.descricao ||
             atendimentoEditavel.relatorio?.[0]?.titulo ||
-            "",
+            ""
+          ).slice(0, 70),
           data: brParaISO(atendimentoEditavel.data.replace(/\//g, "-")),
           hora: atendimentoEditavel.hora,
           isEditing: true,
@@ -69,7 +70,8 @@ export default function AtendimentoForm({
   });
 
   function handleUpdateLinha(id: string, campo: "condicao" | "data" | "hora", valor: string) {
-    setLinhas((prev) => prev.map((linha) => (linha.id === id ? { ...linha, [campo]: valor } : linha)));
+    const valorTratado = campo === "condicao" ? valor.slice(0, 70) : valor;
+    setLinhas((prev) => prev.map((linha) => (linha.id === id ? { ...linha, [campo]: valorTratado } : linha)));
   }
 
   function handleEditLinha(id: string) {
@@ -106,6 +108,7 @@ export default function AtendimentoForm({
     for (let i = 0; i < linhas.length; i++) {
       const linha = linhas[i];
       if (!linha.condicao.trim()) { toast.error(`Preencha a condição na linha ${i + 1}.`); return; }
+      if (linha.condicao.length > 70) { toast.error(`A condição na linha ${i + 1} deve ter no máximo 70 caracteres.`); return; }
       if (!linha.data) { toast.error(`Selecione a data na linha ${i + 1}.`); return; }
       if (!linha.hora) { toast.error(`Selecione a hora na linha ${i + 1}.`); return; }
     }
@@ -154,7 +157,6 @@ export default function AtendimentoForm({
       <div className="w-full overflow-x-auto">
         <div className="min-w-[850px] px-1">
           
-
           <div className={`${gridClasses} pb-2 text-left`}>
             <span className="text-[14px] font-bold text-[#0A2540] pl-1">Nome do paciente</span>
             <span className="text-[14px] font-bold text-[#0A2540] pl-1">Condição do paciente</span>
@@ -183,6 +185,7 @@ export default function AtendimentoForm({
                     id={`condicao-${linha.id}`}
                     value={linha.condicao}
                     onChange={(e) => handleUpdateLinha(linha.id, "condicao", e.target.value)}
+                    maxLength={70}
                     disabled={!linha.isEditing}
                     placeholder="campo vazio"
                     className="h-11 w-full rounded-xl border-[#D0D5DD] bg-white text-[#101828] font-medium placeholder:italic placeholder:text-gray-400 text-[14px] shadow-sm focus-visible:ring-1 focus-visible:ring-[#165BAA] focus-visible:border-[#165BAA] focus-visible:ring-offset-0 px-3"

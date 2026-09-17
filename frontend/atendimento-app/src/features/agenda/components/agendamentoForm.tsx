@@ -29,6 +29,8 @@ export type AgendamentoFormData = {
 
 interface AgendamentoFormProps {
   onSubmit: (data: AgendamentoFormData) => void;
+  initialData?: AgendamentoFormData;
+  isEditing?: boolean;
 }
 
 const nunito = Nunito({ weight: "700" });
@@ -47,10 +49,12 @@ function getNowLocalTime() {
 
 export default function AgendamentoForm({
   onSubmit,
+  initialData,
+  isEditing = false,
 }: AgendamentoFormProps) {
   const { register, handleSubmit, setValue, watch } =
     useForm<AgendamentoFormData>({
-      defaultValues: {
+      defaultValues: initialData || {
         pacienteId: "",
         pacienteNome: "",
         data: getTodayLocalDate(),
@@ -153,7 +157,7 @@ export default function AgendamentoForm({
           className="w-full rounded-[30px] shadow-md bg-[#0D4F97] hover:bg-[#13447D] cursor-pointer"
         >
           <Check className="mr-1" />
-          Criar Agendamento
+          {isEditing ? "Salvar Alterações" : "Criar Agendamento"}
         </Button>
       </DialogFooter>
     </form>

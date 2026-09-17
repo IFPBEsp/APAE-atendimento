@@ -1,6 +1,8 @@
 package br.org.apae.atendimento.services;
 
 import br.org.apae.atendimento.dtos.request.AgendamentoRequestDTO;
+import br.org.apae.atendimento.dtos.response.AgendamentoResponseDTO;
+import br.org.apae.atendimento.exceptions.invalid.AgendamentoInvalidException;
 import br.org.apae.atendimento.integration.AbstractIntegrationTest;
 import br.org.apae.atendimento.repositories.PacienteRepository;
 import org.junit.jupiter.api.DisplayName;
@@ -86,6 +88,106 @@ class AgendamentoServiceIntegrationTest extends AbstractIntegrationTest {
         );
 
         assertEquals(1, contarVinculosPacienteVinculado());
+    }
+
+    @Test
+    @DisplayName("Deve editar data e hora de um agendamento existente")
+    void deveEditarDataEHoraDoAgendamento() {
+        LocalDate dataOriginal = LocalDate.now().plusDays(5);
+        LocalTime horaOriginal = LocalTime.of(8, 0);
+
+        AgendamentoResponseDTO criado = agendamentoService.agendar(
+                new AgendamentoRequestDTO(
+                        PACIENTE_VINCULADO_ID,
+                        dataOriginal,
+                        horaOriginal
+                ),
+                PROFISSIONAL_ID
+        );
+
+        LocalDate novaData = LocalDate.now().plusDays(6);
+        LocalTime novaHora = LocalTime.of(14, 30);
+
+        AgendamentoResponseDTO editado = agendamentoService.editar(
+                criado.id(),
+                PROFISSIONAL_ID,
+                new AgendamentoRequestDTO(
+                        PACIENTE_VINCULADO_ID,
+                        novaData,
+                        novaHora
+                )
+        );
+
+        assertEquals(criado.id(), editado.id());
+        assertEquals(novaData, editado.data());
+        assertEquals(novaHora, editado.hora());
+        assertEquals(PACIENTE_VINCULADO_ID, editado.pacienteId());
+    }
+
+    @Test
+    @DisplayName("Deve editar agendamento alterando o paciente e vincular novo paciente")
+    void deveEditarPacienteDoAgendamentoComSucesso() {
+        removerVinculoPacienteGeral();
+        assertEquals(0, contarVinculosPacienteGeral());
+
+        LocalDate data = LocalDate.now().plusDays(7);
+        LocalTime hora = LocalTime.of(10, 0);
+
+        AgendamentoResponseDTO criado = agendamentoService.agendar(
+                new AgendamentoRequestDTO(
+                        PACIENTE_VINCULADO_ID,
+                        data,
+                        hora
+                ),
+                PROFISSIONAL_ID
+        );
+
+        assertEquals(PACIENTE_VINCULADO_ID, criado.pacienteId());
+
+        AgendamentoResponseDTO editado = agendamentoService.editar(
+                criado.id(),
+                PROFISSIONAL_ID,
+                new AgendamentoRequestDTO(
+                        PACIENTE_GERAL_ID,
+                        data,
+                        hora
+                )
+        );
+
+        assertEquals(criado.id(), editado.id());
+        assertEquals(PACIENTE_GERAL_ID, editado.pacienteId());
+        assertEquals("Lucas Souza", editado.nomePaciente());
+        assertEquals(1, contarVinculosPacienteGeral());
+    }
+
+    @Test
+    @DisplayName("Nao deve permitir editar agendamento que ja foi concluido")
+    void naoDevePermitirEditarAgendamentoConcluido() {
+        LocalDate data = LocalDate.now().plusDays(8);
+        LocalTime hora = LocalTime.of(11, 0);
+
+        AgendamentoResponseDTO criado = agendamentoService.agendar(
+                new AgendamentoRequestDTO(
+                        PACIENTE_VINCULADO_ID,
+                        data,
+                        hora
+                ),
+                PROFISSIONAL_ID
+        );
+
+        agendamentoService.concluir(PROFISSIONAL_ID, PACIENTE_VINCULADO_ID, criado.id());
+
+        assertThrows(AgendamentoInvalidException.class, () ->
+                agendamentoService.editar(
+                        criado.id(),
+                        PROFISSIONAL_ID,
+                        new AgendamentoRequestDTO(
+                                PACIENTE_VINCULADO_ID,
+                                data.plusDays(1),
+                                LocalTime.of(15, 0)
+                        )
+                )
+        );
     }
 
     private void removerVinculoPacienteGeral() {

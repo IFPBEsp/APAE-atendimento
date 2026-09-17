@@ -39,4 +39,9 @@ public interface AgendamentoRepository extends JpaRepository<Agendamento, UUID> 
             UUID profissionalId,
             UUID pacienteId
     );
+
+    Optional<Agendamento> findByIdAndProfissionalId(
+            UUID id,
+            UUID profissionalId
+    );
 }

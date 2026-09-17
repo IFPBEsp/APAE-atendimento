@@ -8,7 +8,9 @@ INSERT INTO apae_geral.usuarios (
     email,
     senha,
     cargo,
-    contato
+    contato,
+    cpf,
+    primeiro_acesso
 )
 VALUES (
            '44444444-4444-4444-4444-444444444444',
@@ -16,7 +18,9 @@ VALUES (
            'teste@gmail.com',
            '$2a$10$05v1Sk1c9CnRWX9wOMcYP.eI0buevR1DltWhnE3MUA4Nv5IKDX60O',
            'ROLE_PROFISSIONAL',
-           '(83) 99999-0000'
+           '(83) 99999-0000',
+           '123.456.789-00',
+           false
        )
     ON CONFLICT (id) DO NOTHING;
 
