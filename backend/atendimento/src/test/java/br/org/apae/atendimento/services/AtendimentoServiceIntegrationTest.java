@@ -12,6 +12,7 @@ import br.org.apae.atendimento.repositories.ProfissionalSaudeRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
@@ -32,6 +33,9 @@ class AtendimentoServiceIntegrationTest extends AbstractIntegrationTest {
 
     @Autowired
     private ProfissionalSaudeRepository profissionalSaudeRepository;
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
     @Test
     @DisplayName("Deve criar, listar e editar atendimentos mantendo numeracao por mes/ano")
@@ -91,5 +95,37 @@ class AtendimentoServiceIntegrationTest extends AbstractIntegrationTest {
 
         assertFalse(agrupados.isEmpty());
         assertTrue(agrupados.stream().anyMatch(g -> g.mesAno().equals(YearMonth.of(2026, 5))));
+    }
+
+    @Test
+    @DisplayName("Nao deve criar relacao entre paciente e profissional ao criar atendimento")
+    void naoDeveCriarRelacaoAoCriarAtendimento() {
+        ProfissionalSaude profissional = profissionalSaudeRepository.findAll().stream()
+                .findFirst()
+                .orElseThrow(() -> new AssertionError("Nenhum profissional carregado pelas migrations de teste"));
+
+        Paciente paciente = pacienteRepository.findAll().stream()
+                .findFirst()
+                .orElseThrow(() -> new AssertionError("Nenhum paciente carregado pelas migrations de teste"));
+
+        jdbcTemplate.update(
+                "DELETE FROM atendimento.profissional_paciente WHERE profissional_id = ? AND paciente_id = ?",
+                profissional.getId(),
+                paciente.getId()
+        );
+
+        assertFalse(pacienteRepository.existeRelacao(paciente.getId(), profissional.getId()));
+
+        AtendimentoRequestDTO request = new AtendimentoRequestDTO(
+                paciente.getId(),
+                List.of(new TopicoRequestDTO("Titulo", "Descricao")),
+                LocalDate.of(2026, 6, 10),
+                LocalTime.of(9, 0)
+        );
+
+        AtendimentoResponseDTO criado = atendimentoService.addAtendimento(request, profissional.getId());
+
+        assertNotNull(criado);
+        assertFalse(pacienteRepository.existeRelacao(paciente.getId(), profissional.getId()));
     }
 }

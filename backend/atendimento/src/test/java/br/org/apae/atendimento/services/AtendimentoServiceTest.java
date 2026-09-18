@@ -13,7 +13,6 @@ import br.org.apae.atendimento.exceptions.notfound.AgendamentoNotFoundException;
 import br.org.apae.atendimento.exceptions.notfound.AtendimentoNotFoundException;
 import br.org.apae.atendimento.mappers.AtendimentoMapper;
 import br.org.apae.atendimento.repositories.AtendimentoRepository;
-import br.org.apae.atendimento.repositories.ProfissionalPacienteRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -52,9 +51,6 @@ class AtendimentoServiceTest {
     @Mock
     private PacienteService pacienteService;
 
-    @Mock
-    private ProfissionalPacienteRepository profissionalPacienteRepository;
-
     private UUID profissionalId;
     private UUID pacienteId;
     private AtendimentoRequestDTO requestDTO;
@@ -90,27 +86,6 @@ class AtendimentoServiceTest {
 
         assertNotNull(response);
         verify(repository).findMaxNumeracaoByMesAndAno(LocalDate.now().getMonthValue(), LocalDate.now().getYear(), profissionalId);
-        verify(profissionalPacienteRepository).associarSeNaoExistir(profissionalId, pacienteId);
-        verify(repository).save(any());
-    }
-
-    @Test
-    @DisplayName("Deve criar vinculo quando profissional ainda nao possui relacao com paciente")
-    void deveCriarVinculoQuandoSemRelacao() {
-        when(repository.existsByProfissionalIdAndDataAtendimento(any(), any())).thenReturn(false);
-        when(repository.findMaxNumeracaoByMesAndAno(LocalDate.now().getMonthValue(), LocalDate.now().getYear(), profissionalId)).thenReturn(0L);
-        when(atendimentoMapper.toEntityPadrao(requestDTO)).thenReturn(new Atendimento());
-
-        Atendimento entity = new Atendimento();
-        when(repository.save(any())).thenReturn(entity);
-        when(atendimentoMapper.toDTOPadrao(entity)).thenReturn(mock(AtendimentoResponseDTO.class));
-        doThrow(new AgendamentoNotFoundException("nao encontrado"))
-                .when(agendamentoService)
-                .buscarAgendamentoPorDataProfissionalEPaciente(any(), any(), any());
-
-        assertDoesNotThrow(() -> service.addAtendimento(requestDTO, profissionalId));
-
-        verify(profissionalPacienteRepository).associarSeNaoExistir(profissionalId, pacienteId);
         verify(repository).save(any());
     }
 
@@ -122,7 +97,6 @@ class AtendimentoServiceTest {
         assertThrows(AtendimentoInvalidException.class,
                 () -> service.addAtendimento(requestDTO, profissionalId));
 
-        verify(profissionalPacienteRepository, never()).associarSeNaoExistir(any(), any());
         verify(repository, never()).save(any());
     }
 

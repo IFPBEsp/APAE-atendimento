@@ -21,7 +21,6 @@ import br.org.apae.atendimento.exceptions.invalid.RelacaoInvalidException;
 import br.org.apae.atendimento.exceptions.notfound.AtendimentoNotFoundException;
 import br.org.apae.atendimento.mappers.AtendimentoMapper;
 import br.org.apae.atendimento.repositories.AtendimentoRepository;
-import br.org.apae.atendimento.repositories.ProfissionalPacienteRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,20 +30,16 @@ public class AtendimentoService {
     private final AgendamentoService agendamentoService;
     private final AtendimentoMapper atendimentoMapper;
     private final PacienteService pacienteService;
-    private final ProfissionalPacienteRepository profissionalPacienteRepository;
 
     public AtendimentoService(AtendimentoRepository repository,
                               AgendamentoService agendamentoService,
                               AtendimentoMapper atendimentoMapper,
-                              PacienteService pacienteService,
-                              ProfissionalPacienteRepository profissionalPacienteRepository
-                              ) {
+                              PacienteService pacienteService) {
 
         this.repository = repository;
         this.agendamentoService = agendamentoService;
         this.atendimentoMapper = atendimentoMapper;
         this.pacienteService = pacienteService;
-        this.profissionalPacienteRepository = profissionalPacienteRepository;
     }
 
     @Transactional
@@ -62,7 +57,6 @@ public class AtendimentoService {
         verificarRelatorio(atendimentoRequestDTO.relatorio());
 
         dadosConvertidos.setNumeracao(gerarProximaNumeracao(profissionalId, atendimentoRequestDTO.data()));
-        associarPacienteAoProfissional(profissionalId, atendimentoRequestDTO.pacienteId());
 
         Atendimento dadosPersistidos = repository.save(dadosConvertidos);
         try {
@@ -79,9 +73,6 @@ public class AtendimentoService {
 
     }
 
-    private void associarPacienteAoProfissional(UUID profissionalId, UUID pacienteId) {
-        profissionalPacienteRepository.associarSeNaoExistir(profissionalId, pacienteId);
-    }
 
     private void verificarRelatorio(List<TopicoRequestDTO> relatorio) {
         if (relatorio == null || relatorio.isEmpty()) {
