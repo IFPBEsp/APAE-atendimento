@@ -1,9 +1,25 @@
 package br.org.apae.atendimento.controllers;
 
+import java.time.Duration;
+import java.util.Arrays;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import br.org.apae.atendimento.controllers.docs.AuthControllerDocs;
 import br.org.apae.atendimento.dtos.request.LoginRequestDTO;
 import br.org.apae.atendimento.dtos.request.RedefinirSenhaRequestDTO;
-import br.org.apae.atendimento.dtos.response.LoginResponseDTO;
 import br.org.apae.atendimento.dtos.response.AutenticacaoResponseDTO;
+import br.org.apae.atendimento.dtos.response.LoginResponseDTO;
 import br.org.apae.atendimento.security.JwtService;
 import br.org.apae.atendimento.security.TokenBlocklistService;
 import br.org.apae.atendimento.security.UsuarioAutenticado;
@@ -12,20 +28,10 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseCookie;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
-
-import java.time.Duration;
-import java.util.Arrays;
 
 @RestController
 @RequestMapping("/auth")
-public class AuthController {
+public class AuthController implements AuthControllerDocs {
 
     private static final String TOKEN_COOKIE_NAME = "token";
 
@@ -46,6 +52,7 @@ public class AuthController {
         this.tokenBlocklistService = tokenBlocklistService;
     }
     
+    @Override
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDTO> login(@Valid @RequestBody LoginRequestDTO body,
                                                   HttpServletResponse response) {
@@ -65,6 +72,7 @@ public class AuthController {
         return ResponseEntity.ok(new LoginResponseDTO(true, "Login realizado com sucesso", autenticacao.primerioAcesso(), autenticacao.redirectTo()));
     }
 
+    @Override
     @PostMapping("/redefinir-senha")
     public ResponseEntity<LoginResponseDTO> redefinirSenha(
             @AuthenticationPrincipal UsuarioAutenticado usuarioAutenticado,
@@ -74,6 +82,7 @@ public class AuthController {
         return ResponseEntity.ok(new LoginResponseDTO(true, "Senha redefinida com sucesso"));
     }
     
+    @Override
     @PostMapping("/logout")
     public ResponseEntity<LoginResponseDTO> logout(HttpServletRequest request,
                                                    HttpServletResponse response) {
@@ -99,6 +108,7 @@ public class AuthController {
         return ResponseEntity.ok(new LoginResponseDTO(true, "Logout realizado com sucesso"));
     }
 
+    @Override
     @GetMapping("/me")
     public ResponseEntity<LoginResponseDTO> me(Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()) {
