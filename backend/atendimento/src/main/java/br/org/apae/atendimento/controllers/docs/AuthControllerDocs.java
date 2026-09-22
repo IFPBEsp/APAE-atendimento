@@ -34,7 +34,8 @@ public interface AuthControllerDocs {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Senha redefinida com sucesso"),
             @ApiResponse(responseCode = "400", description = "Dados inválidos"),
-            @ApiResponse(responseCode = "401", description = "Usuário não autenticado")
+            @ApiResponse(responseCode = "401", description = "Usuário não autenticado"),
+            @ApiResponse(responseCode = "404", description = "Usuário não encontrado")
     })
     ResponseEntity<LoginResponseDTO> redefinirSenha(
             @Parameter(hidden = true) UsuarioAutenticado usuarioAutenticado,

@@ -2,7 +2,9 @@ package br.org.apae.atendimento.controllers;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -31,6 +33,8 @@ import br.org.apae.atendimento.dtos.response.ArquivoResponseDTO;
 import br.org.apae.atendimento.exceptions.CloudStorageException;
 import br.org.apae.atendimento.security.UsuarioAutenticado;
 import br.org.apae.atendimento.services.ArquivoService;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validator;
 
 @RestController
 @RequestMapping("/arquivo")
@@ -38,6 +42,9 @@ public class ArquivoController implements ArquivoControllerDocs {
     
     @Autowired
     private ArquivoService service;
+
+    @Autowired
+    private Validator validator;
 
     @Override
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -52,6 +59,14 @@ public class ArquivoController implements ArquivoControllerDocs {
             metadata = mapper.readValue(metadataJson, ArquivoRequestDTO.class);
         } catch (JsonProcessingException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "JSON de metadados inválido", e);
+        }
+
+        Set<ConstraintViolation<ArquivoRequestDTO>> violations = validator.validate(metadata);
+        if (!violations.isEmpty()) {
+            String errorMsg = violations.stream()
+                    .map(v -> v.getPropertyPath() + ": " + v.getMessage())
+                    .collect(Collectors.joining("; "));
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Metadados inválidos: " + errorMsg);
         }
 
         try {
