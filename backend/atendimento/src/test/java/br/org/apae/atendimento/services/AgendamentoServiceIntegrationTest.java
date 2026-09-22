@@ -52,8 +52,8 @@ class AgendamentoServiceIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
-    @DisplayName("Deve vincular paciente geral ao profissional quando agendar")
-    void deveVincularPacienteGeralAoProfissionalQuandoAgendar() {
+    @DisplayName("Nao deve vincular paciente geral ao profissional quando agendar")
+    void naoDeveVincularPacienteGeralAoProfissionalQuandoAgendar() {
         removerVinculoPacienteGeral();
 
         assertEquals(0, contarVinculosPacienteGeral());
@@ -67,8 +67,8 @@ class AgendamentoServiceIntegrationTest extends AbstractIntegrationTest {
                 PROFISSIONAL_ID
         );
 
-        assertEquals(1, contarVinculosPacienteGeral());
-        assertTrue(pacienteRepository.findByProfissionalId(PROFISSIONAL_ID)
+        assertEquals(0, contarVinculosPacienteGeral());
+        assertFalse(pacienteRepository.findByProfissionalId(PROFISSIONAL_ID)
                 .stream()
                 .anyMatch(paciente -> paciente.getId().equals(PACIENTE_GERAL_ID)));
     }
@@ -125,7 +125,7 @@ class AgendamentoServiceIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
-    @DisplayName("Deve editar agendamento alterando o paciente e vincular novo paciente")
+    @DisplayName("Deve editar agendamento alterando o paciente sem criar vinculo")
     void deveEditarPacienteDoAgendamentoComSucesso() {
         removerVinculoPacienteGeral();
         assertEquals(0, contarVinculosPacienteGeral());
@@ -157,7 +157,7 @@ class AgendamentoServiceIntegrationTest extends AbstractIntegrationTest {
         assertEquals(criado.id(), editado.id());
         assertEquals(PACIENTE_GERAL_ID, editado.pacienteId());
         assertEquals("Lucas Souza", editado.nomePaciente());
-        assertEquals(1, contarVinculosPacienteGeral());
+        assertEquals(0, contarVinculosPacienteGeral());
     }
 
     @Test
