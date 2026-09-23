@@ -29,7 +29,6 @@ import br.org.apae.atendimento.repositories.AgendamentoGeralReadRepository;
 import br.org.apae.atendimento.repositories.AgendamentoRepository;
 import br.org.apae.atendimento.repositories.AtendimentoRepository;
 import br.org.apae.atendimento.repositories.PacienteRepository;
-import br.org.apae.atendimento.repositories.ProfissionalPacienteRepository;
 import jakarta.transaction.Transactional;
 
 @Service
@@ -39,7 +38,6 @@ public class AgendamentoService {
     private PacienteRepository pacienteRepository;
     private AgendamentoMapper agendamentoMapper;
     private AtendimentoRepository atendimentoRepository;
-    private ProfissionalPacienteRepository profissionalPacienteRepository;
     private AgendamentoGeralReadRepository agendamentoGeralReadRepository;
 
     public AgendamentoService(AgendamentoRepository repository,
@@ -47,7 +45,6 @@ public class AgendamentoService {
                               PacienteRepository pacienteRepository,
                               AgendamentoMapper agendamentoMapper,
                               AtendimentoRepository atendimentoRepository,
-                              ProfissionalPacienteRepository profissionalPacienteRepository,
                               AgendamentoGeralReadRepository agendamentoGeralReadRepository) {
 
         this.repository = repository;
@@ -55,7 +52,6 @@ public class AgendamentoService {
         this.pacienteRepository = pacienteRepository;
         this.agendamentoMapper = agendamentoMapper;
         this.atendimentoRepository = atendimentoRepository;
-        this.profissionalPacienteRepository = profissionalPacienteRepository;
         this.agendamentoGeralReadRepository = agendamentoGeralReadRepository;
     }
 
@@ -85,11 +81,6 @@ public class AgendamentoService {
                 profissionalId,
                 agendamentoRequest.pacienteId(),
                 agendamento
-        );
-
-        associarPacienteAoProfissional(
-                profissionalId,
-                agendamentoRequest.pacienteId()
         );
 
         return agendamentoMapper.toDTOPadrao(repository.save(agendamento));
@@ -125,7 +116,6 @@ public class AgendamentoService {
                     .orElseThrow(() -> new PacienteNotFoundException("Paciente nao encontrado."));
             agendamento.setPacienteId(novoPaciente.getId());
             agendamento.setPaciente(novoPaciente);
-            associarPacienteAoProfissional(profissionalId, agendamentoRequest.pacienteId());
         }
 
         verificarAtendimentos(
@@ -273,12 +263,5 @@ public class AgendamentoService {
         } else {
             agendamento.setNumeracao(String.valueOf(numeracaoAtual + 1));
         }
-    }
-
-    private void associarPacienteAoProfissional(
-            UUID profissionalId,
-            UUID pacienteId
-    ) {
-        profissionalPacienteRepository.associarSeNaoExistir(profissionalId, pacienteId);
     }
 }
