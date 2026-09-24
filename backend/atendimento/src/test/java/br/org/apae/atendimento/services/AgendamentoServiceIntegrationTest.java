@@ -2,12 +2,14 @@ package br.org.apae.atendimento.services;
 
 import br.org.apae.atendimento.dtos.request.AgendamentoRequestDTO;
 import br.org.apae.atendimento.dtos.response.AgendamentoResponseDTO;
+import br.org.apae.atendimento.dtos.response.DiaAgendamentoResponseDTO;
 import br.org.apae.atendimento.exceptions.invalid.AgendamentoInvalidException;
 import br.org.apae.atendimento.integration.AbstractIntegrationTest;
 import br.org.apae.atendimento.repositories.PacienteRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -188,6 +190,40 @@ class AgendamentoServiceIntegrationTest extends AbstractIntegrationTest {
                         )
                 )
         );
+    }
+
+    @Test
+    @DisplayName("Deve manter totalElements consistente ao paginar agendamentos agrupados por dia")
+    void deveManterTotalElementsConsistenteAoPaginarAgendamentosAgrupados() {
+        long totalAntes = agendamentoService
+                .listarAgrupadoPorDia(PROFISSIONAL_ID, null, 0, 1000)
+                .getTotalElements();
+
+        LocalDate dataComDoisAgendamentos = LocalDate.now().plusDays(40);
+        LocalDate outraData = LocalDate.now().plusDays(41);
+
+        agendamentoService.agendar(
+                new AgendamentoRequestDTO(PACIENTE_VINCULADO_ID, dataComDoisAgendamentos, LocalTime.of(9, 0)),
+                PROFISSIONAL_ID
+        );
+        agendamentoService.agendar(
+                new AgendamentoRequestDTO(PACIENTE_GERAL_ID, dataComDoisAgendamentos, LocalTime.of(10, 0)),
+                PROFISSIONAL_ID
+        );
+        agendamentoService.agendar(
+                new AgendamentoRequestDTO(PACIENTE_VINCULADO_ID, outraData, LocalTime.of(9, 0)),
+                PROFISSIONAL_ID
+        );
+
+        long totalEsperado = totalAntes + 3;
+
+        Page<DiaAgendamentoResponseDTO> pagina0 = agendamentoService
+                .listarAgrupadoPorDia(PROFISSIONAL_ID, null, 0, 1);
+        Page<DiaAgendamentoResponseDTO> pagina1 = agendamentoService
+                .listarAgrupadoPorDia(PROFISSIONAL_ID, null, 1, 1);
+
+        assertEquals(totalEsperado, pagina0.getTotalElements());
+        assertEquals(totalEsperado, pagina1.getTotalElements());
     }
 
     private void removerVinculoPacienteGeral() {
