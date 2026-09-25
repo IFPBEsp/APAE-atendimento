@@ -9,9 +9,9 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 
-import java.util.List;
 import java.util.UUID;
 
 @Tag(name = "Atendimento", description = "Endpoints para registro, consulta e gerenciamento de atendimentos")
@@ -28,15 +28,19 @@ public interface AtendimentoControllerDocs {
             @Parameter(hidden = true) UsuarioAutenticado usuarioAutenticado
     );
 
-    @Operation(summary = "Listar atendimentos do paciente", description = "Retorna a lista de atendimentos de um paciente específico agrupados por mês e ano.")
+    @Operation(summary = "Listar atendimentos do paciente", description = "Retorna a lista de atendimentos de um paciente específico agrupados por mês e ano, com suporte a paginação.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Lista de atendimentos recuperada com sucesso"),
+            @ApiResponse(responseCode = "200", description = "Lista paginada de atendimentos recuperada com sucesso"),
             @ApiResponse(responseCode = "401", description = "Não autorizado"),
             @ApiResponse(responseCode = "404", description = "Paciente não encontrado")
     })
-    ResponseEntity<List<MesAnoAtendimentoResponseDTO>> listarAtendimentosDoPaciente(
+    ResponseEntity<Page<MesAnoAtendimentoResponseDTO>> listarAtendimentosDoPaciente(
             @Parameter(description = "ID do paciente")
             UUID pacienteId,
+            @Parameter(description = "Número da página (iniciando em 0)", example = "0")
+            int page,
+            @Parameter(description = "Quantidade de atendimentos por página", example = "10")
+            int size,
             @Parameter(hidden = true) UsuarioAutenticado usuarioAutenticado
     );
 
