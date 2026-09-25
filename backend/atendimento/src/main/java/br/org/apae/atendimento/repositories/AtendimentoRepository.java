@@ -1,6 +1,8 @@
 package br.org.apae.atendimento.repositories;
 
 import br.org.apae.atendimento.entities.Atendimento;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -26,17 +28,23 @@ public interface AtendimentoRepository extends JpaRepository<Atendimento, UUID> 
     """, nativeQuery = true)
     Long findMaxNumeracaoByMesAndAno(@Param("mes") int mes, @Param("ano") int ano, @Param("profissionalId") UUID profissionalId);
 
-    @Query("""
+    @Query(value = """
         SELECT DISTINCT a
         FROM Atendimento a
         LEFT JOIN FETCH a.relatorio
-        WHERE a.pacienteId = :pacienteid
-            AND a.profissionalId = :profissionalid
+        WHERE a.pacienteId = :pacienteId
+            AND a.profissionalId = :profissionalId
         ORDER BY a.dataAtendimento DESC
+    """, countQuery = """
+        SELECT COUNT(a)
+        FROM Atendimento a
+        WHERE a.pacienteId = :pacienteId
+            AND a.profissionalId = :profissionalId
     """)
-    List<Atendimento> findByPacienteIdAndProfissionalIdComRelatorio(
-            @Param("pacienteid") UUID pacienteId,
-            @Param("profissionalid") UUID profissionalId
+    Page<Atendimento> findByPacienteIdAndProfissionalIdComRelatorio(
+            @Param("pacienteId") UUID pacienteId,
+            @Param("profissionalId") UUID profissionalId,
+            Pageable pageable
     );
 
     @Query("""
