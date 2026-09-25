@@ -20,6 +20,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -151,24 +155,80 @@ class AtendimentoServiceTest {
     }
 
     @Test
-    @DisplayName("Deve agrupar atendimentos por mês")
-    void deveAgruparAtendimentosPorMes() {
+    @DisplayName("Deve agrupar atendimentos por mês com suporte a paginação")
+    void deveAgruparAtendimentosPorMesComPaginacao() {
         Atendimento a1 = new Atendimento();
         a1.setDataAtendimento(LocalDateTime.of(2026, 5, 10, 10, 0));
         Atendimento a2 = new Atendimento();
         a2.setDataAtendimento(LocalDateTime.of(2026, 6, 5, 11, 0));
 
-        when(repository.findByPacienteIdAndProfissionalIdComRelatorio(pacienteId, profissionalId))
-                .thenReturn(List.of(a1, a2));
-        when(atendimentoMapper.toDTOPadrao(any())).thenReturn(mock(AtendimentoResponseDTO.class));
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<Atendimento> page = new PageImpl<>(List.of(a1, a2), pageable, 2);
+
         when(pacienteService.existeRelacao(pacienteId, profissionalId)).thenReturn(true);
+        when(repository.findByPacienteIdAndProfissionalIdComRelatorio(pacienteId, profissionalId, pageable))
+                .thenReturn(page);
+        when(atendimentoMapper.toDTOPadrao(any())).thenReturn(mock(AtendimentoResponseDTO.class));
 
-        List<MesAnoAtendimentoResponseDTO> result =
-                service.getAtendimentosAgrupadosPorMes(pacienteId, profissionalId);
+        Page<MesAnoAtendimentoResponseDTO> result =
+                service.getAtendimentosAgrupadosPorMes(pacienteId, profissionalId, pageable);
 
-        assertEquals(2, result.size());
-        assertTrue(result.stream().anyMatch(r -> r.mesAno().equals(YearMonth.of(2026, 5))));
-        assertTrue(result.stream().anyMatch(r -> r.mesAno().equals(YearMonth.of(2026, 6))));
+        assertNotNull(result);
+        assertEquals(2, result.getTotalElements());
+        assertEquals(1, result.getTotalPages());
+        assertEquals(2, result.getContent().size());
+        assertTrue(result.getContent().stream().anyMatch(r -> r.mesAno().equals(YearMonth.of(2026, 5))));
+        assertTrue(result.getContent().stream().anyMatch(r -> r.mesAno().equals(YearMonth.of(2026, 6))));
+    }
+
+    @Test
+    @DisplayName("Deve agrupar atendimentos por mês recebendo page e size inteiros")
+    void deveAgruparAtendimentosPorMesComPageESize() {
+        Atendimento a1 = new Atendimento();
+        a1.setDataAtendimento(LocalDateTime.of(2026, 5, 10, 10, 0));
+
+        Pageable pageable = PageRequest.of(0, 5);
+        Page<Atendimento> page = new PageImpl<>(List.of(a1), pageable, 1);
+
+        when(pacienteService.existeRelacao(pacienteId, profissionalId)).thenReturn(true);
+        when(repository.findByPacienteIdAndProfissionalIdComRelatorio(pacienteId, profissionalId, pageable))
+                .thenReturn(page);
+        when(atendimentoMapper.toDTOPadrao(any())).thenReturn(mock(AtendimentoResponseDTO.class));
+
+        Page<MesAnoAtendimentoResponseDTO> result =
+                service.getAtendimentosAgrupadosPorMes(pacienteId, profissionalId, 0, 5);
+
+        assertNotNull(result);
+        assertEquals(1, result.getTotalElements());
+        assertEquals(1, result.getContent().size());
+    }
+
+    @Test
+    @DisplayName("Deve retornar página vazia quando paciente não possui atendimentos")
+    void deveRetornarPaginaVaziaQuandoPacienteNaoPossuiAtendimentos() {
+        Pageable pageable = PageRequest.of(0, 10);
+        when(pacienteService.existeRelacao(pacienteId, profissionalId)).thenReturn(true);
+        when(repository.findByPacienteIdAndProfissionalIdComRelatorio(pacienteId, profissionalId, pageable))
+                .thenReturn(Page.empty(pageable));
+
+        Page<MesAnoAtendimentoResponseDTO> result =
+                service.getAtendimentosAgrupadosPorMes(pacienteId, profissionalId, pageable);
+
+        assertNotNull(result);
+        assertTrue(result.getContent().isEmpty());
+        assertEquals(0, result.getTotalElements());
+    }
+
+    @Test
+    @DisplayName("Deve lançar erro quando profissional não tiver relação com o paciente ao listar")
+    void deveLancarErroQuandoNaoHouverRelacaoAoListar() {
+        when(pacienteService.existeRelacao(pacienteId, profissionalId)).thenReturn(false);
+
+        Pageable pageable = PageRequest.of(0, 10);
+        assertThrows(RelacaoInvalidException.class,
+                () -> service.getAtendimentosAgrupadosPorMes(pacienteId, profissionalId, pageable));
+
+        verify(repository, never()).findByPacienteIdAndProfissionalIdComRelatorio(any(), any(), any());
     }
 
     @Test
