@@ -10,6 +10,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @AutoConfigureMockMvc
@@ -19,7 +20,7 @@ class AtendimentoControllerIntegrationTest extends AbstractIntegrationTest {
     private MockMvc mockMvc;
 
     @Test
-    @DisplayName("Deve criar e listar atendimentos para paciente vinculado ao profissional autenticado")
+    @DisplayName("Deve criar e listar atendimentos para paciente vinculado ao profissional autenticado com paginação")
     void deveCriarEListarAtendimentosComProfissionalAutenticado() throws Exception {
         String pacienteId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
 
@@ -38,8 +39,26 @@ class AtendimentoControllerIntegrationTest extends AbstractIntegrationTest {
                         .content(payload)
         ).andExpect(status().isCreated());
 
+        // Testando listagem com parâmetros default (page=0, size=10)
         mockMvc.perform(
                 get("/atendimentos/{pacienteId}", pacienteId)
-        ).andExpect(status().isOk());
+        )
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.content").isArray())
+        .andExpect(jsonPath("$.totalElements").isNumber())
+        .andExpect(jsonPath("$.totalPages").isNumber())
+        .andExpect(jsonPath("$.number").value(0))
+        .andExpect(jsonPath("$.size").value(10));
+
+        // Testando listagem com parâmetros explícitos (page=0, size=5)
+        mockMvc.perform(
+                get("/atendimentos/{pacienteId}", pacienteId)
+                        .param("page", "0")
+                        .param("size", "5")
+        )
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.content").isArray())
+        .andExpect(jsonPath("$.size").value(5))
+        .andExpect(jsonPath("$.number").value(0));
     }
 }
