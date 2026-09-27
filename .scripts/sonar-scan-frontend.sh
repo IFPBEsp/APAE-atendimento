@@ -4,7 +4,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 FRONTEND_DIR="$(cd "${SCRIPT_DIR}/../frontend/atendimento-app" && pwd)"
 
-SONAR_HOST_URL="${SONAR_HOST_URL:-http://localhost:9501}"
+SONAR_HOST_URL="${SONAR_HOST_URL:-http://localhost:9500}"
 SCANNER_IMAGE="sonarsource/sonar-scanner-cli:12.1.0.3233_8.0.1"
 
 if [ -z "${SONAR_TOKEN:-}" ]; then
