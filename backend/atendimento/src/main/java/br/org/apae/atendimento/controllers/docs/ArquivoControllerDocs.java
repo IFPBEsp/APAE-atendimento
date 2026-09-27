@@ -10,6 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import br.org.apae.atendimento.dtos.request.ArquivoRequestDTO;
 import br.org.apae.atendimento.dtos.response.ArquivoResponseDTO;
+import br.org.apae.atendimento.dtos.response.PaginatedResponseDTO;
 import br.org.apae.atendimento.security.UsuarioAutenticado;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -55,16 +56,18 @@ public interface ArquivoControllerDocs {
             @Parameter(hidden = true) UsuarioAutenticado usuarioAutenticado
     );
 
-    @Operation(summary = "Buscar arquivos por Tipo e Paciente", description = "Retorna uma lista de arquivos filtrada pelo ID do paciente e pelo tipo de documento.")
+    @Operation(summary = "Buscar arquivos por Tipo e Paciente", description = "Retorna uma lista paginada de arquivos filtrada pelo ID do paciente e pelo tipo de documento.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Arquivos encontrados e listados"),
             @ApiResponse(responseCode = "400", description = "Parâmetros de busca inválidos"),
             @ApiResponse(responseCode = "401", description = "Não autorizado"),
             @ApiResponse(responseCode = "404", description = "Paciente ou tipo de documento não encontrado")
     })
-    ResponseEntity<List<ArquivoResponseDTO>> findByTipoId(
+    ResponseEntity<PaginatedResponseDTO<ArquivoResponseDTO>> findByTipoId(
             @Parameter(description = "ID do paciente (UUID)", required = true) UUID pacienteId,
             @Parameter(description = "ID do tipo de arquivo", required = true) Long tipoId,
+            @Parameter(description = "Número da página (padrão 1)") int page,
+            @Parameter(description = "Quantidade de itens por página (padrão 10)") int limit,
             @Parameter(hidden = true) UsuarioAutenticado usuarioAutenticado
     );
 

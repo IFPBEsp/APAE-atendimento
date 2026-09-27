@@ -11,6 +11,7 @@ import br.org.apae.atendimento.repositories.AnexoRepository;
 import br.org.apae.atendimento.repositories.TipoArquivoRepository;
 import br.org.apae.atendimento.services.storage.ObjectStorageService;
 import br.org.apae.atendimento.services.storage.PresignedUrlService;
+import br.org.apae.atendimento.dtos.response.PaginatedResponseDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,15 +19,21 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.mock.web.MockMultipartFile;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -169,6 +176,55 @@ class ArquivoServiceTest {
             assertFalse(a.getDescricao().startsWith(" "));
             return true;
         }));
+    }
+
+    @Test
+    @DisplayName("Deve listar arquivos paginados com metadados corretos")
+    void deveListarArquivosPaginados() {
+        Long tipoId = 1L;
+        Arquivo arquivo = new Arquivo();
+        arquivo.setObjectName("obj-1");
+
+        Pageable pageableEsperado = PageRequest.of(0, 10);
+        Page<Arquivo> paginaMock = new PageImpl<>(List.of(arquivo), pageableEsperado, 25);
+
+        when(repository.findByProfissionalIdAndPacienteIdAndTipoId(profissionalId, pacienteId, tipoId, pageableEsperado))
+                .thenReturn(paginaMock);
+        when(urlService.gerarUrlPreAssinada(any())).thenReturn("http://url");
+        when(anexoMapper.toDTOPadrao(any())).thenReturn(null);
+
+        PaginatedResponseDTO<?> resultado = service.listar(profissionalId, pacienteId, tipoId, 1, 10);
+
+        assertEquals(1, resultado.data().size());
+        assertEquals(1, resultado.paginationMetaDTO().page());
+        assertEquals(10, resultado.paginationMetaDTO().limit());
+        assertEquals(25, resultado.paginationMetaDTO().totalItems());
+        assertEquals(3, resultado.paginationMetaDTO().totalPages());
+        assertTrue(resultado.paginationMetaDTO().hasNextPage());
+        assertFalse(resultado.paginationMetaDTO().hasPreviousPage());
+    }
+
+    @Test
+    @DisplayName("Deve converter página 1 para índice 0 do Spring Data ao listar arquivos")
+    void deveConverterPaginaParaIndiceZero() {
+        Long tipoId = 1L;
+        when(repository.findByProfissionalIdAndPacienteIdAndTipoId(eq(profissionalId), eq(pacienteId), eq(tipoId), argThat(p -> p.getPageNumber() == 2 && p.getPageSize() == 5)))
+                .thenReturn(new PageImpl<>(List.of()));
+
+        service.listar(profissionalId, pacienteId, tipoId, 3, 5);
+
+        verify(repository).findByProfissionalIdAndPacienteIdAndTipoId(eq(profissionalId), eq(pacienteId), eq(tipoId), argThat(p -> p.getPageNumber() == 2 && p.getPageSize() == 5));
+    }
+
+    @Test
+    @DisplayName("Deve lançar exceção ao listar quando profissional não possui vínculo com paciente")
+    void deveLancarExcecaoAoListarSemRelacaoPacienteProfissional() {
+        when(pacienteService.existeRelacao(pacienteId, profissionalId)).thenReturn(false);
+
+        assertThrows(RelacaoInvalidException.class,
+                () -> service.listar(profissionalId, pacienteId, 1L, 1, 10));
+
+        verify(repository, never()).findByProfissionalIdAndPacienteIdAndTipoId(any(), any(), any(), any());
     }
 
     @Test
