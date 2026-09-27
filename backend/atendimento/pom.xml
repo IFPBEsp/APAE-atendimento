@@ -34,7 +34,7 @@
 
 		<sonar.projectKey>apae-atendimento-backend</sonar.projectKey>
 		<sonar.projectName>APAE Atendimento - Backend</sonar.projectName>
-		<sonar.host.url>http://localhost:9501</sonar.host.url>
+		<sonar.host.url>http://localhost:9500</sonar.host.url>
 		<sonar.coverage.jacoco.xmlReportPaths>${project.basedir}/target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
 		<sonar.coverage.exclusions>**/dtos/**,**/entities/**,**/config/**,**/*Application.java</sonar.coverage.exclusions>
 	</properties>
