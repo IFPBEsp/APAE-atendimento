@@ -2,7 +2,6 @@ package br.org.apae.atendimento.controllers;
 
 import br.org.apae.atendimento.dtos.response.PacienteOptionDTO;
 import br.org.apae.atendimento.dtos.response.PacienteResponseDTO;
-import br.org.apae.atendimento.dtos.response.ProfissionalDropdownResponseDTO;
 import br.org.apae.atendimento.dtos.response.ProfissionalResponseDTO;
 import br.org.apae.atendimento.security.UsuarioAutenticado;
 import io.swagger.v3.oas.annotations.Operation;
@@ -44,10 +43,4 @@ public interface ProfissionalSaudeControllerDocs {
     ResponseEntity<List<PacienteOptionDTO>> pacientesOption(
             @AuthenticationPrincipal UsuarioAutenticado usuarioAutenticado
     );
-
-    @Operation(summary = "Listar profissionais para dropdown", description = "Retorna uma lista simplificada de todos os profissionais de saúde, para uso em componentes de seleção (dropdown).")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Lista retornada com sucesso")
-    })
-    ResponseEntity<List<ProfissionalDropdownResponseDTO>> listarParaDropdown();
 }
