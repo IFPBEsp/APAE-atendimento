@@ -3,9 +3,14 @@ package br.org.apae.atendimento.services;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import br.org.apae.atendimento.dtos.request.AtendimentoRequestDTO;
 import br.org.apae.atendimento.dtos.request.TopicoRequestDTO;
@@ -96,21 +101,38 @@ public class AtendimentoService {
         agendamentoService.setStatus(agendamento);
     }
 
-    public List<MesAnoAtendimentoResponseDTO> getAtendimentosAgrupadosPorMes(UUID pacienteId, UUID profissionalId) {
+    public Page<MesAnoAtendimentoResponseDTO> getAtendimentosAgrupadosPorMes(
+            UUID pacienteId,
+            UUID profissionalId,
+            Pageable pageable
+    ) {
         if (!pacienteService.existeRelacao(pacienteId, profissionalId)) {
             throw new RelacaoInvalidException("Você não tem permissão para listar atendimentos deste paciente.");
         }
 
-        List<Atendimento> atendimentos = repository
-                .findByPacienteIdAndProfissionalIdComRelatorio(pacienteId, profissionalId);
+        Page<Atendimento> paginaAtendimentos = repository
+                .findByPacienteIdAndProfissionalIdComRelatorio(pacienteId, profissionalId, pageable);
 
-        return atendimentos.stream()
+        List<MesAnoAtendimentoResponseDTO> agrupados = paginaAtendimentos.getContent().stream()
                 .collect(Collectors.groupingBy(
                         a -> YearMonth.from(a.getDataAtendimento()),
+                        LinkedHashMap::new,
                         Collectors.mapping(atendimentoMapper::toDTOPadrao, Collectors.toList())))
                 .entrySet().stream()
                 .map(e -> new MesAnoAtendimentoResponseDTO(e.getKey(), e.getValue()))
                 .toList();
+
+        return new PageImpl<>(agrupados, pageable, paginaAtendimentos.getTotalElements());
+    }
+
+    public Page<MesAnoAtendimentoResponseDTO> getAtendimentosAgrupadosPorMes(
+            UUID pacienteId,
+            UUID profissionalId,
+            int page,
+            int size
+    ) {
+        Pageable pageable = PageRequest.of(page, size);
+        return getAtendimentosAgrupadosPorMes(pacienteId, profissionalId, pageable);
     }
 
     public void deletar(UUID profissionalId, UUID pacienteId, UUID atendimentoId) {
