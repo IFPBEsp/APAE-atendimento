@@ -16,18 +16,31 @@ export default function normalizarAtendimento(item: Atendimento): Atendimento {
   };
 }
 
-export async function carregarAtendimentos(pacienteId: string) {
-  const [pacientes, grupos] = await Promise.all([
+export async function carregarAtendimentos(
+  pacienteId: string,
+  page = 0,
+  size = 10
+) {
+  const [pacientes, pagina] = await Promise.all([
     getPacientes(),
-    getAtendimentos(pacienteId),
+    getAtendimentos(pacienteId, page, size),
   ]);
 
   const paciente =
     pacientes.data.find((p) => String(p.id) === String(pacienteId)) ?? null;
 
-  const atendimentos = grupos
+  const atendimentos = pagina.content
     .flatMap((grupo) => grupo.atendimentos)
     .map(normalizarAtendimento);
 
-  return { paciente, atendimentos };
+  return {
+    paciente,
+    atendimentos,
+    totalPages: pagina.totalPages,
+    totalElements: pagina.totalElements,
+    currentPage: pagina.number,
+    pageSize: pagina.size,
+    first: pagina.first,
+    last: pagina.last,
+  };
 }

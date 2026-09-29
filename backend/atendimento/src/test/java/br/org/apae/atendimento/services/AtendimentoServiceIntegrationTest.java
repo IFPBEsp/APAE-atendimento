@@ -13,6 +13,7 @@ import br.org.apae.atendimento.repositories.ProfissionalSaudeRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -91,11 +92,15 @@ class AtendimentoServiceIntegrationTest extends AbstractIntegrationTest {
         assertNotNull(edited);
         assertEquals(created1.numeracao(), edited.numeracao());
 
-        List<MesAnoAtendimentoResponseDTO> agrupados =
-                atendimentoService.getAtendimentosAgrupadosPorMes(paciente.getId(), profissional.getId());
+        Page<MesAnoAtendimentoResponseDTO> agrupados =
+                atendimentoService.getAtendimentosAgrupadosPorMes(paciente.getId(), profissional.getId(), 0, 10);
 
+        assertNotNull(agrupados);
         assertFalse(agrupados.isEmpty());
-        assertTrue(agrupados.stream().anyMatch(g -> g.mesAno().equals(YearMonth.of(2026, 5))));
+        assertEquals(1, agrupados.getTotalElements());
+        assertEquals(2, agrupados.getContent().getFirst().atendimentos().size());
+        assertEquals(1, agrupados.getTotalPages());
+        assertTrue(agrupados.getContent().stream().anyMatch(g -> g.mesAno().equals(YearMonth.of(2026, 5))));
     }
 
     @Test

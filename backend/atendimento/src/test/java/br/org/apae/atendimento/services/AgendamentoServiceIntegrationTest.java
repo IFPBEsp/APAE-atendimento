@@ -61,6 +61,9 @@ class AgendamentoServiceIntegrationTest extends AbstractIntegrationTest {
         ));
 
         assertEquals(0, contarVinculosPacienteGeral());
+        assertFalse(pacienteRepository.findByProfissionalId(PROFISSIONAL_ID)
+                .stream()
+                .anyMatch(paciente -> paciente.getId().equals(PACIENTE_GERAL_ID)));
     }
 
     @Test

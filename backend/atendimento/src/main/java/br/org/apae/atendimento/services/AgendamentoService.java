@@ -276,5 +276,4 @@ public class AgendamentoService {
             agendamento.setNumeracao(String.valueOf(numeracaoAtual + 1));
         }
     }
-
 }
