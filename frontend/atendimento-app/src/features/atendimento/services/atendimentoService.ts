@@ -3,14 +3,22 @@ import { api } from "@/services/axios";
 import {
   Atendimento,
   AtendimentoPayload,
-  AtendimentoGroupResponse,
+  AtendimentoPageResponse,
 } from "../types";
 
 export async function getAtendimentos(
-  pacienteId: string
-): Promise<AtendimentoGroupResponse[]> {
-  const { data } = await api.get<AtendimentoGroupResponse[]>(
-    `/atendimentos/${pacienteId}`
+  pacienteId: string,
+  page = 0,
+  size = 10
+): Promise<AtendimentoPageResponse> {
+  const { data } = await api.get<AtendimentoPageResponse>(
+    `/atendimentos/${pacienteId}`,
+    {
+      params: {
+        page,
+        size,
+      },
+    }
   );
 
   return data;
@@ -24,7 +32,10 @@ export async function criarAtendimento(
   return data;
 }
 
-export async function deletarAtendimento(pacienteId: string, atendimentoId: string): Promise<void> {
+export async function deletarAtendimento(
+  pacienteId: string,
+  atendimentoId: string
+): Promise<void> {
   await api.delete(`/atendimentos/${pacienteId}/${atendimentoId}`);
 }
 
@@ -36,10 +47,12 @@ export async function editarAtendimento(
     `/atendimentos/${atendimentoId}`,
     payload
   );
-  return data; 
+
+  return data;
 }
 
-export const concluirAtendimento = async (atendimentoId: string): Promise<void> => {
-    await api.patch(`/atendimentos/${atendimentoId}/concluir`);
+export const concluirAtendimento = async (
+  atendimentoId: string
+): Promise<void> => {
+  await api.patch(`/atendimentos/${atendimentoId}/concluir`);
 };
-
