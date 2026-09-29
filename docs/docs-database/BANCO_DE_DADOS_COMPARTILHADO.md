@@ -37,22 +37,14 @@ Os diagramas abaixo usam blocos Mermaid como o README da Gestão Escolar. São g
 ### Página 00 — Visão compartilhada
 
 ```mermaid
-flowchart LR
-    GE["gestao_escolar<br/>domínio pedagógico"]
-    G["apae_geral<br/>identidade, pacientes e agenda"]
-    A["atendimento<br/>domínio clínico e documentos"]
-    GE -->|FKs e leituras| G
-    A -->|FKs, views e agenda| G
-    G -->|agendamento gera vínculo visível| A
-    classDef escolar fill:#10291d,stroke:#22c55e,color:#e2fbe9
-    classDef geral fill:#152647,stroke:#3b82f6,color:#e6efff
-    classDef clinico fill:#291748,stroke:#a855f7,color:#f4e8ff
-    class GE escolar
-    class G geral
-    class A clinico
+graph LR
+    GE[gestao_escolar] -->|FKs e leituras| G[apae_geral]
+    A[atendimento] -->|FKs e leituras| G
 ```
 
-Uma única *database* PostgreSQL contém os três schemas em produção. A seta de volta para Atendimento indica que a VIEW de vínculos passa a refletir o agendamento do Geral; não é uma escrita do Geral no schema clínico.
+Uma única *database* PostgreSQL contém os três schemas em produção. O Atendimento lê os agendamentos do Geral para compor a VIEW de vínculos; isso não é uma escrita do Geral no schema clínico.
+
+Se o visualizador Markdown não renderizar o Mermaid, [abra a exportação da visão compartilhada](diagramas/00-visao-compartilhada.png).
 
 ### Página 01 — `apae_geral`
 
