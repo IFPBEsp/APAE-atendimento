@@ -44,6 +44,9 @@ public class AtendimentoService {
 
     @Transactional
     public AtendimentoResponseDTO addAtendimento(AtendimentoRequestDTO atendimentoRequestDTO, UUID profissionalId) {
+        if (!pacienteService.existeRelacao(atendimentoRequestDTO.pacienteId(), profissionalId)) {
+            throw new RelacaoInvalidException("Voce nao tem vinculo com este paciente para criar atendimento.");
+        }
         if (repository.existsByProfissionalIdAndDataAtendimento(
                 profissionalId,
                 LocalDateTime.of(atendimentoRequestDTO.data(), atendimentoRequestDTO.hora())
@@ -141,6 +144,10 @@ public class AtendimentoService {
         Atendimento atendimento = repository.findByIdComRelatorio(atendimentoId)
                 .orElseThrow(() -> new AtendimentoNotFoundException("O atendimento que deseja editar não foi encontrado."));
 
+        if (!pacienteService.existeRelacao(atendimento.getPacienteId(), profissionalId)) {
+            throw new RelacaoInvalidException("Voce nao tem permissao para editar este atendimento.");
+        }
+
         if (!pacienteService.existeRelacao(requestDTO.pacienteId(), profissionalId)) {
             throw new RelacaoInvalidException("Voce nao tem permissao para editar atendimentos deste paciente.");
         }
@@ -176,6 +183,10 @@ public class AtendimentoService {
 
         if (!atendimento.getProfissionalId().equals(profissionalId)) {
             throw new AtendimentoNotFoundException("O atendimento nao existe ou nao pertence ao profissional autenticado.");
+        }
+
+        if (!pacienteService.existeRelacao(atendimento.getPacienteId(), profissionalId)) {
+            throw new RelacaoInvalidException("Voce nao tem vinculo com este paciente para concluir atendimento.");
         }
 
         int atualizados = repository.concluirAtendimento(atendimentoId, profissionalId);

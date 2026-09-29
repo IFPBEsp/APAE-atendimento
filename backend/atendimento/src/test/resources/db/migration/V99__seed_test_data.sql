@@ -163,17 +163,11 @@ VALUES
     )
     ON CONFLICT DO NOTHING;
 
-INSERT INTO atendimento.profissional_paciente (
-    profissional_id,
-    paciente_id
-)
+INSERT INTO apae_geral.agendamentos
+    (id, cadastro_anual_id, profissional_id, frequencia_dias, hora, data_inicial, ativo)
 VALUES
-    (
-        '44444444-4444-4444-4444-444444444444',
-        'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
-    ),
-    (
-        '44444444-4444-4444-4444-444444444444',
-        'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb'
-    )
-    ON CONFLICT DO NOTHING;
+    ('77777777-7777-7777-7777-777777777771',
+     '66666666-6666-6666-6666-666666666661',
+     '44444444-4444-4444-4444-444444444444',
+     7, TIME '09:00', DATE '2026-01-01', TRUE)
+ON CONFLICT (id) DO NOTHING;

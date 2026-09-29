@@ -8,8 +8,7 @@ import {
   Activity, 
   ClipboardList, 
   FileText, 
-  Paperclip,
-  PlusCircle
+  Paperclip
 } from "lucide-react";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -21,8 +20,6 @@ interface PacienteCardProps extends Paciente {
   onViewAtendimentos?: () => void;
   onViewRelatorios?: () => void;
   onViewAnexos?: () => void;
-  onCreateAtendimento?: () => void;
-  modo?: "meus" | "todos";
 }
 
 export function PacienteCard({
@@ -37,8 +34,6 @@ export function PacienteCard({
   onViewAtendimentos,
   onViewRelatorios,
   onViewAnexos,
-  onCreateAtendimento,
-  modo = "meus",
 }: PacienteCardProps) {
   return (
     <Card className="group w-full max-w-md md:max-w-4xl md:h-fit rounded-2xl shadow-sm hover:shadow-md border border-[#EAECF0] border-t-[6px] border-t-[#165BAA] bg-white relative flex flex-col transition-shadow duration-300 overflow-hidden">
@@ -111,7 +106,6 @@ export function PacienteCard({
         </div>
       </CardContent>
 
-      {modo === "meus" ? (
         <CardFooter className="px-5 pb-5 pt-0 flex flex-wrap gap-3 md:justify-start md:ml-[11rem] opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 ease-out">
           <Button 
             variant="outline" 
@@ -140,17 +134,6 @@ export function PacienteCard({
             Anexos
           </Button>
         </CardFooter>
-      ) : (
-        <CardFooter className="px-5 pb-5 pt-0 md:ml-[11rem]">
-          <Button 
-            className="bg-[#165BAA] hover:bg-[#134e8f] text-white font-medium flex items-center gap-2 px-5 py-2 rounded-xl transition-colors"
-            onClick={onCreateAtendimento}
-          >
-            <PlusCircle className="w-4 h-4" />
-            Iniciar Novo Atendimento
-          </Button>
-        </CardFooter>
-      )}
 
     </Card>
   );

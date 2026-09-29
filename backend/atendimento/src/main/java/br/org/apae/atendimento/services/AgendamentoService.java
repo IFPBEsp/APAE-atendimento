@@ -29,7 +29,6 @@ import br.org.apae.atendimento.repositories.AgendamentoGeralReadRepository;
 import br.org.apae.atendimento.repositories.AgendamentoRepository;
 import br.org.apae.atendimento.repositories.AtendimentoRepository;
 import br.org.apae.atendimento.repositories.PacienteRepository;
-import br.org.apae.atendimento.repositories.ProfissionalPacienteRepository;
 import jakarta.transaction.Transactional;
 
 @Service
@@ -39,7 +38,6 @@ public class AgendamentoService {
     private PacienteRepository pacienteRepository;
     private AgendamentoMapper agendamentoMapper;
     private AtendimentoRepository atendimentoRepository;
-    private ProfissionalPacienteRepository profissionalPacienteRepository;
     private AgendamentoGeralReadRepository agendamentoGeralReadRepository;
 
     public AgendamentoService(AgendamentoRepository repository,
@@ -47,7 +45,6 @@ public class AgendamentoService {
                               PacienteRepository pacienteRepository,
                               AgendamentoMapper agendamentoMapper,
                               AtendimentoRepository atendimentoRepository,
-                              ProfissionalPacienteRepository profissionalPacienteRepository,
                               AgendamentoGeralReadRepository agendamentoGeralReadRepository) {
 
         this.repository = repository;
@@ -55,7 +52,6 @@ public class AgendamentoService {
         this.pacienteRepository = pacienteRepository;
         this.agendamentoMapper = agendamentoMapper;
         this.atendimentoRepository = atendimentoRepository;
-        this.profissionalPacienteRepository = profissionalPacienteRepository;
         this.agendamentoGeralReadRepository = agendamentoGeralReadRepository;
     }
 
@@ -68,6 +64,9 @@ public class AgendamentoService {
         AgendamentoRequestDTO agendamentoRequest,
         UUID profissionalId
     ) {
+        if (!pacienteService.existeRelacao(agendamentoRequest.pacienteId(), profissionalId)) {
+            throw new RelacaoInvalidException("Voce nao tem vinculo com este paciente para criar o agendamento.");
+        }
         if (verificarAgendamentoExiste(
             profissionalId,
             agendamentoRequest.data(),
@@ -87,11 +86,6 @@ public class AgendamentoService {
                 agendamento
         );
 
-        associarPacienteAoProfissional(
-                profissionalId,
-                agendamentoRequest.pacienteId()
-        );
-
         return agendamentoMapper.toDTOPadrao(repository.save(agendamento));
     }
 
@@ -109,6 +103,10 @@ public class AgendamentoService {
             throw new AgendamentoInvalidException("Nao e possivel editar um agendamento que ja foi concluido.");
         }
 
+        if (!pacienteService.existeRelacao(agendamentoRequest.pacienteId(), profissionalId)) {
+            throw new RelacaoInvalidException("Voce nao tem vinculo com este paciente para editar o agendamento.");
+        }
+
         LocalDateTime novaDataHora = LocalDateTime.of(agendamentoRequest.data(), agendamentoRequest.hora());
 
         if (!novaDataHora.equals(agendamento.getDataHora())) {
@@ -121,11 +119,10 @@ public class AgendamentoService {
         }
 
         if (!agendamentoRequest.pacienteId().equals(agendamento.getPacienteId())) {
-            Paciente novoPaciente = pacienteRepository.findById(agendamentoRequest.pacienteId())
+            Paciente novoPaciente = pacienteRepository.findByIdAndProfissionalId(agendamentoRequest.pacienteId(), profissionalId)
                     .orElseThrow(() -> new PacienteNotFoundException("Paciente nao encontrado."));
             agendamento.setPacienteId(novoPaciente.getId());
             agendamento.setPaciente(novoPaciente);
-            associarPacienteAoProfissional(profissionalId, agendamentoRequest.pacienteId());
         }
 
         verificarAtendimentos(
@@ -175,6 +172,7 @@ public class AgendamentoService {
             locais = repository
                     .findByProfissionalIdAndDataHoraBetweenOrderByDataHoraDesc(profissionalId, dataInicio, dataFim)
                     .stream()
+                    .filter(a -> pacienteService.existeRelacao(a.getPacienteId(), profissionalId))
                     .map(agendamentoMapper::toDTOPadrao)
                     .toList();
 
@@ -183,6 +181,7 @@ public class AgendamentoService {
         } else {
             locais = repository.findByProfissionalIdOrderByDataHoraDesc(profissionalId)
                     .stream()
+                    .filter(a -> pacienteService.existeRelacao(a.getPacienteId(), profissionalId))
                     .map(agendamentoMapper::toDTOPadrao)
                     .toList();
 
@@ -241,6 +240,9 @@ public class AgendamentoService {
     }
 
     public void concluir(UUID profissionalId, UUID pacienteId, UUID agendamentoId) {
+        if (!pacienteService.existeRelacao(pacienteId, profissionalId)) {
+            throw new RelacaoInvalidException("Voce nao tem vinculo com este paciente para concluir o agendamento.");
+        }
         Agendamento agendamento = repository
                 .findByIdAndProfissionalIdAndPacienteId(agendamentoId, profissionalId, pacienteId)
                 .orElseThrow(() -> new AgendamentoNotFoundException("O agendamento nao existe ou nao pertence ao profissional autenticado."));
@@ -275,10 +277,4 @@ public class AgendamentoService {
         }
     }
 
-    private void associarPacienteAoProfissional(
-            UUID profissionalId,
-            UUID pacienteId
-    ) {
-        profissionalPacienteRepository.associarSeNaoExistir(profissionalId, pacienteId);
-    }
 }

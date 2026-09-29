@@ -30,35 +30,249 @@ O `apae_geral` é o núcleo compartilhado. Os schemas de Gestão Escolar e Atend
 
 Isso é uma topologia em estrela, e não uma malha em que todos os serviços leem e escrevem todos os schemas.
 
-## Diagramas DER de referência
+## Diagramas DER em Mermaid
 
-Os diagramas abaixo são a representação visual do estado final documentado pelas migrations. Eles privilegiam chaves, relações e limites de propriedade; para os tipos completos, regras e histórico de cada objeto, use os catálogos das seções seguintes.
+Os diagramas abaixo usam blocos Mermaid como o README da Gestão Escolar. São gerados pelo Markdown a partir do código versionado aqui, sem depender de exportação do draw.io. Mostram chaves e relações principais; o catálogo posterior detalha todos os campos. Prefixos `APAE_GERAL_` nos diagramas dos produtos indicam referências externas, não tabelas de propriedade desses schemas. VIEWs e funções não são desenhadas como tabelas físicas.
 
 ### Página 00 — Visão compartilhada
 
-![Página 00 — Visão compartilhada](diagramas/00-visao-compartilhada.png)
+```mermaid
+flowchart LR
+    GE["gestao_escolar<br/>domínio pedagógico"]
+    G["apae_geral<br/>identidade, pacientes e agenda"]
+    A["atendimento<br/>domínio clínico e documentos"]
+    GE -->|FKs e leituras| G
+    A -->|FKs, views e agenda| G
+    G -->|agendamento gera vínculo visível| A
+    classDef escolar fill:#10291d,stroke:#22c55e,color:#e2fbe9
+    classDef geral fill:#152647,stroke:#3b82f6,color:#e6efff
+    classDef clinico fill:#291748,stroke:#a855f7,color:#f4e8ff
+    class GE escolar
+    class G geral
+    class A clinico
+```
 
-Esta página apresenta a fronteira mais importante: uma única *database* PostgreSQL com três schemas. Verde identifica Gestão Escolar, azul identifica o núcleo `apae_geral` e roxo identifica Atendimento. As setas entre schemas representam FKs ou leituras diretas, e não chamadas entre APIs.
+Uma única *database* PostgreSQL contém os três schemas em produção. A seta de volta para Atendimento indica que a VIEW de vínculos passa a refletir o agendamento do Geral; não é uma escrita do Geral no schema clínico.
 
 ### Página 01 — `apae_geral`
 
-![Página 01 — Geral](diagramas/01-geral.png)
+```mermaid
+erDiagram
+    ENDERECOS {
+        UUID id PK
+    }
+    USUARIOS {
+        UUID id PK
+        UUID endereco_id FK
+    }
+    PASSWORD_RECOVERY_TOKEN {
+        UUID id PK
+        UUID user_id FK
+    }
+    AREAS_DE_ATENDIMENTO {
+        INTEGER id PK
+    }
+    PROFISSIONAIS_DA_SAUDE {
+        UUID id PK
+        UUID usuario_id FK
+        VARCHAR area_de_atendimento FK
+    }
+    DISPONIBILIDADES {
+        UUID id PK
+        UUID professional_id FK
+    }
+    PACIENTES {
+        UUID id PK
+        UUID endereco_id FK
+    }
+    PARENTES {
+        UUID id PK
+        UUID paciente_id FK
+    }
+    RESPONSAVEIS {
+        UUID id PK
+        UUID paciente_id FK
+        UUID endereco_id FK
+    }
+    VACINAS {
+        UUID id PK
+    }
+    PACIENTE_VACINA {
+        UUID paciente_id PK
+        UUID vacina_id PK
+    }
+    CADASTROS_ANUAIS {
+        UUID id PK
+        UUID paciente_id FK
+    }
+    TRANSTORNOS {
+        UUID id PK
+    }
+    CADASTRO_ANUAL_TRANSTORNO {
+        UUID cadastro_anual_id PK
+        UUID transtorno_id PK
+    }
+    CADASTRO_ANUAL_AREAS_DE_ATENDIMENTO {
+        UUID cadastro_anual_id PK
+        INTEGER areas_de_atendimento_id PK
+    }
+    AGENDAMENTOS {
+        UUID id PK
+        UUID profissional_id FK
+        UUID cadastro_anual_id FK
+        UUID substituido_por_id FK
+        UUID atualizado_de_id FK
+    }
+    AGENDAMENTO_GERADO {
+        UUID id PK
+        UUID agendamento_id FK
+        UUID paciente_id FK
+    }
+    FALTA {
+        UUID id PK
+        UUID agendamento_gerado_id FK
+    }
 
-O DER do Geral mostra a fonte canônica de identidade, pessoas, cadastros anuais e agenda-base. As caixas tracejadas em laranja são tabelas associativas ou de histórico; a caixa roxa destaca a função PostgreSQL usada pelo Atendimento no primeiro acesso.
+    ENDERECOS o|--o| USUARIOS : endereco
+    USUARIOS ||--o{ PASSWORD_RECOVERY_TOKEN : token
+    USUARIOS ||--o| PROFISSIONAIS_DA_SAUDE : extensao
+    AREAS_DE_ATENDIMENTO o|--o{ PROFISSIONAIS_DA_SAUDE : especialidade
+    PROFISSIONAIS_DA_SAUDE ||--o{ DISPONIBILIDADES : disponibilidade
+    ENDERECOS o|--o| PACIENTES : endereco
+    PACIENTES ||--o{ PARENTES : parentes
+    PACIENTES ||--o{ RESPONSAVEIS : responsaveis
+    ENDERECOS o|--o| RESPONSAVEIS : endereco
+    PACIENTES ||--o{ PACIENTE_VACINA : vacinas
+    VACINAS ||--o{ PACIENTE_VACINA : vacina
+    PACIENTES ||--o{ CADASTROS_ANUAIS : cadastro
+    CADASTROS_ANUAIS ||--o{ CADASTRO_ANUAL_TRANSTORNO : transtornos
+    TRANSTORNOS ||--o{ CADASTRO_ANUAL_TRANSTORNO : transtorno
+    CADASTROS_ANUAIS ||--o{ CADASTRO_ANUAL_AREAS_DE_ATENDIMENTO : areas
+    AREAS_DE_ATENDIMENTO ||--o{ CADASTRO_ANUAL_AREAS_DE_ATENDIMENTO : area
+    PROFISSIONAIS_DA_SAUDE ||--o{ AGENDAMENTOS : agenda
+    CADASTROS_ANUAIS ||--o{ AGENDAMENTOS : cadastro
+    AGENDAMENTOS o|--o{ AGENDAMENTOS : substitui_atualiza
+    AGENDAMENTOS ||--o{ AGENDAMENTO_GERADO : ocorrencias
+    PACIENTES ||--o{ AGENDAMENTO_GERADO : paciente
+    AGENDAMENTO_GERADO ||--o{ FALTA : falta
+```
+
+As tabelas associativas têm PK composta. `AGENDAMENTOS` pode referenciar outras regras por `substituido_por_id` e `atualizado_de_id`; essas duas FKs aparecem agregadas em uma linha para evitar cruzamentos no desenho. A função de primeiro acesso do Geral está descrita no catálogo, pois não é entidade ER.
+
+[Abrir a versão detalhada em SVG do Geral](diagramas/01-geral.svg).
 
 ### Página 02 — `gestao_escolar`
 
-![Página 02 — Gestão Escolar](diagramas/02-gestao-escolar.png)
+```mermaid
+erDiagram
+    APAE_GERAL_USUARIOS {
+        UUID id PK
+    }
+    APAE_GERAL_PACIENTES {
+        UUID id PK
+    }
+    PROFESSORES {
+        UUID id PK
+        UUID usuario_id FK
+        DATE data_nascimento
+    }
+    TURMAS {
+        UUID id PK
+        UUID professor_id FK
+        VARCHAR nome
+    }
+    AULAS {
+        UUID id PK
+        UUID turma_id FK
+        DATE data
+    }
+    TURMA_ALUNO {
+        UUID id PK
+        UUID turma_id FK
+        UUID paciente_id FK
+    }
+    PRESENCAS {
+        UUID id PK
+        UUID aula_id FK
+        UUID paciente_id FK
+    }
+    AVALIACOES {
+        UUID id PK
+        UUID professor_id FK
+        UUID paciente_id FK
+    }
+    RELATORIOS {
+        UUID id PK
+        UUID professor_id FK
+        UUID turma_id FK
+        UUID paciente_id FK
+    }
 
-O esquema pedagógico fica à direita, enquanto as referências canônicas do Geral ficam isoladas à esquerda. As linhas verdes representam dependências cross-schema e a linha roxa tracejada representa a view `alunos_view`.
+    APAE_GERAL_USUARIOS ||--o| PROFESSORES : usuario
+    PROFESSORES o|--o{ TURMAS : leciona
+    TURMAS ||--o{ AULAS : aulas
+    TURMAS ||--o{ TURMA_ALUNO : matricula
+    APAE_GERAL_PACIENTES ||--o{ TURMA_ALUNO : aluno
+    AULAS ||--o{ PRESENCAS : presencas
+    APAE_GERAL_PACIENTES ||--o{ PRESENCAS : paciente
+    PROFESSORES ||--o{ AVALIACOES : avalia
+    APAE_GERAL_PACIENTES ||--o{ AVALIACOES : avaliado
+    PROFESSORES ||--o{ RELATORIOS : elabora
+    TURMAS ||--o{ RELATORIOS : turma
+    APAE_GERAL_PACIENTES ||--o{ RELATORIOS : paciente
+```
+
+`gestao_escolar.alunos_view` é uma VIEW de leitura de pacientes do Geral com `is_aluno = true` e `is_apagado = false`, não uma FK. Aula, matrícula e presença também têm unicidades compostas descritas no catálogo.
+
+[Abrir a versão detalhada em SVG da Gestão Escolar](diagramas/02-gestao-escolar.svg).
 
 ### Página 03 — `atendimento`
 
-![Página 03 — Atendimento](diagramas/03-atendimento.png)
+```mermaid
+erDiagram
+    APAE_GERAL_PROFISSIONAIS_DA_SAUDE {
+        UUID id PK
+    }
+    APAE_GERAL_PACIENTES {
+        UUID id PK
+    }
+    TIPO_ARQUIVO {
+        BIGINT id PK
+    }
+    ATENDIMENTO {
+        UUID id PK
+        UUID profissional_id FK
+        UUID paciente_id FK
+    }
+    TOPICO {
+        UUID id PK
+        UUID atendimento_id FK
+    }
+    AGENDAMENTO {
+        UUID id PK
+        UUID profissional_id FK
+        UUID paciente_id FK
+    }
+    ANEXO {
+        VARCHAR object_name PK
+        BIGINT tipo_id FK
+        UUID profissional_id FK
+        UUID paciente_id FK
+    }
 
-O esquema clínico separa as tabelas próprias das referências em `apae_geral`. Linhas roxas são FKs cross-schema, azul indica FK interna, tracejado roxo identifica views e tracejado laranja identifica a consulta de agenda que não cria FK nem persiste dados no schema de Atendimento.
+    APAE_GERAL_PROFISSIONAIS_DA_SAUDE ||--o{ ATENDIMENTO : realiza
+    APAE_GERAL_PACIENTES ||--o{ ATENDIMENTO : recebe
+    ATENDIMENTO ||--o{ TOPICO : topicos
+    APAE_GERAL_PROFISSIONAIS_DA_SAUDE ||--o{ AGENDAMENTO : agenda_local
+    APAE_GERAL_PACIENTES ||--o{ AGENDAMENTO : paciente
+    TIPO_ARQUIVO ||--o{ ANEXO : tipo
+    APAE_GERAL_PROFISSIONAIS_DA_SAUDE ||--o{ ANEXO : anexa
+    APAE_GERAL_PACIENTES ||--o{ ANEXO : referente
+```
 
-> Manutenção dos diagramas: use o arquivo do draw.io como fonte de edição e exporte novamente o PNG com o mesmo nome após qualquer alteração. Os PNGs atuais incorporam dados do draw.io, mas uma fonte `.drawio` correspondente deve ser salva junto à alteração para facilitar revisão e edição futura.
+`atendimento.profissional_paciente` é uma VIEW da V10 que deriva pares de `apae_geral.agendamentos` e `cadastros_anuais`; não tem PK ou FKs próprias. `vw_pacientes` e `vw_profissional_saude` também são VIEWs de leitura. A agenda local não cria vínculo.
+
+[Abrir a versão detalhada em SVG do Atendimento](diagramas/03-atendimento.svg). Os SVGs são exportações de consulta; o código Mermaid acima continua sendo a representação editável no Markdown. A imagem PNG da página 00 e `mermaid-diagram.png` são artefatos anteriores, preservados apenas como histórico.
 
 ## O que schemas resolvem — e o que não resolvem
 
@@ -114,7 +328,7 @@ As FKs cross-schema impedem que um registro escolar ou de atendimento aponte par
 |---|---|---|---|
 | APAE-Geral / `apae_geral` | Repositório `APAE`, V1–V11 | usuários, endereços, profissionais de saúde, pacientes, cadastros anuais, agenda-base, faltas e dados de apoio | Não há leitura produtiva de `gestao_escolar` ou `atendimento` |
 | Gestão Escolar / `gestao_escolar` | Repositório `APAE-gestao-escolar`, V1–V6 | professores, turmas, aulas, matrículas, presenças, avaliações, relatórios e a view de alunos | `apae_geral.usuarios`, `enderecos`, `pacientes` e `responsaveis` |
-| Atendimento / `atendimento` | Repositório `APAE-atendimento`, V1–V9 | vínculo profissional–paciente, agenda local, atendimentos, tópicos, anexos, tipos de arquivo e views de leitura | objetos de identidade, pacientes, cadastros, agenda-base e função de primeiro acesso em `apae_geral` |
+| Atendimento / `atendimento` | Repositório `APAE-atendimento`, V1–V10 | agenda local, atendimentos, tópicos, anexos, tipos de arquivo e views de leitura, incluindo o vínculo derivado | objetos de identidade, pacientes, cadastros, agenda-base e função de primeiro acesso em `apae_geral` |
 
 ### Fonte canônica e exceções de escrita
 
@@ -128,13 +342,13 @@ O Atendimento normalmente persiste apenas objetos de `atendimento`. A redefiniç
 |---|---|---|---|
 | `APAE` | `DB_URL`, `DB_USERNAME` e `DB_PASSWORD`; `default_schema=apae_geral` | `schemas/default-schema=apae_geral`; migrations V1–V11 | PostgreSQL 15, database `apae`, porta 5200 |
 | `APAE-gestao-escolar` | `DATASOURCE_URL`, `DATASOURCE_USERNAME` e `DATASOURCE_PASSWORD`; `default_schema=gestao_escolar` | `schemas/default-schema=gestao_escolar`; migrations V1–V6 | PostgreSQL 15, database `gestao_escolar_local`, porta 5400 |
-| `APAE-atendimento` | `DB_URL`, `DB_USER` e `DB_PASSWORD`; `default_schema=atendimento` | `schemas/default-schema=atendimento`; migrations V1–V9 | PostgreSQL 16, database `atendimento_local`, porta 5300 |
+| `APAE-atendimento` | `DB_URL`, `DB_USER` e `DB_PASSWORD`; `default_schema=atendimento` | `schemas/default-schema=atendimento`; migrations V1–V10 | PostgreSQL 16, database `atendimento_local`, porta 5300 |
 
 Os arquivos de configuração são:
 
 - [APAE-Geral: `application.yaml`](../../apps/api/src/main/resources/application.yaml) e [`docker-compose.yml`](../../docker-compose.yml)
 - [Gestão Escolar: `application.properties`](https://github.com/IFPBEsp/APAE-gestao-escolar/blob/af6636238fb47164f491c2749ee15ce217a4adf2/api/src/main/resources/application.properties) e [`api/docker-compose.yml`](https://github.com/IFPBEsp/APAE-gestao-escolar/blob/af6636238fb47164f491c2749ee15ce217a4adf2/api/docker-compose.yml)
-- [Atendimento: `application.properties`](https://github.com/IFPBEsp/APAE-atendimento/blob/544ec9d5e17b8fa8df7a42d556d8023e223e4d88/backend/atendimento/src/main/resources/application.properties), [`application-dev.properties`](https://github.com/IFPBEsp/APAE-atendimento/blob/544ec9d5e17b8fa8df7a42d556d8023e223e4d88/backend/atendimento/src/main/resources/application-dev.properties), [`application-prod.properties`](https://github.com/IFPBEsp/APAE-atendimento/blob/544ec9d5e17b8fa8df7a42d556d8023e223e4d88/backend/atendimento/src/main/resources/application-prod.properties), [`application-test.properties`](https://github.com/IFPBEsp/APAE-atendimento/blob/544ec9d5e17b8fa8df7a42d556d8023e223e4d88/backend/atendimento/src/main/resources/application-test.properties) e [`docker-compose.yaml`](https://github.com/IFPBEsp/APAE-atendimento/blob/544ec9d5e17b8fa8df7a42d556d8023e223e4d88/docker-compose.yaml)
+- [Atendimento: `application.properties`](../../backend/atendimento/src/main/resources/application.properties), [`application-dev.properties`](../../backend/atendimento/src/main/resources/application-dev.properties), [`application-prod.properties`](../../backend/atendimento/src/main/resources/application-prod.properties), [`application-test.properties`](../../backend/atendimento/src/main/resources/application-test.properties) e [`docker-compose.yaml`](../../docker-compose.yaml)
 
 `hibernate.default_schema` orienta o ORM; `spring.flyway.default-schema` orienta o Flyway e sua tabela de histórico. Eles não equivalem a um `SET search_path` universal para SQL nativo/JdbcTemplate. Consultas nativas de integração devem qualificar o schema — por exemplo, `apae_geral.tabela` — ou configurar explicitamente o `search_path`.
 
@@ -151,13 +365,15 @@ Esta seção descreve o procedimento alvo para homologação integrada e produç
 Antes de abrir uma janela de deploy, registre em um ticket ou release note:
 
 - commit/tag e imagem exatos de cada um dos três serviços;
-- conjunto de migrations esperado: Geral V1–V11, Gestão V1–V6 e Atendimento V1–V9;
+- conjunto de migrations esperado: Geral V1–V11, Gestão V1–V6 e Atendimento V1–V10;
 - URL JDBC **sem senha** e nome da única database alvo;
 - responsável pelo banco, responsável por executar as migrations e responsável por aprovar o smoke test;
 - confirmação de que a mudança foi executada antes em uma homologação com os três schemas reais, não apenas contra os mocks locais;
 - classificação da migration: aditiva/compatível, migração de dados ou potencialmente incompatível.
 
 Uma mudança de contrato compartilhado deve seguir o padrão *expand/contract*: primeiro adicionar uma interface compatível no dono (`apae_geral`), depois liberar consumidores compatíveis, migrar dados quando necessário e só remover a interface antiga em uma release posterior. Não edite uma migration já aplicada; crie sempre uma nova migration no repositório proprietário do objeto.
+
+**A V10 do Atendimento é uma exceção destrutiva e incompatível com a API anterior:** ela exclui a tabela de vínculo e a substitui por VIEW. Antes de migrar uma base existente, interrompa as instâncias antigas do Atendimento (elas ainda tentam inserir na tabela), faça backup e compare os vínculos antigos com os pares derivados da agenda do Geral. A API nova só deve receber tráfego após a V10 e os smoke tests. Se uma versão diferente da V10 já tiver sido aplicada, não edite retroativamente a migration: planeje uma nova migration de avanço.
 
 ### 2. Pré-flight: confirmar destino, backup e pré-requisitos
 
@@ -177,6 +393,19 @@ SELECT to_regprocedure('gen_random_uuid()');
 ~~~
 
 5. Confirme que não há migration anterior com falha e capture o estado atual dos três históricos Flyway. Uma falha deve ser investigada antes de usar `repair`; nunca use `clean` em ambiente integrado ou produção.
+
+Para a V10 do Atendimento, enquanto `profissional_paciente` ainda for tabela, identifique os pares que serão perdidos:
+
+~~~sql
+SELECT pp.profissional_id, pp.paciente_id
+FROM atendimento.profissional_paciente pp
+EXCEPT
+SELECT a.profissional_id, ca.paciente_id
+FROM apae_geral.agendamentos a
+JOIN apae_geral.cadastros_anuais ca ON ca.id = a.cadastro_anual_id;
+~~~
+
+Depois da V10, essa comparação não identifica mais os vínculos antigos: o nome passa a designar a própria VIEW derivada do Geral. Guarde o resultado antes da migração para revisão operacional.
 
 O Geral só passa a usar `gen_random_uuid()` na V6, mas a extensão é uma dependência da database. As V1 de Gestão e Atendimento tentam criá-la de modo idempotente; isso não substitui um bootstrap explícito pelo DBA, porque a role de aplicação pode não possuir `CREATE` na database.
 
@@ -234,7 +463,7 @@ Use um job de migração externo/one-shot ou um estágio serial do pipeline. Ele
 | 1 | `APAE/apps/api/src/main/resources/db/migration` | `apae_geral` / V1–V11 | Geral completo, incluindo `profissionais_da_saude.usuario_id`, defaults UUID e função de primeiro acesso. |
 | 2 | Provisionamento do DBA | grants cross-schema | migradores de Gestão e Atendimento conseguem criar FKs/views e roles de runtime têm os acessos aprovados. |
 | 3 | `APAE-gestao-escolar/api/src/main/resources/db/migration` | `gestao_escolar` / V1–V6 | `alunos_view` e FKs para o Geral criadas com sucesso. |
-| 4 | `APAE-atendimento/backend/atendimento/src/main/resources/db/migration` | `atendimento` / V1–V9 | FKs, `vw_pacientes` e `vw_profissional_saude` criadas com sucesso. |
+| 4 | `APAE-atendimento/backend/atendimento/src/main/resources/db/migration` | `atendimento` / V1–V10 | FKs e views criadas; `profissional_paciente` é VIEW derivada dos agendamentos do Geral, sem tabela legada. |
 | 5 | Deploy das APIs | — | Flyway concluído, smoke tests aprovados e health checks saudáveis. |
 
 O Geral precisa terminar em V11 **antes** dos consumidores, e não apenas ter sua V1 aplicada. As V1 de Gestão e Atendimento já dependem de objetos e colunas que o Geral consolidou em migrations posteriores. Gestão e Atendimento não possuem dependência estrutural direta entre si, mas rodá-los serialmente deixa logs, falhas e recuperação muito mais fáceis de auditar.
@@ -286,11 +515,12 @@ Com as **roles reais de runtime**, execute os smoke tests da seção [Inspeção
 
 1. os três schemas existem na mesma database e seus históricos Flyway não têm linha com `success = false`;
 2. as FKs cross-schema apontam para `apae_geral`, e não para objetos mockados ou outra database;
-3. `gestao_escolar.alunos_view`, `atendimento.vw_pacientes` e `atendimento.vw_profissional_saude` podem ser consultadas pela role autorizada; um resultado vazio é aceitável, mas erro de permissão ou objeto ausente não é;
+3. `gestao_escolar.alunos_view`, `atendimento.vw_pacientes`, `atendimento.vw_profissional_saude` e `atendimento.profissional_paciente` podem ser consultadas pela role autorizada; um resultado vazio é aceitável, mas erro de permissão ou objeto ausente não é;
 4. a role da Gestão consegue executar o fluxo autorizado de professor e a role do Atendimento consegue executar apenas a função de primeiro acesso necessária;
-5. uma consulta de agenda do Atendimento lê as recorrências do Geral sem tentar persistir no schema errado;
-6. em homologação, um teste de rollback cobre a transação de cadastro de professor entre `apae_geral` e `gestao_escolar`;
-7. cada API responde saudável no respectivo endpoint antes de o balanceador liberar tráfego.
+5. um agendamento criado no Geral produz um único par profissional–paciente na VIEW, mesmo com múltiplas recorrências; um paciente sem esse vínculo não aparece nas buscas/dropdowns do Atendimento e não pode receber agendamento ou atendimento local por esse profissional;
+6. uma consulta de agenda do Atendimento lê as recorrências do Geral sem tentar persistir no schema errado;
+7. em homologação, um teste de rollback cobre a transação de cadastro de professor entre `apae_geral` e `gestao_escolar`;
+8. cada API responde saudável no respectivo endpoint antes de o balanceador liberar tráfego.
 
 Registre versões de imagem, horário, operador, backup usado e resultado do smoke test. Essa evidência é o ponto de partida para qualquer diagnóstico ou rollback posterior.
 
@@ -313,7 +543,7 @@ As migrations atuais são somente de avanço; não há migrations de undo versio
 - [ ] Geral V1–V11 aplicado e validado.
 - [ ] Grants cross-schema aplicados antes de migrar consumidores.
 - [ ] Gestão V1–V6 aplicado e validado.
-- [ ] Atendimento V1–V9 aplicado e validado.
+- [ ] Atendimento V1–V10 aplicado e validado; vínculo derivado do Geral e tabela antiga ausente.
 - [ ] APIs configuradas para a mesma database; Flyway de runtime desabilitado se houve job externo.
 - [ ] Smoke tests, permissões e health checks aprovados.
 - [ ] Frontends reconstruídos com URLs públicas corretas; CORS validado.
@@ -456,12 +686,11 @@ A query de listagem de professores faz join nativo entre `gestao_escolar.profess
 
 ## Catálogo do schema `atendimento`
 
-A migration V1 cria o schema e habilita `pgcrypto`. Não existem `ENUM`, `CHECK`, triggers, RLS ou índices explícitos nas migrations atuais. As PKs possuem índices implícitos, mas FKs **não** ganham índices automaticamente no PostgreSQL.
+A migration V1 cria o schema e habilita `pgcrypto`. A V10 substitui a antiga tabela de vínculo por uma VIEW. Não existem `ENUM`, `CHECK`, triggers ou RLS nas migrations atuais. As PKs das tabelas possuem índices implícitos, mas FKs **não** ganham índices automaticamente no PostgreSQL.
 
 | Objeto | Campos finais | Relações e regras |
 |---|---|---|
 | `tipo_arquivo` | `id BIGINT PK`; `tipo VARCHAR(100)` | Catálogo de tipos de anexo. V2 insere `1 = Anexo` e `2 = Relatorio`. Embora V2 mencione `VARCHAR(255)`, usa `CREATE TABLE IF NOT EXISTS`; numa base nova prevalece o `VARCHAR(100)` criado na V1. |
-| `profissional_paciente` | `profissional_id UUID`; `paciente_id UUID` | PK composta `(profissional_id, paciente_id)`; FKs para `apae_geral.profissionais_da_saude.id` e `apae_geral.pacientes.id`. É o vínculo N:N usado para delimitar a carteira do profissional. |
 | `atendimento` | `id UUID PK`; `numeracao VARCHAR(50)`; `data_atendimento TIMESTAMP`; `paciente_id UUID`; `profissional_id UUID`; `status BOOLEAN DEFAULT false` | FKs para paciente e profissional de saúde do Geral. A V5 tornou `data_atendimento` um `TIMESTAMP` e acrescentou `status`. |
 | `topico` | `id UUID PK`; `atendimento_id UUID`; `ordem INTEGER`; `titulo VARCHAR(255)`; `descricao TEXT` | `atendimento_id → atendimento.id`. A remoção dos tópicos órfãos é tratada por JPA, não por cascade no banco. |
 | `agendamento` | `id UUID PK`; `numeracao VARCHAR(50)`; `status BOOLEAN DEFAULT false`; `data_hora TIMESTAMP`; `profissional_id UUID`; `paciente_id UUID` | FKs para `profissionais_da_saude` e `pacientes`. É a agenda local do Atendimento, distinta de `apae_geral.agendamentos`. |
@@ -473,7 +702,8 @@ Todas as FKs do Atendimento usam o comportamento padrão `NO ACTION` em exclusã
 
 | View | Fonte e colunas expostas | Semântica |
 |---|---|---|
-| `vw_pacientes` | Lê `apae_geral.pacientes`, `enderecos`, `responsaveis`, `cadastros_anuais`, `cadastro_anual_transtorno` e `transtornos`. Expõe `paciente_id`, nome, nascimento, CPF, contato, cidade, rua, bairro, `numero_casa`, `responsaveis VARCHAR[]` e `transtornos VARCHAR[]`. | Filtra `is_apagado = false`. O endereço é `INNER JOIN`: paciente sem endereço não aparece. Desde a V8, a view é global e não filtra por profissional. Algumas consultas a combinam com `profissional_paciente` para escopo de carteira, mas há também consulta global; a view por si só não é uma barreira de autorização. |
+| `profissional_paciente` | `SELECT DISTINCT a.profissional_id, ca.paciente_id` de `apae_geral.agendamentos a JOIN apae_geral.cadastros_anuais ca ON ca.id = a.cadastro_anual_id`. | Delimita a carteira do profissional desde o primeiro agendamento criado no Geral. É somente leitura, não tem PK/FKs próprias e inclui agendamentos inativos como histórico; `DISTINCT` evita pares duplicados. Excluir todos os agendamentos de um par remove o vínculo da VIEW. |
+| `vw_pacientes` | Lê `apae_geral.pacientes`, `enderecos`, `responsaveis`, `cadastros_anuais`, `cadastro_anual_transtorno` e `transtornos`. Expõe `paciente_id`, nome, nascimento, CPF, contato, cidade, rua, bairro, `numero_casa`, `responsaveis VARCHAR[]` e `transtornos VARCHAR[]`. | Filtra `is_apagado = false`. O endereço é `INNER JOIN`: paciente sem endereço não aparece. Desde a V8, a view é global e não filtra por profissional; a API aplica o escopo ao juntá-la com `profissional_paciente`. A view isolada não é barreira de autorização. |
 | `vw_profissional_saude` | Junta `apae_geral.usuarios`, `profissionais_da_saude` e `areas_de_atendimento`. Expõe o ID de profissional (`pds.id`), o ID do usuário (`u.id`), nome, CPF, e-mail, hash de senha, `perfil` (alias de `usuarios.cargo`), contato, ativo, registro profissional, especialidade e `primeiro_acesso`. | É a base de autenticação e do catálogo de profissionais do Atendimento. A entidade Java é `@Immutable` e usa o ID de `profissionais_da_saude`, não o ID de `usuarios`. Como a view usa `INNER JOIN` com `areas_de_atendimento`, profissional sem especialidade válida não aparece nela. |
 
 `vw_todos_pacientes` foi criada na V7 e removida na V9; ela não faz parte do estado final.
@@ -483,10 +713,12 @@ Todas as FKs do Atendimento usam o comportamento padrão `NO ACTION` em exclusã
 O Atendimento usa três mecanismos:
 
 1. **FKs** para garantir que pacientes e profissionais de saúde existam no Geral.
-2. **Views somente leitura** mapeadas pelas entidades `Paciente` e `ProfissionalSaude`.
+2. **Views somente leitura** mapeadas pelas entidades `Paciente`, `ProfissionalSaude` e `ProfissionalPaciente`.
 3. **SQL nativo e função** para necessidades específicas.
 
 Na agenda, `AgendamentoGeralReadRepository` usa `JdbcTemplate` para consultar diretamente `apae_geral.agendamentos`, `cadastros_anuais` e `pacientes`. A query expande as regras recorrentes com `generate_series`, monta um UUID determinístico por ocorrência e mescla esses itens de origem com a agenda local `atendimento.agendamento`. Itens de origem são somente leitura, não são persistidos no Atendimento.
+
+O vínculo é outra leitura do Geral: a V10 cria `atendimento.profissional_paciente` a partir de `agendamentos` e `cadastros_anuais`. O Atendimento não insere nessa VIEW nem cria o vínculo ao agendar localmente. Busca, dropdown e acesso a dados do paciente usam o profissional autenticado e o par existente na VIEW; criação/edição de agendamento local e criação de atendimento exigem o mesmo vínculo. A rota anterior de busca global `/pacientes/todos/search` foi removida. A VIEW não distingue o criador do agendamento: restringir a criação ao administrador é responsabilidade do APAE-Geral.
 
 Na redefinição de senha, `ProfissionalSaudeRepository` chama:
 
@@ -507,8 +739,6 @@ O subject autenticado/JWT do Atendimento é o ID de `profissionais_da_saude`. Es
 | `gestao_escolar` | `presencas.paciente_id` | `apae_geral.pacientes.id` |
 | `gestao_escolar` | `avaliacoes.paciente_id` | `apae_geral.pacientes.id` |
 | `gestao_escolar` | `relatorios.paciente_id` | `apae_geral.pacientes.id` |
-| `atendimento` | `profissional_paciente.profissional_id` | `apae_geral.profissionais_da_saude.id` |
-| `atendimento` | `profissional_paciente.paciente_id` | `apae_geral.pacientes.id` |
 | `atendimento` | `atendimento.profissional_id` / `paciente_id` | `apae_geral.profissionais_da_saude.id` / `pacientes.id` |
 | `atendimento` | `agendamento.profissional_id` / `paciente_id` | `apae_geral.profissionais_da_saude.id` / `pacientes.id` |
 | `atendimento` | `anexo.profissional_id` / `paciente_id` | `apae_geral.profissionais_da_saude.id` / `pacientes.id` |
@@ -520,6 +750,7 @@ O subject autenticado/JWT do Atendimento é o ID de `profissionais_da_saude`. Es
 | Gestão Escolar | `gestao_escolar.alunos_view` | Tornar visíveis apenas pacientes ativos marcados como alunos. |
 | Gestão Escolar | entidades `Usuario`, `Endereco` e `Responsavel` / join de professores | Cadastro e autenticação de docentes; detalhes de aluno e responsável. |
 | Atendimento | `atendimento.vw_pacientes` | Catálogo clínico atualizado de pacientes, endereço, responsáveis e transtornos. |
+| Atendimento | `atendimento.profissional_paciente` | Derivar a carteira do profissional da agenda canônica do Geral, sem escrita local. |
 | Atendimento | `atendimento.vw_profissional_saude` | Autenticação e dados de profissionais de saúde. |
 | Atendimento | `AgendamentoGeralReadRepository` | Ler e expandir agenda recorrente criada no Geral. |
 | Atendimento | `apae_geral.definir_senha_primeiro_acesso` | Concluir primeiro acesso sem dar update direto e amplo na tabela central. |
@@ -531,7 +762,8 @@ O subject autenticado/JWT do Atendimento é o ID de `profissionais_da_saude`. Es
 1. O APAE-Geral grava paciente, endereço, cadastro anual, responsáveis e transtornos no `apae_geral`.
 2. Se `is_aluno = true` e `is_apagado = false`, ele aparece imediatamente em `gestao_escolar.alunos_view`.
 3. Se possuir endereço e não estiver apagado, aparece em `atendimento.vw_pacientes` com seus responsáveis e transtornos agregados.
-4. A Gestão grava apenas informações pedagógicas usando o `paciente_id` canônico; o Atendimento grava informações clínicas/operacionais usando o mesmo ID.
+4. Quando o Geral cria um agendamento para o par profissional–cadastro anual, `atendimento.profissional_paciente` passa a mostrar o par profissional–paciente, sem escrita do Atendimento.
+5. A Gestão grava apenas informações pedagógicas usando o `paciente_id` canônico; o Atendimento só expõe e registra informações clínicas/operacionais desse paciente para profissionais vinculados.
 
 ### 2. Cadastro de professor
 
@@ -556,6 +788,8 @@ Há duas estruturas com nomes muito parecidos e finalidades diferentes:
 | `atendimento.agendamento` (singular) | Atendimento | Agendamento local, usado no fluxo clínico do próprio produto. |
 
 Na tela/endpoint de agenda do Atendimento, os itens locais e as recorrências expandidas do Geral são combinados em memória. A implementação atual não persiste nem conclui os itens externos no schema `atendimento`.
+
+Criar um agendamento **local** não cria vínculo. Primeiro deve existir um agendamento no Geral para aquele profissional e paciente. A VIEW usa todas as regras do Geral, inclusive inativas; desativar a recorrência não revoga o vínculo.
 
 ### 5. Arquivos
 
@@ -590,7 +824,7 @@ Os metadados de um arquivo do Atendimento ficam em `atendimento.anexo`, mas o co
 | V5 | Concede `SELECT, INSERT, UPDATE` sobre `apae_geral.enderecos` ao usuário corrente. |
 | V6 | Adiciona `turmas.professor_id` e seu índice/FK. |
 
-### `atendimento` — V1 a V9
+### `atendimento` — V1 a V10
 
 | Versão | Mudança |
 |---|---|
@@ -603,6 +837,7 @@ Os metadados de um arquivo do Atendimento ficam em `atendimento.anexo`, mas o co
 | V7 | Cria temporariamente `vw_todos_pacientes`. |
 | V8 | Transforma `vw_pacientes` em catálogo global de pacientes não apagados. |
 | V9 | Remove `vw_todos_pacientes`. |
+| V10 | Renomeia a antiga tabela `profissional_paciente`, cria no seu lugar uma VIEW derivada de `apae_geral.agendamentos` e `cadastros_anuais`, depois exclui a tabela legada. Vínculos que existiam apenas na tabela antiga não são preservados. |
 
 ## Procedimento para evoluir um contrato compartilhado
 
@@ -659,6 +894,15 @@ ORDER BY con.conrelid::regclass::text, con.conname;
 SELECT * FROM gestao_escolar.alunos_view LIMIT 5;
 SELECT * FROM atendimento.vw_pacientes LIMIT 5;
 SELECT * FROM atendimento.vw_profissional_saude LIMIT 5;
+SELECT * FROM atendimento.profissional_paciente LIMIT 5;
+
+-- Deve retornar 'v' (VIEW) para a relação atual; não deve retornar linha
+-- para profissional_paciente_legado.
+SELECT c.relname, c.relkind
+FROM pg_class c
+JOIN pg_namespace n ON n.oid = c.relnamespace
+WHERE n.nspname = 'atendimento'
+  AND c.relname IN ('profissional_paciente', 'profissional_paciente_legado');
 
 SELECT table_schema, version, description, success
 FROM (
@@ -726,16 +970,16 @@ Não há evidência equivalente de teste de migrations/permissões cross-schema 
 
 | Assunto | Local de referência |
 |---|---|
-| Diagramas DER exportados | [`docs/docs-database/diagramas`](diagramas) — PNGs das páginas 00–03; manter a fonte `.drawio` correspondente ao alterar um desenho. |
+| Diagramas de arquitetura e DER atuais | Blocos Mermaid nas [páginas 00–03](#diagramas-der-em-mermaid) e exportações SVG detalhadas em [`diagramas/`](diagramas). |
 | DDL e evolução do Geral | [`APAE/apps/api/src/main/resources/db/migration`](../../apps/api/src/main/resources/db/migration) |
 | Configuração do Geral | [`APAE/apps/api/src/main/resources/application.yaml`](../../apps/api/src/main/resources/application.yaml) |
 | DDL e evolução da Gestão Escolar | [`APAE-gestao-escolar/api/src/main/resources/db/migration`](https://github.com/IFPBEsp/APAE-gestao-escolar/tree/af6636238fb47164f491c2749ee15ce217a4adf2/api/src/main/resources/db/migration) |
 | Configuração da Gestão Escolar | [`APAE-gestao-escolar/api/src/main/resources/application.properties`](https://github.com/IFPBEsp/APAE-gestao-escolar/blob/af6636238fb47164f491c2749ee15ce217a4adf2/api/src/main/resources/application.properties) |
-| DDL e evolução do Atendimento | [`APAE-atendimento/backend/atendimento/src/main/resources/db/migration`](https://github.com/IFPBEsp/APAE-atendimento/tree/544ec9d5e17b8fa8df7a42d556d8023e223e4d88/backend/atendimento/src/main/resources/db/migration) |
-| Configuração do Atendimento | [`application.properties`](https://github.com/IFPBEsp/APAE-atendimento/blob/544ec9d5e17b8fa8df7a42d556d8023e223e4d88/backend/atendimento/src/main/resources/application.properties), [`application-dev.properties`](https://github.com/IFPBEsp/APAE-atendimento/blob/544ec9d5e17b8fa8df7a42d556d8023e223e4d88/backend/atendimento/src/main/resources/application-dev.properties), [`application-prod.properties`](https://github.com/IFPBEsp/APAE-atendimento/blob/544ec9d5e17b8fa8df7a42d556d8023e223e4d88/backend/atendimento/src/main/resources/application-prod.properties) e [`application-test.properties`](https://github.com/IFPBEsp/APAE-atendimento/blob/544ec9d5e17b8fa8df7a42d556d8023e223e4d88/backend/atendimento/src/main/resources/application-test.properties) |
-| Consulta direta da agenda do Geral pelo Atendimento | [`AgendamentoGeralReadRepository.java`](https://github.com/IFPBEsp/APAE-atendimento/blob/544ec9d5e17b8fa8df7a42d556d8023e223e4d88/backend/atendimento/src/main/java/br/org/apae/atendimento/repositories/AgendamentoGeralReadRepository.java) |
+| DDL e evolução do Atendimento | [`APAE-atendimento/backend/atendimento/src/main/resources/db/migration`](../../backend/atendimento/src/main/resources/db/migration) |
+| Configuração do Atendimento | [`application.properties`](../../backend/atendimento/src/main/resources/application.properties), [`application-dev.properties`](../../backend/atendimento/src/main/resources/application-dev.properties), [`application-prod.properties`](../../backend/atendimento/src/main/resources/application-prod.properties) e [`application-test.properties`](../../backend/atendimento/src/main/resources/application-test.properties) |
+| Consulta direta da agenda do Geral pelo Atendimento | [`AgendamentoGeralReadRepository.java`](../../backend/atendimento/src/main/java/br/org/apae/atendimento/repositories/AgendamentoGeralReadRepository.java) |
 | Criação transacional de professor | [`ProfessorService.java`](https://github.com/IFPBEsp/APAE-gestao-escolar/blob/af6636238fb47164f491c2749ee15ce217a4adf2/api/src/main/java/com/apae/gestao/service/ProfessorService.java) |
-| Teste de contrato Atendimento ↔ Geral | [`DatabaseContractIntegrationTest.java`](https://github.com/IFPBEsp/APAE-atendimento/blob/544ec9d5e17b8fa8df7a42d556d8023e223e4d88/backend/atendimento/src/test/java/br/org/apae/atendimento/integration/DatabaseContractIntegrationTest.java) |
+| Teste de contrato Atendimento ↔ Geral | [`DatabaseContractIntegrationTest.java`](../../backend/atendimento/src/test/java/br/org/apae/atendimento/integration/DatabaseContractIntegrationTest.java) |
 
 ## Regra final para a equipe
 
