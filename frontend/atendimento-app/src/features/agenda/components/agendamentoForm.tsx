@@ -69,7 +69,7 @@ export default function AgendamentoForm({
   const isDataHoje = dataSelecionada === hoje;
   const horarioMinimo = isDataHoje ? getNowLocalTime() : undefined;
 
-  const { data: pacientes = [], isLoading: isLoadingPacientes } = usePacientesDropdown("meus");
+  const { data: pacientes = [], isLoading: isLoadingPacientes } = usePacientesDropdown();
 
   function handleSelectPaciente(value: string) {
     const paciente = pacientes.find((p) => p.id === value);

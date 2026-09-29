@@ -6,6 +6,7 @@ import br.org.apae.atendimento.dtos.response.AtendimentoResponseDTO;
 import br.org.apae.atendimento.dtos.response.MesAnoAtendimentoResponseDTO;
 import br.org.apae.atendimento.entities.Paciente;
 import br.org.apae.atendimento.entities.ProfissionalSaude;
+import br.org.apae.atendimento.exceptions.invalid.RelacaoInvalidException;
 import br.org.apae.atendimento.integration.AbstractIntegrationTest;
 import br.org.apae.atendimento.repositories.PacienteRepository;
 import br.org.apae.atendimento.repositories.ProfissionalSaudeRepository;
@@ -96,7 +97,8 @@ class AtendimentoServiceIntegrationTest extends AbstractIntegrationTest {
 
         assertNotNull(agrupados);
         assertFalse(agrupados.isEmpty());
-        assertEquals(2, agrupados.getTotalElements());
+        assertEquals(1, agrupados.getTotalElements());
+        assertEquals(2, agrupados.getContent().getFirst().atendimentos().size());
         assertEquals(1, agrupados.getTotalPages());
         assertTrue(agrupados.getContent().stream().anyMatch(g -> g.mesAno().equals(YearMonth.of(2026, 5))));
     }
@@ -113,9 +115,8 @@ class AtendimentoServiceIntegrationTest extends AbstractIntegrationTest {
                 .orElseThrow(() -> new AssertionError("Nenhum paciente carregado pelas migrations de teste"));
 
         jdbcTemplate.update(
-                "DELETE FROM atendimento.profissional_paciente WHERE profissional_id = ? AND paciente_id = ?",
-                profissional.getId(),
-                paciente.getId()
+                "DELETE FROM apae_geral.agendamentos WHERE profissional_id = ?",
+                profissional.getId()
         );
 
         assertFalse(pacienteRepository.existeRelacao(paciente.getId(), profissional.getId()));
@@ -127,9 +128,8 @@ class AtendimentoServiceIntegrationTest extends AbstractIntegrationTest {
                 LocalTime.of(9, 0)
         );
 
-        AtendimentoResponseDTO criado = atendimentoService.addAtendimento(request, profissional.getId());
-
-        assertNotNull(criado);
+        assertThrows(RelacaoInvalidException.class,
+                () -> atendimentoService.addAtendimento(request, profissional.getId()));
         assertFalse(pacienteRepository.existeRelacao(paciente.getId(), profissional.getId()));
     }
 }

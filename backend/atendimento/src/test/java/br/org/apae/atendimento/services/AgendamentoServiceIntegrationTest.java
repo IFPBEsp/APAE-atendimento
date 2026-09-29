@@ -3,6 +3,7 @@ package br.org.apae.atendimento.services;
 import br.org.apae.atendimento.dtos.request.AgendamentoRequestDTO;
 import br.org.apae.atendimento.dtos.response.AgendamentoResponseDTO;
 import br.org.apae.atendimento.exceptions.invalid.AgendamentoInvalidException;
+import br.org.apae.atendimento.exceptions.invalid.RelacaoInvalidException;
 import br.org.apae.atendimento.integration.AbstractIntegrationTest;
 import br.org.apae.atendimento.repositories.PacienteRepository;
 import org.junit.jupiter.api.DisplayName;
@@ -36,12 +37,6 @@ class AgendamentoServiceIntegrationTest extends AbstractIntegrationTest {
     @Test
     @DisplayName("Deve separar pacientes gerais de pacientes vinculados")
     void deveSepararPacientesGeraisDePacientesVinculados() {
-        removerVinculoPacienteGeral();
-
-        assertTrue(pacienteRepository.buscarTodosPacientes(null, null, null, org.springframework.data.domain.Pageable.unpaged())
-                .stream()
-                .anyMatch(paciente -> paciente.getId().equals(PACIENTE_GERAL_ID)));
-
         assertTrue(pacienteRepository.findByProfissionalId(PROFISSIONAL_ID)
                 .stream()
                 .anyMatch(paciente -> paciente.getId().equals(PACIENTE_VINCULADO_ID)));
@@ -52,25 +47,34 @@ class AgendamentoServiceIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
-    @DisplayName("Nao deve vincular paciente geral ao profissional quando agendar")
-    void naoDeveVincularPacienteGeralAoProfissionalQuandoAgendar() {
-        removerVinculoPacienteGeral();
-
+    @DisplayName("Agendamento local não cria vínculo com paciente sem agenda no Geral")
+    void agendamentoLocalNaoCriaVinculo() {
         assertEquals(0, contarVinculosPacienteGeral());
 
-        agendamentoService.agendar(
+        assertThrows(RelacaoInvalidException.class, () -> agendamentoService.agendar(
                 new AgendamentoRequestDTO(
                         PACIENTE_GERAL_ID,
                         LocalDate.now().plusDays(10),
                         LocalTime.of(9, 35)
                 ),
                 PROFISSIONAL_ID
-        );
+        ));
 
         assertEquals(0, contarVinculosPacienteGeral());
         assertFalse(pacienteRepository.findByProfissionalId(PROFISSIONAL_ID)
                 .stream()
                 .anyMatch(paciente -> paciente.getId().equals(PACIENTE_GERAL_ID)));
+    }
+
+    @Test
+    @DisplayName("A view deduplica agendas do Geral")
+    void viewUsaSomenteHistoricoDoGeral() {
+        assertEquals(0, contarVinculosPacienteGeral());
+
+        criarAgendaNoGeralParaPacienteGeral();
+        criarAgendaNoGeralParaPacienteGeral();
+        assertEquals(1, contarVinculosPacienteGeral());
+        assertTrue(pacienteRepository.existeRelacao(PACIENTE_GERAL_ID, PROFISSIONAL_ID));
     }
 
     @Test
@@ -125,9 +129,8 @@ class AgendamentoServiceIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
-    @DisplayName("Deve editar agendamento alterando o paciente sem criar vinculo")
+    @DisplayName("Deve editar agendamento apenas após o Geral criar o vínculo")
     void deveEditarPacienteDoAgendamentoComSucesso() {
-        removerVinculoPacienteGeral();
         assertEquals(0, contarVinculosPacienteGeral());
 
         LocalDate data = LocalDate.now().plusDays(7);
@@ -144,6 +147,14 @@ class AgendamentoServiceIntegrationTest extends AbstractIntegrationTest {
 
         assertEquals(PACIENTE_VINCULADO_ID, criado.pacienteId());
 
+        assertThrows(RelacaoInvalidException.class, () -> agendamentoService.editar(
+                criado.id(), PROFISSIONAL_ID,
+                new AgendamentoRequestDTO(PACIENTE_GERAL_ID, data, hora)
+        ));
+
+        criarAgendaNoGeralParaPacienteGeral();
+        assertEquals(1, contarVinculosPacienteGeral());
+
         AgendamentoResponseDTO editado = agendamentoService.editar(
                 criado.id(),
                 PROFISSIONAL_ID,
@@ -157,7 +168,7 @@ class AgendamentoServiceIntegrationTest extends AbstractIntegrationTest {
         assertEquals(criado.id(), editado.id());
         assertEquals(PACIENTE_GERAL_ID, editado.pacienteId());
         assertEquals("Lucas Souza", editado.nomePaciente());
-        assertEquals(0, contarVinculosPacienteGeral());
+        assertEquals(1, contarVinculosPacienteGeral());
     }
 
     @Test
@@ -190,11 +201,13 @@ class AgendamentoServiceIntegrationTest extends AbstractIntegrationTest {
         );
     }
 
-    private void removerVinculoPacienteGeral() {
+    private void criarAgendaNoGeralParaPacienteGeral() {
         jdbcTemplate.update(
-                "DELETE FROM atendimento.profissional_paciente WHERE profissional_id = ? AND paciente_id = ?",
-                PROFISSIONAL_ID,
-                PACIENTE_GERAL_ID
+                "INSERT INTO apae_geral.agendamentos (id, cadastro_anual_id, profissional_id, frequencia_dias, hora, data_inicial, ativo) " +
+                "VALUES (?, ?, ?, 7, TIME '10:00', DATE '2026-01-01', FALSE)",
+                UUID.randomUUID(),
+                UUID.fromString("66666666-6666-6666-6666-666666666662"),
+                PROFISSIONAL_ID
         );
     }
 
