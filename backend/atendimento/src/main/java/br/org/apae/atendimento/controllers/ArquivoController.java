@@ -83,7 +83,7 @@ public class ArquivoController implements ArquivoControllerDocs {
     public ResponseEntity<PaginatedResponseDTO<ArquivoResponseDTO>> findByTipoId(
             @PathVariable UUID pacienteId,
             @PathVariable Long tipoId,
-            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int limit,
             @AuthenticationPrincipal UsuarioAutenticado usuarioAutenticado
             ){

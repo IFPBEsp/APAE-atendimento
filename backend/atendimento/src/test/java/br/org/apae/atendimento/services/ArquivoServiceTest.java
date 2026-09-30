@@ -23,6 +23,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.mock.web.MockMultipartFile;
 
 import java.time.LocalDate;
@@ -185,7 +186,7 @@ class ArquivoServiceTest {
         Arquivo arquivo = new Arquivo();
         arquivo.setObjectName("obj-1");
 
-        Pageable pageableEsperado = PageRequest.of(0, 10);
+        Pageable pageableEsperado = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "data"));
         Page<Arquivo> paginaMock = new PageImpl<>(List.of(arquivo), pageableEsperado, 25);
 
         when(repository.findByProfissionalIdAndPacienteIdAndTipoId(profissionalId, pacienteId, tipoId, pageableEsperado))
@@ -193,10 +194,10 @@ class ArquivoServiceTest {
         when(urlService.gerarUrlPreAssinada(any())).thenReturn("http://url");
         when(anexoMapper.toDTOPadrao(any())).thenReturn(null);
 
-        PaginatedResponseDTO<?> resultado = service.listar(profissionalId, pacienteId, tipoId, 1, 10);
+        PaginatedResponseDTO<?> resultado = service.listar(profissionalId, pacienteId, tipoId, 0, 10);
 
         assertEquals(1, resultado.data().size());
-        assertEquals(1, resultado.paginationMetaDTO().page());
+        assertEquals(0, resultado.paginationMetaDTO().page());
         assertEquals(10, resultado.paginationMetaDTO().limit());
         assertEquals(25, resultado.paginationMetaDTO().totalItems());
         assertEquals(3, resultado.paginationMetaDTO().totalPages());
@@ -205,15 +206,24 @@ class ArquivoServiceTest {
     }
 
     @Test
-    @DisplayName("Deve converter página 1 para índice 0 do Spring Data ao listar arquivos")
-    void deveConverterPaginaParaIndiceZero() {
+    @DisplayName("Deve repassar page e limit sem conversão e ordenar por data decrescente")
+    void devePassarPageELimitDiretamenteComOrdenacaoPorData() {
         Long tipoId = 1L;
-        when(repository.findByProfissionalIdAndPacienteIdAndTipoId(eq(profissionalId), eq(pacienteId), eq(tipoId), argThat(p -> p.getPageNumber() == 2 && p.getPageSize() == 5)))
-                .thenReturn(new PageImpl<>(List.of()));
+        when(repository.findByProfissionalIdAndPacienteIdAndTipoId(eq(profissionalId), eq(pacienteId), eq(tipoId), argThat(p ->
+                p.getPageNumber() == 3
+                        && p.getPageSize() == 5
+                        && p.getSort().getOrderFor("data") != null
+                        && p.getSort().getOrderFor("data").getDirection() == Sort.Direction.DESC
+        ))).thenReturn(new PageImpl<>(List.of()));
 
         service.listar(profissionalId, pacienteId, tipoId, 3, 5);
 
-        verify(repository).findByProfissionalIdAndPacienteIdAndTipoId(eq(profissionalId), eq(pacienteId), eq(tipoId), argThat(p -> p.getPageNumber() == 2 && p.getPageSize() == 5));
+        verify(repository).findByProfissionalIdAndPacienteIdAndTipoId(eq(profissionalId), eq(pacienteId), eq(tipoId), argThat(p ->
+                p.getPageNumber() == 3
+                        && p.getPageSize() == 5
+                        && p.getSort().getOrderFor("data") != null
+                        && p.getSort().getOrderFor("data").getDirection() == Sort.Direction.DESC
+        ));
     }
 
     @Test
@@ -222,7 +232,7 @@ class ArquivoServiceTest {
         when(pacienteService.existeRelacao(pacienteId, profissionalId)).thenReturn(false);
 
         assertThrows(RelacaoInvalidException.class,
-                () -> service.listar(profissionalId, pacienteId, 1L, 1, 10));
+                () -> service.listar(profissionalId, pacienteId, 1L, 0, 10));
 
         verify(repository, never()).findByProfissionalIdAndPacienteIdAndTipoId(any(), any(), any(), any());
     }

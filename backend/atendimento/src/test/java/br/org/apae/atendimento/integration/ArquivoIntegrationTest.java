@@ -130,16 +130,16 @@ class ArquivoIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
-    @DisplayName("Deve retornar arquivos paginados respeitando page e limit")
+    @DisplayName("Deve retornar arquivos paginados respeitando page (base zero) e limit")
     void deveListarArquivosPaginados() throws Exception {
         seedArquivos(5, 1L);
 
         mockMvc.perform(get("/arquivo/{pacienteId}/{tipoId}", pacienteId, 1L)
-                        .param("page", "1")
+                        .param("page", "0")
                         .param("limit", "2"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.length()").value(2))
-                .andExpect(jsonPath("$.paginationMetaDTO.page").value(1))
+                .andExpect(jsonPath("$.paginationMetaDTO.page").value(0))
                 .andExpect(jsonPath("$.paginationMetaDTO.limit").value(2))
                 .andExpect(jsonPath("$.paginationMetaDTO.totalItems").value(5))
                 .andExpect(jsonPath("$.paginationMetaDTO.totalPages").value(3))
@@ -148,14 +148,14 @@ class ArquivoIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
-    @DisplayName("Deve usar page=1 e limit=10 como padrão quando não informados")
+    @DisplayName("Deve usar page=0 e limit=10 como padrão quando não informados")
     void deveUsarPaginacaoPadraoQuandoParametrosAusentes() throws Exception {
         seedArquivos(3, 1L);
 
         mockMvc.perform(get("/arquivo/{pacienteId}/{tipoId}", pacienteId, 1L))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.length()").value(3))
-                .andExpect(jsonPath("$.paginationMetaDTO.page").value(1))
+                .andExpect(jsonPath("$.paginationMetaDTO.page").value(0))
                 .andExpect(jsonPath("$.paginationMetaDTO.limit").value(10))
                 .andExpect(jsonPath("$.paginationMetaDTO.hasNextPage").value(false));
     }
@@ -171,6 +171,28 @@ class ArquivoIntegrationTest extends AbstractIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.length()").value(0))
                 .andExpect(jsonPath("$.paginationMetaDTO.totalItems").value(2));
+    }
+
+    @Test
+    @DisplayName("Deve ordenar arquivos por data decrescente")
+    void deveOrdenarPorDataDecrescente() throws Exception {
+        UUID profissionalIdMock = UUID.fromString("44444444-4444-4444-4444-444444444444");
+
+        arquivoService.salvar(mockFile("antigo.pdf", "application/pdf"),
+                new br.org.apae.atendimento.dtos.request.ArquivoRequestDTO(
+                        LocalDate.now().minusDays(10), 1L, pacienteId, "Antigo", "Desc"),
+                profissionalIdMock);
+        arquivoService.salvar(mockFile("recente.pdf", "application/pdf"),
+                new br.org.apae.atendimento.dtos.request.ArquivoRequestDTO(
+                        LocalDate.now(), 1L, pacienteId, "Recente", "Desc"),
+                profissionalIdMock);
+
+        mockMvc.perform(get("/arquivo/{pacienteId}/{tipoId}", pacienteId, 1L)
+                        .param("page", "0")
+                        .param("limit", "10"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data[0].titulo").value("recente"))
+                .andExpect(jsonPath("$.data[1].titulo").value("antigo"));
     }
 
     @Test

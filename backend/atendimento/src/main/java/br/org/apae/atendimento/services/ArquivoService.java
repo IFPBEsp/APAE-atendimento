@@ -23,6 +23,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.data.domain.Sort;
 
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -102,7 +103,11 @@ public class ArquivoService {
             throw new RelacaoInvalidException("Não foi possível listar arquivos para esse paciente.");
         }
 
-        Pageable pageable = PageRequest.of(page - 1, limit);
+        Pageable pageable = PageRequest.of(
+            page,
+            limit,
+            Sort.by(Sort.Direction.DESC, "data")
+        );
         Page<Arquivo> arquivosPage = repository.findByProfissionalIdAndPacienteIdAndTipoId(
                 profissionalId, pacienteId, tipoId, pageable
         );
