@@ -19,10 +19,6 @@ export function useHome() {
   }, [buscaDebounced, filtro]);
 
   const filtros: FiltroPaciente = { page, limit };
-  if (buscaDebounced && filtro) {
-    filtros[filtro] = buscaDebounced;
-  }
-
   const termoBusca = buscaDebounced.trim();
 
   if (termoBusca) {
