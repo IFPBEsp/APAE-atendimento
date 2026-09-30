@@ -181,15 +181,23 @@ export default function AtendimentoForm({
                     className="h-11 w-full rounded-xl border-[#D0D5DD] bg-white text-[#101828] font-medium text-[14px] shadow-sm disabled:opacity-100 cursor-not-allowed focus-visible:ring-0 truncate px-3"
                   />
 
-                  <Input
-                    id={`condicao-${linha.id}`}
-                    value={linha.condicao}
-                    onChange={(e) => handleUpdateLinha(linha.id, "condicao", e.target.value)}
-                    maxLength={70}
-                    disabled={!linha.isEditing}
-                    placeholder="campo vazio"
-                    className="h-11 w-full rounded-xl border-[#D0D5DD] bg-white text-[#101828] font-medium placeholder:italic placeholder:text-gray-400 text-[14px] shadow-sm focus-visible:ring-1 focus-visible:ring-[#165BAA] focus-visible:border-[#165BAA] focus-visible:ring-offset-0 px-3"
-                  />
+                  <div className="relative w-full flex items-center">
+                    <Input
+                      id={`condicao-${linha.id}`}
+                      value={linha.condicao}
+                      onChange={(e) => handleUpdateLinha(linha.id, "condicao", e.target.value)}
+                      maxLength={70}
+                      disabled={!linha.isEditing}
+                      placeholder="campo vazio"
+                      className="h-11 w-full rounded-xl border-[#D0D5DD] bg-white text-[#101828] font-medium placeholder:italic placeholder:text-gray-400 text-[14px] shadow-sm focus-visible:ring-1 focus-visible:ring-[#165BAA] focus-visible:border-[#165BAA] focus-visible:ring-offset-0 pl-3 pr-12"
+                    />
+                  
+                    {linha.isEditing && (
+                      <span className="absolute right-3 text-[11px] font-medium text-[#667085] pointer-events-none select-none">
+                        {linha.condicao.length}/70
+                      </span>
+                    )}
+                  </div>
 
                   <div className={`flex items-center justify-center gap-1.5 w-full h-11 rounded-xl border border-[#D0D5DD] bg-white shadow-sm focus-within:ring-1 focus-within:ring-[#165BAA] focus-within:border-[#165BAA] transition-colors ${!linha.isEditing ? "opacity-70 pointer-events-none" : ""}`}>
                     <Input
