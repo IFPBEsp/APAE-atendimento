@@ -87,12 +87,6 @@ VALUES
     )
 ON CONFLICT DO NOTHING;
 
-INSERT INTO atendimento.profissional_paciente (profissional_id, paciente_id)
-VALUES
-    ('a3000000-0000-4000-8000-000000000001', 'a4000000-0000-4000-8000-000000000001'),
-    ('a3000000-0000-4000-8000-000000000001', 'a4000000-0000-4000-8000-000000000002')
-ON CONFLICT DO NOTHING;
-
 INSERT INTO atendimento.agendamento
     (id, numeracao, status, data_hora, profissional_id, paciente_id)
 VALUES

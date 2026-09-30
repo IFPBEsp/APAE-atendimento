@@ -15,24 +15,14 @@ import { PacienteCard } from "@/features/home/components/pacienteCard";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { useHome } from "../hooks/useHome";
-import { Paciente } from "../types";
-import { AtendimentoModal } from "@/features/atendimento/components/atendimentoNovoModal";
-import AtendimentoForm from "@/features/atendimento/components/atendimentoForm";
 
 export default function HomePage() {
   const router = useRouter();
   const [isMounted, setIsMounted] = useState(false);
-  const [pacienteSelecionado, setPacienteSelecionado] = useState<Paciente | null>(null);
-  const [openAtendimento, setOpenAtendimento] = useState(false);
   const {
     medicoNome, pacientes, pagination, loading, isFetching, erro,
     busca, setBusca, filtro, setFiltro, setPage
   } = useHome();
-
-  function abrirPrimeiroAtendimento(paciente: Paciente) {
-    setPacienteSelecionado(paciente);
-    setOpenAtendimento(true);
-  }
 
   useEffect(() => {
     setIsMounted(true);
@@ -149,7 +139,7 @@ export default function HomePage() {
                     Nenhum paciente encontrado
                   </p>
                   <p className="text-sm">
-                    Tente ajustar os filtros de busca.
+                    Apenas pacientes com agendamento no sistema Geral aparecem aqui.
                   </p>
                 </div>
             )}
@@ -167,8 +157,6 @@ export default function HomePage() {
                           onViewAtendimentos={() => router.push(`/atendimento/${pac.id}`)}
                           onViewRelatorios={() => router.push(`/relatorio/${pac.id}`)}
                           onViewAnexos={() => router.push(`/anexo/${pac.id}`)}
-                          onCreateAtendimento={() => abrirPrimeiroAtendimento(pac)}
-                          modo="meus"
                       />
                   ))}
                 </div>
@@ -213,23 +201,6 @@ export default function HomePage() {
             <CalendarClock size={28} className="text-white" />
           </button>
 
-          <AtendimentoModal
-              open={openAtendimento}
-              onOpenChange={(open) => {
-                setOpenAtendimento(open);
-                if (!open) setPacienteSelecionado(null);
-              }}
-          >
-            <AtendimentoForm
-                atendimentos={[]}
-                pacienteId={pacienteSelecionado?.id}
-                pacienteNome={pacienteSelecionado?.nomeCompleto}
-                onClose={() => {
-                  setOpenAtendimento(false);
-                  setPacienteSelecionado(null);
-                }}
-            />
-          </AtendimentoModal>
         </main>
       </>
   );

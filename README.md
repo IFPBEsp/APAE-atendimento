@@ -58,7 +58,7 @@ A intenção do sistema é modernizar e unificar o processo de acompanhamento do
 O Atendimento pode ser executado sem iniciar o APAE-Geral ou o Gestao Escolar.
 O PostgreSQL local reproduz os tres schemas do Neon:
 
-- `atendimento`: schema real do produto, versionado pelas migrations Flyway V1-V9;
+- `atendimento`: schema real do produto, versionado pelas migrations Flyway V1-V10;
 - `apae_geral`: contrato minimo mockado com usuarios, profissionais, pacientes e agenda externa;
 - `gestao_escolar`: schema presente, mas vazio, pois o Atendimento nao o consulta.
 
@@ -94,9 +94,49 @@ pnpm docker:down   # para containers e preserva volumes
 pnpm docker:drop   # apaga os volumes e todos os dados locais
 ```
 
+`pnpm docker:drop` apaga **também** os dados do MinIO. Para recriar somente o
+PostgreSQL local do Atendimento, na raiz deste repositório, confirme primeiro
+que `postgres-atendimento-apae` usa o volume `apae-atendimento_db-data` e então
+execute:
+
+```bash
+docker compose stop postgres-db
+docker compose rm -f postgres-db
+docker volume rm apae-atendimento_db-data
+pnpm db:prepare
+```
+
+Esse procedimento elimina todos os dados anteriores do PostgreSQL local; o
+`db:prepare` recria o contrato mockado do Geral, aplica V1–V10 e insere somente
+os dados fictícios do seed. **Não use esses comandos na database compartilhada
+de homologação ou produção.**
+
 Os objetos de `apae_geral` sao contratos locais de desenvolvimento, nao uma copia
 do schema pertencente ao APAE-Geral. Alteracoes reais desse contrato devem ser
 sincronizadas manualmente quando o produto de origem mudar.
+
+### Vínculo entre profissional e paciente
+
+`atendimento.profissional_paciente` é uma VIEW de leitura. Ela reúne os pares
+distintos `(profissional_id, paciente_id)` de `apae_geral.agendamentos` com
+`apae_geral.cadastros_anuais`. O primeiro agendamento no Geral passa a conceder
+acesso ao paciente no Atendimento, sem escrita na tabela de relacionamento por
+este produto. Agendamentos inativos continuam contando como histórico; para
+revogar o vínculo é necessária uma regra de negócio própria, não apenas
+desativar uma recorrência.
+
+A migration V10 renomeia a tabela antiga, cria a VIEW com o nome
+`profissional_paciente` e depois exclui a tabela renomeada, tudo na mesma
+migration. Antes de aplicar a V10 num banco compartilhado, compare os
+vínculos antigos com os agendamentos reais do Geral e faça um backup: registros
+que existiam apenas na tabela antiga serão perdidos e profissionais com apenas
+esses vínculos deixarão de ver os respectivos pacientes. A autorização para criar o
+agendamento no Geral — e garantir que só o administrador faça isso — pertence
+ao APAE-Geral; esta VIEW não identifica quem criou o agendamento.
+
+Na aplicação de Atendimento, não existe mais busca global de pacientes:
+consultas e dropdowns usam o vínculo do profissional autenticado. Agendamentos
+e atendimentos locais não criam vínculo e exigem um vínculo existente no Geral.
 
 Para executar o sistema completo em sua máquina, siga os passos abaixo:
 
