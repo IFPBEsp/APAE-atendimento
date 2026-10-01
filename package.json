@@ -1,0 +1,18 @@
+{
+  "name": "@apae/atendimento",
+  "version": "1.0.0",
+  "private": true,
+  "packageManager": "pnpm@10.33.0",
+  "scripts": {
+    "dev:infra": "bash ./.scripts/setup.sh --no-seed",
+    "dev:backend": "bash ./.scripts/run-app.sh backend",
+    "dev:frontend": "bash ./.scripts/run-app.sh frontend",
+    "dev": "pnpm db:prepare && bash ./.scripts/run-app.sh both",
+    "db:contract": "docker compose --profile tools run --rm db-contract",
+    "db:migrate": "docker compose --profile tools run --rm db-migrate",
+    "db:seed": "docker compose --profile tools run --rm db-seed",
+    "db:prepare": "bash ./.scripts/setup.sh",
+    "docker:down": "docker compose down",
+    "docker:drop": "docker compose down -v"
+  }
+}

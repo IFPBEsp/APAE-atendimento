@@ -27,9 +27,16 @@
 		<url/>
 	</scm>
 	<properties>
+		<testcontainers.version>1.21.4</testcontainers.version>
 		<java.version>21</java.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+		<sonar.projectKey>apae-atendimento-backend</sonar.projectKey>
+		<sonar.projectName>APAE Atendimento - Backend</sonar.projectName>
+		<sonar.host.url>http://localhost:9500</sonar.host.url>
+		<sonar.coverage.jacoco.xmlReportPaths>${project.basedir}/target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+		<sonar.coverage.exclusions>**/dtos/**,**/entities/**,**/config/**,**/*Application.java</sonar.coverage.exclusions>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -116,13 +123,11 @@
 		<dependency>
   			<groupId>org.testcontainers</groupId>
   			<artifactId>junit-jupiter</artifactId>
-  			<version>1.20.2</version>
   			<scope>test</scope>
 		</dependency>
 		<dependency>
   			<groupId>org.testcontainers</groupId>
   			<artifactId>postgresql</artifactId>
-  			<version>1.20.2</version>
   			<scope>test</scope>
 		</dependency>
 
@@ -150,9 +155,24 @@
     		<artifactId>spring-boot-starter-actuator</artifactId>
 		</dependency>
 
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>2.8.5</version>
+        </dependency>
+
     </dependencies>
 
 	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.sonarsource.scanner.maven</groupId>
+					<artifactId>sonar-maven-plugin</artifactId>
+					<version>5.8.0.7211</version>
+				</plugin>
+			</plugins>
+		</pluginManagement>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -177,6 +197,41 @@
 						</exclude>
 					</excludes>
 				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<argLine>@{argLine}</argLine>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>0.8.14</version>
+				<configuration>
+					<excludes>
+						<exclude>**/dtos/**</exclude>
+						<exclude>**/entities/**</exclude>
+						<exclude>**/config/**</exclude>
+						<exclude>**/*Application.class</exclude>
+					</excludes>
+				</configuration>
+				<executions>
+					<execution>
+						<id>prepare-agent</id>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>report</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>

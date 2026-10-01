@@ -26,11 +26,16 @@ public class AgendamentoMapper extends AbstractMapper<Agendamento, AgendamentoRe
         String nomePaciente = agendamento.getPaciente() != null
                 ? agendamento.getPaciente().getNomeCompleto()
                 : null;
+        String nomeProfissional = agendamento.getProfissional() != null
+                ? agendamento.getProfissional().getNomeCompleto()
+                : null;
 
         return new AgendamentoResponseDTO(
                 agendamento.getId(),
                 agendamento.getPacienteId(),
                 nomePaciente,
+                agendamento.getProfissionalId(),
+                nomeProfissional,
                 agendamento.getDataHora().toLocalDate(),
                 agendamento.getDataHora().toLocalTime(),
                 agendamento.getNumeracao(),

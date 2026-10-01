@@ -28,6 +28,12 @@ export default function AtendimentoPage() {
     atendimentosAgrupados,
     open,
     setOpen,
+    paginaAtual,
+    totalPaginas,
+    irParaPaginaAnterior,
+    irParaProximaPagina,
+    primeiraPagina,
+    ultimaPagina,
   } = useAtendimentos(pacienteId);
 
   return (
@@ -79,10 +85,11 @@ export default function AtendimentoPage() {
         {!loading && atendimentosFiltrados.length === 0 && (
           <div className="text-center mt-20">
             <p
-              className={` text-[#344054] text-[15px] font-medium ${nunitoFont.className}`}
+              className={`text-[#344054] text-[15px] font-medium ${nunitoFont.className}`}
             >
               Não existem atendimentos para este paciente.
             </p>
+
             <Button
               variant="link"
               onClick={() => setOpen(true)}
@@ -96,6 +103,8 @@ export default function AtendimentoPage() {
         <AtendimentoModal open={open} onOpenChange={setOpen}>
           <AtendimentoForm
             atendimentos={atendimentos}
+            pacienteNome={paciente?.nomeCompleto}
+            pacienteId={pacienteId}
             onClose={() => setOpen(false)}
           />
         </AtendimentoModal>
@@ -117,6 +126,32 @@ export default function AtendimentoPage() {
             </div>
           </div>
         ))}
+
+        {!loading && totalPaginas > 1 && (
+          <div className="flex items-center justify-center gap-4 mt-6">
+            <Button
+              variant="outline"
+              onClick={irParaPaginaAnterior}
+              disabled={primeiraPagina}
+              className="cursor-pointer"
+            >
+              Anterior
+            </Button>
+
+            <span className="text-sm text-gray-600">
+              Página {paginaAtual + 1} de {totalPaginas}
+            </span>
+
+            <Button
+              variant="outline"
+              onClick={irParaProximaPagina}
+              disabled={ultimaPagina}
+              className="cursor-pointer"
+            >
+              Próxima
+            </Button>
+          </div>
+        )}
       </section>
 
       <button
