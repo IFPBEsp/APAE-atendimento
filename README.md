@@ -66,7 +66,7 @@ O objetivo é **modernizar e unificar o processo de acompanhamento dos pacientes
 - **Tópicos de Evolução Clínica** — estrutura modular para acompanhamento do progresso, objetivos e intervenções do paciente.
 - **Agenda Integrada** — visualização e marcação de horários de atendimento local com sincronização em tempo real da agenda canônica do Sistema Geral.
 - **Gestão de Anexos e Laudos** — armazenamento em nuvem (S3/MinIO) de documentos, relatórios e arquivos anexados ao prontuário.
-- **Privacidade e Vínculo por Especialidade** — cada profissional visualiza exclusivamente os pacientes sob sua responsabilidade, com vínculos derivados automaticamente da agenda compartilhada.
+- **Privacidade e Vínculo por Especialidade** — cada profissional visualiza exclusivamente os pacientes sob sua responsabilidade, com vínculos derivados automaticamente da agenda compartilhada via VIEW `profissional_paciente`.
 - **Perfil do Profissional & Primeiro Acesso** — alteração segura de credenciais de acesso inicial e consulta ao perfil de saúde.
 
 ---
@@ -181,10 +181,9 @@ APAE-atendimento/
 │           └── utils/                    # Funções utilitárias
 ├── docs/                                 # Documentação arquitetural e de banco de dados
 │   ├── docs-database/
-│   │   └── BANCO_DE_DADOS_COMPARTILHADO.md # Especificação completa do banco multi-schema
-│   ├── diagrama_de_classes.puml          # Diagrama de Classes em formato PlantUML
-│   ├── diagrama_de_classes.svg           # Exportação visual do diagrama de classes
-│   └── modelo_banco_de_dados_main.svg    # Modelo conceitual do banco de dados
+│   │   ├── BANCO_DE_DADOS_COMPARTILHADO.md # Especificação completa do banco multi-schema
+│   │   └── diagramas/                    # Exportações dos diagramas em SVG e PNG
+│   └── historia.md                       # Histórico de decisões técnicas do projeto
 ├── docker-compose.yaml                   # Orquestração do PostgreSQL, MinIO e ferramentas locais
 ├── package.json                          # Scripts do monorepo (pnpm workspaces)
 └── commitlint.config.js                  # Padronização de mensagens de commit (Conventional Commits)
@@ -364,6 +363,8 @@ O Flyway versiona exclusivamente o schema `atendimento`. Os scripts em `backend/
 
 Diferente de versões legadas do sistema, o **APAE Atendimento não realiza chamadas HTTP nem autenticação de API contra o APAE-Geral**. A integração ocorre diretamente na camada de banco de dados, através de uma **arquitetura de banco de dados compartilhado** (multi-schema).
 
+Para detalhes completos da arquitetura, consulte a documentação oficial em [`docs/docs-database/BANCO_DE_DADOS_COMPARTILHADO.md`](docs/docs-database/BANCO_DE_DADOS_COMPARTILHADO.md).
+
 ### Arquitetura de Comunicação
 
 ```
@@ -393,7 +394,7 @@ Diferente de versões legadas do sistema, o **APAE Atendimento não realiza cham
    - A expansão de recorrências utiliza `generate_series` do PostgreSQL, gerando identificadores determinísticos UUID por ocorrência e marcando a flag `externo: true`.
 3. **Vínculo Derivado (`atendimento.profissional_paciente`)**:
    - A partir da migração `V10`, o vínculo entre profissional e paciente é calculado dinamicamente por uma **VIEW**.
-   - O profissional visualiza e atende apenas pacientes que possuem agendamentos registrados no sistema.
+   - O profissional visualiza e atende apenas pacientes que possuem agendamentos registrados no sistema. Não existe mais busca global irrestrita de pacientes.
 4. **Views de Identidade e Catálogo**:
    - `vw_pacientes`: consolida dados de pacientes, endereços, responsáveis e transtornos sem duplicar registros;
    - `vw_profissional_saude`: provê os dados necessários para a autenticação e perfis dos especialistas de saúde.
@@ -752,7 +753,7 @@ tipo: descrição curta em português e letras minúsculas
 2. Crie uma branch a partir da `dev` seguindo o formato `{numero}-{tipo}-{descricao}`;
 3. Desenvolva as alterações mantendo cobertura de testes e conformidade com o Style Guide;
 4. Realize os commits seguindo a convenção do [Conventional Commits](#-conventional-commits);
-5. Abra um **Pull Request** para a branch `dev`, preencha o template e mencione o PO e o Scrum Master para Code Review;
+5. Abra um **Pull Request** para a branch `dev` (ou `main`), preencha o template e mencione o PO e o Scrum Master para Code Review;
 6. Após as aprovações técnicas e resolução de eventuais comentários, o merge será realizado.
 
 ---

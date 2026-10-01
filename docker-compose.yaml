@@ -108,8 +108,10 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      - postgres-db
-      - minio
+      db-migrate:
+        condition: service_completed_successfully
+      minio:
+        condition: service_started
     profiles: ["PROD"]
 
   frontend:

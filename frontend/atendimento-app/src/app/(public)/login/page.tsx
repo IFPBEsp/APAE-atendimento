@@ -143,7 +143,7 @@ export default function LoginPage() {
                       aria-invalid={error !== ""}
                       required
                     />
-                    <InputGroupAddon>
+                    <InputGroupAddon align="inline-end">
                       <Mail />
                     </InputGroupAddon>
                   </InputGroup>
@@ -172,7 +172,7 @@ export default function LoginPage() {
                       aria-invalid={error !== ""}
                       required
                     />
-                    <InputGroupAddon>
+                    <InputGroupAddon align="inline-end">
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}

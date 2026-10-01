@@ -20,11 +20,11 @@ echo "Criando contratos mockados de apae_geral e o schema gestao_escolar..."
 docker compose --profile tools run --rm db-contract
 
 echo "Aplicando migrations Flyway do schema atendimento..."
-docker compose --profile tools run --rm db-migrate
+docker compose --profile tools run --rm --no-deps db-migrate
 
 if [ "${1:-}" != "--no-seed" ]; then
   echo "Inserindo dados ficticios e idempotentes..."
-  docker compose --profile tools run --rm db-seed
+  docker compose --profile tools run --rm --no-deps db-seed
 fi
 
 echo "Banco local do Atendimento preparado."

@@ -30,6 +30,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import br.org.apae.atendimento.controllers.docs.ArquivoControllerDocs;
 import br.org.apae.atendimento.dtos.request.ArquivoRequestDTO;
 import br.org.apae.atendimento.dtos.response.ArquivoResponseDTO;
+import br.org.apae.atendimento.dtos.response.PaginatedResponseDTO;
 import br.org.apae.atendimento.exceptions.CloudStorageException;
 import br.org.apae.atendimento.security.UsuarioAutenticado;
 import br.org.apae.atendimento.services.ArquivoService;
@@ -79,12 +80,14 @@ public class ArquivoController implements ArquivoControllerDocs {
 
     @Override
     @GetMapping("/{pacienteId}/{tipoId}")
-    public ResponseEntity<List<ArquivoResponseDTO>> findByTipoId(
+    public ResponseEntity<PaginatedResponseDTO<ArquivoResponseDTO>> findByTipoId(
             @PathVariable UUID pacienteId,
             @PathVariable Long tipoId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int limit,
             @AuthenticationPrincipal UsuarioAutenticado usuarioAutenticado
             ){
-        List<ArquivoResponseDTO> anexos = service.listar(usuarioAutenticado.getId(), pacienteId, tipoId);
+        PaginatedResponseDTO<ArquivoResponseDTO> anexos = service.listar(usuarioAutenticado.getId(), pacienteId, tipoId, page, limit);
         return ResponseEntity.ok().body(anexos);
     }
 

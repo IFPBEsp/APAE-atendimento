@@ -2,6 +2,8 @@ package br.org.apae.atendimento.services;
 
 import br.org.apae.atendimento.dtos.request.ArquivoRequestDTO;
 import br.org.apae.atendimento.dtos.response.ArquivoResponseDTO;
+import br.org.apae.atendimento.dtos.response.PaginatedResponseDTO;
+import br.org.apae.atendimento.dtos.response.PaginationMetaDTO;
 import br.org.apae.atendimento.entities.Arquivo;
 import br.org.apae.atendimento.entities.TipoArquivo;
 import br.org.apae.atendimento.exceptions.invalid.AtendimentoInvalidException;
@@ -15,9 +17,13 @@ import br.org.apae.atendimento.services.storage.ObjectStorageService;
 import br.org.apae.atendimento.services.storage.PresignedUrlService;
 import br.org.apae.atendimento.utils.StringSanitizer;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.data.domain.Sort;
 
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -92,21 +98,37 @@ public class ArquivoService {
         return anexoMapper.toDTOPadrao(arquivoPersistido);
     }
 
-    public List<ArquivoResponseDTO> listar(UUID profissionalId, UUID pacienteId, Long tipoId) {
+    public PaginatedResponseDTO<ArquivoResponseDTO> listar(UUID profissionalId, UUID pacienteId, Long tipoId, int page, int limit) {
         if (!pacienteService.existeRelacao(pacienteId, profissionalId)) {
             throw new RelacaoInvalidException("Não foi possível listar arquivos para esse paciente.");
         }
 
-        List<Arquivo> arquivos = repository.findByProfissionalIdAndPacienteIdAndTipoId(
-                profissionalId, pacienteId, tipoId
+        Pageable pageable = PageRequest.of(
+            page,
+            limit,
+            Sort.by(Sort.Direction.DESC, "data")
+        );
+        Page<Arquivo> arquivosPage = repository.findByProfissionalIdAndPacienteIdAndTipoId(
+                profissionalId, pacienteId, tipoId, pageable
         );
 
-        return arquivos.stream()
+        List<ArquivoResponseDTO> data = arquivosPage.getContent().stream()
                 .map(anexo -> {
                     String url = urlService.gerarUrlPreAssinada(anexo.getObjectName());
                     anexo.setPresignedUrl(url);
                     return anexoMapper.toDTOPadrao(anexo);
                 }).collect(Collectors.toList());
+
+        PaginationMetaDTO meta = new PaginationMetaDTO(
+                page,
+                limit,
+                arquivosPage.getTotalElements(),
+                arquivosPage.getTotalPages(),
+                arquivosPage.hasNext(),
+                arquivosPage.hasPrevious()
+        );
+
+        return new PaginatedResponseDTO<>(data, meta);
     }
 
     public List<ArquivoResponseDTO> buscarPorData(UUID profissionalId, UUID pacienteId, Long tipoId, LocalDate data) {

@@ -64,6 +64,9 @@ public class AgendamentoService {
         AgendamentoRequestDTO agendamentoRequest,
         UUID profissionalId
     ) {
+        if (!pacienteService.existeRelacao(agendamentoRequest.pacienteId(), profissionalId)) {
+            throw new RelacaoInvalidException("Voce nao tem vinculo com este paciente para criar o agendamento.");
+        }
         if (verificarAgendamentoExiste(
             profissionalId,
             agendamentoRequest.data(),
@@ -100,6 +103,10 @@ public class AgendamentoService {
             throw new AgendamentoInvalidException("Nao e possivel editar um agendamento que ja foi concluido.");
         }
 
+        if (!pacienteService.existeRelacao(agendamentoRequest.pacienteId(), profissionalId)) {
+            throw new RelacaoInvalidException("Voce nao tem vinculo com este paciente para editar o agendamento.");
+        }
+
         LocalDateTime novaDataHora = LocalDateTime.of(agendamentoRequest.data(), agendamentoRequest.hora());
 
         if (!novaDataHora.equals(agendamento.getDataHora())) {
@@ -112,7 +119,7 @@ public class AgendamentoService {
         }
 
         if (!agendamentoRequest.pacienteId().equals(agendamento.getPacienteId())) {
-            Paciente novoPaciente = pacienteRepository.findById(agendamentoRequest.pacienteId())
+            Paciente novoPaciente = pacienteRepository.findByIdAndProfissionalId(agendamentoRequest.pacienteId(), profissionalId)
                     .orElseThrow(() -> new PacienteNotFoundException("Paciente nao encontrado."));
             agendamento.setPacienteId(novoPaciente.getId());
             agendamento.setPaciente(novoPaciente);
@@ -165,6 +172,7 @@ public class AgendamentoService {
             locais = repository
                     .findByProfissionalIdAndDataHoraBetweenOrderByDataHoraDesc(profissionalId, dataInicio, dataFim)
                     .stream()
+                    .filter(a -> pacienteService.existeRelacao(a.getPacienteId(), profissionalId))
                     .map(agendamentoMapper::toDTOPadrao)
                     .toList();
 
@@ -173,6 +181,7 @@ public class AgendamentoService {
         } else {
             locais = repository.findByProfissionalIdOrderByDataHoraDesc(profissionalId)
                     .stream()
+                    .filter(a -> pacienteService.existeRelacao(a.getPacienteId(), profissionalId))
                     .map(agendamentoMapper::toDTOPadrao)
                     .toList();
 
@@ -231,6 +240,9 @@ public class AgendamentoService {
     }
 
     public void concluir(UUID profissionalId, UUID pacienteId, UUID agendamentoId) {
+        if (!pacienteService.existeRelacao(pacienteId, profissionalId)) {
+            throw new RelacaoInvalidException("Voce nao tem vinculo com este paciente para concluir o agendamento.");
+        }
         Agendamento agendamento = repository
                 .findByIdAndProfissionalIdAndPacienteId(agendamentoId, profissionalId, pacienteId)
                 .orElseThrow(() -> new AgendamentoNotFoundException("O agendamento nao existe ou nao pertence ao profissional autenticado."));
