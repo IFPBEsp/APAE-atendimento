@@ -4,13 +4,14 @@
   <h1>APAE Atendimento</h1>
 
   <p>
-    <strong>Sistema completo para gestão de atendimentos da APAE</strong>
+    <strong>Sistema completo para gestão de atendimentos e prontuários da APAE</strong>
   </p>
 
   <p>
     <img src="https://img.shields.io/badge/Status-Em%20Desenvolvimento-yellow?style=for-the-badge" alt="Status" height="25"/>
     <img src="https://img.shields.io/badge/Spring_Boot-6DB33F?style=for-the-badge&logo=springboot&logoColor=white" alt="Spring Boot" height="25"/>
     <img src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" alt="React" height="25"/>
+    <img src="https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=next.js&logoColor=white" alt="Next.js" height="25"/>
     <img src="https://img.shields.io/badge/Flyway-CC0200?style=for-the-badge&logo=flyway&logoColor=white" alt="Flyway" height="25"/>
     <img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker" height="25"/>
     <img src="https://img.shields.io/badge/pnpm-F69220?style=for-the-badge&logo=pnpm&logoColor=white" alt="pnpm" height="25"/>
@@ -39,8 +40,14 @@
 - [Estrutura do Projeto](#-estrutura-do-projeto)
 - [Quick Start](#-quick-start)
 - [Infraestrutura e Deploy](#-infraestrutura-e-deploy)
-- [Integração com o Sistema Geral (apae-geral)](#-integração-com-o-sistema-geral-apae-geral)
+- [Integração com o Banco Compartilhado (apae-geral)](#-integração-com-o-banco-compartilhado-apae-geral)
+- [Diagrama de Classes](#-diagrama-de-classes)
+- [Modelo Entidade-Relacionamento (ER)](#-modelo-entidade-relacionamento-er)
+- [Referência da API](#-referência-da-api)
+- [Códigos de Status HTTP](#-códigos-de-status-http)
+- [Padrão de Documentação Swagger/OpenAPI](#-padrão-de-documentação-swaggeropenapi)
 - [Git Flow](#-git-flow)
+- [Style Guide](#-style-guide)
 - [Conventional Commits](#-conventional-commits)
 - [Como Contribuir](#-como-contribuir)
 
@@ -48,19 +55,19 @@
 
 ## Sobre o Projeto
 
-A **APAE (Associação de Pais e Amigos dos Excepcionais)** é uma das maiores redes de atenção à pessoa com deficiência no Brasil. Este sistema foi desenvolvido para **otimizar o registro e o acompanhamento dos atendimentos realizados pela APAE**, oferecendo uma plataforma segura e unificada para os profissionais de saúde da instituição.
+A **APAE (Associação de Pais e Amigos dos Excepcionais)** é uma das maiores redes de atenção à pessoa com deficiência no Brasil. Este sistema foi desenvolvido para **otimizar o registro e o acompanhamento dos atendimentos clínicos e terapêuticos realizados pela APAE**, oferecendo uma plataforma segura, unificada e intuitiva para os profissionais de saúde da instituição.
 
-O objetivo é **modernizar e unificar o processo de acompanhamento dos pacientes**, garantindo acesso rápido, organizado e restrito às informações — melhorando a qualidade do atendimento, agilizando a comunicação interna entre as especialidades e fortalecendo a segurança dos dados dos pacientes.
+O objetivo é **modernizar e unificar o processo de acompanhamento dos pacientes**, garantindo acesso rápido, organizado e restrito às informações clínicas — elevando a qualidade do atendimento multidisciplinar, agilizando a comunicação interna e fortalecendo a conformidade e privacidade no fluxo diário da APAE.
 
 ### Funcionalidades Principais
 
-- **Gestão de Pacientes** — visualização da lista de pacientes com dados pessoais e histórico.
-- **Prontuário Eletrônico** — consulta e registro completo do prontuário de cada paciente.
-- **Registro de Consultas** — adição de atendimentos e registro detalhado de cada consulta.
-- **Relatórios Clínicos** — produção e inserção de relatórios no prontuário do paciente.
-- **Gestão de Anexos** — adição de documentos e arquivos relevantes à consulta.
-- **Privacidade por Especialidade** — cada profissional vê apenas os pacientes pelos quais é responsável, garantindo confidencialidade.
-- **Perfil do Profissional** — visualização dos dados pessoais cadastrados no sistema.
+- **Gestão e Consulta de Pacientes** — visualização rápida da lista de pacientes atendidos com dados cadastrais, contatos e endereço.
+- **Prontuário e Histórico de Consultas** — registro completo de cada sessão de atendimento, agrupado cronologicamente por mês e ano.
+- **Tópicos de Evolução Clínica** — estrutura modular para acompanhamento do progresso, objetivos e intervenções do paciente.
+- **Agenda Integrada** — visualização e marcação de horários de atendimento local com sincronização em tempo real da agenda canônica do Sistema Geral.
+- **Gestão de Anexos e Laudos** — armazenamento em nuvem (S3/MinIO) de documentos, relatórios e arquivos anexados ao prontuário.
+- **Privacidade e Vínculo por Especialidade** — cada profissional visualiza exclusivamente os pacientes sob sua responsabilidade, com vínculos derivados automaticamente da agenda compartilhada.
+- **Perfil do Profissional & Primeiro Acesso** — alteração segura de credenciais de acesso inicial e consulta ao perfil de saúde.
 
 ---
 
@@ -68,36 +75,43 @@ O objetivo é **modernizar e unificar o processo de acompanhamento dos pacientes
 
 ### Frontend
 
-| Tecnologia | Descrição |
-|------------|-----------|
-| [React](https://react.dev/) | Biblioteca para interfaces de usuário |
-| [shadcn/ui](https://ui.shadcn.com/) | Componentes de UI acessíveis e customizáveis |
-| [pnpm](https://pnpm.io/) | Gerenciador de pacotes eficiente |
+| Tecnologia | Versão | Descrição |
+|------------|--------|-----------|
+| [Next.js](https://nextjs.org/) | 15.x | Framework React com App Router e SSR |
+| [React](https://react.dev/) | 19.x | Biblioteca para interfaces de usuário |
+| [TypeScript](https://www.typescriptlang.org/) | 5.x | Superset JavaScript com tipagem estática |
+| [Tailwind CSS](https://tailwindcss.com/) | 3.x | Framework de CSS utilitário |
+| [shadcn/ui](https://ui.shadcn.com/) | — | Componentes de interface acessíveis baseados em Radix UI |
+| [pnpm](https://pnpm.io/) | 10.x | Gerenciador de pacotes performático do monorepo |
 
 ### Backend
 
 | Tecnologia | Versão | Descrição |
 |------------|--------|-----------|
-| [Spring Boot](https://spring.io/projects/spring-boot) | 3.x | Framework Java para APIs REST |
-| [Java](https://adoptium.net/) | 21 | Linguagem de programação do backend |
-| [Spring Security](https://spring.io/projects/spring-security) | — | Autenticação e autorização (JWT nativo) |
-| [Spring Data JPA](https://spring.io/projects/spring-data-jpa) | — | Persistência e acesso a dados |
-| [Flyway](https://flywaydb.org/) | — | Versionamento e migração do banco de dados (V1–V9) |
+| [Spring Boot](https://spring.io/projects/spring-boot) | 3.4.x | Framework Java para APIs REST corporativas |
+| [Java](https://adoptium.net/) | 21 | Linguagem de programação moderna (LTS) |
+| [Spring Security](https://spring.io/projects/spring-security) | — | Autenticação stateless com JWT nativo e cookies HttpOnly |
+| [Spring Data JPA](https://spring.io/projects/spring-data-jpa) | — | Camada de persistência e repositórios ORM |
+| [Flyway](https://flywaydb.org/) | 11.x | Versionamento e migração automatizada do banco de dados (V1–V10) |
+| [Springdoc OpenAPI](https://springdoc.org/) | 2.x | Especificação e documentação interativa (Swagger UI) |
+| [AWS S3 SDK / MinIO](https://min.io/) | — | Armazenamento de arquivos binários e anexos |
+| [Lombok](https://projectlombok.org/) | — | Redução de boilerplate Java via anotações |
 
 ### Infraestrutura e Deploy
 
 | Tecnologia | Descrição |
 |------------|-----------|
-| [Docker](https://www.docker.com/) | Containerização do PostgreSQL e MinIO (desenvolvimento) |
-| [PostgreSQL](https://www.postgresql.org/) | Banco de dados relacional |
-| [MinIO](https://min.io/) | Armazenamento de objetos (arquivos e anexos) |
+| [Docker](https://www.docker.com/) | Containerização da aplicação e serviços de suporte |
+| [PostgreSQL](https://www.postgresql.org/) | Banco de dados relacional (PostgreSQL 16) |
+| [MinIO](https://min.io/) | Object Storage compatível com AWS S3 para laudos e fotos |
 
 ### Ferramentas
 
 | Tecnologia | Descrição |
 |------------|-----------|
-| [Git](https://git-scm.com/) | Controle de versão |
-| [IntelliJ IDEA](https://www.jetbrains.com/idea/) / [VS Code](https://code.visualstudio.com/) | Editores recomendados |
+| [Git](https://git-scm.com/) | Controle de versão distribuído |
+| [IntelliJ IDEA](https://www.jetbrains.com/idea/) / [VS Code](https://code.visualstudio.com/) | IDEs recomendadas |
+| [Jest](https://jestjs.io/) | Testes unitários no frontend |
 
 ---
 
@@ -105,87 +119,75 @@ O objetivo é **modernizar e unificar o processo de acompanhamento dos pacientes
 
 ```
 APAE-atendimento/
-├── .env.example                          # Variáveis de ambiente (raiz)
+├── .env.example                          # Modelo de variáveis de ambiente
 ├── .github/
-│   ├── ISSUE_TEMPLATE/                   # Templates de issues
+│   ├── ISSUE_TEMPLATE/                   # Templates padronizados para abertura de issues
 │   ├── workflows/
-│   │   └── ci.yml                        # Pipeline de CI (GitHub Actions)
-│   └── pull_request_template.md          # Template de PR
-├── .husky/                               # Hooks de Git (pre-commit, commit-msg)
-├── .scripts/                             # Scripts auxiliares do monorepo
+│   │   └── ci.yml                        # Pipeline de Integração Contínua (GitHub Actions)
+│   └── pull_request_template.md          # Template de Pull Request
+├── .husky/                               # Git Hooks (pre-commit, commit-msg via commitlint)
+├── .scripts/                             # Automação de setup e banco de dados local
+│   ├── db/
+│   │   └── apae-geral-contract.sql       # DDL do contrato mockado do schema apae_geral
+│   ├── seed/
+│   │   └── local-development.sql         # Carga de dados fictícios para desenvolvimento
+│   ├── run-app.sh                        # Script de inicialização dos serviços
+│   └── setup.sh                          # Script principal executado pelo pnpm db:prepare
 ├── backend/
-│   ├── docker/                           # Configurações auxiliares do Docker
-│   │   ├── docker-compose.properties     # Propriedades de conexão local
+│   ├── docker/                           # Configurações adicionais de container
+│   │   ├── docker-compose.properties     # Configurações de ambiente local
 │   │   └── local-secrets.properties.example
 │   └── atendimento/                      # Backend — Spring Boot (Java 21)
-│       ├── Dockerfile                    # Imagem Docker do backend (multi-stage)
+│       ├── Dockerfile                    # Multi-stage build da imagem Docker do backend
 │       ├── mvnw / mvnw.cmd               # Maven Wrapper (Linux/Windows)
-│       ├── pom.xml                       # Dependências Maven
+│       ├── pom.xml                       # Gerenciamento de dependências Maven
 │       └── src/
 │           ├── main/
 │           │   ├── java/br/org/apae/atendimento/
-│           │   │   ├── AtendimentoApplication.java  # Entrypoint da aplicação
-│           │   │   ├── config/           # Segurança, CORS, OpenAPI, MinIO
-│           │   │   ├── controllers/      # Endpoints REST
-│           │   │   ├── dtos/             # Data Transfer Objects
-│           │   │   ├── entities/         # Entidades JPA
-│           │   │   ├── exceptions/       # Tratamento global de erros
-│           │   │   ├── mappers/          # Conversão entidade ↔ DTO
-│           │   │   ├── repositories/     # Repositórios Spring Data
-│           │   │   ├── security/         # Filtro JWT e configuração de segurança
-│           │   │   ├── services/         # Lógica de negócio
-│           │   │   │   └── integration/  # Cliente de integração apae-geral
-│           │   │   └── utils/            # Funções auxiliares
+│           │   │   ├── AtendimentoApplication.java  # Ponto de entrada da aplicação Spring Boot
+│           │   │   ├── config/           # Configurações de CORS, OpenAPI, S3/MinIO e Beans
+│           │   │   ├── controllers/      # Endpoints REST e interfaces Swagger (*Docs.java)
+│           │   │   ├── dtos/             # DTOs de Request e Response com Bean Validation
+│           │   │   ├── entities/         # Entidades JPA mapeadas para o banco
+│           │   │   ├── exceptions/       # Handlers globais e exceções personalizadas
+│           │   │   ├── mappers/          # Conversão entre DTOs e Entidades
+│           │   │   ├── repositories/     # Repositórios JPA e AgendamentoGeralReadRepository
+│           │   │   ├── security/         # Filtros JWT, Token Blocklist e Contexto de Usuário
+│           │   │   ├── services/         # Regras de negócio da aplicação
+│           │   │   └── utils/            # Utilitários e helpers de uso geral
 │           │   └── resources/
 │           │       ├── application.properties
 │           │       ├── application-dev.properties
 │           │       ├── application-prod.properties
 │           │       ├── application-test.properties
-│           │       └── db/migration/     # Scripts Flyway (V1–V9)
-│           └── test/                     # Testes de integração e unitários
+│           │       └── db/migration/     # Scripts de migração Flyway (V1–V10)
+│           └── test/                     # Testes unitários e de integração (Testcontainers)
 ├── frontend/
-│   └── atendimento-app/                  # Frontend — React + Next.js (TypeScript)
-│       ├── Dockerfile                    # Imagem Docker do frontend (multi-stage)
-│       ├── next.config.ts                # Configuração do Next.js
-│       ├── tsconfig.json                 # Aliases de importação
-│       ├── components.json               # Configuração shadcn/ui
-│       ├── eslint.config.mjs             # Configuração ESLint
-│       ├── jest.config.mjs               # Configuração de testes
-│       ├── package.json                  # Dependências pnpm
+│   └── atendimento-app/                  # Frontend — Next.js 15 (TypeScript + Tailwind)
+│       ├── Dockerfile                    # Multi-stage build do frontend para produção
+│       ├── next.config.ts                # Configurações do Next.js
+│       ├── tsconfig.json                 # Configurações do compilador TypeScript
+│       ├── components.json               # Configurações do shadcn/ui
+│       ├── package.json                  # Dependências e scripts do frontend
 │       └── src/
-│           ├── app/                      # Páginas e rotas (App Router)
-│           │   ├── (public)/             # Rotas públicas (sem autenticação)
-│           │   │   ├── login/            # Página de login
-│           │   │   └── auth/             # Callbacks de autenticação
-│           │   └── (private)/            # Rotas protegidas (autenticadas)
-│           │       ├── layout.tsx        # Layout com sidebar/navbar
-│           │       ├── home/             # Dashboard principal
-│           │       ├── agenda/           # Agenda de atendimentos
-│           │       ├── atendimento/      # Registro e consulta de atendimentos
-│           │       ├── relatorio/        # Relatórios clínicos
-│           │       └── anexo/            # Gestão de anexos
-│           ├── components/               # Componentes reutilizáveis (shadcn/ui)
-│           ├── features/                 # Módulos de funcionalidade isolados
-│           │   ├── agenda/               # Lógica e componentes da agenda
-│           │   ├── atendimento/          # Lógica e componentes de atendimento
-│           │   ├── anexo/                # Lógica e componentes de anexos
-│           │   ├── arquivo/              # Gestão de arquivos
-│           │   ├── home/                 # Componentes do dashboard
-│           │   ├── profissional/         # Perfil do profissional
-│           │   └── relatorio/            # Lógica e componentes de relatórios
-│           ├── lib/                      # Utilitários e configuração de libs externas
-│           ├── services/                 # Camada de comunicação com a API
-│           ├── types/                    # Tipos TypeScript globais
-│           └── utils/                   # Funções auxiliares
-├── docs/                                 # Documentação auxiliar
-│   ├── diagrama_de_classes.puml          # Diagrama de classes (PlantUML)
-│   ├── diagrama_de_classes.svg           # Diagrama de classes (SVG)
-│   ├── modelo_banco_de_dados_main.svg    # Modelo do banco de dados
-│   ├── historia.md                       # Histórico de decisões do projeto
-│   └── Estudo de Infraestrutura e Deploy - Oracle Cloud.md
-├── docker-compose.yaml                   # PostgreSQL + MinIO (desenvolvimento local)
+│           ├── app/                      # Rotas e páginas (App Router)
+│           │   ├── (public)/             # Rotas abertas (login, autenticação)
+│           │   └── (private)/            # Rotas autenticadas (dashboard, agenda, atendimento, relatórios)
+│           ├── components/               # Componentes visuais compartilhados (shadcn/ui)
+│           ├── features/                 # Módulos funcionais encapsulados por domínio
+│           ├── lib/                      # Configurações de bibliotecas clientes
+│           ├── services/                 # Clientes HTTP e integração com a API
+│           ├── types/                    # Definições de tipos TypeScript
+│           └── utils/                    # Funções utilitárias
+├── docs/                                 # Documentação arquitetural e de banco de dados
+│   ├── docs-database/
+│   │   └── BANCO_DE_DADOS_COMPARTILHADO.md # Especificação completa do banco multi-schema
+│   ├── diagrama_de_classes.puml          # Diagrama de Classes em formato PlantUML
+│   ├── diagrama_de_classes.svg           # Exportação visual do diagrama de classes
+│   └── modelo_banco_de_dados_main.svg    # Modelo conceitual do banco de dados
+├── docker-compose.yaml                   # Orquestração do PostgreSQL, MinIO e ferramentas locais
 ├── package.json                          # Scripts do monorepo (pnpm workspaces)
-└── commitlint.config.js                  # Regras de Conventional Commits
+└── commitlint.config.js                  # Padronização de mensagens de commit (Conventional Commits)
 ```
 
 ---
@@ -194,14 +196,15 @@ APAE-atendimento/
 
 ### Desenvolvimento Local Autônomo
 
-O Atendimento pode ser executado sem iniciar o APAE-Geral ou o Gestão Escolar.
-O PostgreSQL local reproduz os três schemas do Neon:
+O produto **APAE Atendimento** foi projetado para ser executado de forma totalmente autônoma, dispensando a necessidade de iniciar os sistemas legados ou o Gestão Escolar.
 
-- `atendimento`: schema real do produto, versionado pelas migrations Flyway V1–V9;
-- `apae_geral`: contrato mínimo mockado com usuários, profissionais, pacientes e agenda externa;
-- `gestao_escolar`: schema presente, mas vazio, pois o Atendimento não o consulta.
+O PostgreSQL local reproduz a estrutura multi-schema do banco em nuvem (Neon):
 
-Na raiz do repositório:
+- `atendimento`: schema proprietário do produto, versionado pelas migrações Flyway (V1–V10);
+- `apae_geral`: contrato mínimo mockado com usuários, profissionais, pacientes, cadastros anuais e agenda canônica;
+- `gestao_escolar`: schema presente no banco compartilhado, mantido vazio neste ambiente.
+
+Na raiz do repositório, execute:
 
 ```bash
 cp .env.example .env
@@ -210,91 +213,96 @@ pnpm db:prepare
 pnpm dev
 ```
 
-Serviços locais:
+> **O que o `pnpm db:prepare` faz?**
+> Ele automatiza a preparação completa da infraestrutura local executando na ordem exata:
+> 1. Inicia os containers `postgres-db` e `minio` em background;
+> 2. Executa o container `db-contract`, aplicando o script `.scripts/db/apae-geral-contract.sql` para criar os contratos mockados de `apae_geral`;
+> 3. Executa o container `db-migrate`, aplicando as migrações Flyway (V1–V10) no schema `atendimento`;
+> 4. Executa o container `db-seed`, populando o banco com dados fictícios idempotentes via `.scripts/seed/local-development.sql`.
+
+### Serviços Locais
 
 | Serviço | URL |
 |---------|-----|
 | **Frontend** | `http://localhost:3001` |
-| **Backend** | `http://localhost:8082/atendimento` |
-| **Health check** | `http://localhost:8082/atendimento/actuator/health` |
+| **Backend API** | `http://localhost:8082/atendimento` (ou `8080/atendimento`) |
+| **Swagger UI** | `http://localhost:8082/atendimento/swagger-ui.html` |
+| **Health Check** | `http://localhost:8082/atendimento/actuator/health` |
 | **PostgreSQL** | `localhost:5300` |
-| **MinIO** | `http://localhost:9100` (console em `http://localhost:9101`) |
+| **MinIO Console** | `http://localhost:9101` (API na porta `9100`) |
 
-Credenciais fictícias:
+### Credenciais Fictícias de Desenvolvimento
 
-| Campo | Valor |
-|-------|-------|
-| **E-mail** | `profissional@teste.local` |
-| **Senha** | `12345678` |
+| Papel / Perfil | Identificador / E-mail | Senha |
+|----------------|------------------------|-------|
+| **Profissional de Saúde** | `profissional@teste.local` | `12345678` |
+| **MinIO Console (S3)** | `atendimento_minio` | `atendimento_minio_123` |
 
-Comandos úteis:
+### Comandos Úteis do Monorepo
 
 ```bash
-pnpm db:prepare    # contratos, migrations, seed e MinIO
-pnpm db:migrate    # reaplica apenas as migrations pendentes
-pnpm db:seed       # reaplica o seed idempotente
-pnpm docker:down   # para containers e preserva volumes
-pnpm docker:drop   # apaga os volumes e todos os dados locais
+pnpm db:prepare    # Sobe banco/MinIO, aplica contratos, migrações Flyway e seed (recomendado)
+pnpm db:contract   # Reaplica apenas os contratos mockados do apae_geral
+pnpm db:migrate    # Aplica migrações Flyway pendentes do schema atendimento
+pnpm db:seed       # Reaplica a carga de dados fictícios idempotentes
+pnpm docker:down   # Para os containers Docker mantendo os volumes de dados
+pnpm docker:drop   # Remove os containers e exclui todos os volumes locais
 ```
-
-> Os objetos de `apae_geral` são contratos locais de desenvolvimento, não uma cópia do schema pertencente ao APAE-Geral. Alterações reais desse contrato devem ser sincronizadas manualmente quando o produto de origem mudar.
 
 ---
 
 ### Pré-requisitos
 
-| Ferramenta | Versão | Finalidade |
-|------------|--------|------------|
-| **Node.js** | 20+ | Executar o frontend React |
-| **pnpm** | — | Gerenciar pacotes do frontend |
-| **Docker** | 20+ | Subir PostgreSQL e MinIO locais |
-| **Java** | 21+ | Compilar e executar o backend Spring Boot |
-| **Git** | — | Clonar o repositório |
+| Ferramenta | Versão Mínima | Finalidade |
+|------------|---------------|------------|
+| **Node.js** | 20+ | Execução do frontend Next.js e ferramentas do monorepo |
+| **pnpm** | 9+ | Gerenciamento de dependências e execução de scripts |
+| **Docker & Docker Compose** | 20+ | Subida dos containers PostgreSQL e MinIO locais |
+| **Java JDK** | 21+ | Compilação e execução do backend Spring Boot |
+| **Git** | — | Controle de versão do projeto |
 
-### 1. Clone o repositório
+### Passo a Passo de Execução Manual
+
+#### 1. Clone o repositório
 
 ```bash
 git clone https://github.com/IFPBEsp/APAE-atendimento.git
 cd APAE-atendimento
 ```
 
-### 2. Configure as variáveis de ambiente
+#### 2. Configure as variáveis de ambiente
 
 ```bash
-# Na raiz do projeto, crie o .env baseado no exemplo
 cp .env.example .env
-# Edite o .env com as credenciais do seu ambiente local
 ```
 
-> **Nota:** Certifique-se de preencher as variáveis sensíveis no `.env` (credenciais do banco e JWT) antes de prosseguir. O backend lê automaticamente o `.env` da raiz — não é necessário configurar variáveis manualmente no IntelliJ.
+> O backend Spring Boot lê o arquivo `.env` da raiz automaticamente via `spring.config.import`. Não é necessário duplicar credenciais em arquivos de propriedades.
 
-### 3. Suba a infraestrutura (Docker)
+#### 3. Prepare o banco de dados e a infraestrutura
 
 ```bash
-# Sobe PostgreSQL e MinIO
-docker compose up minio postgres-db -d
-
-# Se você usa banco em nuvem (ex.: Neon), suba apenas o MinIO:
-docker compose up minio -d
+pnpm db:prepare
 ```
 
-### 4. Suba o backend
+> **Atenção:** Em um ambiente novo, nunca execute apenas `docker compose up postgres-db`. O backend falhará na inicialização se o contrato mockado do schema `apae_geral` e as migrações não tiverem sido previamente aplicados via `pnpm db:prepare`.
+
+#### 4. Execute o backend
 
 ```bash
 cd backend/atendimento
 
-# Linux/Mac
+# Linux / macOS
 ./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
 
 # Windows
 mvnw.cmd spring-boot:run -Dspring-boot.run.profiles=dev
 ```
 
-> **No IntelliJ:** basta rodar a classe `AtendimentoApplication`. O profile `dev` lerá o `.env` automaticamente.
+A API estará acessível em `http://localhost:8082/atendimento` e a documentação interativa em `http://localhost:8082/atendimento/swagger-ui.html`.
 
-### 5. Suba o frontend
+#### 5. Execute o frontend
 
-Em um **novo terminal**:
+Em um novo terminal, a partir da raiz:
 
 ```bash
 cd frontend/atendimento-app
@@ -302,30 +310,25 @@ pnpm install
 pnpm dev
 ```
 
-Acesse `http://localhost:3001`.
+Acesse a interface web em `http://localhost:3001`.
 
-### 6. Execução completa via Docker Compose (produção)
+#### 6. Execução via Docker Compose (Modo Produção)
+
+Para validar a imagem de produção com todos os serviços integrados:
 
 ```bash
-# Sobe toda a stack (Banco, Storage, Backend e Frontend)
 docker compose --profile PROD up -d --build
 ```
 
-O sistema estará disponível em:
+O frontend estará disponível em `http://localhost:80` (ou `3001`) e o backend em `http://localhost:8080/atendimento`.
 
-| Serviço | URL |
-|---------|-----|
-| **Frontend** | `http://localhost:80` |
-| **Backend API** | `http://localhost:8080` |
-| **MinIO Console** | `http://localhost:9001` |
-
-### 7. Build para produção (opcional)
+#### 7. Build do Projeto (Opcional)
 
 ```bash
-# Backend — gera o .jar em backend/atendimento/target/
+# Backend — gera o arquivo .jar em backend/atendimento/target/
 cd backend/atendimento && ./mvnw clean package -DskipTests
 
-# Frontend — gera build otimizado
+# Frontend — gera o build de produção standalone
 cd frontend/atendimento-app && pnpm build
 ```
 
@@ -335,226 +338,422 @@ cd frontend/atendimento-app && pnpm build
 
 ### Ambiente de Desenvolvimento (Docker)
 
-O `docker-compose.yml` na raiz sobe os serviços de infraestrutura necessários para o desenvolvimento local:
+O arquivo `docker-compose.yaml` na raiz orquestra os serviços essenciais:
 
-| Serviço | Imagem | Portas | Finalidade |
-|---------|--------|--------|------------|
-| `postgres-db` | `postgres:latest` | `5300:5432` | Banco de dados local |
-| `minio` | `minio/minio:latest` | `9100:9000`, `9101:9001` | Armazenamento de objetos (arquivos e anexos) |
+| Serviço | Imagem | Porta Exposta | Finalidade |
+|---------|--------|---------------|------------|
+| `postgres-db` | `postgres:16` | `5300:5432` | Banco de dados PostgreSQL multi-schema |
+| `minio` | `minio/minio:latest` | `9100:9000`, `9101:9001` | Armazenamento de arquivos e console MinIO |
+| `db-contract` | `postgres:16` *(profile: tools)* | — | Aplicação do contrato SQL do `apae_geral` |
+| `db-migrate` | `flyway/flyway:11.7.2` *(profile: tools)* | — | Execução das migrações Flyway no schema `atendimento` |
+| `db-seed` | `postgres:16` *(profile: tools)* | — | Inserção de dados fictícios para testes |
 
-Credenciais padrão de desenvolvimento (definidas no `.env`):
+### Migrações de Banco de Dados
 
-| Variável | Descrição |
-|----------|-----------|
-| `POSTGRES_DB` | Nome do banco de dados |
-| `POSTGRES_USER` | Usuário do banco |
-| `POSTGRES_PASSWORD` | Senha do banco |
-| `MINIO_ROOT_USER` | Usuário admin do MinIO |
-| `MINIO_ROOT_PASSWORD` | Senha admin do MinIO |
+O Flyway versiona exclusivamente o schema `atendimento`. Os scripts em `backend/atendimento/src/main/resources/db/migration/` evoluem o modelo:
 
-### Dockerfile do Backend
-
-O backend utiliza **multi-stage build** para otimizar a imagem final:
-
-1. **Stage `build`** — `maven:3.9-eclipse-temurin-21`: compila o projeto e gera o `.jar`.
-2. **Stage final** — `eclipse-temurin:21-jre`: imagem leve (apenas JRE) que executa o `.jar`.
-
-### Migrações de Banco
-
-O **Flyway** executa automaticamente os scripts em `backend/atendimento/src/main/resources/db/migration/` ao iniciar o backend. As migrations V1–V9 versionam o schema `atendimento`.
+- `V1`: Criação inicial do schema, tabelas e catálogo básico;
+- `V2`: Inserção dos tipos de arquivo padrão (`1 = Anexo`, `2 = Relatório`);
+- `V5`: Ajuste de tipos temporais (`TIMESTAMP`) e status em atendimento;
+- `V8`: Views globais de leitura de pacientes e profissionais;
+- `V10`: Substituição da tabela de vínculo pela VIEW dinâmica `profissional_paciente`.
 
 ---
 
-## Integração com o Sistema Geral (apae-geral)
+## Integração com o Banco Compartilhado (apae-geral)
 
-A agenda do Sistema de Atendimento pode exibir, junto com os agendamentos locais, os **agendamentos gerados no Sistema Geral da APAE** (projeto `apae-geral`). A integração é feita pelo backend de atendimento, que se autentica no apae-geral e consulta os agendamentos do profissional logado.
+Diferente de versões legadas do sistema, o **APAE Atendimento não realiza chamadas HTTP nem autenticação de API contra o APAE-Geral**. A integração ocorre diretamente na camada de banco de dados, através de uma **arquitetura de banco de dados compartilhado** (multi-schema).
 
-> **Componente responsável:** `backend/atendimento/src/main/java/br/org/apae/atendimento/services/integration/AgendamentoExternoClient.java`
+### Arquitetura de Comunicação
 
-### Como Funciona o Fluxo
-
-1. Ao listar a agenda (`GET /agendamento`), o backend de atendimento busca os agendamentos **locais** no seu próprio banco.
-2. Em seguida, autentica no apae-geral (`POST /apae-geral/api/auth/signin`) e consulta os **agendamentos gerados** do profissional (`GET /apae-geral/api/appointments/professional/{profissionalId}/generated`).
-3. As duas listas são mescladas e retornadas. Os itens externos vêm com a flag `externo: true`.
-
-### Pré-requisitos
-
-- O projeto **apae-geral** clonado e rodando localmente (backend + banco PostgreSQL + MinIO).
-- O backend do apae-geral acessível em `http://localhost:8090/apae-geral`.
-
-> ⚠️ **Atenção ao caminho:** o apae-geral usa `spring.mvc.servlet.path: /api`, então **todos os endpoints REST ficam sob `/apae-geral/api/...`** (e não `/apae-geral/...`). Chamar o caminho sem o `/api` resulta em **HTTP 403**.
-
-### Passo a Passo
-
-**1. Suba o apae-geral**
-
-No diretório do projeto apae-geral (ex.: `../APAE/apps/api`), com o `.env` preenchido (`DB_URL`, `DB_USERNAME`, `DB_PASSWORD`, `MINIO_*`, `API_PORT=8090`):
-
-```bash
-cd apps/api
-./mvnw spring-boot:run
+```
+┌────────────────────────────────────────────────────────┐
+│                   PostgreSQL 16                        │
+│                                                        │
+│  ┌──────────────────┐            ┌──────────────────┐  │
+│  │   apae_geral     │            │   atendimento    │  │
+│  │ (schema canônico)│            │(schema de domínio│  │
+│  │                  │            │                  │  │
+│  │  • pacientes     │◀─── FKs ───│  • atendimento   │  │
+│  │  • profissionais │◀─── FKs ───│  • topico        │  │
+│  │  • agendamentos  │            │  • anexo         │  │
+│  │  • cadastros     │            │  • agendamento   │  │
+│  └─────────┬────────┘            └────────┬─────────┘  │
+│            │                              │            │
+│            │      VIEWs e JdbcTemplate    │            │
+│            └──────────────────────────────┘            │
+└────────────────────────────────────────────────────────┘
 ```
 
-Valide que subiu:
+### Mecanismos de Integração
 
-```bash
-curl -X POST http://localhost:8090/apae-geral/api/auth/signin \
-  -H "Content-Type: application/json" \
-  -d '{"username":"admin@teste.com","password":"senha123"}'
-# Deve retornar 200 com {"token":"..."}
+1. **Foreign Keys Cross-Schema**: Tabelas do Atendimento possuem chaves estrangeiras apontando diretamente para `apae_geral.pacientes` e `apae_geral.profissionais_da_saude`, garantindo integridade referencial com comportamento `NO ACTION`.
+2. **Leitura Direta da Agenda (`AgendamentoGeralReadRepository`)**:
+   - Os agendamentos recorrentes do Sistema Geral são lidos via `JdbcTemplate` com queries nativas otimizadas sobre `apae_geral.agendamentos`, `cadastros_anuais` e `pacientes`.
+   - A expansão de recorrências utiliza `generate_series` do PostgreSQL, gerando identificadores determinísticos UUID por ocorrência e marcando a flag `externo: true`.
+3. **Vínculo Derivado (`atendimento.profissional_paciente`)**:
+   - A partir da migração `V10`, o vínculo entre profissional e paciente é calculado dinamicamente por uma **VIEW**.
+   - O profissional visualiza e atende apenas pacientes que possuem agendamentos registrados no sistema.
+4. **Views de Identidade e Catálogo**:
+   - `vw_pacientes`: consolida dados de pacientes, endereços, responsáveis e transtornos sem duplicar registros;
+   - `vw_profissional_saude`: provê os dados necessários para a autenticação e perfis dos especialistas de saúde.
+5. **Redefinição de Senha e Primeiro Acesso**:
+   - Executada através da função canônica do banco:
+     ```sql
+     SELECT apae_geral.definir_senha_primeiro_acesso(:usuarioId, :senhaHash);
+     ```
+
+### Contrato Local em Desenvolvimento
+
+Para viabilizar o desenvolvimento desconectado, o script `.scripts/db/apae-geral-contract.sql` (executado pelo `pnpm db:prepare`) provisiona uma réplica do schema `apae_geral` contendo as tabelas, funções e views essenciais.
+
+---
+
+## Diagrama de Classes
+
+O diagrama abaixo representa o domínio clínico do sistema de Atendimento e suas entidades principais:
+
+```mermaid
+classDiagram
+    direction LR
+
+    class Paciente {
+        -UUID id
+        -String nomeCompleto
+        -LocalDate dataDeNascimento
+        -String contato
+        -List~String~ responsaveis
+        -String cidade
+        -String rua
+        -String bairro
+        -Integer numeroCasa
+        -List~String~ transtornos
+    }
+
+    class ProfissionalSaude {
+        -UUID id
+        -String nomeCompleto
+        -String email
+        -String contato
+        -String especialidade
+        -String registroProfissional
+        -Boolean ativo
+        -Boolean primeiroAcesso
+    }
+
+    class Atendimento {
+        -UUID id
+        -String numeracao
+        -LocalDateTime dataAtendimento
+        -Boolean status
+    }
+
+    class Topico {
+        -UUID id
+        -Integer ordem
+        -String titulo
+        -String descricao
+    }
+
+    class Agendamento {
+        -UUID id
+        -String numeracao
+        -LocalDateTime dataHora
+        -Boolean status
+    }
+
+    class Arquivo {
+        -String objectName
+        -String nomeArquivo
+        -LocalDate data
+        -String titulo
+        -String descricao
+    }
+
+    class TipoArquivo {
+        -Long id
+        -String tipo
+    }
+
+    ProfissionalSaude "1" --> "*" Atendimento : realiza
+    Paciente "1" --> "*" Atendimento : recebe
+    Atendimento "1" --> "*" Topico : possui
+    ProfissionalSaude "1" --> "*" Agendamento : agenda
+    Paciente "1" --> "*" Agendamento : agendado
+    ProfissionalSaude "1" --> "*" Arquivo : anexa
+    Paciente "1" --> "*" Arquivo : referente
+    TipoArquivo "1" --> "*" Arquivo : categoriza
 ```
 
-**2. Configure as credenciais/URL da integração (opcional)**
+---
 
-Por padrão o cliente já aponta para `http://localhost:8090/apae-geral/api` e usa o usuário `admin@teste.com` / `senha123`. Para sobrescrever sem recompilar, adicione ao `backend/docker/docker-compose.properties`:
+## Modelo Entidade-Relacionamento (ER)
 
-```properties
-api.geral.url=http://localhost:8090/apae-geral/api
-api.geral.username=admin@teste.com
-api.geral.password=senha123
+O modelo a seguir detalha o schema físico `atendimento` e suas relações com os objetos externos do `apae_geral`:
+
+```mermaid
+erDiagram
+    APAE_GERAL_PROFISSIONAIS_DA_SAUDE {
+        UUID id PK
+    }
+    APAE_GERAL_PACIENTES {
+        UUID id PK
+    }
+    TIPO_ARQUIVO {
+        BIGINT id PK
+        VARCHAR tipo
+    }
+    ATENDIMENTO {
+        UUID id PK
+        VARCHAR numeracao
+        TIMESTAMP data_atendimento
+        BOOLEAN status
+        UUID profissional_id FK
+        UUID paciente_id FK
+    }
+    TOPICO {
+        UUID id PK
+        INTEGER ordem
+        VARCHAR titulo
+        TEXT descricao
+        UUID atendimento_id FK
+    }
+    AGENDAMENTO {
+        UUID id PK
+        VARCHAR numeracao
+        TIMESTAMP data_hora
+        BOOLEAN status
+        UUID profissional_id FK
+        UUID paciente_id FK
+    }
+    ANEXO {
+        VARCHAR object_name PK
+        VARCHAR nome_arquivo
+        DATE data
+        VARCHAR titulo
+        TEXT descricao
+        BIGINT tipo_id FK
+        UUID profissional_id FK
+        UUID paciente_id FK
+    }
+
+    APAE_GERAL_PROFISSIONAIS_DA_SAUDE ||--o{ ATENDIMENTO : "realiza"
+    APAE_GERAL_PACIENTES ||--o{ ATENDIMENTO : "recebe"
+    ATENDIMENTO ||--o{ TOPICO : "contem topicos"
+    APAE_GERAL_PROFISSIONAIS_DA_SAUDE ||--o{ AGENDAMENTO : "agenda_local"
+    APAE_GERAL_PACIENTES ||--o{ AGENDAMENTO : "paciente"
+    TIPO_ARQUIVO ||--o{ ANEXO : "tipo"
+    APAE_GERAL_PROFISSIONAIS_DA_SAUDE ||--o{ ANEXO : "anexa"
+    APAE_GERAL_PACIENTES ||--o{ ANEXO : "referente a"
 ```
 
-> Garanta que esse usuário existe no banco do apae-geral e que a senha confere (validada via BCrypt).
+> **Nota:** A relação de vínculos `atendimento.profissional_paciente` é implementada como uma VIEW na migração `V10` e não possui chave primária física.
 
-**3. Alinhe o ID do profissional entre os dois sistemas**
+---
 
-A integração busca a agenda usando o **ID do profissional logado** no atendimento. Para que os agendamentos externos apareçam, esse ID precisa ser **o mesmo** de um profissional que tenha agenda no apae-geral. Ou seja: o registro em `vw_profissionais` (atendimento) deve ter o mesmo `id` do profissional correspondente em `profissionais_da_saude` (apae-geral).
+## Referência da API
 
-**4. Suba o backend de atendimento e faça login**
+Base URL: `http://localhost:8082/atendimento` (ou `http://localhost:8080/atendimento`)  
+Swagger UI: `/swagger-ui.html`
 
-```bash
-cd backend/atendimento
-./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
+### Autenticação (`/auth`)
+
+| Método | Endpoint | Descrição |
+|--------|----------|-----------|
+| `POST` | `/auth/login` | Autentica o profissional e define o cookie HttpOnly |
+| `POST` | `/auth/redefinir-senha` | Redefine a senha de primeiro acesso do profissional |
+| `POST` | `/auth/logout` | Realiza logout e revoga o token no blocklist |
+| `GET` | `/auth/me` | Verifica o estado da sessão autenticada |
+
+### Pacientes (`/pacientes`)
+
+| Método | Endpoint | Descrição |
+|--------|----------|-----------|
+| `GET` | `/pacientes/{id}` | Busca os dados completos do paciente por ID |
+| `GET` | `/pacientes/{id}/nome-completo` | Retorna apenas o nome completo do paciente |
+| `GET` | `/pacientes/search` | Busca paginada de pacientes vinculados com filtros (nome, CPF, cidade) |
+| `GET` | `/pacientes/dropdown` | Lista simplificada de pacientes vinculados para preenchimento de selects |
+| `POST` | `/pacientes/{pacienteId}` | Realiza upload da foto de perfil do paciente (Multipart) |
+
+### Atendimentos (`/atendimentos`)
+
+| Método | Endpoint | Descrição |
+|--------|----------|-----------|
+| `POST` | `/atendimentos` | Registra um novo atendimento clínico |
+| `GET` | `/atendimentos/{pacienteId}` | Lista atendimentos do paciente agrupados por mês e ano (paginado) |
+| `PUT` | `/atendimentos/{atendimentoId}` | Atualiza tópicos e anotações do atendimento |
+| `PATCH` | `/atendimentos/{atendimentoId}/concluir` | Marca o atendimento como concluído |
+| `DELETE` | `/atendimentos/{pacienteId}/{atendimentoId}` | Remove um atendimento registrado |
+
+### Agenda (`/agendamento`)
+
+| Método | Endpoint | Descrição |
+|--------|----------|-----------|
+| `POST` | `/agendamento` | Cria um agendamento na agenda local |
+| `GET` | `/agendamento` | Lista a agenda unificada do profissional (locais + canônicos do Geral) agrupada por dia |
+| `PUT` | `/agendamento/{agendamentoId}` | Edita data e horário de um agendamento local |
+| `PATCH` | `/agendamento/{pacienteId}/{agendamentoId}/concluir` | Marca o agendamento como realizado |
+| `DELETE` | `/agendamento/{pacienteId}/{agendamentoId}` | Remove um agendamento da agenda local |
+
+### Arquivos e Anexos (`/arquivo`)
+
+| Método | Endpoint | Descrição |
+|--------|----------|-----------|
+| `POST` | `/arquivo` | Upload de arquivo/laudo no storage MinIO com metadados JSON |
+| `GET` | `/arquivo/{pacienteId}/{tipoId}` | Lista anexos do paciente filtrados pelo tipo de arquivo |
+| `GET` | `/arquivo/date/{pacienteId}/{tipoId}/{data}` | Busca anexos por paciente, tipo e data específica |
+| `DELETE` | `/arquivo/delete?objectName=` | Exclui o arquivo do MinIO e seu registro correspondente |
+
+### Profissionais de Saúde (`/profissionais`)
+
+| Método | Endpoint | Descrição |
+|--------|----------|-----------|
+| `GET` | `/profissionais` | Retorna o perfil completo do profissional autenticado |
+| `GET` | `/profissionais/pacientes` | Lista todos os pacientes vinculados ao profissional |
+| `GET` | `/profissionais/pacientes-option` | Retorna opções formatadas de pacientes para dropdowns |
+
+---
+
+## Códigos de Status HTTP
+
+O backend segue estritamente a convenção REST:
+
+| Código | Significado | Quando é Utilizado |
+|--------|-------------|-------------------|
+| `200 OK` | Sucesso na requisição | Operações de consulta (`GET`), edição (`PUT`) e atualizações parciais (`PATCH`) |
+| `201 Created` | Recurso criado | Criação de agendamentos, atendimentos e uploads de arquivos |
+| `204 No Content` | Sem conteúdo de retorno | Remoção bem-sucedida de arquivos (`DELETE`) |
+| `400 Bad Request` | Requisição inválida | Erros de validação nos payloads (`@Valid`), regras de negócio violadas ou metadados incorretos |
+| `401 Unauthorized` | Não autenticado | Sessão inexistente, expirada ou token JWT ausente/revogado |
+| `403 Forbidden` | Proibido / Sem permissão | Tentativa de acesso a pacientes ou dados que não pertencem ao profissional |
+| `404 Not Found` | Não encontrado | Identificador inexistente de paciente, atendimento ou arquivo |
+| `409 Conflict` | Conflito de dados | Violação de unicidade ou duplicidade de registros |
+| `500 Internal Server Error` | Erro interno | Exceções não tratadas na infraestrutura ou storage |
+
+---
+
+## Padrão de Documentação Swagger/OpenAPI
+
+Para manter o código limpo e desacoplar anotações descritivas da implementação das regras de negócio, o Atendimento adota o padrão de **Interfaces de Documentação (`*Docs.java`)**.
+
+### Como Funciona
+
+1. **Interface de Contrato**: Cada controller possui uma interface correspondente (ex: `AtendimentoControllerDocs`, `PacienteControllerDocs`).
+2. **Anotações OpenAPI**: Anotações `@Tag`, `@Operation`, `@ApiResponses`, `@ApiResponse` e `@Parameter` são declaradas exclusivamente na interface.
+3. **Implementação Limpa**: A classe `@RestController` implementa a interface sem precisar repetir blocos verbosos de documentação.
+
+### Exemplo
+
+```java
+// Interface de Documentação
+@Tag(name = "Atendimento", description = "Endpoints de registro e consulta de atendimentos")
+public interface AtendimentoControllerDocs {
+
+    @Operation(summary = "Criar atendimento", description = "Registra um novo atendimento com seus tópicos.")
+    @ApiResponses({
+        @ApiResponse(responseCode = "201", description = "Atendimento criado com sucesso"),
+        @ApiResponse(responseCode = "400", description = "Dados inválidos fornecidos"),
+        @ApiResponse(responseCode = "401", description = "Não autorizado")
+    })
+    ResponseEntity<AtendimentoResponseDTO> criarAtendimento(
+        AtendimentoRequestDTO atendimento,
+        @Parameter(hidden = true) UsuarioAutenticado usuarioAutenticado
+    );
+}
+
+// Controller Implementador
+@RestController
+@RequestMapping("/atendimentos")
+public class AtendimentoController implements AtendimentoControllerDocs {
+
+    @Override
+    @PostMapping
+    public ResponseEntity<AtendimentoResponseDTO> criarAtendimento(
+            @Valid @RequestBody AtendimentoRequestDTO dto,
+            @AuthenticationPrincipal UsuarioAutenticado usuario) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.addAtendimento(dto, usuario.getId()));
+    }
+}
 ```
-
-Faça login no frontend com um profissional cujo ID esteja alinhado (passo 3) e abra a **Agenda**. Os agendamentos do sistema geral devem aparecer junto com os locais.
-
-### Solução de Problemas
-
-| Sintoma | Causa Provável |
-|---------|----------------|
-| Nada aparece / lista só com os locais | Verifique o log do backend — o `AgendamentoExternoClient` registra avisos (`log.warn`) com a causa (token nulo, 403, 401 etc.) |
-| `Erro ao obter token do sistema geral: 403` | A URL está sem o `/api` ou o apae-geral não está no ar |
-| `401 - E-mail ou senha incorretos` | O usuário/senha da integração não confere com o banco do apae-geral |
-| Login OK mas lista vazia | O ID do profissional logado não corresponde a nenhum profissional com agenda no apae-geral (ver passo 3) |
 
 ---
 
 ## Git Flow
 
-O projeto utiliza a branch `dev` como branch principal e única branch protegida. O trabalho é orientado por issues do [board do projeto](https://github.com/orgs/IFPBEsp/projects/).
+O projeto adota o modelo de branches simplificado, com a branch `dev` como principal e protegida:
 
 ```
-dev ──────────────────────────────────────────────────────▶ (branch principal)
+dev ────────────────────────────────────────────────────────▶ (branch principal protegida)
   │
-  ├── 10-feat-prontuario-eletronico ──────── PR ── review ── merge em dev
-  ├── 25-fix-corrigir-listagem-pacientes ─── PR ── review ── merge em dev
-  ├── 42-refactor-cliente-integracao ─────── PR ── review ── merge em dev
-  └── 98-docs-padronizar-readme ──────────── PR ── review ── merge em dev
+  ├── 404-chore-padronizar-readme ───────────── PR ── review ── merge em dev
+  ├── 411-refactor-remover-fluxo-homepage ──── PR ── review ── merge em dev
+  └── 420-feat-novos-topicos-atendimento ───── PR ── review ── merge em dev
 ```
 
-### Branches
+### Convenção de Branches
 
-| Branch | Finalidade | Protegida? |
-|--------|------------|------------|
-| `dev` | Branch principal (default), base de todo o desenvolvimento | Sim — somente via PR revisado |
-| `{numero}-feat-*` | Novas funcionalidades | Não |
-| `{numero}-fix-*` | Correções de bugs | Não |
-| `{numero}-docs-*` | Alterações de documentação | Não |
-| `{numero}-refactor-*` | Refatorações sem mudança de comportamento | Não |
+| Padrão de Nomenclatura | Finalidade |
+|------------------------|------------|
+| `dev` | Branch principal e base de integração estável |
+| `{numero}-feat-*` | Desenvolvimento de novas funcionalidades |
+| `{numero}-fix-*` | Correção de bugs e regressões |
+| `{numero}-chore-*` | Manutenção, dependências e configurações |
+| `{numero}-docs-*` | Criação ou revisão de documentação |
+| `{numero}-refactor-*` | Refatoração de código sem alteração funcional |
 
-> O nome da branch é gerado automaticamente pelo GitHub ao clicar em **"Create a branch"** na seção **Development** da issue (menu lateral direito). Isso vincula a branch à issue automaticamente.
+---
 
-### Fluxo de Trabalho
+## Style Guide
 
-#### 1. Pegar a issue
+### Diretrizes Gerais
 
-1. Escolher uma issue na coluna **Ready** do board do projeto.
-2. No menu lateral direito da issue:
-   - **Assignees** — assinar a issue para si.
-   - **Estimate** — preencher com o número de dias estimado para conclusão.
-   - **Start date** — preencher com a data de início do trabalho.
-3. Na seção **Development** (menu lateral direito), clicar em **"Create a branch"** — o GitHub gera a branch a partir de `dev` com nome no formato `{numero}-{tipo}-{descricao}` e vincula automaticamente.
-4. Mover o card da issue de **Ready** para **In Progress** no board.
-5. Fazer checkout da branch localmente:
-   ```bash
-   git fetch origin
-   git checkout 42-refactor-cliente-integracao
-   ```
+- **Nomenclatura no Código**: Nomes de variáveis, métodos, classes e arquivos sempre em **inglês**.
+- **Comentários e Documentação**: Textos de interface, mensagens de erro, commits e documentações em **português**.
+- **Indentação**: 2 espaços no Frontend (TypeScript/React); 4 espaços no Backend (Java).
 
-#### 2. Desenvolver
+### Frontend (TypeScript / React)
 
-6. Realizar os commits seguindo o padrão de [Conventional Commits](#-conventional-commits).
+- Componentes e tipos nomeados em **PascalCase** (`PacienteCard.tsx`, `AtendimentoResponseDTO`).
+- Hooks e funções utilitárias em **camelCase** (`useAtendimento`, `formatCpf`).
+- Estilização unificada via classes utilitárias do **Tailwind CSS**.
+- Componentes modulares agrupados por domínio em `src/features/`.
 
-#### 3. Solicitar revisão
+### Backend (Java / Spring Boot)
 
-7. Ao concluir, abrir um **Pull Request** para `dev`.
-8. Na aba do PR, adicionar o **PO** e o **Scrum Master** como **Reviewers**.
-9. Mover o card da issue de **In Progress** para **Code Review** no board.
-10. Enviar o link do PR no canal de Pull Requests do Discord, marcando o PO e o Scrum Master.
-
-#### 4. Revisão
-
-11. **Se aprovado** — o revisor realiza o merge em `dev` e move o card para **Weekly Review**.
-12. **Se alterações forem solicitadas** — o revisor move o card para **Changes Requested** e comunica via Discord. O dev corrige e volta ao passo 7.
-
-#### 5. Finalização
-
-13. Na **reunião semanal** do time, as issues em **Weekly Review** são apresentadas ao grupo.
-14. Após a apresentação, o card é movido para **Done**.
-
-### Regras
-
-1. **Nunca** faça commit diretamente em `dev`.
-2. Cada issue deve ter **sua própria branch**, criada via GitHub para manter o vínculo.
-3. O autor do PR **não pode** aprovar e mergear seu próprio código.
-4. O merge só é feito após **revisão e aprovação** por PO ou Scrum Master.
-5. Sempre **assinar a issue** e preencher **Estimate** e **Start date** antes de começar a trabalhar.
-6. Sempre **comunicar via Discord** ao abrir um PR.
+- Classes nomeadas em **PascalCase** (`AtendimentoService`, `AgendamentoController`).
+- Métodos e variáveis em **camelCase** (`buscarPorId`, `dataAtendimento`).
+- Constantes em **UPPER_SNAKE_CASE** (`TOKEN_COOKIE_NAME`).
+- DTOs estritamente separados das entidades de banco, com validações via Bean Validation (`@NotNull`, `@NotBlank`).
 
 ---
 
 ## Conventional Commits
 
-Todos os commits devem seguir o padrão [Conventional Commits](https://www.conventionalcommits.org/):
+Mensagens de commit devem seguir o padrão:
 
 ```
-tipo: descrição do commit
+tipo: descrição curta em português e letras minúsculas
 ```
 
-### Tipos
-
-| Tipo | Quando usar | Exemplo |
-|------|-------------|---------|
-| `feat` | Nova funcionalidade | `feat: adiciona registro de anexos no prontuário` |
-| `fix` | Correção de bug | `fix: corrige listagem de pacientes por especialidade` |
-| `docs` | Documentação | `docs: padroniza readme com estrutura do gestao escolar` |
-| `style` | Formatação (sem mudança de lógica) | `style: aplica formatação pnpm no frontend` |
-| `refactor` | Refatoração (sem mudança de comportamento) | `refactor: extrai lógica de integração para AgendamentoExternoClient` |
-| `test` | Testes | `test: adiciona teste unitário para AgendamentoService` |
-| `chore` | Tarefas de manutenção | `chore: atualiza dependências do Spring Boot` |
-| `perf` | Melhoria de performance | `perf: otimiza query de listagem de agenda` |
-| `ci` | Integração contínua | `ci: adiciona workflow de build no GitHub Actions` |
-
-### Regras
-
-- Formato: **`tipo: descrição`** (sem escopo entre parênteses).
-- Descrição em **português**.
-- Primeira letra **minúscula** na descrição.
-- Sem ponto final na primeira linha.
-- Corpo opcional para explicar o **porquê** da mudança.
+| Tipo | Finalidade | Exemplo |
+|------|------------|---------|
+| `feat` | Nova funcionalidade | `feat: adiciona upload de laudo no formato pdf` |
+| `fix` | Correção de defeito | `fix: corrige ordenação de agendamentos por horário` |
+| `docs` | Alteração de documentação | `docs: padroniza readme com modelo do gestao escolar` |
+| `refactor` | Refatoração sem impacto funcional | `refactor: desacopla documentacao swagger em interfaces docs` |
+| `chore` | Manutenções e dependências | `chore: atualiza imagem do flyway no docker-compose` |
+| `test` | Criação ou ajuste de testes | `test: adiciona teste de integracao para agendamento read` |
 
 ---
 
 ## Como Contribuir
 
-O fluxo completo está detalhado na seção [Git Flow](#-git-flow). Em resumo:
-
-1. Escolha uma issue na coluna **Ready** do board do projeto.
-2. Assine a issue, preencha **Estimate** e **Start date**, crie a branch via GitHub e mova para **In Progress**.
-3. Implemente as alterações e faça commits seguindo os [Conventional Commits](#-conventional-commits).
-4. Abra um **Pull Request** para `dev`, adicione PO e Scrum Master como revisores, mova para **Code Review** e envie o link no Discord.
-5. Aguarde revisão — o autor não realiza o merge.
+1. Localize a issue atribuída a você no board do projeto;
+2. Crie uma branch a partir da `dev` seguindo o formato `{numero}-{tipo}-{descricao}`;
+3. Desenvolva as alterações mantendo cobertura de testes e conformidade com o Style Guide;
+4. Realize os commits seguindo a convenção do [Conventional Commits](#-conventional-commits);
+5. Abra um **Pull Request** para a branch `dev`, preencha o template e mencione o PO e o Scrum Master para Code Review;
+6. Após as aprovações técnicas e resolução de eventuais comentários, o merge será realizado.
 
 ---
 
