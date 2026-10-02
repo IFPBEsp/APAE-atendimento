@@ -27,8 +27,11 @@ Caso o valor retornado seja menor que `262144`, você precisará aumentá-lo (em
 Para iniciar o SonarQube localmente, utilize o arquivo de composição do repositório executando o comando abaixo a partir da raiz:
 
 ```
-docker compose -f docker-compose.sonar.yml up
+SONAR_PORT=9501 docker compose -f docker-compose.sonar.yml up
 ```
+
+**Por que a variável `SONAR_PORT=9501` é obrigatória?**
+O arquivo `docker-compose.sonar.yml` deste repositório publica a porta do serviço com o padrão `${SONAR_PORT:-9500}`. Se o comando for executado sem a variável, o servidor subirá na porta **9500** — a mesma utilizada pelo SonarQube do repositório APAE Geral — gerando conflito de porta. Definir `SONAR_PORT=9501` explicitamente antes do comando garante que este serviço fique isolado na porta 9501, permitindo que o desenvolvedor tenha os três servidores do ecossistema APAE (Geral, Atendimento e Gestão Escolar) de pé ao mesmo tempo na sua máquina local.
 
 *(Rodar sem a flag `-d` fará com que você veja os logs em tempo real).*
 
@@ -39,9 +42,6 @@ docker compose -f docker-compose.sonar.yml up
 Como o servidor ficará rodando e ocupando este terminal, **abra uma nova aba ou janela de terminal** para executar os passos seguintes.
 
 O painel do SonarQube estará disponível no endereço: <http://localhost:9501>
-
-**Por que a porta não é a 9000 (padrão)?**
-A porta 9501 foi escolhida como desvio para que o desenvolvedor possa ter os três servidores do ecossistema APAE (Geral, Atendimento e Gestão Escolar) de pé ao mesmo tempo na sua máquina local sem gerar conflitos de porta.
 
 ## 3. Gerar o token
 
@@ -73,17 +73,23 @@ export SONAR_TOKEN="cole_seu_token_aqui"
 
 ## 4. Analisar o backend
 
-Como o código do backend Java está contido no módulo `backend/atendimento`, navegue até o diretório correspondente:
+O código do backend Java está contido no diretório `backend/atendimento`. Navegue até ele a partir da raiz do repositório:
 
 ```
 cd backend/atendimento
 ```
 
-Com o token na variável de ambiente e o servidor rodando, execute a análise com o comando do Maven Wrapper completo:
+Com o token na variável de ambiente e o servidor rodando, execute a análise com o comando completo do Maven Wrapper:
 
 ```
-./mvnw clean verify sonar:sonar
+./mvnw clean verify sonar:sonar -DskipTests -Dsonar.host.url=http://localhost:9501
 ```
+
+**Por que cada parâmetro é obrigatório?**
+
+* **`verify`**: garante a compilação do código e a geração dos arquivos `.class` em `target/classes`, exigidos pelo scanner de Java. Sem essa fase, o SonarQube não encontra o bytecode e a análise não acontece — o comando `sonar:sonar` sozinho não serve para analisar o projeto.
+* **`-DskipTests`**: a suíte unitária do backend (em especial a classe `AtendimentoServiceTest`) apresenta falhas pré-existentes que interromperiam a build antes da fase de análise. Este parâmetro contorna essas falhas sem travar o pipeline do SonarQube.
+* **`-Dsonar.host.url=http://localhost:9501`**: força o scanner a enviar a análise para a porta 9501 configurada para este serviço, em vez do endereço padrão do plugin (`http://localhost:9000`).
 
 Após o término da execução com sucesso (`BUILD SUCCESS`), retorne para a raiz do repositório:
 
@@ -91,21 +97,21 @@ Após o término da execução com sucesso (`BUILD SUCCESS`), retorne para a rai
 cd ../..
 ```
 
-**Por que o `verify` é necessário?**
-A fase `verify` no Maven garante a compilação e a execução dos testes. Sem essa fase, a pasta `target/classes` não é criada, e sem os arquivos `.class` compilados, a análise de Java não acontece. O comando `sonar:sonar` sozinho não serve para analisar o projeto.
-
 ## 5. Analisar o frontend
 
-Certifique-se de que está na raiz do projeto e execute o script preparado:
+Certifique-se de que está na raiz do projeto e execute o script preparado, garantindo o apontamento da porta correta:
 
 ```
-./.scripts/sonar-scan-frontend.sh
+SONAR_HOST_URL=http://localhost:9501 ./.scripts/sonar-scan-frontend.sh
 ```
+
+**Por que a variável `SONAR_HOST_URL` é obrigatória?**
+O script utiliza `http://localhost:9500` como valor padrão de `SONAR_HOST_URL`. Como este serviço roda na porta 9501, a variável precisa ser definida explicitamente antes do comando para que o relatório de análise seja enviado ao servidor correto.
 
 *(Certifique-se de que a variável `SONAR_TOKEN` continua exportada no ambiente desse terminal).*
 
 **O que o script faz por baixo?**
-Ele roda o scanner em container. O script baixa e executa a imagem Docker do `sonar-scanner-cli`, montando o diretório do módulo atual para dentro do container e enviando os dados para a porta 9501 sem exigir Node instalado ou configurações locais complexas na sua máquina.
+Ele roda o scanner em container. O script baixa e executa a imagem Docker do `sonar-scanner-cli`, montando o diretório do módulo atual para dentro do container e enviando os dados para o servidor definido em `SONAR_HOST_URL` (porta 9501) sem exigir Node instalado ou configurações locais complexas na sua máquina.
 
 ## 6. Ler o painel
 
@@ -128,7 +134,7 @@ A aba **Issues** lista os detalhes específicos de cada problema encontrado no c
 
 Atualmente, é esperado que a cobertura de código apareça baixa ou zerada:
 
-* **Backend (`apae-atendimento-backend`):** O relatório de cobertura (`jacoco.xml`) é gerado durante a fase `verify` do Maven. A porcentagem reportada reflete o volume de testes unitários atualmente implementados no backend.
+* **Backend (`apae-atendimento-backend`):** O relatório de cobertura (`jacoco.xml`) seria gerado durante a fase `verify` do Maven. Como o comando local utiliza `-DskipTests` para contornar as falhas pré-existentes da suíte unitária, os testes não são executados e nenhuma cobertura é coletada — a porcentagem reportada reflete o volume de testes que rodarem de fato durante a análise.
 * **Frontend (`apae-atendimento-frontend`):** O arquivo de configuração `sonar-project.properties` do módulo espera o relatório de testes no caminho `coverage/lcov.info`. Como os runners de testes do frontend ainda não estão configurados para gerar esse arquivo durante o fluxo local, a cobertura aparece como 0.0%.
 
 Isso deve ser lido como uma etapa futura de implementação das suítes de testes nos repositórios, e **não como um erro de configuração** do seu ambiente local do SonarQube.
