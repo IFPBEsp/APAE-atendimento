@@ -1,0 +1,26 @@
+name: Flyway Migrations Validate
+
+on:
+  pull_request:
+    paths:
+      - "backend/atendimento/src/main/resources/db/migration/**"
+      - ".scripts/db/apae-geral-contract.sql"
+      - ".github/workflows/flyway-validate.yml"
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  flyway:
+    name: Validate Flyway migrations
+    uses: IFPBEsp/APAE-INFRA/.github/workflows/flyway-validate-reusable.yml@58-ci-criar-workflow-reutilizavel-para-validacao-de-migrations-do-flyway-dos-repositorios-da-apae
+    with:
+      migrations-path: "backend/atendimento/src/main/resources/db/migration"
+      extra-migrations-paths: |
+        .scripts/db/apae-geral-contract.sql
+      schemas: "atendimento"
+      postgres-version: "16"
+      flyway-version: "11.7.2"
+      check-upgrade-path: true
+      fail-on-destructive: false
