@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -22,9 +23,14 @@ import static org.junit.jupiter.api.Assertions.*;
 @Transactional
 class AgendamentoServiceIntegrationTest extends AbstractIntegrationTest {
 
-    private static final UUID PROFISSIONAL_ID = UUID.fromString("44444444-4444-4444-4444-444444444444");
-    private static final UUID PACIENTE_VINCULADO_ID = UUID.fromString("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
-    private static final UUID PACIENTE_GERAL_ID = UUID.fromString("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+    private static final UUID PROFISSIONAL_ID =
+            UUID.fromString("44444444-4444-4444-4444-444444444444");
+
+    private static final UUID PACIENTE_VINCULADO_ID =
+            UUID.fromString("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+
+    private static final UUID PACIENTE_GERAL_ID =
+            UUID.fromString("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
 
     @Autowired
     private AgendamentoService agendamentoService;
@@ -35,22 +41,40 @@ class AgendamentoServiceIntegrationTest extends AbstractIntegrationTest {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
+
     @Test
     @DisplayName("Deve separar pacientes gerais de pacientes vinculados")
     void deveSepararPacientesGeraisDePacientesVinculados() {
         removerVinculoPacienteGeral();
 
-        assertTrue(pacienteRepository.buscarTodosPacientes(null, null, null, org.springframework.data.domain.Pageable.unpaged())
+        assertTrue(
+                pacienteRepository.buscarTodosPacientes(
+                        null,
+                        null,
+                        null,
+                        org.springframework.data.domain.Pageable.unpaged()
+                )
                 .stream()
-                .anyMatch(paciente -> paciente.getId().equals(PACIENTE_GERAL_ID)));
+                .anyMatch(paciente ->
+                        paciente.getId().equals(PACIENTE_GERAL_ID)
+                )
+        );
 
-        assertTrue(pacienteRepository.findByProfissionalId(PROFISSIONAL_ID)
-                .stream()
-                .anyMatch(paciente -> paciente.getId().equals(PACIENTE_VINCULADO_ID)));
+        assertTrue(
+                pacienteRepository.findByProfissionalId(PROFISSIONAL_ID)
+                        .stream()
+                        .anyMatch(paciente ->
+                                paciente.getId().equals(PACIENTE_VINCULADO_ID)
+                        )
+        );
 
-        assertFalse(pacienteRepository.findByProfissionalId(PROFISSIONAL_ID)
-                .stream()
-                .anyMatch(paciente -> paciente.getId().equals(PACIENTE_GERAL_ID)));
+        assertFalse(
+                pacienteRepository.findByProfissionalId(PROFISSIONAL_ID)
+                        .stream()
+                        .anyMatch(paciente ->
+                                paciente.getId().equals(PACIENTE_GERAL_ID)
+                        )
+        );
     }
 
     @Test
@@ -70,9 +94,14 @@ class AgendamentoServiceIntegrationTest extends AbstractIntegrationTest {
         );
 
         assertEquals(1, contarVinculosPacienteGeral());
-        assertTrue(pacienteRepository.findByProfissionalId(PROFISSIONAL_ID)
-                .stream()
-                .anyMatch(paciente -> paciente.getId().equals(PACIENTE_GERAL_ID)));
+
+        assertTrue(
+                pacienteRepository.findByProfissionalId(PROFISSIONAL_ID)
+                        .stream()
+                        .anyMatch(paciente ->
+                                paciente.getId().equals(PACIENTE_GERAL_ID)
+                        )
+        );
     }
 
     @Test
@@ -130,6 +159,7 @@ class AgendamentoServiceIntegrationTest extends AbstractIntegrationTest {
     @DisplayName("Deve editar agendamento alterando o paciente e vincular novo paciente")
     void deveEditarPacienteDoAgendamentoComSucesso() {
         removerVinculoPacienteGeral();
+
         assertEquals(0, contarVinculosPacienteGeral());
 
         LocalDate data = LocalDate.now().plusDays(7);
@@ -177,10 +207,15 @@ class AgendamentoServiceIntegrationTest extends AbstractIntegrationTest {
                 PROFISSIONAL_ID
         );
 
-        agendamentoService.concluir(PROFISSIONAL_ID, PACIENTE_VINCULADO_ID, criado.id());
+        agendamentoService.concluir(
+                PROFISSIONAL_ID,
+                PACIENTE_VINCULADO_ID,
+                criado.id()
+        );
 
-        assertThrows(AgendamentoInvalidException.class, () ->
-                agendamentoService.editar(
+        assertThrows(
+                AgendamentoInvalidException.class,
+                () -> agendamentoService.editar(
                         criado.id(),
                         PROFISSIONAL_ID,
                         new AgendamentoRequestDTO(
@@ -193,42 +228,187 @@ class AgendamentoServiceIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
-    @DisplayName("Deve manter totalElements consistente ao paginar agendamentos agrupados por dia")
+    @DisplayName("Deve manter metadados consistentes ao paginar agendamentos agrupados por dia")
     void deveManterTotalElementsConsistenteAoPaginarAgendamentosAgrupados() {
-        long totalAntes = agendamentoService
-                .listarAgrupadoPorDia(PROFISSIONAL_ID, null, 0, 1000)
-                .getTotalElements();
-
-        LocalDate dataComDoisAgendamentos = LocalDate.now().plusDays(40);
-        LocalDate outraData = LocalDate.now().plusDays(41);
+        LocalDate data1 = LocalDate.now().plusDays(40);
+        LocalDate data2 = LocalDate.now().plusDays(41);
+        LocalDate data3 = LocalDate.now().plusDays(42);
+        LocalDate data4 = LocalDate.now().plusDays(43);
+        LocalDate data5 = LocalDate.now().plusDays(50);
+        LocalDate data6 = LocalDate.now().plusDays(51);
+        LocalDate data7 = LocalDate.now().plusDays(52);
+        LocalDate data8 = LocalDate.now().plusDays(53);
+        LocalDate data9 = LocalDate.now().plusDays(54);
+        LocalDate data10 = LocalDate.now().plusDays(55);
+        LocalDate data11 = LocalDate.now().plusDays(56);
+        LocalDate data12 = LocalDate.now().plusDays(57);
+        LocalDate data13 = LocalDate.now().plusDays(58);
+        LocalDate data14 = LocalDate.now().plusDays(59);
 
         agendamentoService.agendar(
-                new AgendamentoRequestDTO(PACIENTE_VINCULADO_ID, dataComDoisAgendamentos, LocalTime.of(9, 0)),
+                new AgendamentoRequestDTO(
+                        PACIENTE_VINCULADO_ID,
+                        data1,
+                        LocalTime.of(9, 0)
+                ),
                 PROFISSIONAL_ID
         );
+
         agendamentoService.agendar(
-                new AgendamentoRequestDTO(PACIENTE_GERAL_ID, dataComDoisAgendamentos, LocalTime.of(10, 0)),
+                new AgendamentoRequestDTO(
+                        PACIENTE_GERAL_ID,
+                        data1,
+                        LocalTime.of(10, 0)
+                ),
                 PROFISSIONAL_ID
         );
+
         agendamentoService.agendar(
-                new AgendamentoRequestDTO(PACIENTE_VINCULADO_ID, outraData, LocalTime.of(9, 0)),
+                new AgendamentoRequestDTO(
+                        PACIENTE_VINCULADO_ID,
+                        data2,
+                        LocalTime.of(9, 0)
+                ),
                 PROFISSIONAL_ID
         );
 
-        long totalEsperado = totalAntes + 3;
+        agendamentoService.agendar(
+                new AgendamentoRequestDTO(
+                        PACIENTE_VINCULADO_ID,
+                        data3,
+                        LocalTime.of(9, 0)
+                ),
+                PROFISSIONAL_ID
+        );
 
-        Page<DiaAgendamentoResponseDTO> pagina0 = agendamentoService
-                .listarAgrupadoPorDia(PROFISSIONAL_ID, null, 0, 1);
-        Page<DiaAgendamentoResponseDTO> pagina1 = agendamentoService
-                .listarAgrupadoPorDia(PROFISSIONAL_ID, null, 1, 1);
+        agendamentoService.agendar(
+                new AgendamentoRequestDTO(
+                        PACIENTE_GERAL_ID,
+                        data3,
+                        LocalTime.of(10, 0)
+                ),
+                PROFISSIONAL_ID
+        );
 
-        assertEquals(totalEsperado, pagina0.getTotalElements());
-        assertEquals(totalEsperado, pagina1.getTotalElements());
+        agendamentoService.agendar(
+                new AgendamentoRequestDTO(
+                        PACIENTE_VINCULADO_ID,
+                        data4,
+                        LocalTime.of(9, 0)
+                ),
+                PROFISSIONAL_ID
+        );
+
+        agendamentoService.agendar(
+                new AgendamentoRequestDTO(
+                        PACIENTE_VINCULADO_ID,
+                        data5,
+                        LocalTime.of(9, 0)
+                ),
+                PROFISSIONAL_ID
+        );
+
+        agendamentoService.agendar(
+                new AgendamentoRequestDTO(
+                        PACIENTE_GERAL_ID,
+                        data6,
+                        LocalTime.of(9, 0)
+                ),
+                PROFISSIONAL_ID
+        );
+
+        agendamentoService.agendar(
+                new AgendamentoRequestDTO(
+                        PACIENTE_VINCULADO_ID,
+                        data7,
+                        LocalTime.of(9, 0)
+                ),
+                PROFISSIONAL_ID
+        );
+
+        agendamentoService.agendar(
+                new AgendamentoRequestDTO(
+                        PACIENTE_GERAL_ID,
+                        data8,
+                        LocalTime.of(9, 0)
+                ),
+                PROFISSIONAL_ID
+        );
+
+        agendamentoService.agendar(
+                new AgendamentoRequestDTO(
+                        PACIENTE_VINCULADO_ID,
+                        data9,
+                        LocalTime.of(9, 0)
+                ),
+                PROFISSIONAL_ID
+        );
+
+        agendamentoService.agendar(
+                new AgendamentoRequestDTO(
+                        PACIENTE_GERAL_ID,
+                        data10,
+                        LocalTime.of(9, 0)
+                ),
+                PROFISSIONAL_ID
+        );
+
+        agendamentoService.agendar(
+                new AgendamentoRequestDTO(
+                        PACIENTE_VINCULADO_ID,
+                        data11,
+                        LocalTime.of(9, 0)
+                ),
+                PROFISSIONAL_ID
+        );
+
+        agendamentoService.agendar(
+                new AgendamentoRequestDTO(
+                        PACIENTE_GERAL_ID,
+                        data12,
+                        LocalTime.of(9, 0)
+                ),
+                PROFISSIONAL_ID
+        );
+
+        agendamentoService.agendar(
+                new AgendamentoRequestDTO(
+                        PACIENTE_VINCULADO_ID,
+                        data13,
+                        LocalTime.of(9, 0)
+                ),
+                PROFISSIONAL_ID
+        );
+
+        agendamentoService.agendar(
+                new AgendamentoRequestDTO(
+                        PACIENTE_GERAL_ID,
+                        data14,
+                        LocalTime.of(9, 0)
+                ),
+                PROFISSIONAL_ID
+        );
+
+
+        Page<DiaAgendamentoResponseDTO> pagina =
+                agendamentoService.listarAgrupadoPorDia(
+                        PROFISSIONAL_ID,
+                        null,
+                        1,
+                        10
+                );
+
+        assertEquals(4, pagina.getContent().size());
+        assertEquals(16, pagina.getTotalElements());
+        assertEquals(2, pagina.getTotalPages());
+        assertFalse(pagina.isFirst());
+        assertTrue(pagina.isLast());
     }
 
     private void removerVinculoPacienteGeral() {
         jdbcTemplate.update(
-                "DELETE FROM atendimento.profissional_paciente WHERE profissional_id = ? AND paciente_id = ?",
+                "DELETE FROM atendimento.profissional_paciente " +
+                        "WHERE profissional_id = ? AND paciente_id = ?",
                 PROFISSIONAL_ID,
                 PACIENTE_GERAL_ID
         );
@@ -244,11 +424,13 @@ class AgendamentoServiceIntegrationTest extends AbstractIntegrationTest {
 
     private int contarVinculos(UUID pacienteId) {
         Integer count = jdbcTemplate.queryForObject(
-                "SELECT COUNT(*) FROM atendimento.profissional_paciente WHERE profissional_id = ? AND paciente_id = ?",
+                "SELECT COUNT(*) FROM atendimento.profissional_paciente " +
+                        "WHERE profissional_id = ? AND paciente_id = ?",
                 Integer.class,
                 PROFISSIONAL_ID,
                 pacienteId
         );
+
         return count == null ? 0 : count;
     }
 }
