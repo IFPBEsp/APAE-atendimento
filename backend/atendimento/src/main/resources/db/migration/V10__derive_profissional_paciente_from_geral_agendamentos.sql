@@ -12,6 +12,4 @@ JOIN apae_geral.cadastros_anuais ca ON ca.id = a.cadastro_anual_id;
 COMMENT ON VIEW atendimento.profissional_paciente IS
     'Vínculos de leitura derivados do histórico de agendamentos do apae_geral; não inserir diretamente.';
 
--- teste de imutabilidade
-
 DROP TABLE atendimento.profissional_paciente_legado;
