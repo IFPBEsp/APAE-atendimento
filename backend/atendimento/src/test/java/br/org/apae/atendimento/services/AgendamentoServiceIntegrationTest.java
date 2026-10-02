@@ -264,7 +264,6 @@ class AgendamentoServiceIntegrationTest extends AbstractIntegrationTest {
     @Test
     @DisplayName("Deve manter metadados consistentes ao paginar agendamentos agrupados por dia")
     void deveManterTotalElementsConsistenteAoPaginarAgendamentosAgrupados() {
-        removerVinculoPacienteGeral();
         criarAgendaNoGeralParaPacienteGeral();
 
         LocalDate data1 = LocalDate.now().plusDays(40);
@@ -298,7 +297,6 @@ class AgendamentoServiceIntegrationTest extends AbstractIntegrationTest {
         agendamentoService.agendar(new AgendamentoRequestDTO(PACIENTE_VINCULADO_ID, data3, LocalTime.of(9, 0)), PROFISSIONAL_ID);
         agendamentoService.agendar(new AgendamentoRequestDTO(PACIENTE_GERAL_ID, data3, LocalTime.of(10, 0)), PROFISSIONAL_ID);
         agendamentoService.agendar(new AgendamentoRequestDTO(PACIENTE_VINCULADO_ID, data2, LocalTime.of(9, 0)), PROFISSIONAL_ID);
-        agendamentoService.agendar(new AgendamentoRequestDTO(PACIENTE_GERAL_ID, data1, LocalTime.of(10, 0)), PROFISSIONAL_ID);
 
         Page<DiaAgendamentoResponseDTO> pagina =
                 agendamentoService.listarAgrupadoPorDia(
