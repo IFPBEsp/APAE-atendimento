@@ -47,7 +47,7 @@ class AgendamentoServiceIntegrationTest extends AbstractIntegrationTest {
         removerVinculoPacienteGeral();
 
         assertTrue(
-                pacienteRepository.buscarTodosPacientes(
+                pacienteRepository.buscarPaciente(PROFISSIONAL_ID,
                         null,
                         null,
                         null,
@@ -271,160 +271,34 @@ class AgendamentoServiceIntegrationTest extends AbstractIntegrationTest {
         LocalDate data2 = LocalDate.now().plusDays(41);
         LocalDate data3 = LocalDate.now().plusDays(42);
         LocalDate data4 = LocalDate.now().plusDays(43);
-        LocalDate data5 = LocalDate.now().plusDays(50);
-        LocalDate data6 = LocalDate.now().plusDays(51);
-        LocalDate data7 = LocalDate.now().plusDays(52);
-        LocalDate data8 = LocalDate.now().plusDays(53);
-        LocalDate data9 = LocalDate.now().plusDays(54);
-        LocalDate data10 = LocalDate.now().plusDays(55);
-        LocalDate data11 = LocalDate.now().plusDays(56);
-        LocalDate data12 = LocalDate.now().plusDays(57);
-        LocalDate data13 = LocalDate.now().plusDays(58);
-        LocalDate data14 = LocalDate.now().plusDays(59);
+        LocalDate data5 = LocalDate.now().plusDays(44);
+        LocalDate data6 = LocalDate.now().plusDays(45);
+        LocalDate data7 = LocalDate.now().plusDays(46);
+        LocalDate data8 = LocalDate.now().plusDays(47);
+        LocalDate data9 = LocalDate.now().plusDays(48);
+        LocalDate data10 = LocalDate.now().plusDays(49);
+        LocalDate data11 = LocalDate.now().plusDays(50);
+        LocalDate data12 = LocalDate.now().plusDays(51);
+        LocalDate data13 = LocalDate.now().plusDays(52);
+        LocalDate data14 = LocalDate.now().plusDays(53);
 
-        agendamentoService.agendar(
-                new AgendamentoRequestDTO(
-                        PACIENTE_VINCULADO_ID,
-                        data1,
-                        LocalTime.of(9, 0)
-                ),
-                PROFISSIONAL_ID
-        );
+        agendamentoService.agendar(new AgendamentoRequestDTO(PACIENTE_VINCULADO_ID, data14, LocalTime.of(9, 0)), PROFISSIONAL_ID);
+        agendamentoService.agendar(new AgendamentoRequestDTO(PACIENTE_VINCULADO_ID, data13, LocalTime.of(9, 0)), PROFISSIONAL_ID);
+        agendamentoService.agendar(new AgendamentoRequestDTO(PACIENTE_VINCULADO_ID, data12, LocalTime.of(9, 0)), PROFISSIONAL_ID);
+        agendamentoService.agendar(new AgendamentoRequestDTO(PACIENTE_VINCULADO_ID, data11, LocalTime.of(9, 0)), PROFISSIONAL_ID);
+        agendamentoService.agendar(new AgendamentoRequestDTO(PACIENTE_VINCULADO_ID, data10, LocalTime.of(9, 0)), PROFISSIONAL_ID);
+        agendamentoService.agendar(new AgendamentoRequestDTO(PACIENTE_VINCULADO_ID, data9, LocalTime.of(9, 0)), PROFISSIONAL_ID);
+        agendamentoService.agendar(new AgendamentoRequestDTO(PACIENTE_VINCULADO_ID, data8, LocalTime.of(9, 0)), PROFISSIONAL_ID);
+        agendamentoService.agendar(new AgendamentoRequestDTO(PACIENTE_VINCULADO_ID, data7, LocalTime.of(9, 0)), PROFISSIONAL_ID);
+        agendamentoService.agendar(new AgendamentoRequestDTO(PACIENTE_VINCULADO_ID, data6, LocalTime.of(9, 0)), PROFISSIONAL_ID);
+        agendamentoService.agendar(new AgendamentoRequestDTO(PACIENTE_VINCULADO_ID, data5, LocalTime.of(9, 0)), PROFISSIONAL_ID);
 
-        agendamentoService.agendar(
-                new AgendamentoRequestDTO(
-                        PACIENTE_GERAL_ID,
-                        data1,
-                        LocalTime.of(10, 0)
-                ),
-                PROFISSIONAL_ID
-        );
-
-        agendamentoService.agendar(
-                new AgendamentoRequestDTO(
-                        PACIENTE_VINCULADO_ID,
-                        data2,
-                        LocalTime.of(9, 0)
-                ),
-                PROFISSIONAL_ID
-        );
-
-        agendamentoService.agendar(
-                new AgendamentoRequestDTO(
-                        PACIENTE_VINCULADO_ID,
-                        data3,
-                        LocalTime.of(9, 0)
-                ),
-                PROFISSIONAL_ID
-        );
-
-        agendamentoService.agendar(
-                new AgendamentoRequestDTO(
-                        PACIENTE_GERAL_ID,
-                        data3,
-                        LocalTime.of(10, 0)
-                ),
-                PROFISSIONAL_ID
-        );
-
-        agendamentoService.agendar(
-                new AgendamentoRequestDTO(
-                        PACIENTE_VINCULADO_ID,
-                        data4,
-                        LocalTime.of(9, 0)
-                ),
-                PROFISSIONAL_ID
-        );
-
-        agendamentoService.agendar(
-                new AgendamentoRequestDTO(
-                        PACIENTE_VINCULADO_ID,
-                        data5,
-                        LocalTime.of(9, 0)
-                ),
-                PROFISSIONAL_ID
-        );
-
-        agendamentoService.agendar(
-                new AgendamentoRequestDTO(
-                        PACIENTE_GERAL_ID,
-                        data6,
-                        LocalTime.of(9, 0)
-                ),
-                PROFISSIONAL_ID
-        );
-
-        agendamentoService.agendar(
-                new AgendamentoRequestDTO(
-                        PACIENTE_VINCULADO_ID,
-                        data7,
-                        LocalTime.of(9, 0)
-                ),
-                PROFISSIONAL_ID
-        );
-
-        agendamentoService.agendar(
-                new AgendamentoRequestDTO(
-                        PACIENTE_GERAL_ID,
-                        data8,
-                        LocalTime.of(9, 0)
-                ),
-                PROFISSIONAL_ID
-        );
-
-        agendamentoService.agendar(
-                new AgendamentoRequestDTO(
-                        PACIENTE_VINCULADO_ID,
-                        data9,
-                        LocalTime.of(9, 0)
-                ),
-                PROFISSIONAL_ID
-        );
-
-        agendamentoService.agendar(
-                new AgendamentoRequestDTO(
-                        PACIENTE_GERAL_ID,
-                        data10,
-                        LocalTime.of(9, 0)
-                ),
-                PROFISSIONAL_ID
-        );
-
-        agendamentoService.agendar(
-                new AgendamentoRequestDTO(
-                        PACIENTE_VINCULADO_ID,
-                        data11,
-                        LocalTime.of(9, 0)
-                ),
-                PROFISSIONAL_ID
-        );
-
-        agendamentoService.agendar(
-                new AgendamentoRequestDTO(
-                        PACIENTE_GERAL_ID,
-                        data12,
-                        LocalTime.of(9, 0)
-                ),
-                PROFISSIONAL_ID
-        );
-
-        agendamentoService.agendar(
-                new AgendamentoRequestDTO(
-                        PACIENTE_VINCULADO_ID,
-                        data13,
-                        LocalTime.of(9, 0)
-                ),
-                PROFISSIONAL_ID
-        );
-
-        agendamentoService.agendar(
-                new AgendamentoRequestDTO(
-                        PACIENTE_GERAL_ID,
-                        data14,
-                        LocalTime.of(9, 0)
-                ),
-                PROFISSIONAL_ID
-        );
+        agendamentoService.agendar(new AgendamentoRequestDTO(PACIENTE_VINCULADO_ID, data4, LocalTime.of(9, 0)), PROFISSIONAL_ID);
+        agendamentoService.agendar(new AgendamentoRequestDTO(PACIENTE_GERAL_ID, data4, LocalTime.of(10, 0)), PROFISSIONAL_ID);
+        agendamentoService.agendar(new AgendamentoRequestDTO(PACIENTE_VINCULADO_ID, data3, LocalTime.of(9, 0)), PROFISSIONAL_ID);
+        agendamentoService.agendar(new AgendamentoRequestDTO(PACIENTE_GERAL_ID, data3, LocalTime.of(10, 0)), PROFISSIONAL_ID);
+        agendamentoService.agendar(new AgendamentoRequestDTO(PACIENTE_VINCULADO_ID, data2, LocalTime.of(9, 0)), PROFISSIONAL_ID);
+        agendamentoService.agendar(new AgendamentoRequestDTO(PACIENTE_GERAL_ID, data1, LocalTime.of(10, 0)), PROFISSIONAL_ID);
 
         Page<DiaAgendamentoResponseDTO> pagina =
                 agendamentoService.listarAgrupadoPorDia(

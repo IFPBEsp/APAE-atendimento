@@ -169,7 +169,7 @@ public class AgendamentoService {
 
         if (data != null) {
             LocalDateTime dataInicio = data.atStartOfDay();
-            LocalDateTime dataFim = data.plusDays(1);
+            LocalDateTime dataFim = dataInicio.plusDays(1);
 
             locais = repository
                     .findByProfissionalIdAndDataHoraBetweenOrderByDataHoraDesc(
