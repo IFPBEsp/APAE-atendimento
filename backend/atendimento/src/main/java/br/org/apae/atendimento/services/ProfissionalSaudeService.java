@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.UUID;
 
 import br.org.apae.atendimento.dtos.response.PacienteOptionDTO;
-import br.org.apae.atendimento.dtos.response.ProfissionalDropdownResponseDTO;
 import br.org.apae.atendimento.exceptions.notfound.ProfissionalSaudeNotFoundException;
 import br.org.apae.atendimento.mappers.PacienteMapper;
 import br.org.apae.atendimento.mappers.ProfissionalMapper;
@@ -18,7 +17,6 @@ import br.org.apae.atendimento.dtos.response.ProfissionalResponseDTO;
 import br.org.apae.atendimento.entities.Paciente;
 import br.org.apae.atendimento.entities.ProfissionalSaude;
 import br.org.apae.atendimento.repositories.ProfissionalSaudeRepository;
-import org.springframework.transaction.annotation.Transactional;
 
 import static java.util.stream.Collectors.toList;
 
@@ -73,10 +71,5 @@ public class ProfissionalSaudeService {
         return pacientes.stream()
                 .map(paciente -> pacienteMapper.toOptionDTO(paciente))
                 .collect(toList());
-    }
-
-    @Transactional(readOnly = true)
-    public List<ProfissionalDropdownResponseDTO> listarParaDropdown() {
-        return repository.listarParaDropdown();
     }
 }

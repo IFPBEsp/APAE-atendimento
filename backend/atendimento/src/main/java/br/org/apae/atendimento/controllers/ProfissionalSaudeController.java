@@ -2,7 +2,6 @@ package br.org.apae.atendimento.controllers;
 
 import br.org.apae.atendimento.dtos.response.PacienteOptionDTO;
 import br.org.apae.atendimento.dtos.response.PacienteResponseDTO;
-import br.org.apae.atendimento.dtos.response.ProfissionalDropdownResponseDTO;
 import br.org.apae.atendimento.dtos.response.ProfissionalResponseDTO;
 import br.org.apae.atendimento.services.ProfissionalSaudeService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,11 +41,5 @@ public class ProfissionalSaudeController implements ProfissionalSaudeControllerD
     public ResponseEntity<List<PacienteOptionDTO>> pacientesOption(
             @AuthenticationPrincipal UsuarioAutenticado usuarioAutenticado) {
         return ResponseEntity.ok().body(profissionalSaudeService.getPacienteOption(usuarioAutenticado.getId()));
-    }
-
-    @Override
-    @GetMapping("/dropdown")
-    public ResponseEntity<List<ProfissionalDropdownResponseDTO>> listarParaDropdown() {
-        return ResponseEntity.ok(profissionalSaudeService.listarParaDropdown());
     }
 }

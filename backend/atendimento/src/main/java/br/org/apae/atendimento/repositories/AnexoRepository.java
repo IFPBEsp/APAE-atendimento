@@ -1,6 +1,8 @@
 package br.org.apae.atendimento.repositories;
 
 import br.org.apae.atendimento.entities.Arquivo;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -11,7 +13,7 @@ import java.util.UUID;
 
 @Repository
 public interface AnexoRepository extends JpaRepository<Arquivo, String> {
-    List<Arquivo> findByProfissionalIdAndPacienteIdAndTipoId(UUID profissionalId, UUID pacienteId, Long tipoId);
+    Page<Arquivo> findByProfissionalIdAndPacienteIdAndTipoId(UUID profissionalId, UUID pacienteId, Long tipoId, Pageable pageable);
     List<Arquivo> findByProfissionalIdAndPacienteIdAndDataAndTipoId(
             UUID profissionalId,
             UUID pacienteId,

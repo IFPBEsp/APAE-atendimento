@@ -55,19 +55,6 @@ public interface PacienteControllerDocs {
             @AuthenticationPrincipal UsuarioAutenticado usuarioAutenticado
     );
 
-    @Operation(summary = "Buscar todos os pacientes", description = "Retorna uma lista paginada de todos os pacientes cadastrados, independente do profissional, podendo ser filtrada por nome, CPF e cidade.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Lista de pacientes retornada com sucesso"),
-            @ApiResponse(responseCode = "401", description = "Não autorizado")
-    })
-    ResponseEntity<PaginatedResponseDTO<PacienteResponseDTO>> buscarTodosPacientes(
-            @Parameter(description = "Filtro opcional por nome") String nome,
-            @Parameter(description = "Filtro opcional por CPF") String cpf,
-            @Parameter(description = "Filtro opcional por cidade") String cidade,
-            @Parameter(description = "Número da página (padrão 1)") int page,
-            @Parameter(description = "Quantidade de itens por página (padrão 10)") int limit
-    );
-
     @Operation(summary = "Adicionar foto do paciente", description = "Realiza o upload de uma foto para o paciente informado, vinculado ao profissional autenticado.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Foto adicionada com sucesso"),

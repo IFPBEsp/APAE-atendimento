@@ -197,6 +197,12 @@ http://localhost:8080
 | POST | `/pacientes/{pacienteId}` | Adiciona ou substitui a foto do paciente |
 | GET | `/pacientes/dropdown` | Lista pacientes ativos para uso em dropdowns |
 
+Essas consultas são restritas ao profissional autenticado. Desde a migration
+V10, `atendimento.profissional_paciente` é uma VIEW somente leitura derivada de
+`apae_geral.agendamentos` e `cadastros_anuais`. O primeiro agendamento no Geral
+estabelece o vínculo; agendamentos e atendimentos criados neste backend não o
+criam. O antigo endpoint `/pacientes/todos/search` foi removido.
+
 ### Profissionais de Saúde — `/profissionais`
 
 | Método | Endpoint | Descrição |
@@ -237,4 +243,3 @@ O projeto possui testes unitários, de integração e de repositório executados
 ```bash
 mvn test
 ```
-

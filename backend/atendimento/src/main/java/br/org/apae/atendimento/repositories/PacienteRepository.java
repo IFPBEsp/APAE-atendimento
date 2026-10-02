@@ -93,23 +93,4 @@ public interface PacienteRepository extends JpaRepository<Paciente, UUID> {
 """)
     List<PacienteDropdownResponseDTO> listarParaDropdown(@Param("profissionalId") UUID profissionalId);
 
-    @Query(value = "" +
-            "SELECT DISTINCT vp.* " +
-            "FROM atendimento.vw_pacientes vp " +
-            "WHERE (:nome IS NULL OR LOWER(vp.nome) LIKE CONCAT('%', LOWER(:nome), '%')) " +
-            "  AND (:cpf IS NULL OR vp.cpf LIKE CONCAT('%', :cpf, '%')) " +
-            "  AND (:cidade IS NULL OR LOWER(vp.cidade) LIKE CONCAT('%', LOWER(:cidade), '%'))",
-            countQuery = "" +
-                    "SELECT COUNT(DISTINCT vp.paciente_id) " +
-                    "FROM atendimento.vw_pacientes vp " +
-                    "WHERE (:nome IS NULL OR LOWER(vp.nome) LIKE CONCAT('%', LOWER(:nome), '%')) " +
-                    "  AND (:cpf IS NULL OR vp.cpf LIKE CONCAT('%', :cpf, '%')) " +
-                    "  AND (:cidade IS NULL OR LOWER(vp.cidade) LIKE CONCAT('%', LOWER(:cidade), '%'))",
-            nativeQuery = true)
-    Page<Paciente> buscarTodosPacientes(
-            @Param("nome") String nome,
-            @Param("cpf") String cpf,
-            @Param("cidade") String cidade,
-            Pageable pageable
-    );
 }

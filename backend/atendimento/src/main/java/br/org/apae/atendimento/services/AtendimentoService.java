@@ -3,9 +3,14 @@ package br.org.apae.atendimento.services;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import br.org.apae.atendimento.dtos.request.AtendimentoRequestDTO;
 import br.org.apae.atendimento.dtos.request.TopicoRequestDTO;
@@ -44,6 +49,9 @@ public class AtendimentoService {
 
     @Transactional
     public AtendimentoResponseDTO addAtendimento(AtendimentoRequestDTO atendimentoRequestDTO, UUID profissionalId) {
+        if (!pacienteService.existeRelacao(atendimentoRequestDTO.pacienteId(), profissionalId)) {
+            throw new RelacaoInvalidException("Voce nao tem vinculo com este paciente para criar atendimento.");
+        }
         if (repository.existsByProfissionalIdAndDataAtendimento(
                 profissionalId,
                 LocalDateTime.of(atendimentoRequestDTO.data(), atendimentoRequestDTO.hora())
@@ -96,21 +104,38 @@ public class AtendimentoService {
         agendamentoService.setStatus(agendamento);
     }
 
-    public List<MesAnoAtendimentoResponseDTO> getAtendimentosAgrupadosPorMes(UUID pacienteId, UUID profissionalId) {
+    public Page<MesAnoAtendimentoResponseDTO> getAtendimentosAgrupadosPorMes(
+            UUID pacienteId,
+            UUID profissionalId,
+            Pageable pageable
+    ) {
         if (!pacienteService.existeRelacao(pacienteId, profissionalId)) {
             throw new RelacaoInvalidException("Você não tem permissão para listar atendimentos deste paciente.");
         }
 
-        List<Atendimento> atendimentos = repository
-                .findByPacienteIdAndProfissionalIdComRelatorio(pacienteId, profissionalId);
+        Page<Atendimento> paginaAtendimentos = repository
+                .findByPacienteIdAndProfissionalIdComRelatorio(pacienteId, profissionalId, pageable);
 
-        return atendimentos.stream()
+        List<MesAnoAtendimentoResponseDTO> agrupados = paginaAtendimentos.getContent().stream()
                 .collect(Collectors.groupingBy(
                         a -> YearMonth.from(a.getDataAtendimento()),
+                        LinkedHashMap::new,
                         Collectors.mapping(atendimentoMapper::toDTOPadrao, Collectors.toList())))
                 .entrySet().stream()
                 .map(e -> new MesAnoAtendimentoResponseDTO(e.getKey(), e.getValue()))
                 .toList();
+
+        return new PageImpl<>(agrupados, pageable, paginaAtendimentos.getTotalElements());
+    }
+
+    public Page<MesAnoAtendimentoResponseDTO> getAtendimentosAgrupadosPorMes(
+            UUID pacienteId,
+            UUID profissionalId,
+            int page,
+            int size
+    ) {
+        Pageable pageable = PageRequest.of(page, size);
+        return getAtendimentosAgrupadosPorMes(pacienteId, profissionalId, pageable);
     }
 
     public void deletar(UUID profissionalId, UUID pacienteId, UUID atendimentoId) {
@@ -140,6 +165,10 @@ public class AtendimentoService {
     public AtendimentoResponseDTO editar(AtendimentoRequestDTO requestDTO, UUID atendimentoId, UUID profissionalId) {
         Atendimento atendimento = repository.findByIdComRelatorio(atendimentoId)
                 .orElseThrow(() -> new AtendimentoNotFoundException("O atendimento que deseja editar não foi encontrado."));
+
+        if (!pacienteService.existeRelacao(atendimento.getPacienteId(), profissionalId)) {
+            throw new RelacaoInvalidException("Voce nao tem permissao para editar este atendimento.");
+        }
 
         if (!pacienteService.existeRelacao(requestDTO.pacienteId(), profissionalId)) {
             throw new RelacaoInvalidException("Voce nao tem permissao para editar atendimentos deste paciente.");
@@ -176,6 +205,10 @@ public class AtendimentoService {
 
         if (!atendimento.getProfissionalId().equals(profissionalId)) {
             throw new AtendimentoNotFoundException("O atendimento nao existe ou nao pertence ao profissional autenticado.");
+        }
+
+        if (!pacienteService.existeRelacao(atendimento.getPacienteId(), profissionalId)) {
+            throw new RelacaoInvalidException("Voce nao tem vinculo com este paciente para concluir atendimento.");
         }
 
         int atualizados = repository.concluirAtendimento(atendimentoId, profissionalId);

@@ -2,11 +2,10 @@ package br.org.apae.atendimento.controllers;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
-import br.org.apae.atendimento.exceptions.CloudStorageException;
-import br.org.apae.atendimento.security.UsuarioAutenticado;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -22,21 +21,33 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
+import br.org.apae.atendimento.controllers.docs.ArquivoControllerDocs;
 import br.org.apae.atendimento.dtos.request.ArquivoRequestDTO;
 import br.org.apae.atendimento.dtos.response.ArquivoResponseDTO;
+import br.org.apae.atendimento.dtos.response.PaginatedResponseDTO;
+import br.org.apae.atendimento.exceptions.CloudStorageException;
+import br.org.apae.atendimento.security.UsuarioAutenticado;
 import br.org.apae.atendimento.services.ArquivoService;
-import org.springframework.web.server.ResponseStatusException;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validator;
 
 @RestController
 @RequestMapping("/arquivo")
-public class ArquivoController {
+public class ArquivoController implements ArquivoControllerDocs {
+    
     @Autowired
     private ArquivoService service;
 
+    @Autowired
+    private Validator validator;
+
+    @Override
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ArquivoResponseDTO> upload(
             @RequestPart("file") MultipartFile file,
@@ -51,6 +62,14 @@ public class ArquivoController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "JSON de metadados inválido", e);
         }
 
+        Set<ConstraintViolation<ArquivoRequestDTO>> violations = validator.validate(metadata);
+        if (!violations.isEmpty()) {
+            String errorMsg = violations.stream()
+                    .map(v -> v.getPropertyPath() + ": " + v.getMessage())
+                    .collect(Collectors.joining("; "));
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Metadados inválidos: " + errorMsg);
+        }
+
         try {
             ArquivoResponseDTO dto = service.salvar(file, metadata, usuarioAutenticado.getId());
             return ResponseEntity.status(HttpStatus.CREATED).body(dto);
@@ -59,16 +78,20 @@ public class ArquivoController {
         }
     }
 
+    @Override
     @GetMapping("/{pacienteId}/{tipoId}")
-    public ResponseEntity<List<ArquivoResponseDTO>> findByTipoId(
+    public ResponseEntity<PaginatedResponseDTO<ArquivoResponseDTO>> findByTipoId(
             @PathVariable UUID pacienteId,
             @PathVariable Long tipoId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int limit,
             @AuthenticationPrincipal UsuarioAutenticado usuarioAutenticado
             ){
-        List<ArquivoResponseDTO> anexos = service.listar(usuarioAutenticado.getId(), pacienteId, tipoId);
+        PaginatedResponseDTO<ArquivoResponseDTO> anexos = service.listar(usuarioAutenticado.getId(), pacienteId, tipoId, page, limit);
         return ResponseEntity.ok().body(anexos);
     }
 
+    @Override
     @GetMapping("/date/{pacienteId}/{tipoId}/{data}")
     public ResponseEntity<List<ArquivoResponseDTO>> findByTipoIdAndDate(
             @PathVariable UUID pacienteId,
@@ -80,6 +103,7 @@ public class ArquivoController {
         return ResponseEntity.ok().body(anexos);
     }
 
+    @Override
     @DeleteMapping("/delete")
     public ResponseEntity<Void> delete(
             @RequestParam(name = "objectName") String objectName,
