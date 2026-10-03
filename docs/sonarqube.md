@@ -1,4 +1,4 @@
-# Execução Local do SonarQube
+Execução Local do SonarQube
 
 Este documento fornece as instruções para configurar e executar a análise estática de código com o SonarQube localmente, abrangendo tanto o frontend quanto o backend do repositório de Atendimento da APAE.
 
@@ -23,6 +23,15 @@ cat /proc/sys/vm/max_map_count
 Caso o valor retornado seja menor que `262144`, você precisará aumentá-lo (em distribuições Linux, temporariamente com `sudo sysctl -w vm.max_map_count=262144` ou permanentemente editando o arquivo `/etc/sysctl.conf`). A maioria das distribuições já vem com um valor acima disso por padrão.
 
 ## 2. Subir o servidor
+
+**Antes de inicializar, verifique se a porta 9501 está livre:**
+Execute o comando abaixo e confira se algum container já está ocupando a porta `9501`:
+
+```
+docker ps
+```
+
+Caso você já tenha rodado o SonarQube de outro repositório do ecossistema APAE (ou exista um container antigo publicado nesta mesma porta), será necessário **parar esse container anterior** (ex: `docker stop <nome_do_container>`) antes de prosseguir. Sem isso, o `docker compose up` falhará com erro de conflito de *bind* da porta `9501`, pois ela já estará ocupada pela instância anterior.
 
 Para iniciar o SonarQube localmente, utilize o arquivo de composição do repositório executando o comando abaixo a partir da raiz:
 
@@ -139,6 +148,9 @@ Atualmente, é esperado que a cobertura de código apareça baixa ou zerada:
 
 Isso deve ser lido como uma etapa futura de implementação das suítes de testes nos repositórios, e **não como um erro de configuração** do seu ambiente local do SonarQube.
 
+**Por que o Quality Gate aparece como "Passed" mesmo com cobertura 0.0%?**
+Você pode notar que, mesmo com a cobertura exibindo **0.0%**, o **Quality Gate** do projeto apresentará o status **"Passed"** (verde). Isso é o **comportamento esperado no momento**: o Quality Gate padrão do SonarQube não possui, neste estágio, nenhuma condição que bloqueie a análise pela falta da métrica de cobertura global. Ou seja, a análise não é reprovada pela ausência de cobertura — portanto, não estranhe ao ver o status verde com a cobertura zerada. Quando as suítes de testes forem implementadas e a métrica passar a ser de fato coletada, condições de cobertura poderão ser adicionadas ao Quality Gate para que ele passe a validar (ou reprovar) esse critério.
+
 ## 8. Encerrar e limpar
 
 Quando finalizar seu trabalho e quiser derrubar o container, você tem duas opções:
@@ -155,4 +167,4 @@ Para derrubar e **apagar os volumes e o histórico**:
 docker compose -f docker-compose.sonar.yml down -v
 ```
 
-> ⚠️ O segundo comando (com o `-v`) apaga os volumes do banco de dados e Elasticsearch. Isso apagará todo o histórico de análises e **resetará a senha do admin de volta para o padrão `admin/admin`**. Use apenas se precisar limpar configurações corrompidas e recomeçar do zero.
+> ⚠️ O segundo comando (com o `-v`) apaga os volumes do banco de dados e Elasticsearch. Isso apagará todo o histórico de análises e **resetará a senha do admin de volta para o padrão `admin/admin`**. Use apenas se precisar limpar configurações corrompidas e recomeçar do zero.**
