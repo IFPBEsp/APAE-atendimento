@@ -14,7 +14,7 @@ on:
 
 jobs:
   pr-agent:
-    uses: IFPBEsp/APAE-INFRA/.github/workflows/pr-agent-reusable.yml@7b2ed95ea0f0732b5d9d85b4ec5744006467187e
+    uses: IFPBEsp/APAE-INFRA/.github/workflows/pr-agent-reusable.yml@b62c701f533613da2e51c167e3917891429f909f
 
     with:
       model: "gemini/gemini-3.6-flash"
