@@ -31,7 +31,6 @@ export interface DiaAgendamento {
 
 export type CriarAgendamentoPayload = {
   pacienteId: string;
-  profissionalId: string;
   data: string;
   hora: string;
 };
@@ -39,4 +38,34 @@ export type CriarAgendamentoPayload = {
 export type PacienteOption = {
   id: string;
   nome: string;
+};
+
+export type ListarAgendamentosParams = {
+  data?: string;
+  page?: number;
+  size?: number;
+};
+
+export type AgendamentoPagination = {
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  first: boolean;
+  last: boolean;
+};
+
+export type AgendamentoPageResponse = {
+  content: DiaAgendamento[];
+  number: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  first: boolean;
+  last: boolean;
+};
+
+export type AgendamentosPaginados = {
+  content: DiaAgendamento[];
+  pagination: AgendamentoPagination;
 };

@@ -1,12 +1,14 @@
 package br.org.apae.atendimento.entities;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.Immutable;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import java.util.*;
 
 @Entity
+@Immutable
 @Table(name = "profissional_paciente", schema = "atendimento")
 @Getter
 @NoArgsConstructor

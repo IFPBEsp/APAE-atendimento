@@ -12,7 +12,10 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface AgendamentoRepository extends JpaRepository<Agendamento, UUID> {
-    List<Agendamento> findByProfissionalIdOrderByDataHora(UUID profissionalId);
+    List<Agendamento> findByProfissionalIdOrderByDataHoraDesc(UUID profissionalId);
+
+    List<Agendamento> findByProfissionalIdAndDataHoraBetweenOrderByDataHoraDesc(
+            UUID profissionalId, LocalDateTime dataInicio, LocalDateTime dataFim);
 
     @Query("""
        SELECT a
@@ -35,5 +38,10 @@ public interface AgendamentoRepository extends JpaRepository<Agendamento, UUID> 
             UUID id,
             UUID profissionalId,
             UUID pacienteId
+    );
+
+    Optional<Agendamento> findByIdAndProfissionalId(
+            UUID id,
+            UUID profissionalId
     );
 }

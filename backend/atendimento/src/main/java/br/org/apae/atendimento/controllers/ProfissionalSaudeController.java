@@ -2,7 +2,6 @@ package br.org.apae.atendimento.controllers;
 
 import br.org.apae.atendimento.dtos.response.PacienteOptionDTO;
 import br.org.apae.atendimento.dtos.response.PacienteResponseDTO;
-import br.org.apae.atendimento.dtos.response.ProfissionalDropdownResponseDTO;
 import br.org.apae.atendimento.dtos.response.ProfissionalResponseDTO;
 import br.org.apae.atendimento.services.ProfissionalSaudeService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,11 +13,12 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/profissionais")
-public class ProfissionalSaudeController {
+public class ProfissionalSaudeController implements ProfissionalSaudeControllerDocs {
 
     @Autowired
     private ProfissionalSaudeService profissionalSaudeService;
 
+    @Override
     @GetMapping
     public ResponseEntity<ProfissionalResponseDTO> buscarPorId(
             @AuthenticationPrincipal UsuarioAutenticado usuarioAutenticado) {
@@ -27,6 +27,7 @@ public class ProfissionalSaudeController {
         return ResponseEntity.ok().body(profissional);
     }
 
+    @Override
     @GetMapping("/pacientes")
     public ResponseEntity<List<PacienteResponseDTO>> listarPacientesDoProfissional(
             @AuthenticationPrincipal UsuarioAutenticado usuarioAutenticado) {
@@ -35,14 +36,10 @@ public class ProfissionalSaudeController {
         return ResponseEntity.ok().body(pacientes);
     }
 
+    @Override
     @GetMapping("/pacientes-option")
     public ResponseEntity<List<PacienteOptionDTO>> pacientesOption(
             @AuthenticationPrincipal UsuarioAutenticado usuarioAutenticado) {
         return ResponseEntity.ok().body(profissionalSaudeService.getPacienteOption(usuarioAutenticado.getId()));
-    }
-
-    @GetMapping("/dropdown")
-    public ResponseEntity<List<ProfissionalDropdownResponseDTO>> listarParaDropdown() {
-        return ResponseEntity.ok(profissionalSaudeService.listarParaDropdown());
     }
 }

@@ -8,6 +8,8 @@ public record AgendamentoResponseDTO(
         UUID id,
         UUID pacienteId,
         String nomePaciente,
+        UUID profissionalId,
+        String nomeProfissional,
         LocalDate data,
         LocalTime hora,
         String numeracao,
