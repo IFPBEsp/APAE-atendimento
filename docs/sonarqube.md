@@ -77,7 +77,7 @@ cd backend/atendimento
 Com `SONAR_TOKEN` exportado e o servidor rodando, execute a análise com o Maven Wrapper:
 
 ```
-./mvnw clean verify sonar:sonar -DskipTests
+./mvnw clean verify sonar:sonar 
 ```
 
 Após `BUILD SUCCESS`, retorne à raiz:
@@ -89,7 +89,6 @@ cd ../..
 Por que esses parâmetros são necessários?
 
 * `verify`: garante a compilação do código e a geração dos arquivos `.class` em `target/classes`, necessários para a análise de bytecode do SonarQube.
-* `-DskipTests`: contorna falhas conhecidas na suíte de testes (ex.: `AtendimentoServiceTest` e erros em classes de teste) que interromperiam a build antes da análise, permitindo que o relatório seja enviado localmente.
 
 ## 5. Analisar o frontend
 
@@ -124,7 +123,6 @@ A aba **Issues** lista os detalhes específicos de cada problema encontrado.
 
 É esperado que a cobertura apareça baixa ou zerada:
 
-* **Backend (`apae-atendimento-backend`)**: Como o comando local usa `-DskipTests`, a execução dos testes é pulada e o relatório de cobertura (`jacoco.xml`) não é gerado — por isso a métrica pode aparecer zerada ou muito baixa.
 * **Frontend (`apae-atendimento-frontend`)**: O scanner local procura por `coverage/lcov.info`. Se esse arquivo não existir, a cobertura será reportada como `0.0%`.
 
 Isso reflete o estado atual das suítes de testes locais e não indica erro de configuração do SonarQube.
