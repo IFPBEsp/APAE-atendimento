@@ -70,6 +70,8 @@ class AtendimentoServiceTest {
                 LocalDate.now(),
                 LocalTime.of(10, 0)
         );
+
+        lenient().when(pacienteService.existeRelacao(pacienteId, profissionalId)).thenReturn(true);
     }
 
     @Test
@@ -91,6 +93,17 @@ class AtendimentoServiceTest {
         assertNotNull(response);
         verify(repository).findMaxNumeracaoByMesAndAno(LocalDate.now().getMonthValue(), LocalDate.now().getYear(), profissionalId);
         verify(repository).save(any());
+    }
+
+    @Test
+    @DisplayName("Deve lançar erro ao criar atendimento para paciente sem vínculo com o profissional")
+    void deveLancarErroQuandoNaoHouverVinculoAoCriarAtendimento() {
+        when(pacienteService.existeRelacao(pacienteId, profissionalId)).thenReturn(false);
+
+        assertThrows(RelacaoInvalidException.class,
+                () -> service.addAtendimento(requestDTO, profissionalId));
+
+        verify(repository, never()).save(any());
     }
 
     @Test
@@ -126,8 +139,6 @@ class AtendimentoServiceTest {
     @Test
     @DisplayName("Deve editar atendimento e substituir relatorio")
     void deveEditarAtendimento() {
-        when(pacienteService.existeRelacao(pacienteId, profissionalId)).thenReturn(true);
-
         Atendimento atendimento = new Atendimento();
         atendimento.setDataAtendimento(LocalDateTime.now());
         atendimento.getRelatorio().add(new Topico());
@@ -165,7 +176,6 @@ class AtendimentoServiceTest {
         Pageable pageable = PageRequest.of(0, 10);
         Page<Atendimento> page = new PageImpl<>(List.of(a1, a2), pageable, 2);
 
-        when(pacienteService.existeRelacao(pacienteId, profissionalId)).thenReturn(true);
         when(repository.findByPacienteIdAndProfissionalIdComRelatorio(pacienteId, profissionalId, pageable))
                 .thenReturn(page);
         when(atendimentoMapper.toDTOPadrao(any())).thenReturn(mock(AtendimentoResponseDTO.class));
@@ -190,7 +200,6 @@ class AtendimentoServiceTest {
         Pageable pageable = PageRequest.of(0, 5);
         Page<Atendimento> page = new PageImpl<>(List.of(a1), pageable, 1);
 
-        when(pacienteService.existeRelacao(pacienteId, profissionalId)).thenReturn(true);
         when(repository.findByPacienteIdAndProfissionalIdComRelatorio(pacienteId, profissionalId, pageable))
                 .thenReturn(page);
         when(atendimentoMapper.toDTOPadrao(any())).thenReturn(mock(AtendimentoResponseDTO.class));
@@ -207,7 +216,6 @@ class AtendimentoServiceTest {
     @DisplayName("Deve retornar página vazia quando paciente não possui atendimentos")
     void deveRetornarPaginaVaziaQuandoPacienteNaoPossuiAtendimentos() {
         Pageable pageable = PageRequest.of(0, 10);
-        when(pacienteService.existeRelacao(pacienteId, profissionalId)).thenReturn(true);
         when(repository.findByPacienteIdAndProfissionalIdComRelatorio(pacienteId, profissionalId, pageable))
                 .thenReturn(Page.empty(pageable));
 

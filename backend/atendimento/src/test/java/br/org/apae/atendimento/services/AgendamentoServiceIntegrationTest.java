@@ -3,6 +3,7 @@ package br.org.apae.atendimento.services;
 import br.org.apae.atendimento.dtos.request.AgendamentoRequestDTO;
 import br.org.apae.atendimento.dtos.response.AgendamentoResponseDTO;
 import br.org.apae.atendimento.dtos.response.DiaAgendamentoResponseDTO;
+import br.org.apae.atendimento.entities.Paciente;
 import br.org.apae.atendimento.exceptions.invalid.AgendamentoInvalidException;
 import br.org.apae.atendimento.exceptions.invalid.RelacaoInvalidException;
 import br.org.apae.atendimento.integration.AbstractIntegrationTest;
@@ -16,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -46,18 +48,22 @@ class AgendamentoServiceIntegrationTest extends AbstractIntegrationTest {
     void deveSepararPacientesGeraisDePacientesVinculados() {
         removerVinculoPacienteGeral();
 
-        assertTrue(
-                pacienteRepository.buscarPaciente(PROFISSIONAL_ID,
+        // buscarPaciente faz INNER JOIN com profissional_paciente (view derivada das agendas do Geral):
+        // retorna o paciente vinculado e não retorna paciente sem agenda no Geral.
+        List<Paciente> encontrados = pacienteRepository.buscarPaciente(PROFISSIONAL_ID,
                         null,
                         null,
                         null,
                         org.springframework.data.domain.Pageable.unpaged()
                 )
-                .stream()
-                .anyMatch(paciente ->
-                        paciente.getId().equals(PACIENTE_GERAL_ID)
-                )
-        );
+                .getContent();
+
+        assertTrue(encontrados.stream().anyMatch(paciente ->
+                paciente.getId().equals(PACIENTE_VINCULADO_ID)
+        ));
+        assertFalse(encontrados.stream().anyMatch(paciente ->
+                paciente.getId().equals(PACIENTE_GERAL_ID)
+        ));
 
         assertTrue(
                 pacienteRepository.findByProfissionalId(PROFISSIONAL_ID)
@@ -314,9 +320,13 @@ class AgendamentoServiceIntegrationTest extends AbstractIntegrationTest {
     }
 
     private void removerVinculoPacienteGeral() {
+        // profissional_paciente é uma VIEW derivada de apae_geral.agendamentos (V10):
+        // o vínculo só é removido apagando as agendas de origem.
         jdbcTemplate.update(
-                "DELETE FROM atendimento.profissional_paciente " +
-                        "WHERE profissional_id = ? AND paciente_id = ?",
+                "DELETE FROM apae_geral.agendamentos " +
+                        "WHERE profissional_id = ? " +
+                        "AND cadastro_anual_id IN (" +
+                        "SELECT id FROM apae_geral.cadastros_anuais WHERE paciente_id = ?)",
                 PROFISSIONAL_ID,
                 PACIENTE_GERAL_ID
         );
