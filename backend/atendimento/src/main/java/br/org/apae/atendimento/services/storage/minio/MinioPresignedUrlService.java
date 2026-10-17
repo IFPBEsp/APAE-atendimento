@@ -56,5 +56,6 @@ public class MinioPresignedUrlService implements PresignedUrlService {
 
     @CacheEvict(value = "presignedUrls", key = "'presigned:' + ':' + #objectName")
     public void evictUrlFromCache(String objectName) {
+        // O corpo é vazio porque a remoção do cache é feita interceptada pela anotação @CacheEvict
     }
 }
