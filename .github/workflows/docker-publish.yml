@@ -1,0 +1,32 @@
+name: Docker Build & Publish
+
+on:
+  push:
+    branches:
+      - dev
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  publish-backend:
+    name: Build & publish backend
+    uses: IFPBEsp/APAE-INFRA/.github/workflows/docker-build-publish-image.yml@dev
+    with:
+      context: ./backend/atendimento
+      dockerfile: ./backend/atendimento/Dockerfile
+      image-name: apae-atendimento-backend
+      platforms: '["linux/amd64"]'
+      scan-severity: "HIGH,CRITICAL"
+
+  publish-frontend:
+    name: Build & publish frontend
+    uses: IFPBEsp/APAE-INFRA/.github/workflows/docker-build-publish-image.yml@dev
+    with:
+      context: ./frontend/atendimento-app
+      dockerfile: ./frontend/atendimento-app/Dockerfile
+      image-name: apae-atendimento-frontend
+      platforms: '["linux/amd64"]'
+      scan-severity: "HIGH,CRITICAL"
