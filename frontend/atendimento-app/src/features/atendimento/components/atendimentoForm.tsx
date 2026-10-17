@@ -101,17 +101,37 @@ export default function AtendimentoForm({
     return String(atendimentosDoMes.length + 1 + offset);
   }
 
-  async function handleSave() {
-    if (!pacienteId) { toast.error("Paciente inválido."); return; }
-    if (linhas.length === 0) return;
-
-    for (let i = 0; i < linhas.length; i++) {
-      const linha = linhas[i];
-      if (!linha.condicao.trim()) { toast.error(`Preencha a condição na linha ${i + 1}.`); return; }
-      if (linha.condicao.length > 70) { toast.error(`A condição na linha ${i + 1} deve ter no máximo 70 caracteres.`); return; }
-      if (!linha.data) { toast.error(`Selecione a data na linha ${i + 1}.`); return; }
-      if (!linha.hora) { toast.error(`Selecione a hora na linha ${i + 1}.`); return; }
+  function validarLinhas(linhasParaValidar: LinhaAtendimento[]): boolean {
+    for (let i = 0; i < linhasParaValidar.length; i++) {
+      const linha = linhasParaValidar[i];
+      if (!linha.condicao.trim()) { 
+        toast.error(`Preencha a condição na linha ${i + 1}.`); 
+        return false; 
+      }
+      if (linha.condicao.length > 70) { 
+        toast.error(`A condição na linha ${i + 1} deve ter no máximo 70 caracteres.`); 
+        return false; 
+      }
+      if (!linha.data) { 
+        toast.error(`Selecione a data na linha ${i + 1}.`); 
+        return false; 
+      }
+      if (!linha.hora) { 
+        toast.error(`Selecione a hora na linha ${i + 1}.`); 
+        return false; 
+      }
     }
+    return true;
+  }
+
+  async function handleSave() {
+    if (!pacienteId) { 
+      toast.error("Paciente inválido."); 
+      return; 
+    }
+    if (linhas.length === 0) return;
+    
+    if (!validarLinhas(linhas)) return;
 
     setIsSubmitting(true);
     try {
