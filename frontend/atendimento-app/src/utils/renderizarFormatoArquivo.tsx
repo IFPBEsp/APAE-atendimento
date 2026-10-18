@@ -8,8 +8,14 @@ type TipoNormalizado = 'pdf' | 'image';
 const TIPOS_PDF = ['application/pdf', 'pdf'];
 const TIPOS_IMAGEM = ['image/jpeg', 'image/jpg', 'image/png', 'image/heic', 'image/heif', 'jpeg', 'jpg', 'png', 'heic', 'heif'];
 
+const MINIO_EXTERNAL_URL =
+  process.env.NEXT_PUBLIC_MINIO_URL ||
+  process.env.NEXT_PUBLIC_S3_EXTERNAL_ENDPOINT ||
+  "http://localhost:9100";
+
 function tratarUrl(url: string): string {
-  return url.replace("://minio:9000", "://localhost:9000");
+  if (!url) return url;
+  return url.replace(/^https?:\/\/minio:9000/, MINIO_EXTERNAL_URL.replace(/\/$/, ""));
 }
 
 function normalizarTipo(tipo: string): TipoNormalizado | null {
