@@ -4,6 +4,8 @@ import br.org.apae.atendimento.exceptions.CloudStorageException;
 import br.org.apae.atendimento.services.storage.ObjectStorageService;
 import br.org.apae.atendimento.services.storage.PresignedUrlService;
 import io.minio.*;
+import io.minio.errors.ErrorResponseException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
@@ -12,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
 
+@Slf4j
 @Service
 @Profile({"test", "dev"})
 public class MinioService implements ObjectStorageService {
@@ -61,7 +64,14 @@ public class MinioService implements ObjectStorageService {
                             .contentType(contentType)
                             .build()
             );
+        } catch (ErrorResponseException e) {
+            String code = e.errorResponse() != null ? e.errorResponse().code() : "UNKNOWN";
+            log.error("Erro do MinIO (código: {}) ao enviar '{}' para o bucket '{}': {}",
+                    code, objectName, BUCKET_NAME, e.getMessage(), e);
+            throw new CloudStorageException("Erro ao enviar arquivo para a nuvem. Tente novamente.", e);
         } catch (Exception e) {
+            log.error("Falha de comunicação com o MinIO ao enviar '{}' para o bucket '{}': {}",
+                    objectName, BUCKET_NAME, e.getMessage(), e);
             throw new CloudStorageException("Erro ao enviar arquivo para a nuvem. Tente novamente.", e);
         }
     }
@@ -73,7 +83,8 @@ public class MinioService implements ObjectStorageService {
                     .object(objectName)
                     .build());
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Erro de comunicação ao tentar apagar o arquivo '{}' no bucket '{}': {}",
+                    objectName, BUCKET_NAME, e.getMessage(), e);
             throw new CloudStorageException("Erro de comunicação ao tentar apagar o arquivo.", e);
         }
     }
