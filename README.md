@@ -207,6 +207,24 @@ Na raiz do repositório, execute:
 
 ```bash
 cp .env.example .env
+```
+
+> **Importante: configure o `JWT_SECRET` antes de continuar.**
+> O `.env.example` traz apenas um placeholder (`JWT_SECRET=sua_chave_jwt_aqui`). Abra o arquivo **`.env`** recém-criado (não o `.env.example`) e substitua o placeholder por uma chave válida em **Base64**. Para gerar uma:
+>
+> ```bash
+> # Linux / macOS (ou Git Bash no Windows)
+> openssl rand -base64 32
+>
+> # Qualquer sistema com Node.js
+> node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
+> ```
+>
+> Cole o texto gerado depois do `=`, por exemplo `JWT_SECRET=<texto gerado>`.
+
+Em seguida, execute:
+
+```bash
 pnpm --dir frontend/atendimento-app install
 pnpm db:prepare
 pnpm dev
@@ -276,6 +294,18 @@ cp .env.example .env
 ```
 
 > O backend Spring Boot lê o arquivo `.env` da raiz automaticamente via `spring.config.import`. Não é necessário duplicar credenciais em arquivos de propriedades.
+
+> **Atenção:** o `.env.example` traz apenas um placeholder no `JWT_SECRET`. Depois do `cp`, abra o arquivo **`.env`** (não o `.env.example`) e substitua `sua_chave_jwt_aqui` por uma chave válida em Base64. Sem isso, a autenticação não funcionará. Para gerar uma chave:
+>
+> ```bash
+> # Linux / macOS (ou Git Bash no Windows)
+> openssl rand -base64 32
+>
+> # Qualquer sistema com Node.js
+> node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
+> ```
+>
+> Copie o texto que o comando imprimir e cole depois do `=`, por exemplo `JWT_SECRET=<texto gerado>`.
 
 #### 3. Prepare o banco de dados e a infraestrutura
 
