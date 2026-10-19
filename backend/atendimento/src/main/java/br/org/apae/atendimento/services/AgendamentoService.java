@@ -308,6 +308,10 @@ public class AgendamentoService {
         return repository.existsByProfissionalIdAndDataHora(
                 profissionalId,
                 dataHora
+        ) || agendamentoGeralReadRepository.existsByProfissionalIdAndDataAndHora(
+                profissionalId,
+                data,
+                hora
         );
     }
 
