@@ -171,6 +171,56 @@ class AgendamentoGeralReadRepositoryIntegrationTest extends AbstractPostgresTest
         assertTrue(repository.findByProfissionalIdOrderByDataHoraDesc(PROFISSIONAL_SOMENTE_INATIVO).isEmpty());
     }
 
+    @Test
+    @DisplayName("Deve retornar true quando existir agendamento ativo na data expandida e horário informados")
+    void deveRetornarTrueQuandoExistirConflitoDeDataEHoraNoSistemaGeral() {
+        assertTrue(repository.existsByProfissionalIdAndDataAndHora(
+                PROFISSIONAL_COM_AGENDAMENTOS,
+                LocalDate.of(2030, 3, 8),
+                LocalTime.of(10, 30)
+        ));
+        assertTrue(repository.existsByProfissionalIdAndDataAndHora(
+                PROFISSIONAL_COM_AGENDAMENTOS,
+                LocalDate.of(2030, 3, 15),
+                LocalTime.of(10, 30)
+        ));
+        assertTrue(repository.existsByProfissionalIdAndDataAndHora(
+                PROFISSIONAL_COM_AGENDAMENTOS,
+                LocalDate.of(2030, 3, 8),
+                LocalTime.of(14, 0)
+        ));
+        assertTrue(repository.existsByProfissionalIdAndDataAndHora(
+                PROFISSIONAL_COM_AGENDAMENTOS,
+                LocalDate.of(2030, 4, 10),
+                LocalTime.of(16, 0)
+        ));
+    }
+
+    @Test
+    @DisplayName("Deve retornar false quando horário estiver livre ou agendamento estiver inativo")
+    void deveRetornarFalseQuandoHorarioEstiverLivreOuInativo() {
+        assertFalse(repository.existsByProfissionalIdAndDataAndHora(
+                PROFISSIONAL_COM_AGENDAMENTOS,
+                LocalDate.of(2030, 3, 8),
+                LocalTime.of(11, 0)
+        ));
+        assertFalse(repository.existsByProfissionalIdAndDataAndHora(
+                PROFISSIONAL_COM_AGENDAMENTOS,
+                LocalDate.of(2030, 3, 2),
+                LocalTime.of(10, 30)
+        ));
+        assertFalse(repository.existsByProfissionalIdAndDataAndHora(
+                PROFISSIONAL_SOMENTE_INATIVO,
+                LocalDate.of(2030, 3, 8),
+                LocalTime.of(8, 0)
+        ));
+        assertFalse(repository.existsByProfissionalIdAndDataAndHora(
+                PROFISSIONAL_SEM_AGENDAMENTOS,
+                LocalDate.of(2030, 3, 8),
+                LocalTime.of(10, 30)
+        ));
+    }
+
     private static UUID md5PseudoUuid(UUID agendamentoId, LocalDate data) {
         try {
             byte[] digest = MessageDigest.getInstance("MD5")
