@@ -3,10 +3,7 @@ name: Docker Build & Publish
 on:
   push:
     branches:
-      - '*'
-  pull_request:
-    branches:
-      - '*'
+      - dev
   workflow_dispatch:
 
 permissions:
@@ -16,7 +13,7 @@ permissions:
 jobs:
   publish-backend:
     name: Build & publish backend
-    uses: IFPBEsp/APAE-INFRA/.github/workflows/docker-build-publish-image.yml@44-ci-correcao-workflow-reutilizavel
+    uses: IFPBEsp/APAE-INFRA/.github/workflows/docker-build-publish-image.yml@dev
     with:
       context: ./backend/atendimento
       dockerfile: ./backend/atendimento/Dockerfile
@@ -26,7 +23,7 @@ jobs:
 
   publish-frontend:
     name: Build & publish frontend
-    uses: IFPBEsp/APAE-INFRA/.github/workflows/docker-build-publish-image.yml@44-ci-correcao-workflow-reutilizavel
+    uses: IFPBEsp/APAE-INFRA/.github/workflows/docker-build-publish-image.yml@dev
     with:
       context: ./frontend/atendimento-app
       dockerfile: ./frontend/atendimento-app/Dockerfile
