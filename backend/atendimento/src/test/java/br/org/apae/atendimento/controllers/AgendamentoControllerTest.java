@@ -118,6 +118,38 @@ class AgendamentoControllerTest {
 
             verifyNoInteractions(service);
         }
+
+        @Test
+        @DisplayName("Should return 401 Unauthorized when requesting PUT /agendamento/{agendamentoId} without authentication")
+        void shouldReturn401WhenPutWithoutAuthentication() throws Exception {
+            mockMvc.perform(put("/agendamento/{agendamentoId}", agendamentoId)
+                            .with(csrf())
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(validRequest)))
+                    .andExpect(status().isUnauthorized());
+
+            verifyNoInteractions(service);
+        }
+
+        @Test
+        @DisplayName("Should return 401 Unauthorized when requesting DELETE /agendamento/{pacienteId}/{agendamentoId} without authentication")
+        void shouldReturn401WhenDeleteWithoutAuthentication() throws Exception {
+            mockMvc.perform(delete("/agendamento/{pacienteId}/{agendamentoId}", pacienteId, agendamentoId)
+                            .with(csrf()))
+                    .andExpect(status().isUnauthorized());
+
+            verifyNoInteractions(service);
+        }
+
+        @Test
+        @DisplayName("Should return 401 Unauthorized when requesting PATCH /agendamento/{pacienteId}/{agendamentoId}/concluir without authentication")
+        void shouldReturn401WhenPatchWithoutAuthentication() throws Exception {
+            mockMvc.perform(patch("/agendamento/{pacienteId}/{agendamentoId}/concluir", pacienteId, agendamentoId)
+                            .with(csrf()))
+                    .andExpect(status().isUnauthorized());
+
+            verifyNoInteractions(service);
+        }
     }
 
     @Nested
@@ -251,6 +283,17 @@ class AgendamentoControllerTest {
                     .andExpect(jsonPath("$.size").value(5));
 
             verify(service).listarAgrupadoPorDia(usuarioId, filterDate, 1, 5);
+        }
+
+        @Test
+        @DisplayName("Should return 400 Bad Request when date format is invalid")
+        void shouldReturn400WhenDateFormatIsInvalid() throws Exception {
+            mockMvc.perform(get("/agendamento")
+                            .with(authenticatedUser(usuarioId))
+                            .param("data", "25-10-2026"))
+                    .andExpect(status().isBadRequest());
+
+            verifyNoInteractions(service);
         }
     }
 
