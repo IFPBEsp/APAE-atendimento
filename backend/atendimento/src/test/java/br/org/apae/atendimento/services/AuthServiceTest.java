@@ -1,5 +1,6 @@
 package br.org.apae.atendimento.services;
 
+import br.org.apae.atendimento.dtos.request.EsqueciSenhaRequestDTO;
 import br.org.apae.atendimento.dtos.request.LoginRequestDTO;
 import br.org.apae.atendimento.dtos.response.AutenticacaoResponseDTO;
 import br.org.apae.atendimento.entities.ProfissionalSaude;
@@ -15,6 +16,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -36,6 +38,76 @@ class AuthServiceTest {
 
     @Mock
     private JwtService jwtService;
+
+    @Test
+    @DisplayName("Esqueci senha: deve atualizar a senha com hash quando e-mail e CPF conferem")
+    void esqueciSenhaDeveAtualizarSenhaComHash() {
+        UUID usuarioId = UUID.randomUUID();
+        EsqueciSenhaRequestDTO requestDTO = new EsqueciSenhaRequestDTO("  USER@EMAIL.COM  ", "000.000.010-82", "novaSenha123");
+        ProfissionalSaude usuario = mock(ProfissionalSaude.class);
+
+        when(profissionalRepository.findByEmailIgnoreCase("user@email.com")).thenReturn(Optional.of(usuario));
+        when(usuario.getAtivo()).thenReturn(true);
+        when(usuario.getPerfil()).thenReturn("ATENDIMENTO");
+        when(usuario.getCpf()).thenReturn("00000001082");
+        when(usuario.getUsuarioId()).thenReturn(usuarioId);
+        when(passwordEncoder.encode("novaSenha123")).thenReturn("novaSenhaHash");
+
+        authService.esqueciSenha(requestDTO);
+
+        verify(passwordEncoder).encode("novaSenha123");
+        verify(profissionalRepository).definirSenhaPrimeiroAcesso(usuarioId, "novaSenhaHash");
+    }
+
+    @Test
+    @DisplayName("Esqueci senha: deve lançar erro genérico quando e-mail não existe")
+    void esqueciSenhaDeveLancarErroGenericoQuandoEmailNaoExiste() {
+        EsqueciSenhaRequestDTO requestDTO = new EsqueciSenhaRequestDTO("inexistente@email.com", "000.000.010-82", "novaSenha123");
+        when(profissionalRepository.findByEmailIgnoreCase("inexistente@email.com")).thenReturn(Optional.empty());
+
+        BadCredentialsException ex = assertThrows(BadCredentialsException.class,
+                () -> authService.esqueciSenha(requestDTO));
+
+        assertEquals("Os dados informados não conferem", ex.getMessage());
+        verify(passwordEncoder, never()).encode(anyString());
+        verify(profissionalRepository, never()).definirSenhaPrimeiroAcesso(any(), anyString());
+    }
+
+    @Test
+    @DisplayName("Esqueci senha: deve lançar erro genérico quando CPF não confere com o e-mail")
+    void esqueciSenhaDeveLancarErroGenericoQuandoCpfNaoConfere() {
+        EsqueciSenhaRequestDTO requestDTO = new EsqueciSenhaRequestDTO("user@email.com", "000.000.110-82", "novaSenha123");
+        ProfissionalSaude usuario = mock(ProfissionalSaude.class);
+
+        when(profissionalRepository.findByEmailIgnoreCase("user@email.com")).thenReturn(Optional.of(usuario));
+        when(usuario.getAtivo()).thenReturn(true);
+        when(usuario.getPerfil()).thenReturn("ATENDIMENTO");
+        when(usuario.getCpf()).thenReturn("000.000.010-82");
+
+        BadCredentialsException ex = assertThrows(BadCredentialsException.class,
+                () -> authService.esqueciSenha(requestDTO));
+
+        assertEquals("Os dados informados não conferem", ex.getMessage());
+        verify(passwordEncoder, never()).encode(anyString());
+        verify(profissionalRepository, never()).definirSenhaPrimeiroAcesso(any(), anyString());
+    }
+
+    @Test
+    @DisplayName("Esqueci senha: deve usar a mesma mensagem genérica para usuário inativo")
+    void esqueciSenhaDeveLancarErroGenericoQuandoUsuarioInativo() {
+        EsqueciSenhaRequestDTO requestDTO = new EsqueciSenhaRequestDTO("user@email.com", "000.000.010-82", "novaSenha123");
+        ProfissionalSaude usuario = mock(ProfissionalSaude.class);
+
+        when(profissionalRepository.findByEmailIgnoreCase("user@email.com")).thenReturn(Optional.of(usuario));
+        when(usuario.getAtivo()).thenReturn(false);
+        when(usuario.getCpf()).thenReturn("000.000.010-82");
+
+        BadCredentialsException ex = assertThrows(BadCredentialsException.class,
+                () -> authService.esqueciSenha(requestDTO));
+
+        assertEquals("Os dados informados não conferem", ex.getMessage());
+        verify(profissionalRepository, never()).definirSenhaPrimeiroAcesso(any(), anyString());
+    }
 
     @Test
     @DisplayName("Deve autenticar com sucesso e gerar token JWT")
