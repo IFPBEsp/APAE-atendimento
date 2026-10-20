@@ -141,6 +141,9 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler({BadCredentialsException.class, AuthenticationException.class})
     public ResponseEntity<ErrorResponse> handlerAuthException(Exception ex) {
-        return buildResponse(HttpStatus.UNAUTHORIZED, "Credenciais inválidas");
+        String message = (ex instanceof BadCredentialsException && ex.getMessage() != null && !ex.getMessage().isBlank())
+                ? ex.getMessage()
+                : "Credenciais inválidas";
+        return buildResponse(HttpStatus.UNAUTHORIZED, message);
     }
 }

@@ -1,5 +1,6 @@
 package br.org.apae.atendimento.services;
 
+import br.org.apae.atendimento.dtos.request.EsqueciSenhaRequestDTO;
 import br.org.apae.atendimento.dtos.request.LoginRequestDTO;
 import br.org.apae.atendimento.dtos.request.RedefinirSenhaRequestDTO;
 import br.org.apae.atendimento.dtos.response.AutenticacaoResponseDTO;
@@ -22,6 +23,7 @@ public class AuthService{
     private static final String CARGO_ATENDIMENTO = "ATENDIMENTO";
     private static final String MSG_CREDENCIAIS_INVALIDAS = "Credenciais inválidas";
     private static final String REDIRECT_PRIMEIRO_ACESSO = "/auth/redefinir-senha";
+    private static final String MSG_DADOS_NAO_CONFEREM = "Os dados informados não conferem";
 
     private final ProfissionalSaudeRepository profissionalRepository;
     private final PasswordEncoder passwordEncoder;
@@ -68,6 +70,27 @@ public class AuthService{
 
         String senhaHash = passwordEncoder.encode(requestDTO.novaSenha());
         profissionalRepository.definirSenhaPrimeiroAcesso(profissional.getUsuarioId(), senhaHash);
+    }
+
+    @Transactional
+    public void esqueciSenha(EsqueciSenhaRequestDTO requestDTO) {
+        String emailSanitizado = requestDTO.email().trim().toLowerCase(Locale.ROOT);
+        String cpfInformado = somenteDigitos(requestDTO.cpf());
+
+        ProfissionalSaude usuario = profissionalRepository.findByEmailIgnoreCase(emailSanitizado)
+                .orElseThrow(() -> new BadCredentialsException(MSG_DADOS_NAO_CONFEREM));
+
+        String cpfUsuario = somenteDigitos(usuario.getCpf());
+        boolean usuarioAtendimentoAtivo = Boolean.TRUE.equals(usuario.getAtivo())
+                && usuario.getPerfil() != null
+                && CARGO_ATENDIMENTO.equals(usuario.getPerfil().trim().toUpperCase(Locale.ROOT));
+
+        if (!usuarioAtendimentoAtivo || cpfUsuario.isBlank() || !cpfUsuario.equals(cpfInformado)) {
+            throw new BadCredentialsException(MSG_DADOS_NAO_CONFEREM);
+        }
+
+        String senhaHash = passwordEncoder.encode(requestDTO.novaSenha());
+        profissionalRepository.definirSenhaPrimeiroAcesso(usuario.getUsuarioId(), senhaHash);
     }
 
     private void validarUsuarioAtendimento(ProfissionalSaude usuario) {
