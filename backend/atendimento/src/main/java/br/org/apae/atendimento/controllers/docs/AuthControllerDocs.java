@@ -3,6 +3,7 @@ package br.org.apae.atendimento.controllers.docs;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 
+import br.org.apae.atendimento.dtos.request.EsqueciSenhaRequestDTO;
 import br.org.apae.atendimento.dtos.request.LoginRequestDTO;
 import br.org.apae.atendimento.dtos.request.RedefinirSenhaRequestDTO;
 import br.org.apae.atendimento.dtos.response.LoginResponseDTO;
@@ -40,6 +41,16 @@ public interface AuthControllerDocs {
     ResponseEntity<LoginResponseDTO> redefinirSenha(
             @Parameter(hidden = true) UsuarioAutenticado usuarioAutenticado,
             @Valid @Parameter(description = "Novos dados de senha", required = true) RedefinirSenhaRequestDTO body
+    );
+
+    @Operation(summary = "Esqueci Minha Senha", description = "Endpoint público: redefine a senha validando a combinação de e-mail e CPF, sem necessidade de token JWT.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Senha redefinida com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Dados inválidos"),
+            @ApiResponse(responseCode = "401", description = "Os dados informados não conferem")
+    })
+    ResponseEntity<LoginResponseDTO> esqueciSenha(
+            @Valid @Parameter(description = "E-mail, CPF e nova senha", required = true) EsqueciSenhaRequestDTO body
     );
 
     @Operation(summary = "Realizar Logout", description = "Revoga o token atual (blocklist) e limpa o cookie de autenticação.")
