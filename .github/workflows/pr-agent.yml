@@ -14,10 +14,8 @@ on:
 
 jobs:
   pr-agent:
-    uses: IFPBEsp/APAE-INFRA/.github/workflows/pr-agent-reusable.yml@7dde1b13757bfa3ac35df5518e3e9b2e512d139d
-
+    uses: IFPBEsp/APAE-INFRA/.github/workflows/pr-agent-reusable.yml@009b28fb646650e5412f68472af1e77561afb54b
     with:
-
       extra-instructions: >
         Projeto com backend Java 21 e Spring Boot 3.5 em backend/atendimento.
         Frontend Next.js 16 em frontend/atendimento-app.
