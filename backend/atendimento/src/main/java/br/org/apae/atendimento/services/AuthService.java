@@ -81,11 +81,8 @@ public class AuthService{
                 .orElseThrow(() -> new BadCredentialsException(MSG_DADOS_NAO_CONFEREM));
 
         String cpfUsuario = somenteDigitos(usuario.getCpf());
-        boolean usuarioAtendimentoAtivo = Boolean.TRUE.equals(usuario.getAtivo())
-                && usuario.getPerfil() != null
-                && CARGO_ATENDIMENTO.equals(usuario.getPerfil().trim().toUpperCase(Locale.ROOT));
 
-        if (!usuarioAtendimentoAtivo || cpfUsuario.isBlank() || !cpfUsuario.equals(cpfInformado)) {
+        if (!isUsuarioAtendimentoAtivo(usuario) || cpfUsuario.isBlank() || !cpfUsuario.equals(cpfInformado)) {
             throw new BadCredentialsException(MSG_DADOS_NAO_CONFEREM);
         }
 
@@ -93,13 +90,14 @@ public class AuthService{
         profissionalRepository.definirSenhaPrimeiroAcesso(usuario.getUsuarioId(), senhaHash);
     }
 
-    private void validarUsuarioAtendimento(ProfissionalSaude usuario) {
-        if (!Boolean.TRUE.equals(usuario.getAtivo())) {
-            throw new BadCredentialsException(MSG_CREDENCIAIS_INVALIDAS);
-        }
+    private boolean isUsuarioAtendimentoAtivo(ProfissionalSaude usuario) {
+        return Boolean.TRUE.equals(usuario.getAtivo())
+                && usuario.getPerfil() != null
+                && CARGO_ATENDIMENTO.equals(usuario.getPerfil().trim().toUpperCase(Locale.ROOT));
+    }
 
-        if (usuario.getPerfil() == null ||
-                !CARGO_ATENDIMENTO.equals(usuario.getPerfil().trim().toUpperCase(Locale.ROOT))) {
+    private void validarUsuarioAtendimento(ProfissionalSaude usuario) {
+        if (!isUsuarioAtendimentoAtivo(usuario)) {
             throw new BadCredentialsException(MSG_CREDENCIAIS_INVALIDAS);
         }
     }
