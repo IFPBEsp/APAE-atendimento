@@ -1,6 +1,5 @@
 import Image from "next/image";
 import { JSX } from "react";
-import { FileText } from "lucide-react";
 import PdfPreview from "@/components/pdf/PdfViewner";
 
 type TipoNormalizado = 'pdf' | 'image';
