@@ -35,7 +35,6 @@ import software.amazon.awssdk.services.s3.model.NoSuchBucketException;
 import java.net.ConnectException;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
-import java.util.Collections;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -70,6 +69,7 @@ class StorageProvisioningTest {
 
         s3Service = new S3Service(s3Client, s3PresignedUrlService);
         ReflectionTestUtils.setField(s3Service, "BUCKET_NAME", "apae-atendimento");
+        ReflectionTestUtils.setField(s3Service, "autoProvision", false);
     }
 
     @Test
@@ -106,8 +106,9 @@ class StorageProvisioningTest {
     }
 
     @Test
-    @DisplayName("S3Service deve criar o bucket quando ausente e nao quebrar no profile prod")
-    void s3ServiceDeveCriarBucketQuandoAusente() {
+    @DisplayName("S3Service deve criar o bucket quando ausente e autoProvision estiver ativado")
+    void s3ServiceDeveCriarBucketQuandoAusenteEAutoProvisionAtivado() {
+        ReflectionTestUtils.setField(s3Service, "autoProvision", true);
         when(s3Client.headBucket(any(HeadBucketRequest.class)))
                 .thenThrow(NoSuchBucketException.builder().message("The specified bucket does not exist").build());
 
@@ -116,6 +117,18 @@ class StorageProvisioningTest {
         ArgumentCaptor<CreateBucketRequest> captor = ArgumentCaptor.forClass(CreateBucketRequest.class);
         verify(s3Client, times(1)).createBucket(captor.capture());
         assertEquals("apae-atendimento", captor.getValue().bucket());
+    }
+
+    @Test
+    @DisplayName("S3Service nao deve criar o bucket quando ausente se autoProvision estiver desativado (Terraform/Infra)")
+    void s3ServiceNaoDeveCriarBucketQuandoAutoProvisionDesativado() {
+        ReflectionTestUtils.setField(s3Service, "autoProvision", false);
+        when(s3Client.headBucket(any(HeadBucketRequest.class)))
+                .thenThrow(NoSuchBucketException.builder().message("The specified bucket does not exist").build());
+
+        assertDoesNotThrow(() -> s3Service.inicializarBucket());
+
+        verify(s3Client, never()).createBucket(any(CreateBucketRequest.class));
     }
 
     @Test

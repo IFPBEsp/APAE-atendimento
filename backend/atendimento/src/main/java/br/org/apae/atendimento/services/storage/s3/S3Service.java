@@ -31,6 +31,9 @@ public class S3Service implements ObjectStorageService {
     @Value("${bucket.name}")
     private String BUCKET_NAME;
 
+    @Value("${s3.auto-provision:false}")
+    private boolean autoProvision;
+
     @Autowired
     public S3Service(S3Client client, S3PresignedUrlService urlService) {
         this.client = client;
@@ -48,10 +51,10 @@ public class S3Service implements ObjectStorageService {
             client.headBucket(HeadBucketRequest.builder().bucket(BUCKET_NAME).build());
             log.info("Bucket '{}' validado com sucesso no armazenamento S3.", BUCKET_NAME);
         } catch (NoSuchBucketException e) {
-            criarBucketSeAusente();
+            tratarBucketAusente();
         } catch (S3Exception e) {
             if (e.statusCode() == 404) {
-                criarBucketSeAusente();
+                tratarBucketAusente();
             } else if (e.statusCode() == 403 || e.statusCode() == 401) {
                 log.error("Falha de autenticação ou permissão ao validar o bucket '{}' no S3 (HTTP {}). Verifique as credenciais configuradas.",
                         BUCKET_NAME, e.statusCode(), e);
@@ -66,6 +69,15 @@ public class S3Service implements ObjectStorageService {
             log.warn("Não foi possível validar o bucket '{}' durante a inicialização: {}",
                     BUCKET_NAME, e.getMessage(), e);
         }
+    }
+
+    private void tratarBucketAusente() {
+        if (!autoProvision) {
+            log.warn("Bucket '{}' não encontrado no S3. O auto-provisionamento está desativado (s3.auto-provision=false). O bucket deve ser gerenciado pela infraestrutura.", BUCKET_NAME);
+            return;
+        }
+
+        criarBucketSeAusente();
     }
 
     private void criarBucketSeAusente() {
@@ -87,6 +99,10 @@ public class S3Service implements ObjectStorageService {
         }
 
         colocarArquivo(objectName, file);
+        String originalFilename = file.getOriginalFilename();
+        if (originalFilename != null && !originalFilename.isBlank()) {
+            return urlService.gerarUrlPreAssinada(objectName, originalFilename);
+        }
         return urlService.gerarUrlPreAssinada(objectName);
     }
 

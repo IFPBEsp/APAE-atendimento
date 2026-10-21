@@ -42,6 +42,10 @@ public class MinioService implements ObjectStorageService {
         }
 
         colocarArquivo(objectName, file);
+        String originalFilename = file.getOriginalFilename();
+        if (originalFilename != null && !originalFilename.isBlank()) {
+            return urlService.gerarUrlPreAssinada(objectName, originalFilename);
+        }
         return urlService.gerarUrlPreAssinada(objectName);
     }
 

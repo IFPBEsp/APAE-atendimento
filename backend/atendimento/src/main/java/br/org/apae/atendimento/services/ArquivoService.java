@@ -114,7 +114,9 @@ public class ArquivoService {
 
         List<ArquivoResponseDTO> data = arquivosPage.getContent().stream()
                 .map(anexo -> {
-                    String url = urlService.gerarUrlPreAssinada(anexo.getObjectName());
+                    String url = (anexo.getNomeArquivo() != null && !anexo.getNomeArquivo().isBlank())
+                            ? urlService.gerarUrlPreAssinada(anexo.getObjectName(), anexo.getNomeArquivo())
+                            : urlService.gerarUrlPreAssinada(anexo.getObjectName());
                     anexo.setPresignedUrl(url);
                     return anexoMapper.toDTOPadrao(anexo);
                 }).collect(Collectors.toList());
@@ -142,7 +144,9 @@ public class ArquivoService {
 
         return arquivos.stream()
                 .map(anexo -> {
-                    String url = urlService.gerarUrlPreAssinada(anexo.getObjectName());
+                    String url = (anexo.getNomeArquivo() != null && !anexo.getNomeArquivo().isBlank())
+                            ? urlService.gerarUrlPreAssinada(anexo.getObjectName(), anexo.getNomeArquivo())
+                            : urlService.gerarUrlPreAssinada(anexo.getObjectName());
                     anexo.setPresignedUrl(url);
                     return anexoMapper.toDTOPadrao(anexo);
                 }).collect(Collectors.toList());

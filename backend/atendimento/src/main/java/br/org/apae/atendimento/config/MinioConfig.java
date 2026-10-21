@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 
 import java.net.ConnectException;
@@ -20,6 +21,9 @@ public class MinioConfig {
     @Value("${minio.endpoint}")
     private String minioEndpoint;
 
+    @Value("${minio.external-endpoint:${minio.endpoint}}")
+    private String minioExternalEndpoint;
+
     @Value("${minio.root.user}")
     private String minioAccessKey;
 
@@ -29,7 +33,8 @@ public class MinioConfig {
     @Value("${bucket.name}")
     private String bucketName;
 
-    @Bean
+    @Primary
+    @Bean(name = "minioClient")
     public MinioClient minioClient() {
         MinioClient client = MinioClient.builder()
                 .endpoint(minioEndpoint)
@@ -38,6 +43,17 @@ public class MinioConfig {
 
         inicializarBucket(client);
         return client;
+    }
+
+    @Bean(name = "minioPresignerClient")
+    public MinioClient minioPresignerClient() {
+        if (minioExternalEndpoint != null && !minioExternalEndpoint.isBlank() && !minioExternalEndpoint.equals(minioEndpoint)) {
+            return MinioClient.builder()
+                    .endpoint(minioExternalEndpoint)
+                    .credentials(minioAccessKey, minioSecretKey)
+                    .build();
+        }
+        return minioClient();
     }
 
     public void inicializarBucket(MinioClient client) {
