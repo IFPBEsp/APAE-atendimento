@@ -12,10 +12,16 @@ export async function getArquivos(
   tipoArquivo: TipoArquivo,
 ): Promise<ArquivoResponse[]> {
   try {
-    const { data } = await api.get<ArquivoResponse[]>(
-      `/arquivo/${idPaciente}/${tipoArquivo}`,
+    const { data } = await api.get<any>(
+      `/arquivo/${idPaciente}/${tipoArquivo}?limit=100`,
     );
-    return data;
+    if (Array.isArray(data)) {
+      return data;
+    }
+    if (data && Array.isArray(data.data)) {
+      return data.data;
+    }
+    return [];
   } catch (error) {
     const axiosError = error as AxiosError;
     const mensagem = String(

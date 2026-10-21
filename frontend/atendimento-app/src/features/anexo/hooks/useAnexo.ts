@@ -27,15 +27,15 @@ export function useAnexos(pacienteId: string) {
     enabled: !!pacienteId,
     queryFn: async () => {
       const anexos = await getAnexos(pacienteId);
-      return { anexos };
+      return { anexos: Array.isArray(anexos) ? anexos : [] };
     },
   });
 
   const anexosFiltrados = useMemo(() => {
-    if (!data?.anexos) return [];
-    if (!dataSelecionada) return data.anexos;
+    const lista = Array.isArray(data?.anexos) ? data.anexos : [];
+    if (!dataSelecionada) return lista;
 
-    return data.anexos.filter((a: Anexo) =>
+    return lista.filter((a: Anexo) =>
       filtroData(dataSelecionada, a.data),
     );
   }, [data, dataSelecionada]);
@@ -44,6 +44,7 @@ export function useAnexos(pacienteId: string) {
     mutationFn: enviarAnexo,
     onSuccess: () => {
       toast.success("Anexo criado com sucesso!");
+      setDataSelecionada("");
       queryClient.invalidateQueries({ queryKey: ["anexos", pacienteId] });
       setOpen(false);
     },
