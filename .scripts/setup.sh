@@ -26,14 +26,10 @@ echo "Subindo PostgreSQL e MinIO locais..."
 docker compose up -d postgres-db minio
 
 echo "Provisionando bucket '${BUCKET_NAME}' no MinIO..."
-docker compose run --rm --entrypoint /bin/sh minio-setup -c "
-  until mc alias set local http://minio:9000 \"${MINIO_ROOT_USER}\" \"${MINIO_ROOT_PASSWORD}\"; do
-    echo 'Aguardando MinIO ficar disponivel...'
-    sleep 2
-  done
-  mc mb --ignore-existing \"local/${BUCKET_NAME}\"
-  mc anonymous set download \"local/${BUCKET_NAME}\"
-"
+if ! docker compose run --rm minio-setup; then
+  echo "Erro: Falha ao provisionar o bucket '${BUCKET_NAME}' no MinIO." >&2
+  exit 1
+fi
 
 echo "Criando contratos mockados de apae_geral e o schema gestao_escolar..."
 docker compose --profile tools run --rm db-contract
