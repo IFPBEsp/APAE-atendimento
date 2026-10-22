@@ -38,11 +38,10 @@ export function useRelatorios(pacienteId: string) {
     queryKey: ["relatorios", pacienteId],
     enabled: !!pacienteId,
     queryFn: async () => {
-      const [relatoriosResponse] = await Promise.all([
-        getRelatorios(pacienteId),
-      ]);
+      const relatoriosResponse = await getRelatorios(pacienteId);
+      const lista = Array.isArray(relatoriosResponse) ? relatoriosResponse : [];
 
-      const relatorios: Relatorio[] = relatoriosResponse.map(
+      const relatorios: Relatorio[] = lista.map(
         (e: RelatorioBase, i) => ({
           id: ++i,
           ...e,
@@ -53,13 +52,12 @@ export function useRelatorios(pacienteId: string) {
   });
 
   const relatoriosFiltrados = useMemo(() => {
-    if (!data?.relatorios) return [];
-
+    const lista = Array.isArray(data?.relatorios) ? data.relatorios : [];
     if (!dataSelecionada) {
-      return data.relatorios;
+      return lista;
     }
 
-    return data.relatorios.filter((relatorio) =>
+    return lista.filter((relatorio) =>
       filtroData(dataSelecionada, relatorio.data),
     );
   }, [data, dataSelecionada]);
@@ -68,6 +66,7 @@ export function useRelatorios(pacienteId: string) {
     mutationFn: enviarRelatorio,
     onSuccess: () => {
       toast.success("Relatório criado com sucesso!");
+      setDataSelecionada("");
       queryClient.invalidateQueries({
         queryKey: ["relatorios", pacienteId],
       });

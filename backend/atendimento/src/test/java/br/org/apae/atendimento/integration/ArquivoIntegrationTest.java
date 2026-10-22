@@ -210,4 +210,22 @@ class ArquivoIntegrationTest extends AbstractIntegrationTest {
 
         assertThat(anexoRepository.count()).isZero();
     }
+
+    @Test
+    @DisplayName("Falha no armazenamento em nuvem -> 503 Service Unavailable")
+    void falhaArmazenamentoNuvemRetorna503() throws Exception {
+        when(storageService.uploadArquivo(ArgumentMatchers.any(), ArgumentMatchers.any()))
+                .thenThrow(new br.org.apae.atendimento.exceptions.CloudStorageException("Bucket inexistente ou servico indisponivel"));
+
+        MockMultipartFile file = mockFile("ok.pdf", "application/pdf");
+        MockMultipartFile meta = metadata(LocalDate.now(), "Titulo", "Desc", 2L);
+
+        mockMvc.perform(multipart("/arquivo")
+                        .file(file)
+                        .file(meta)
+                        .contentType(MediaType.MULTIPART_FORM_DATA))
+                .andExpect(status().isServiceUnavailable());
+
+        assertThat(anexoRepository.count()).isZero();
+    }
 }
