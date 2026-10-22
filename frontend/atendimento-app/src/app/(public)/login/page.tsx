@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { Mail, Lock, Eye, EyeOff } from "lucide-react"; 
+import Link from "next/link";
+import { Mail, Eye, EyeOff } from "lucide-react";
 import { Nunito, Baloo_2 } from "next/font/google";
 import { Card, CardContent } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
@@ -29,8 +30,9 @@ const baloo2Font = Baloo_2({
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false); 
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+  const [loginAttempts, setLoginAttempts] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [isCheckingSession, setIsCheckingSession] = useState(true);
 
@@ -79,6 +81,7 @@ export default function LoginPage() {
 
       router.replace("/home");
     } catch (err) {
+      setLoginAttempts((prev) => prev + 1);
       if (isAxiosError(err)) {
         const message = (err.response?.data as { message?: string } | undefined)
           ?.message;
@@ -183,6 +186,17 @@ export default function LoginPage() {
                       </button>
                     </InputGroupAddon>
                   </InputGroup>
+
+                  {loginAttempts >= 1 && (
+                    <div className="flex justify-end mt-1">
+                      <Link
+                        href="/esqueci-senha"
+                        className={`text-sm text-[#165BAA] hover:text-[#13447D] hover:underline transition-colors ${nunitoFont.className}`}
+                      >
+                        Esqueci minha senha
+                      </Link>
+                    </div>
+                  )}
                 </div>
               </div>
 
