@@ -7,15 +7,28 @@ import { RelatorioBase } from "@/features/relatorio/types";
 
 type ArquivoResponse = AnexoResponse | RelatorioBase;
 
+interface PaginatedResponse<T> {
+  data: T[];
+  paginationMetaDTO?: unknown;
+}
+
+type ArquivoResponseData = ArquivoResponse[] | PaginatedResponse<ArquivoResponse>;
+
 export async function getArquivos(
   idPaciente: string,
   tipoArquivo: TipoArquivo,
 ): Promise<ArquivoResponse[]> {
   try {
-    const { data } = await api.get<ArquivoResponse[]>(
-      `/arquivo/${idPaciente}/${tipoArquivo}`,
+    const { data } = await api.get<ArquivoResponseData>(
+      `/arquivo/${idPaciente}/${tipoArquivo}?limit=100`,
     );
-    return data;
+    if (Array.isArray(data)) {
+      return data;
+    }
+    if (data && Array.isArray(data.data)) {
+      return data.data;
+    }
+    return [];
   } catch (error) {
     const axiosError = error as AxiosError;
     const mensagem = String(

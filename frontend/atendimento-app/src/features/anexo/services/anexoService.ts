@@ -21,8 +21,14 @@ export async function enviarAnexo(formData: FormData) {
 }
 
 export async function getAnexos(pacienteId: string): Promise<Anexo[]> {
-  const res = await api.get(`/arquivo/${pacienteId}/1`);
-  return res.data;
+  const res = await api.get(`/arquivo/${pacienteId}/1?limit=100`);
+  if (Array.isArray(res.data)) {
+    return res.data;
+  }
+  if (res.data && Array.isArray(res.data.data)) {
+    return res.data.data;
+  }
+  return [];
 }
 
 export async function apagarAnexo(objectName: string): Promise<void> {

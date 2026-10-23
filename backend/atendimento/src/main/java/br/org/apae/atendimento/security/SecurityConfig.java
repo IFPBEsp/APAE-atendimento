@@ -40,6 +40,7 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/auth/login",
                                 "/auth/logout",
+                                "/auth/esqueci-senha",
                                 "/error",
                                 "/",
                                 "/actuator/health",
