@@ -14,11 +14,11 @@ export async function getRelatorios(
 ): Promise<RelatorioBase[]> {
   try {
     if (!pacienteId) return [];
-    const resposta = (await getArquivos(
+    const resposta = await getArquivos(
       pacienteId,
       TipoArquivo.relatorio,
-    )) as RelatorioBase[];
-    return resposta;
+    );
+    return Array.isArray(resposta) ? (resposta as RelatorioBase[]) : [];
   } catch (error) {
     const axiosError = error as AxiosError;
     const mensagem = String(

@@ -13,8 +13,23 @@ if [ ! -f "$ENV_FILE" ]; then
   echo "[.env] Criado a partir de .env.example"
 fi
 
+set -a
+# shellcheck disable=SC1090
+. "$ENV_FILE"
+set +a
+
+MINIO_ROOT_USER="${MINIO_ROOT_USER:-atendimento_minio}"
+MINIO_ROOT_PASSWORD="${MINIO_ROOT_PASSWORD:-atendimento_minio_123}"
+BUCKET_NAME="${BUCKET_NAME:-apae-atendimento}"
+
 echo "Subindo PostgreSQL e MinIO locais..."
 docker compose up -d postgres-db minio
+
+echo "Provisionando bucket '${BUCKET_NAME}' no MinIO..."
+if ! docker compose run --rm minio-setup; then
+  echo "Erro: Falha ao provisionar o bucket '${BUCKET_NAME}' no MinIO." >&2
+  exit 1
+fi
 
 echo "Criando contratos mockados de apae_geral e o schema gestao_escolar..."
 docker compose --profile tools run --rm db-contract

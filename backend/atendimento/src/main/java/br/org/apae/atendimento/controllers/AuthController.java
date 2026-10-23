@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.org.apae.atendimento.controllers.docs.AuthControllerDocs;
+import br.org.apae.atendimento.dtos.request.EsqueciSenhaRequestDTO;
 import br.org.apae.atendimento.dtos.request.LoginRequestDTO;
 import br.org.apae.atendimento.dtos.request.RedefinirSenhaRequestDTO;
 import br.org.apae.atendimento.dtos.response.AutenticacaoResponseDTO;
@@ -79,6 +80,13 @@ public class AuthController implements AuthControllerDocs {
             @Valid @RequestBody RedefinirSenhaRequestDTO body
     ) {
         authService.redefinirSenha(usuarioAutenticado.getId(), body);
+        return ResponseEntity.ok(new LoginResponseDTO(true, "Senha redefinida com sucesso"));
+    }
+
+    @Override
+    @PostMapping("/esqueci-senha")
+    public ResponseEntity<LoginResponseDTO> esqueciSenha(@Valid @RequestBody EsqueciSenhaRequestDTO body) {
+        authService.esqueciSenha(body);
         return ResponseEntity.ok(new LoginResponseDTO(true, "Senha redefinida com sucesso"));
     }
     
