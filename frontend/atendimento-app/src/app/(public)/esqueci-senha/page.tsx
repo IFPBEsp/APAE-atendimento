@@ -12,6 +12,7 @@ import { z } from "zod";
 import { isAxiosError } from "axios";
 import { toast } from "sonner";
 
+import logoApae from "../../../../public/logo-apae.svg";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   InputGroup,
@@ -157,11 +158,11 @@ export default function EsqueciSenhaPage() {
   const cpfRegister = registerIdentificacao("cpf");
 
   return (
-    <div className="h-screen w-screen bg-[url('/background-login-apae.svg')] relative bg-no-repeat bg-cover bg-center flex items-center justify-center">
+    <div className="h-screen w-screen bg-[url('/atendimento/background-login-apae.svg')] relative bg-no-repeat bg-cover bg-center flex items-center justify-center">
       <div className="absolute flex items-center justify-center inset-0 bg-[#0D4F97]/80">
         <div className="absolute z-50 mt-[-32rem] w-[128px] h-[128px] bg-white rounded-full flex items-center justify-center mx-auto mb-[0px]">
           <Image
-            src="/logo-apae.svg"
+            src={logoApae}
             alt="APAE Logo"
             width={90}
             height={140}
