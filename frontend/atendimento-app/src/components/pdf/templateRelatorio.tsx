@@ -74,7 +74,7 @@ export const TemplateRelatorio = ({
 
           <View style={styles.header}>
             <AccessiblePdfImage
-                src="/logo-30anos.png"
+                src="/atendimento/logo-30anos.png"
                 style={styles.logo}
                 alt="Logomarca comemorativa de 30 anos da APAE"
             />
