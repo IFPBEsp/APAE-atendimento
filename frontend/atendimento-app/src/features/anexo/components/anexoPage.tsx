@@ -6,6 +6,7 @@ import { ArrowLeft, ClipboardPlus } from "lucide-react";
 import { Nunito } from "next/font/google";
 
 import Header from "@/components/shared/header";
+import Paginacao from "@/components/shared/paginacao";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
@@ -32,9 +33,12 @@ export default function AnexoPage() {
   const {
     anexosFiltrados,
     loading,
+    isFetching,
+    pagination,
     dataSelecionada,
     open,
 
+    setPage,
     setDataSelecionada,
     setOpen,
 
@@ -44,7 +48,7 @@ export default function AnexoPage() {
     enviando,
   } = useAnexos(pacienteId);
 
-  // ✅ tipado correto (sem any)
+  
   const [reportToDelete, setReportToDelete] = useState<Anexo | null>(null);
   const [reportToView, setReportToView] = useState<Anexo | null>(null);
 
@@ -103,16 +107,28 @@ export default function AnexoPage() {
         {!loading && anexosFiltrados.length === 0 && (
           <div className="text-center mt-20">
             <p className="text-[#344054] text-[15px] font-medium">
-              Nenhum anexo encontrado.
+              {dataSelecionada
+                ? "Nenhum anexo encontrado para esta data."
+                : "Nenhum anexo encontrado."}
             </p>
 
-            <Button
-              variant="link"
-              onClick={() => setOpen(true)}
-              className="text-[#165BAA] underline text-sm cursor-pointer"
-            >
-              Adicionar anexo
-            </Button>
+            {dataSelecionada ? (
+              <Button
+                variant="link"
+                onClick={() => setDataSelecionada("")}
+                className="text-[#165BAA] underline text-sm cursor-pointer"
+              >
+                Limpar filtro
+              </Button>
+            ) : (
+              <Button
+                variant="link"
+                onClick={() => setOpen(true)}
+                className="text-[#165BAA] underline text-sm cursor-pointer"
+              >
+                Adicionar anexo
+              </Button>
+            )}
           </div>
         )}
 
@@ -121,8 +137,8 @@ export default function AnexoPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-2">
             {anexosFiltrados.map((item) => (
               <AnexoCard
-                key={item.objectName} // ✅ único e correto
-                id={item.objectName} // ✅ agora string
+                key={item.objectName} 
+                id={item.objectName} 
                 titulo={item.titulo}
                 data={item.data}
                 fileName={item.nomeArquivo}
@@ -132,6 +148,21 @@ export default function AnexoPage() {
               />
             ))}
           </div>
+        )}
+
+        {/* PAGINAÇÃO */}
+        {!loading && pagination && pagination.totalItems > 0 && (
+          <Paginacao
+            page={pagination.page}
+            totalPages={pagination.totalPages}
+            totalItems={pagination.totalItems}
+            itemLabel="anexos"
+            first={pagination.first}
+            last={pagination.last}
+            disabled={isFetching}
+            onPrevious={() => setPage((p) => Math.max(1, p - 1))}
+            onNext={() => setPage((p) => p + 1)}
+          />
         )}
 
         {/* MODAL CREATE */}
