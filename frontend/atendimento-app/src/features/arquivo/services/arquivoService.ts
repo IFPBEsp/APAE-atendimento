@@ -1,35 +1,70 @@
 import { api } from "@/services/axios";
 
-import { AxiosError } from "axios";
-import { TipoArquivo } from "../types";
+import { AxiosError, isAxiosError } from "axios";
+import { ArquivosPaginados, TipoArquivo } from "../types";
 import { AnexoResponse } from "@/features/anexo/types";
 import { RelatorioBase } from "@/features/relatorio/types";
 
 type ArquivoResponse = AnexoResponse | RelatorioBase;
 
-interface PaginatedResponse<T> {
+type ArquivoPageApiResponse<T> = {
   data: T[];
-  paginationMetaDTO?: unknown;
-}
+  paginationMetaDTO: {
+    page: number;
+    limit: number;
+    totalItems: number;
+    totalPages: number;
+    hasNextPage: boolean;
+    hasPreviousPage: boolean;
+  };
+};
 
-type ArquivoResponseData = ArquivoResponse[] | PaginatedResponse<ArquivoResponse>;
-
-export async function getArquivos(
+export async function getArquivos<T extends ArquivoResponse = ArquivoResponse>(
   idPaciente: string,
   tipoArquivo: TipoArquivo,
-): Promise<ArquivoResponse[]> {
+  page = 1,
+  limit = 10,
+): Promise<ArquivosPaginados<T>> {
   try {
-    const { data } = await api.get<ArquivoResponseData>(
-      `/arquivo/${idPaciente}/${tipoArquivo}?limit=100`,
+    const { data } = await api.get<ArquivoPageApiResponse<T>>(
+      `/arquivo/${idPaciente}/${tipoArquivo}`,
+      { params: { page: Math.max(0, page - 1), limit } },
     );
-    if (Array.isArray(data)) {
-      return data;
-    }
-    if (data && Array.isArray(data.data)) {
-      return data.data;
-    }
-    return [];
+    const meta = data.paginationMetaDTO;
+
+    return {
+      data: data.data ?? [],
+      pagination: {
+        page: meta.page + 1,
+        limit: meta.limit,
+        totalItems: meta.totalItems,
+        totalPages: meta.totalPages,
+        first: !meta.hasPreviousPage,
+        last: !meta.hasNextPage,
+      },
+    };
   } catch (error) {
+    const axiosError = error as AxiosError;
+    const mensagem = String(
+      axiosError.response?.data ||
+        axiosError.message ||
+        "Erro ao buscar arquivo",
+    );
+    throw new Error(mensagem);
+  }
+}
+
+export async function getArquivosPorData<
+  T extends ArquivoResponse = ArquivoResponse,
+>(idPaciente: string, tipoArquivo: TipoArquivo, dataIso: string): Promise<T[]> {
+  const dataBr = dataIso.split("-").reverse().join("-"); 
+  try {
+    const { data } = await api.get<T[]>(
+      `/arquivo/date/${idPaciente}/${tipoArquivo}/${dataBr}`,
+    );
+    return Array.isArray(data) ? data : [];
+  } catch (error) {
+    if (isAxiosError(error) && error.response?.status === 404) return [];
     const axiosError = error as AxiosError;
     const mensagem = String(
       axiosError.response?.data ||

@@ -3,7 +3,6 @@
 import {
   Relatorio,
   RelatorioEnvioFormData,
-  RelatorioBase,
 } from "@/features/relatorio/types";
 
 import { toast } from "sonner";
@@ -15,11 +14,17 @@ import { AxiosError } from "axios";
 import {
   enviarRelatorio,
   getRelatorios,
+  getRelatoriosPorData,
 } from "@/features/relatorio/services/relatorioService";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import {
+  keepPreviousData,
+  useQuery,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 import { TipoArquivo } from "@/features/arquivo/types";
-import { filtroData } from "@/utils/filtroData";
+import type { ArquivoPagination } from "@/features/arquivo/types";
 
 import {
   normalizar,
@@ -28,48 +33,79 @@ import {
   validarArquivo,
 } from "@/features/relatorio/utils/sanitizeRelatorio";
 
+const RELATORIOS_POR_PAGINA = 10;
+
+type RelatoriosQueryResult = {
+  relatorios: Relatorio[];
+  pagination: ArquivoPagination | null;
+};
+
 export function useRelatorios(pacienteId: string) {
-  const [dataSelecionada, setDataSelecionada] = useState<string>("");
+  const [dataSelecionada, setDataSelecionadaState] = useState<string>("");
+  const [page, setPage] = useState(1);
   const [open, setOpen] = useState(false);
   const [reportToDelete, setReportToDelete] = useState<Relatorio | null>(null);
   const [reportToView, setReportToView] = useState<Relatorio | null>(null);
   const queryClient = useQueryClient();
-  const { data, isLoading } = useQuery({
-    queryKey: ["relatorios", pacienteId],
-    enabled: !!pacienteId,
-    queryFn: async () => {
-      const relatoriosResponse = await getRelatorios(pacienteId);
-      const lista = Array.isArray(relatoriosResponse) ? relatoriosResponse : [];
 
-      const relatorios: Relatorio[] = lista.map(
-        (e: RelatorioBase, i) => ({
-          id: ++i,
-          ...e,
-        }),
+  const { data, isLoading, isFetching } = useQuery<RelatoriosQueryResult>({
+    queryKey: ["relatorios", pacienteId, dataSelecionada, page],
+    enabled: !!pacienteId,
+    placeholderData: keepPreviousData,
+    queryFn: async () => {
+      
+      if (dataSelecionada) {
+        const lista = await getRelatoriosPorData(pacienteId, dataSelecionada);
+        return {
+          relatorios: lista.map((e, i) => ({ id: i + 1, ...e })),
+          pagination: null,
+        };
+      }
+
+      const resposta = await getRelatorios(
+        pacienteId,
+        page,
+        RELATORIOS_POR_PAGINA,
       );
-      return { relatorios };
+      const deslocamento =
+        (resposta.pagination.page - 1) * resposta.pagination.limit;
+
+      return {
+        relatorios: resposta.data.map((e, i) => ({
+          id: deslocamento + i + 1,
+          ...e,
+        })),
+        pagination: resposta.pagination,
+      };
     },
   });
 
-  const relatoriosFiltrados = useMemo(() => {
-    const lista = Array.isArray(data?.relatorios) ? data.relatorios : [];
-    if (!dataSelecionada) {
-      return lista;
-    }
+  const relatoriosFiltrados = data?.relatorios ?? [];
+  const pagination = data?.pagination ?? null;
 
-    return lista.filter((relatorio) =>
-      filtroData(dataSelecionada, relatorio.data),
-    );
-  }, [data, dataSelecionada]);
+  useEffect(() => {
+    if (
+      pagination &&
+      pagination.totalPages > 0 &&
+      page > pagination.totalPages
+    ) {
+      setPage(pagination.totalPages);
+    }
+  }, [pagination, page]);
+
+  const setDataSelecionada = (valor: string) => {
+    setDataSelecionadaState(valor);
+    setPage(1);
+  };
 
   const enviarRelatorioMutation = useMutation({
     mutationFn: enviarRelatorio,
     onSuccess: () => {
       toast.success("Relatório criado com sucesso!");
-      setDataSelecionada("");
       queryClient.invalidateQueries({
         queryKey: ["relatorios", pacienteId],
       });
+      setPage(1);
     },
     onError: (error: unknown) => {
       let mensagem: string;
@@ -166,14 +202,18 @@ export function useRelatorios(pacienteId: string) {
   return {
     // dados-estados
     loading: isLoading,
+    isFetching,
     dataSelecionada,
     open,
     reportToDelete,
     reportToView,
     relatoriosFiltrados,
+    pagination,
+    page,
 
     // ações-passivas
     setDataSelecionada,
+    setPage,
     setOpen,
     setReportToDelete,
     setReportToView,
