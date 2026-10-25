@@ -1,6 +1,16 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
-import { apagarAnexo, enviarAnexo, getAnexos } from "../services/anexoService";
+import {
+  keepPreviousData,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
+import { useEffect, useState } from "react";
+import {
+  apagarAnexo,
+  enviarAnexo,
+  getAnexos,
+  getAnexosPorData,
+} from "../services/anexoService";
 import { toast } from "sonner";
 
 import { TipoArquivo } from "@/features/anexo/types";
@@ -10,11 +20,11 @@ import { validarTipoArquivo } from "@/services/validarTipoArquivo";
 import { validarTamanhoArquivo } from "@/services/validarTamanhoArquivo";
 import { construirArquivoFormData } from "@/services/construirArquivoFormData";
 
-import type { Anexo } from "../types";
-import { filtroData } from "@/utils/filtroData";
+import type { Anexo, AnexosPaginados } from "../types";
 
 export function useAnexos(pacienteId: string) {
   const [dataSelecionada, setDataSelecionada] = useState("");
+  const [page, setPage] = useState(1);
   const [open, setOpen] = useState(false);
 
   const [reportToView, setReportToView] = useState<Anexo | null>(null);
@@ -22,29 +32,42 @@ export function useAnexos(pacienteId: string) {
 
   const queryClient = useQueryClient();
 
-  const { data, isLoading } = useQuery<{ anexos: Anexo[] }>({
-    queryKey: ["anexos", pacienteId],
+  const { data, isLoading, isFetching } = useQuery<AnexosPaginados>({
+    queryKey: ["anexos", pacienteId, dataSelecionada, page],
     enabled: !!pacienteId,
+    placeholderData: keepPreviousData,
     queryFn: async () => {
-      const anexos = await getAnexos(pacienteId);
-      return { anexos: Array.isArray(anexos) ? anexos : [] };
+      // com data selecionada, usa a busca por data (sem paginação)
+      if (dataSelecionada) {
+        const anexos = await getAnexosPorData(pacienteId, dataSelecionada);
+        return { anexos, pagination: null };
+      }
+      return getAnexos(pacienteId, page);
     },
   });
 
-  const anexosFiltrados = useMemo(() => {
-    const lista = Array.isArray(data?.anexos) ? data.anexos : [];
-    if (!dataSelecionada) return lista;
+  const anexos = data?.anexos ?? [];
+  const pagination = data?.pagination ?? null;
 
-    return lista.filter((a: Anexo) =>
-      filtroData(dataSelecionada, a.data),
-    );
-  }, [data, dataSelecionada]);
+  // ao selecionar (ou limpar) a data, volta para a primeira página
+  const handleSelecionarData = (novaData: string) => {
+    setDataSelecionada(novaData);
+    setPage(1);
+  };
+
+  // se a última página ficar vazia (ex.: após remover o único item), volta uma página
+  useEffect(() => {
+    if (!isFetching && !dataSelecionada && page > 1 && anexos.length === 0) {
+      setPage((p) => Math.max(1, p - 1));
+    }
+  }, [isFetching, dataSelecionada, page, anexos.length]);
 
   const enviarAnexoMutation = useMutation({
     mutationFn: enviarAnexo,
     onSuccess: () => {
       toast.success("Anexo criado com sucesso!");
       setDataSelecionada("");
+      setPage(1);
       queryClient.invalidateQueries({ queryKey: ["anexos", pacienteId] });
       setOpen(false);
     },
@@ -122,12 +145,15 @@ export function useAnexos(pacienteId: string) {
     }
   };
   return {
-    anexos: data?.anexos ?? [],
+    anexos,
     loading: isLoading,
-    anexosFiltrados,
+
+    pagination,
+    isFetching,
+    setPage,
 
     dataSelecionada,
-    setDataSelecionada,
+    setDataSelecionada: handleSelecionarData,
 
     open,
     setOpen,

@@ -43,3 +43,23 @@ export interface Anexo extends AnexoBase {
 }
 
 export type AnexoResponse = AnexoBase;
+
+// 🔹 PAGINAÇÃO (formato devolvido por GET /arquivo/{pacienteId}/{tipoId})
+export interface AnexoPaginationMeta {
+  page: number; // começa em 0
+  limit: number;
+  totalItems: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+}
+
+export interface AnexoPageResponse {
+  data: Anexo[];
+  paginationMetaDTO: AnexoPaginationMeta;
+}
+
+export interface AnexosPaginados {
+  anexos: Anexo[];
+  pagination: AnexoPaginationMeta | null;
+}
