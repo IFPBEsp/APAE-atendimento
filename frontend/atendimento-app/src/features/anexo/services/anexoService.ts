@@ -1,6 +1,12 @@
 import { api } from "@/services/axios";
 import { AxiosError } from "axios";
 import type { Anexo } from "../types";
+import {
+  getArquivos,
+  getArquivosPorData,
+} from "@/features/arquivo/services/arquivoService";
+import { TipoArquivo } from "@/features/arquivo/types";
+import type { ArquivosPaginados } from "@/features/arquivo/types";
 
 export async function enviarAnexo(formData: FormData) {
   try {
@@ -20,15 +26,19 @@ export async function enviarAnexo(formData: FormData) {
   }
 }
 
-export async function getAnexos(pacienteId: string): Promise<Anexo[]> {
-  const res = await api.get(`/arquivo/${pacienteId}/1?limit=100`);
-  if (Array.isArray(res.data)) {
-    return res.data;
-  }
-  if (res.data && Array.isArray(res.data.data)) {
-    return res.data.data;
-  }
-  return [];
+export async function getAnexos(
+  pacienteId: string,
+  page = 1,
+  limit = 10,
+): Promise<ArquivosPaginados<Anexo>> {
+  return getArquivos<Anexo>(pacienteId, TipoArquivo.anexo, page, limit);
+}
+
+export async function getAnexosPorData(
+  pacienteId: string,
+  data: string,
+): Promise<Anexo[]> {
+  return getArquivosPorData<Anexo>(pacienteId, TipoArquivo.anexo, data);
 }
 
 export async function apagarAnexo(objectName: string): Promise<void> {
