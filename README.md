@@ -241,7 +241,7 @@ pnpm dev
 
 | Serviço | URL |
 |---------|-----|
-| **Frontend** | `http://localhost:3001` |
+| **Frontend** | `http://localhost:3001/atendimento` |
 | **Backend API** | `http://localhost:8082/atendimento` (ou `8080/atendimento`) |
 | **Swagger UI** | `http://localhost:8082/atendimento/swagger-ui.html` |
 | **Health Check** | `http://localhost:8082/atendimento/actuator/health` |
@@ -339,7 +339,7 @@ pnpm install
 pnpm dev
 ```
 
-Acesse a interface web em `http://localhost:3001`.
+Acesse a interface web em `http://localhost:3001/atendimento` (ou `http://localhost:3000/atendimento` ao executar `pnpm dev` diretamente sem definir porta).
 
 #### 6. Execução via Docker Compose (Modo Produção)
 
@@ -349,7 +349,9 @@ Para validar a imagem de produção com todos os serviços integrados:
 docker compose --profile PROD up -d --build
 ```
 
-O frontend estará disponível em `http://localhost:80` (ou `3001`) e o backend em `http://localhost:8080/atendimento`.
+O frontend estará disponível em `http://localhost:3001/atendimento` (ou `http://localhost:80/atendimento`) e o backend em `http://localhost:8080/atendimento`.
+
+> **Importante (`basePath`):** O prefixo `/atendimento` configurado em `frontend/atendimento-app/next.config.ts` é resolvido em tempo de compilação (*build time*) pelo Next.js. Qualquer alteração nesse prefixo exige recompilar o frontend (`pnpm build`) e reconstruir a imagem Docker (`docker compose --profile PROD up -d --build`).
 
 #### 7. Build do Projeto (Opcional)
 
