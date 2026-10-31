@@ -19,9 +19,11 @@ RUN pnpm install --frozen-lockfile
 
 FROM base AS builder
 
-ARG NEXT_PUBLIC_API_URL
+ARG NEXT_PUBLIC_API_URL=/atendimento/api
+ARG BACKEND_URL=http://backend:8080
 
 ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+ENV BACKEND_URL=${BACKEND_URL}
 
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
@@ -33,6 +35,7 @@ FROM gcr.io/distroless/nodejs24-debian13:nonroot@sha256:774b7d020b24214835769e24
 
 ARG APP_VERSION
 ARG VCS_REF
+ARG BACKEND_URL=http://backend:8080
 
 LABEL org.opencontainers.image.title="APAE Atendimento Frontend" \
       org.opencontainers.image.description="Frontend do APAE Atendimento" \
@@ -47,6 +50,7 @@ ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV HOSTNAME=0.0.0.0
 ENV PORT=3000
+ENV BACKEND_URL=${BACKEND_URL}
 
 COPY --from=builder --chown=65532:65532 /app/public ./public
 COPY --from=builder --chown=65532:65532 /app/.next/standalone ./
