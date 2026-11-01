@@ -30,6 +30,7 @@ jobs:
       dockerfile: ./frontend/atendimento-app/Dockerfile
       image-name: apae-atendimento-frontend
       build-args: |
-        NEXT_PUBLIC_API_URL=${{ vars.NEXT_PUBLIC_API_URL || '/atendimento' }}
+        NEXT_PUBLIC_API_URL=${{ vars.NEXT_PUBLIC_API_URL || '/atendimento/api' }}
+        BACKEND_URL=${{ vars.BACKEND_URL || 'http://backend:8080' }}
       platforms: '["linux/amd64"]'
       scan-severity: "HIGH,CRITICAL"

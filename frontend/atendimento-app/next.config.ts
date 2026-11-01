@@ -7,6 +7,19 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: path.join(__dirname),
   },
+  async rewrites() {
+    const backendUrl = (
+      process.env.BACKEND_URL ||
+      `http://localhost:${process.env.SERVER_PORT || "8080"}`
+    ).replace(/\/+$/, "");
+
+    return [
+      {
+        source: "/api/:path*",
+        destination: `${backendUrl}/atendimento/:path*`,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

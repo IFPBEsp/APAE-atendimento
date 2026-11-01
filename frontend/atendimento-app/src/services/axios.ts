@@ -6,7 +6,7 @@ type ErrorResponse = {
 };
 
 export const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/atendimento",
+  baseURL: process.env.NEXT_PUBLIC_API_URL || "/atendimento/api",
   withCredentials: true,
   headers: {
     Accept: "application/json",
