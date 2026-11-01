@@ -341,6 +341,8 @@ pnpm dev
 
 Acesse a interface web em `http://localhost:3001/atendimento` (ou `http://localhost:3000/atendimento` ao executar `pnpm dev` diretamente sem definir porta).
 
+No ambiente local, o navegador realiza chamadas para `/atendimento/api` (`NEXT_PUBLIC_API_URL=/atendimento/api`) e o servidor Next.js encaminha as requisições internamente para `${BACKEND_URL}/atendimento/...` — configurado no `.env.example` como `BACKEND_URL=http://localhost:8082` (sem `/atendimento` ao final) para corresponder ao `SERVER_PORT=8082` do backend no host.
+
 #### 6. Execução via Docker Compose (Modo Produção)
 
 Para validar a imagem de produção com todos os serviços integrados:
@@ -349,9 +351,9 @@ Para validar a imagem de produção com todos os serviços integrados:
 docker compose --profile PROD up -d --build
 ```
 
-O frontend estará disponível em `http://localhost:3001/atendimento` (ou `http://localhost:80/atendimento`) e o backend em `http://localhost:8080/atendimento`.
+O frontend estará disponível em `http://localhost:3001/atendimento` (ou `http://localhost:80/atendimento`) e o backend em `http://localhost:8080/atendimento`. No Docker Compose, o serviço `frontend` utiliza `NEXT_PUBLIC_API_URL=/atendimento/api` e `BACKEND_URL=http://backend:8080` para encaminhar as chamadas de `/atendimento/api/...` diretamente ao container do backend na rede interna do Docker.
 
-> **Importante (`basePath`):** O prefixo `/atendimento` configurado em `frontend/atendimento-app/next.config.ts` é resolvido em tempo de compilação (*build time*) pelo Next.js. Qualquer alteração nesse prefixo exige recompilar o frontend (`pnpm build`) e reconstruir a imagem Docker (`docker compose --profile PROD up -d --build`).
+> **Importante (`basePath` e encaminhamento da API):** O prefixo `/atendimento` (`basePath`), a URL pública `NEXT_PUBLIC_API_URL` e o destino `BACKEND_URL` configurado na regra de `rewrites()` em `frontend/atendimento-app/next.config.ts` são incorporados à configuração de produção em tempo de compilação (*build time*) pelo Next.js. Qualquer alteração no destino `BACKEND_URL`, em `NEXT_PUBLIC_API_URL` ou no `basePath` exige recompilar o build do frontend (`pnpm build`) e reconstruir a imagem Docker (`docker compose --profile PROD up -d --build`).
 
 #### 7. Build do Projeto (Opcional)
 
