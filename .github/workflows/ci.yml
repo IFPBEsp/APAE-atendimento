@@ -52,12 +52,16 @@ jobs:
       - name: Build e Testes
         run: ./mvnw clean package -DskipTests
 
-  security:
-    name: Semgrep Custom Rules
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-      - name: Instalar Semgrep
-        run: python3 -m pip install semgrep
-      - name: Rodar Semgrep
-        run: semgrep scan --config="p/default" --config="p/java" --config="p/typescript" --config=".github/semgrep-custom-rules.yml" --error
+    security:
+      name: SAST (Semgrep)
+      uses: IFPBEsp/APAE-INFRA/.github/workflows/sast-semgrep.yml@69-ci-criar-workflow-reutilizavel-de-sast-com-semgrep-para-os-repositorios-da-apae
+      permissions:
+        contents: read
+        security-events: write
+      with:
+        rulesets: |
+          p/default
+          p/java
+          p/typescript
+        diff-aware: true
+        fail-severity: ERROR
