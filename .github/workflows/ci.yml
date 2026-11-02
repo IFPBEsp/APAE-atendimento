@@ -52,16 +52,16 @@ jobs:
       - name: Build e Testes
         run: ./mvnw clean package -DskipTests
 
-    security:
-      name: SAST (Semgrep)
-      uses: IFPBEsp/APAE-INFRA/.github/workflows/sast-semgrep.yml@69-ci-criar-workflow-reutilizavel-de-sast-com-semgrep-para-os-repositorios-da-apae
-      permissions:
-        contents: read
-        security-events: write
-      with:
-        rulesets: |
-          p/default
-          p/java
-          p/typescript
-        diff-aware: true
-        fail-severity: ERROR
+  security:
+    name: SAST (Semgrep)
+    uses: IFPBEsp/APAE-INFRA/.github/workflows/sast-semgrep.yml@69-ci-criar-workflow-reutilizavel-de-sast-com-semgrep-para-os-repositorios-da-apae
+    permissions:
+      contents: read
+      security-events: write
+    with:
+      rulesets: |
+        p/default
+        p/java
+        p/typescript
+      diff-aware: true
+      fail-severity: ERROR

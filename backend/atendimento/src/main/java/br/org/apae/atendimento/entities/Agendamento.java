@@ -41,5 +41,5 @@ public class Agendamento {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "paciente_id", insertable = false, updatable = false)
-    private Paciente paciente; //exexexe
+    private Paciente paciente;
 }
