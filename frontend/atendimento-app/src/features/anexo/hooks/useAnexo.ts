@@ -1,10 +1,10 @@
+import { useEffect, useState } from "react";
 import {
   keepPreviousData,
   useMutation,
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
 import {
   apagarAnexo,
   enviarAnexo,
@@ -15,15 +15,23 @@ import { toast } from "sonner";
 
 import { TipoArquivo } from "@/features/anexo/types";
 import type { AnexoEnvioFormData } from "@/features/anexo/types";
+import type { ArquivoPagination } from "@/features/arquivo/types";
 
 import { validarTipoArquivo } from "@/services/validarTipoArquivo";
 import { validarTamanhoArquivo } from "@/services/validarTamanhoArquivo";
 import { construirArquivoFormData } from "@/services/construirArquivoFormData";
 
-import type { Anexo, AnexosPaginados } from "../types";
+import type { Anexo } from "../types";
+
+const ANEXOS_POR_PAGINA = 10;
+
+type AnexosQueryResult = {
+  anexos: Anexo[];
+  pagination: ArquivoPagination | null;
+};
 
 export function useAnexos(pacienteId: string) {
-  const [dataSelecionada, setDataSelecionada] = useState("");
+  const [dataSelecionada, setDataSelecionadaState] = useState("");
   const [page, setPage] = useState(1);
   const [open, setOpen] = useState(false);
 
@@ -32,44 +40,46 @@ export function useAnexos(pacienteId: string) {
 
   const queryClient = useQueryClient();
 
-  const { data, isLoading, isFetching } = useQuery<AnexosPaginados>({
+  const { data, isLoading, isFetching } = useQuery<AnexosQueryResult>({
     queryKey: ["anexos", pacienteId, dataSelecionada, page],
     enabled: !!pacienteId,
     placeholderData: keepPreviousData,
     queryFn: async () => {
-      // com data selecionada, usa a busca por data (sem paginação)
+      
       if (dataSelecionada) {
         const anexos = await getAnexosPorData(pacienteId, dataSelecionada);
         return { anexos, pagination: null };
       }
-      return getAnexos(pacienteId, page);
+      const resultado = await getAnexos(pacienteId, page, ANEXOS_POR_PAGINA);
+      return { anexos: resultado.data, pagination: resultado.pagination };
     },
   });
 
-  const anexos = data?.anexos ?? [];
+  const anexosFiltrados = data?.anexos ?? [];
   const pagination = data?.pagination ?? null;
 
-  // ao selecionar (ou limpar) a data, volta para a primeira página
-  const handleSelecionarData = (novaData: string) => {
-    setDataSelecionada(novaData);
+  useEffect(() => {
+    if (
+      pagination &&
+      pagination.totalPages > 0 &&
+      page > pagination.totalPages
+    ) {
+      setPage(pagination.totalPages);
+    }
+  }, [pagination, page]);
+
+  const setDataSelecionada = (valor: string) => {
+    setDataSelecionadaState(valor);
     setPage(1);
   };
-
-  // se a última página ficar vazia (ex.: após remover o único item), volta uma página
-  useEffect(() => {
-    if (!isFetching && !dataSelecionada && page > 1 && anexos.length === 0) {
-      setPage((p) => Math.max(1, p - 1));
-    }
-  }, [isFetching, dataSelecionada, page, anexos.length]);
 
   const enviarAnexoMutation = useMutation({
     mutationFn: enviarAnexo,
     onSuccess: () => {
       toast.success("Anexo criado com sucesso!");
-      setDataSelecionada("");
-      setPage(1);
       queryClient.invalidateQueries({ queryKey: ["anexos", pacienteId] });
       setOpen(false);
+      setPage(1);
     },
     onError: (error: unknown) => {
       const mensagem = error instanceof Error ? error.message : "Erro ao enviar";
@@ -94,26 +104,22 @@ export function useAnexos(pacienteId: string) {
       if (!formData.data) throw new Error("Data obrigatória");
       if (!formData.titulo?.trim()) throw new Error("Título obrigatório");
       if (!formData.arquivo?.length) throw new Error("Arquivo obrigatório");
-
-      // ✅ NORMALIZAÇÃO
+      
       const titulo = formData.titulo.trim().replace(/\s+/g, " ");
       const descricao = formData.descricao?.trim().replace(/\s+/g, " ") || "";
-
-      // ✅ VALIDAÇÃO TÍTULO
+      
       const tituloRegex = /^(?=.*[\p{L}\p{M}])[\p{L}\p{M}0-9 \-:/()']*$/u;
 
       if (!tituloRegex.test(titulo)) {
         throw new Error("Título inválido");
       }
-
-      // ✅ VALIDAÇÃO DESCRIÇÃO
+      
       const descRegex = /^(?=.*[\p{L}\p{M}])[\p{L}\p{M}0-9 \-:/()'%&#]*$/u;
 
       if (!descRegex.test(descricao)) {
         throw new Error("Descrição inválida");
       }
-
-      // ✅ REGRA: não pode ser só número
+      
       const cleanTitulo = titulo.replace(/\s/g, "");
       if (!cleanTitulo || /^\d+$/.test(cleanTitulo)) {
         throw new Error("Título inválido");
@@ -132,7 +138,7 @@ export function useAnexos(pacienteId: string) {
         tipoArquivo: TipoArquivo.anexo,
       };
 
-      // ✅ VALIDA ARQUIVO
+      
       validarTipoArquivo(request.arquivo);
       validarTamanhoArquivo(request.arquivo);
 
@@ -145,15 +151,17 @@ export function useAnexos(pacienteId: string) {
     }
   };
   return {
-    anexos,
+    anexos: data?.anexos ?? [],
     loading: isLoading,
+    isFetching,
+    anexosFiltrados,
 
     pagination,
-    isFetching,
+    page,
     setPage,
 
     dataSelecionada,
-    setDataSelecionada: handleSelecionarData,
+    setDataSelecionada,
 
     open,
     setOpen,

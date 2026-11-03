@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Mail, Eye, EyeOff } from "lucide-react";
 import { Nunito, Baloo_2 } from "next/font/google";
+import logoApae from "../../../../public/logo-apae.svg";
 import { Card, CardContent } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
 import {
@@ -96,7 +97,7 @@ export default function LoginPage() {
 
   if (isCheckingSession) {
     return (
-      <div className="h-screen w-screen bg-[url('/background-login-apae.svg')] relative bg-no-repeat bg-cover bg-center flex items-center justify-center">
+      <div className="h-screen w-screen bg-[url('/atendimento/background-login-apae.svg')] relative bg-no-repeat bg-cover bg-center flex items-center justify-center">
         <div className="absolute flex items-center justify-center inset-0 bg-[#0D4F97]/80">
           <p className="text-white font-semibold">Validando sessão...</p>
         </div>
@@ -105,11 +106,11 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="h-screen w-screen bg-[url('/background-login-apae.svg')] relative bg-no-repeat bg-cover bg-center flex items-center justify-center">
+    <div className="h-screen w-screen bg-[url('/atendimento/background-login-apae.svg')] relative bg-no-repeat bg-cover bg-center flex items-center justify-center">
       <div className="absolute flex items-center justify-center inset-0 bg-[#0D4F97]/80">
         <div className="absolute z-50 mt-[-32rem] w-[128px] h-[128px] bg-white rounded-full flex items-center justify-center mx-auto mb-[0px]">
           <Image
-            src="/logo-apae.svg"
+            src={logoApae}
             alt="APAE Logo"
             width={90}
             height={140}

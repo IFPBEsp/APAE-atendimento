@@ -2,23 +2,40 @@ import { PacientePdfDTO, ProfissionalPdfDTO, RelatorioBase } from "@/features/re
 import {
   enviarArquivo,
   getArquivos,
+  getArquivosPorData,
 } from "@/features/arquivo/services/arquivoService";
 import { AxiosError } from "axios";
 import { TipoArquivo } from "@/features/arquivo/types";
+import type { ArquivosPaginados } from "@/features/arquivo/types";
 import { api } from "@/services/axios";
 
 import { formatarDataBr } from "@/features/relatorio/utils/formatarData";
 
 export async function getRelatorios(
   pacienteId: string,
-): Promise<RelatorioBase[]> {
+  page = 1,
+  limit = 10,
+): Promise<ArquivosPaginados<RelatorioBase>> {
   try {
-    if (!pacienteId) return [];
-    const resposta = await getArquivos(
+    if (!pacienteId) {
+      return {
+        data: [],
+        pagination: {
+          page: 1,
+          limit,
+          totalItems: 0,
+          totalPages: 0,
+          first: true,
+          last: true,
+        },
+      };
+    }
+    return await getArquivos<RelatorioBase>(
       pacienteId,
       TipoArquivo.relatorio,
+      page,
+      limit,
     );
-    return Array.isArray(resposta) ? (resposta as RelatorioBase[]) : [];
   } catch (error) {
     const axiosError = error as AxiosError;
     const mensagem = String(
@@ -28,6 +45,17 @@ export async function getRelatorios(
     );
     throw new Error(mensagem);
   }
+}
+
+export async function getRelatoriosPorData(
+  pacienteId: string,
+  data: string,
+): Promise<RelatorioBase[]> {
+  return getArquivosPorData<RelatorioBase>(
+    pacienteId,
+    TipoArquivo.relatorio,
+    data,
+  );
 }
 
 export async function enviarRelatorio(formData: FormData) {
@@ -51,7 +79,7 @@ export async function buscarPacienteParaPdf(
 ): Promise<PacientePdfDTO> {
 
   const {data: {
-    nomeCompleto, 
+    nomeCompleto,
     dataDeNascimento,
     endereco,
     responsaveis
@@ -63,7 +91,7 @@ export async function buscarPacienteParaPdf(
     endereco,
     responsaveis
   };
-  
+
 }
 
 export async function buscarProfissionalParaPdf(): Promise<ProfissionalPdfDTO> {

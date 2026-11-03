@@ -2,15 +2,11 @@
 
 import { useState } from "react";
 import { useRouter, useParams } from "next/navigation";
-import {
-  ArrowLeft,
-  ChevronLeft,
-  ChevronRight,
-  ClipboardPlus,
-} from "lucide-react";
+import { ArrowLeft, ClipboardPlus } from "lucide-react";
 import { Nunito } from "next/font/google";
 
 import Header from "@/components/shared/header";
+import Paginacao from "@/components/shared/paginacao";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
@@ -35,10 +31,10 @@ export default function AnexoPage() {
   const pacienteId = typeof params.id === "string" ? params.id : "";
 
   const {
-    anexos,
+    anexosFiltrados,
     loading,
-    pagination,
     isFetching,
+    pagination,
     dataSelecionada,
     open,
 
@@ -52,7 +48,7 @@ export default function AnexoPage() {
     enviando,
   } = useAnexos(pacienteId);
 
-  // ✅ tipado correto (sem any)
+  
   const [reportToDelete, setReportToDelete] = useState<Anexo | null>(null);
   const [reportToView, setReportToView] = useState<Anexo | null>(null);
 
@@ -108,29 +104,41 @@ export default function AnexoPage() {
           </p>
         )}
 
-        {!loading && anexos.length === 0 && (
+        {!loading && anexosFiltrados.length === 0 && (
           <div className="text-center mt-20">
             <p className="text-[#344054] text-[15px] font-medium">
-              Nenhum anexo encontrado.
+              {dataSelecionada
+                ? "Nenhum anexo encontrado para esta data."
+                : "Nenhum anexo encontrado."}
             </p>
 
-            <Button
-              variant="link"
-              onClick={() => setOpen(true)}
-              className="text-[#165BAA] underline text-sm cursor-pointer"
-            >
-              Adicionar anexo
-            </Button>
+            {dataSelecionada ? (
+              <Button
+                variant="link"
+                onClick={() => setDataSelecionada("")}
+                className="text-[#165BAA] underline text-sm cursor-pointer"
+              >
+                Limpar filtro
+              </Button>
+            ) : (
+              <Button
+                variant="link"
+                onClick={() => setOpen(true)}
+                className="text-[#165BAA] underline text-sm cursor-pointer"
+              >
+                Adicionar anexo
+              </Button>
+            )}
           </div>
         )}
 
         {/* LISTA */}
-        {anexos.length > 0 && (
+        {anexosFiltrados.length > 0 && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-2">
-            {anexos.map((item) => (
+            {anexosFiltrados.map((item) => (
               <AnexoCard
-                key={item.objectName} // ✅ único e correto
-                id={item.objectName} // ✅ agora string
+                key={item.objectName} 
+                id={item.objectName} 
                 titulo={item.titulo}
                 data={item.data}
                 fileName={item.nomeArquivo}
@@ -143,35 +151,18 @@ export default function AnexoPage() {
         )}
 
         {/* PAGINAÇÃO */}
-        {!loading && !dataSelecionada && pagination && pagination.totalItems > 0 && (
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 border-t border-gray-100 pt-6 px-2 w-full">
-            <span className="text-sm text-gray-500 font-medium">
-              Página {pagination.page + 1} de {pagination.totalPages} (
-              {pagination.totalItems} anexos)
-            </span>
-
-            <div className="flex gap-3">
-              <Button
-                variant="outline"
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={!pagination.hasPreviousPage || isFetching}
-                className="rounded-full shadow-sm hover:bg-gray-50 flex items-center"
-              >
-                <ChevronLeft className="h-4 w-4 mr-1" />
-                Anterior
-              </Button>
-
-              <Button
-                variant="outline"
-                onClick={() => setPage((p) => p + 1)}
-                disabled={!pagination.hasNextPage || isFetching}
-                className="rounded-full shadow-sm hover:bg-gray-50 flex items-center"
-              >
-                Próxima
-                <ChevronRight className="h-4 w-4 ml-1" />
-              </Button>
-            </div>
-          </div>
+        {!loading && pagination && pagination.totalItems > 0 && (
+          <Paginacao
+            page={pagination.page}
+            totalPages={pagination.totalPages}
+            totalItems={pagination.totalItems}
+            itemLabel="anexos"
+            first={pagination.first}
+            last={pagination.last}
+            disabled={isFetching}
+            onPrevious={() => setPage((p) => Math.max(1, p - 1))}
+            onNext={() => setPage((p) => p + 1)}
+          />
         )}
 
         {/* MODAL CREATE */}
