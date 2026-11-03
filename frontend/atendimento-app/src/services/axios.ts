@@ -40,9 +40,9 @@ api.interceptors.response.use(
         typeof window !== "undefined" &&
         !isAuthLogin &&
         !isAuthMe &&
-        window.location.pathname !== "/login"
+        !window.location.pathname.includes("/login")
       ) {
-        window.location.href = "/login";
+        window.location.href = "/atendimento/login";
       }
 
       return Promise.reject(error);

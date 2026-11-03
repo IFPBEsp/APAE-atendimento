@@ -63,7 +63,7 @@ public class AuthController implements AuthControllerDocs {
         ResponseCookie cookie = ResponseCookie.from(TOKEN_COOKIE_NAME, autenticacao.token())
                 .httpOnly(true)
                 .secure(cookieSecure)
-                .path("/")
+                .path("/atendimento") 
                 .maxAge(Duration.ofMinutes(expirationMinutes))
                 .sameSite("Strict")
                 .build();
@@ -106,7 +106,7 @@ public class AuthController implements AuthControllerDocs {
         ResponseCookie clearCookie = ResponseCookie.from(TOKEN_COOKIE_NAME, "")
                 .httpOnly(true)
                 .secure(cookieSecure)
-                .path("/")
+                .path("/atendimento")
                 .maxAge(Duration.ZERO)
                 .sameSite("Strict")
                 .build();
