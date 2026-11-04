@@ -1,5 +1,6 @@
 #!/bin/sh
 
+# 1. Verifica se o gitleaks está instalado
 if ! command -v gitleaks >/dev/null 2>&1; then
     echo ""
     echo "⚠️  [AVISO] 'gitleaks' não encontrado no PATH."
@@ -9,7 +10,13 @@ if ! command -v gitleaks >/dev/null 2>&1; then
     exit 0
 fi
 
-gitleaks git --pre-commit --staged --redact -v
+# 2. Executa a verificação staged (suporta gitleaks protect e gitleaks git)
+if gitleaks protect --help >/dev/null 2>&1; then
+    gitleaks protect --staged --redact -v
+else
+    gitleaks git --pre-commit --staged --redact -v
+fi
+
 status=$?
 
 if [ $status -ne 0 ]; then
