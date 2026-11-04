@@ -86,7 +86,7 @@ public class AgendamentoController implements AgendamentoControllerDocs {
         return ResponseEntity.ok().body("Agendamento concluído");
     }
 
-    // nosemgrep: java.spring.security.unrestricted-request-mapping.unrestricted-request-mapping
+    // nosemgrep
     @RequestMapping("/teste-suprimido")
     public ResponseEntity<String> testeSuprimido() {
         return ResponseEntity.ok("suprimido com sucesso");
