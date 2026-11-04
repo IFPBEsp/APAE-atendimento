@@ -1,2 +1,23 @@
-# .husky/pre-commit
-# não precisa mais do shebang nem do _/husky.sh
+#!/bin/sh
+
+if ! command -v gitleaks >/dev/null 2>&1; then
+    echo ""
+    echo "⚠️  [AVISO] 'gitleaks' não encontrado no PATH."
+    echo "👉 Instale para evitar vazar credenciais: https://github.com/gitleaks/gitleaks#installing"
+    echo "ℹ️  O commit continuará localmente, mas será verificado obrigatoriamente no CI."
+    echo ""
+    exit 0
+fi
+
+gitleaks git --pre-commit --staged --redact -v
+status=$?
+
+if [ $status -ne 0 ]; then
+    echo ""
+    echo "🚨 [ERRO] Segredo ou credencial detectada pelo Gitleaks nos arquivos staged!"
+    echo "❌ O commit foi bloqueado para proteção do repositório."
+    echo "💡 Se for falso positivo, adicione a exceção no .gitleaksignore com justificativa."
+    echo "⚠️ Se for credencial real, ROTACIONE-A imediatamente."
+    echo ""
+    exit $status
+fi
