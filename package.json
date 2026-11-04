@@ -12,6 +12,10 @@
     "db:seed": "docker compose --profile tools run --rm db-seed",
     "db:prepare": "bash ./.scripts/setup.sh",
     "docker:down": "docker compose down",
-    "docker:drop": "docker compose down -v"
+    "docker:drop": "docker compose down -v",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "husky": "^9.1.7"
   }
 }
