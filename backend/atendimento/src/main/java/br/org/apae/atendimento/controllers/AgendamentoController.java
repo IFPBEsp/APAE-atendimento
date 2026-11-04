@@ -85,4 +85,10 @@ public class AgendamentoController implements AgendamentoControllerDocs {
         service.concluir(usuarioAutenticado.getId(), pacienteId, agendamentoId);
         return ResponseEntity.ok().body("Agendamento concluído");
     }
+
+    // nosemgrep: spring-unrestricted-request-mapping
+    @RequestMapping("/teste-suprimido")
+    public ResponseEntity<String> testeSuprimido() {
+        return ResponseEntity.ok("suprimido com sucesso");
+    }
 }

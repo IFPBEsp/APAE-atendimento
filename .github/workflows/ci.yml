@@ -64,4 +64,4 @@ jobs:
         p/java
         p/typescript
       diff-aware: true
-      fail-severity: ERROR
+      fail-severity: WARNING
