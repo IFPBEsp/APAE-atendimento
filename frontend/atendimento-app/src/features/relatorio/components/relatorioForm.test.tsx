@@ -149,4 +149,29 @@ describe("RelatorioForm - Validações e Cénarios Negativos", () => {
       ).toBeInTheDocument();
     });
   });
+  it("deve permitir remover um arquivo anexado sem disparar erro", async () => {
+    render(
+      <RelatorioForm
+        onSubmit={mockOnSubmit}
+        dadosPdf={mockDadosPdf}
+        carregandoPdf={false}
+      />,
+    );
+
+    const inputFile = screen.getByTestId("arquivo-input");
+    const file = new File(["conteudo"], "relatorio-teste.pdf", {
+      type: "application/pdf",
+    });
+
+    fireEvent.change(inputFile, { target: { files: [file] } });
+
+    expect(await screen.findByText("relatorio-teste.pdf")).toBeInTheDocument();
+
+    const btnRemover = screen.getByRole("button", { name: "✕" });
+    fireEvent.click(btnRemover);
+
+    await waitFor(() => {
+      expect(screen.queryByText("relatorio-teste.pdf")).not.toBeInTheDocument();
+    });
+  });
 });

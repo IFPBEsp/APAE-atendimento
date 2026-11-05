@@ -97,5 +97,18 @@ describe("AnexoForm - cenários negativos", () => {
     );
     expect(mockOnSubmit).not.toHaveBeenCalled();
   });
-});
+  test("permite remover arquivo anexado sem erro", async () => {
+    renderForm();
+    const file = new File(["abc"], "meu-anexo.pdf", { type: "application/pdf" });
+    setArquivo(file);
 
+    expect(await screen.findByText("meu-anexo.pdf")).toBeInTheDocument();
+
+    const btnRemover = screen.getByRole("button", { name: "✕" });
+    fireEvent.click(btnRemover);
+
+    await waitFor(() => {
+      expect(screen.queryByText("meu-anexo.pdf")).not.toBeInTheDocument();
+    });
+  });
+});

@@ -2,18 +2,24 @@ package br.org.apae.atendimento.services.storage.s3;
 
 import br.org.apae.atendimento.exceptions.CloudStorageException;
 import br.org.apae.atendimento.services.storage.ObjectStorageService;
+import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import software.amazon.awssdk.core.exception.SdkClientException;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.HeadBucketRequest;
+import software.amazon.awssdk.services.s3.model.NoSuchBucketException;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.S3Exception;
 
-import java.io.InputStream;
-
+@Slf4j
 @Service
 @Profile("prod")
 public class S3Service implements ObjectStorageService {
@@ -25,10 +31,63 @@ public class S3Service implements ObjectStorageService {
     @Value("${bucket.name}")
     private String BUCKET_NAME;
 
+    @Value("${s3.auto-provision:false}")
+    private boolean autoProvision;
+
     @Autowired
     public S3Service(S3Client client, S3PresignedUrlService urlService) {
         this.client = client;
         this.urlService = urlService;
+    }
+
+    @PostConstruct
+    public void inicializarBucket() {
+        if (BUCKET_NAME == null || BUCKET_NAME.isBlank()) {
+            log.warn("Variável 'bucket.name' (BUCKET_NAME) não está definida; verificação do bucket S3 ignorada.");
+            return;
+        }
+
+        try {
+            client.headBucket(HeadBucketRequest.builder().bucket(BUCKET_NAME).build());
+            log.info("Bucket '{}' validado com sucesso no armazenamento S3.", BUCKET_NAME);
+        } catch (NoSuchBucketException e) {
+            tratarBucketAusente();
+        } catch (S3Exception e) {
+            if (e.statusCode() == 404) {
+                tratarBucketAusente();
+            } else if (e.statusCode() == 403 || e.statusCode() == 401) {
+                log.error("Falha de autenticação ou permissão ao validar o bucket '{}' no S3 (HTTP {}). Verifique as credenciais configuradas.",
+                        BUCKET_NAME, e.statusCode(), e);
+            } else {
+                log.error("Erro ao validar o bucket '{}' no S3 (HTTP {}): {}",
+                        BUCKET_NAME, e.statusCode(), e.getMessage(), e);
+            }
+        } catch (SdkClientException e) {
+            log.warn("Serviço de armazenamento S3 indisponível durante a inicialização ao verificar o bucket '{}': {}",
+                    BUCKET_NAME, e.getMessage());
+        } catch (Exception e) {
+            log.warn("Não foi possível validar o bucket '{}' durante a inicialização: {}",
+                    BUCKET_NAME, e.getMessage(), e);
+        }
+    }
+
+    private void tratarBucketAusente() {
+        if (!autoProvision) {
+            log.warn("Bucket '{}' não encontrado no S3. O auto-provisionamento está desativado (s3.auto-provision=false). O bucket deve ser gerenciado pela infraestrutura.", BUCKET_NAME);
+            return;
+        }
+
+        criarBucketSeAusente();
+    }
+
+    private void criarBucketSeAusente() {
+        try {
+            client.createBucket(CreateBucketRequest.builder().bucket(BUCKET_NAME).build());
+            log.info("Bucket '{}' não existia e foi criado automaticamente no armazenamento S3.", BUCKET_NAME);
+        } catch (Exception createEx) {
+            log.warn("Bucket '{}' não encontrado e não pôde ser criado automaticamente no S3: {}",
+                    BUCKET_NAME, createEx.getMessage());
+        }
     }
 
     public String uploadArquivo(String objectName, MultipartFile file) {
@@ -40,6 +99,10 @@ public class S3Service implements ObjectStorageService {
         }
 
         colocarArquivo(objectName, file);
+        String originalFilename = file.getOriginalFilename();
+        if (originalFilename != null && !originalFilename.isBlank()) {
+            return urlService.gerarUrlPreAssinada(objectName, originalFilename);
+        }
         return urlService.gerarUrlPreAssinada(objectName);
     }
 
@@ -61,12 +124,17 @@ public class S3Service implements ObjectStorageService {
                     .contentLength(file.getSize())
                     .build();
 
-            // MUDANÇA AQUI: Removido o try-with-resources do InputStream e usado fromBytes
             client.putObject(request, RequestBody.fromBytes(file.getBytes()));
 
+        } catch (NoSuchBucketException e) {
+            log.error("Bucket '{}' não existe no armazenamento em nuvem ao tentar enviar '{}'.", BUCKET_NAME, objectName, e);
+            throw new CloudStorageException("Erro ao enviar arquivo para o armazenamento em nuvem.", e);
+        } catch (S3Exception e) {
+            log.error("Erro S3 (HTTP {}) ao enviar arquivo '{}' para o bucket '{}': {}",
+                    e.statusCode(), objectName, BUCKET_NAME, e.getMessage(), e);
+            throw new CloudStorageException("Erro ao enviar arquivo para o armazenamento em nuvem.", e);
         } catch (Exception e) {
-            e.printStackTrace(); // <--- IMPORTANTE: Deixe isso aqui para ver o erro no terminal do docker caso
-                                 // algo falhe
+            log.error("Falha de comunicação com o armazenamento em nuvem ao enviar '{}': {}", objectName, e.getMessage(), e);
             throw new CloudStorageException("Erro ao enviar arquivo para o armazenamento em nuvem.", e);
         }
     }
@@ -81,7 +149,8 @@ public class S3Service implements ObjectStorageService {
             client.deleteObject(deleteRequest);
 
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Erro de comunicação ao tentar apagar o arquivo '{}' no bucket '{}': {}",
+                    objectName, BUCKET_NAME, e.getMessage(), e);
             throw new CloudStorageException("Erro de comunicação ao tentar apagar o arquivo na nuvem.", e);
         }
     }

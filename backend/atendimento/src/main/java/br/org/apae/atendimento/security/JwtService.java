@@ -21,6 +21,8 @@ import java.util.UUID;
 @Service
 public class JwtService {
 
+    private final SecureRandom secureRandom = new SecureRandom();
+
     @Value("${jwt.secret}")
     private String secretKey;
 
@@ -31,7 +33,7 @@ public class JwtService {
     public void validarChave() {
         if (this.secretKey == null || this.secretKey.isBlank()) {
             byte[] randomBytes = new byte[32]; // 256 bits
-            new SecureRandom().nextBytes(randomBytes);
+            this.secureRandom.nextBytes(randomBytes);
             this.secretKey = Base64.getEncoder().encodeToString(randomBytes);
         } else {
             byte[] keyBytes = Decoders.BASE64.decode(secretKey);

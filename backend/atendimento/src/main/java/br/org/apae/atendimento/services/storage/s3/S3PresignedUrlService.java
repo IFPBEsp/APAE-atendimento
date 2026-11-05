@@ -24,19 +24,29 @@ public class S3PresignedUrlService implements PresignedUrlService {
         this.s3Presigner = s3Presigner;
     }
 
+        @Override
+    public String gerarUrlPreAssinada(String objectName) {
+        return gerarUrlPreAssinada(objectName, null);
+    }
+
+    @Override
     @Cacheable(
             value = "presignedUrls",
             key = "'presigned:' + ':' + #objectName", 
             unless = "#result == null"
     )
-    public String gerarUrlPreAssinada(String objectName) {
+    public String gerarUrlPreAssinada(String objectName, String nomeArquivo) {
         try {
+            String filename = (nomeArquivo != null && !nomeArquivo.isBlank())
+                    ? nomeArquivo
+                    : (objectName.contains("/") ? objectName.substring(objectName.lastIndexOf('/') + 1) : objectName);
+
             GetObjectRequest.Builder requestBuilder = GetObjectRequest.builder()
                     .bucket(BUCKET_NAME)
                     .key(objectName)
-                    .responseContentDisposition("inline; filename=\"" + objectName + "\"");
+                    .responseContentDisposition("inline; filename=\"" + filename + "\"");
 
-            if (objectName.toLowerCase().endsWith(".pdf")) {
+            if (filename.toLowerCase().endsWith(".pdf")) {
                 requestBuilder.responseContentType("application/pdf");
             }
 
@@ -55,5 +65,6 @@ public class S3PresignedUrlService implements PresignedUrlService {
 
     @CacheEvict(value = "presignedUrls", key = "'presigned:' + ':' + #objectName")
     public void evictUrlFromCache(String objectName) {
+        // O corpo é vazio porque a remoção do cache é feita interceptada pela anotação @CacheEvict
     }
 }

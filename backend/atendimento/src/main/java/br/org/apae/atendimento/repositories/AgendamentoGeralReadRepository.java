@@ -9,6 +9,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -84,6 +85,34 @@ public class AgendamentoGeralReadRepository {
                 """;
 
         return jdbcTemplate.query(sql, (rs, rowNum) -> mapRow(rs, profissionalId), profissionalId, java.sql.Date.valueOf(data));
+    }
+
+    public boolean existsByProfissionalIdAndDataAndHora(UUID profissionalId, LocalDate data, LocalTime hora) {
+        String sql = """
+                SELECT EXISTS (
+                    SELECT 1
+                    FROM apae_geral.agendamentos a
+                    CROSS JOIN LATERAL generate_series(
+                            a.data_inicial,
+                            COALESCE(a.data_final, a.data_inicial),
+                            GREATEST(COALESCE(a.frequencia_dias, 1), 1) * INTERVAL '1 day'
+                    ) AS gs(data)
+                    WHERE a.profissional_id = ?
+                      AND a.ativo = TRUE
+                      AND gs.data::date = ?
+                      AND a.hora = ?
+                )
+                """;
+
+        Boolean exists = jdbcTemplate.queryForObject(
+                sql,
+                Boolean.class,
+                profissionalId,
+                java.sql.Date.valueOf(data),
+                java.sql.Time.valueOf(hora)
+        );
+
+        return Boolean.TRUE.equals(exists);
     }
 
     private AgendamentoResponseDTO mapRow(ResultSet rs, UUID profissionalId) throws SQLException {

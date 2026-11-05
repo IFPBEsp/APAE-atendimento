@@ -4,6 +4,7 @@ import { useRouter, useParams } from "next/navigation";
 import { ArrowLeft, ClipboardPlus } from "lucide-react";
 import { Nunito } from "next/font/google";
 import Header from "@/components/shared/header";
+import Paginacao from "@/components/shared/paginacao";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import RelatorioForm from "@/features/relatorio/components/relatorioForm";
@@ -25,10 +26,13 @@ export default function RelatorioPage() {
   const {
     relatoriosFiltrados,
     loading,
+    isFetching,
+    pagination,
     dataSelecionada,
     open,
     reportToDelete,
     reportToView,
+    setPage,
     setDataSelecionada,
     setReportToView,
     setReportToDelete,
@@ -93,7 +97,9 @@ export default function RelatorioPage() {
             <p
               className={`text-[#344054] text-[15px] font-medium ${nunitoFont.className}`}
             >
-              Nenhum relatório encontrado para esta data.
+              {dataSelecionada
+                ? "Nenhum relatório encontrado para esta data."
+                : "Nenhum relatório encontrado."}
             </p>
 
             {dataSelecionada && (
@@ -122,7 +128,7 @@ export default function RelatorioPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-2">
             {relatoriosFiltrados.map((item) => (
               <RelatorioCard
-                key={item.id}
+                key={item.objectName}
                 id={item.id}
                 titulo={item.titulo}
                 data={item.data}
@@ -133,6 +139,20 @@ export default function RelatorioPage() {
               />
             ))}
           </div>
+        )}
+
+        {!loading && pagination && pagination.totalItems > 0 && (
+          <Paginacao
+            page={pagination.page}
+            totalPages={pagination.totalPages}
+            totalItems={pagination.totalItems}
+            itemLabel="relatórios"
+            first={pagination.first}
+            last={pagination.last}
+            disabled={isFetching}
+            onPrevious={() => setPage((p) => Math.max(1, p - 1))}
+            onNext={() => setPage((p) => p + 1)}
+          />
         )}
 
         <RelatorioModal open={open} onOpenChange={setOpen}>

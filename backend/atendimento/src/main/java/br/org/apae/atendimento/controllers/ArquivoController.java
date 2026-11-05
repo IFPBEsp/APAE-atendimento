@@ -31,7 +31,6 @@ import br.org.apae.atendimento.controllers.docs.ArquivoControllerDocs;
 import br.org.apae.atendimento.dtos.request.ArquivoRequestDTO;
 import br.org.apae.atendimento.dtos.response.ArquivoResponseDTO;
 import br.org.apae.atendimento.dtos.response.PaginatedResponseDTO;
-import br.org.apae.atendimento.exceptions.CloudStorageException;
 import br.org.apae.atendimento.security.UsuarioAutenticado;
 import br.org.apae.atendimento.services.ArquivoService;
 import jakarta.validation.ConstraintViolation;
@@ -70,12 +69,8 @@ public class ArquivoController implements ArquivoControllerDocs {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Metadados inválidos: " + errorMsg);
         }
 
-        try {
-            ArquivoResponseDTO dto = service.salvar(file, metadata, usuarioAutenticado.getId());
-            return ResponseEntity.status(HttpStatus.CREATED).body(dto);
-        } catch (CloudStorageException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Erro ao processar arquivos: " + e.getMessage(), e);
-        }
+        ArquivoResponseDTO dto = service.salvar(file, metadata, usuarioAutenticado.getId());
+        return ResponseEntity.status(HttpStatus.CREATED).body(dto);
     }
 
     @Override

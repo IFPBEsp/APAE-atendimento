@@ -207,6 +207,24 @@ Na raiz do repositório, execute:
 
 ```bash
 cp .env.example .env
+```
+
+> **Importante: configure o `JWT_SECRET` antes de continuar.**
+> O `.env.example` traz apenas um placeholder (`JWT_SECRET=sua_chave_jwt_aqui`). Abra o arquivo **`.env`** recém-criado (não o `.env.example`) e substitua o placeholder por uma chave válida em **Base64**. Para gerar uma:
+>
+> ```bash
+> # Linux / macOS (ou Git Bash no Windows)
+> openssl rand -base64 32
+>
+> # Qualquer sistema com Node.js
+> node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
+> ```
+>
+> Cole o texto gerado depois do `=`, por exemplo `JWT_SECRET=<texto gerado>`.
+
+Em seguida, execute:
+
+```bash
 pnpm --dir frontend/atendimento-app install
 pnpm db:prepare
 pnpm dev
@@ -223,7 +241,7 @@ pnpm dev
 
 | Serviço | URL |
 |---------|-----|
-| **Frontend** | `http://localhost:3001` |
+| **Frontend** | `http://localhost:3001/atendimento` |
 | **Backend API** | `http://localhost:8082/atendimento` (ou `8080/atendimento`) |
 | **Swagger UI** | `http://localhost:8082/atendimento/swagger-ui.html` |
 | **Health Check** | `http://localhost:8082/atendimento/actuator/health` |
@@ -277,6 +295,18 @@ cp .env.example .env
 
 > O backend Spring Boot lê o arquivo `.env` da raiz automaticamente via `spring.config.import`. Não é necessário duplicar credenciais em arquivos de propriedades.
 
+> **Atenção:** o `.env.example` traz apenas um placeholder no `JWT_SECRET`. Depois do `cp`, abra o arquivo **`.env`** (não o `.env.example`) e substitua `sua_chave_jwt_aqui` por uma chave válida em Base64. Sem isso, a autenticação não funcionará. Para gerar uma chave:
+>
+> ```bash
+> # Linux / macOS (ou Git Bash no Windows)
+> openssl rand -base64 32
+>
+> # Qualquer sistema com Node.js
+> node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
+> ```
+>
+> Copie o texto que o comando imprimir e cole depois do `=`, por exemplo `JWT_SECRET=<texto gerado>`.
+
 #### 3. Prepare o banco de dados e a infraestrutura
 
 ```bash
@@ -309,7 +339,9 @@ pnpm install
 pnpm dev
 ```
 
-Acesse a interface web em `http://localhost:3001`.
+Acesse a interface web em `http://localhost:3001/atendimento` (ou `http://localhost:3000/atendimento` ao executar `pnpm dev` diretamente sem definir porta).
+
+No ambiente local, o navegador realiza chamadas para `/atendimento/api` (`NEXT_PUBLIC_API_URL=/atendimento/api`) e o servidor Next.js encaminha as requisições internamente para `${BACKEND_URL}/atendimento/...` — configurado no `.env.example` como `BACKEND_URL=http://localhost:8082` (sem `/atendimento` ao final) para corresponder ao `SERVER_PORT=8082` do backend no host.
 
 #### 6. Execução via Docker Compose (Modo Produção)
 
@@ -319,7 +351,9 @@ Para validar a imagem de produção com todos os serviços integrados:
 docker compose --profile PROD up -d --build
 ```
 
-O frontend estará disponível em `http://localhost:80` (ou `3001`) e o backend em `http://localhost:8080/atendimento`.
+O frontend estará disponível em `http://localhost:3001/atendimento` (ou `http://localhost:80/atendimento`) e o backend em `http://localhost:8080/atendimento`. No Docker Compose, o serviço `frontend` utiliza `NEXT_PUBLIC_API_URL=/atendimento/api` e `BACKEND_URL=http://backend:8080` para encaminhar as chamadas de `/atendimento/api/...` diretamente ao container do backend na rede interna do Docker.
+
+> **Importante (`basePath` e encaminhamento da API):** O prefixo `/atendimento` (`basePath`), a URL pública `NEXT_PUBLIC_API_URL` e o destino `BACKEND_URL` configurado na regra de `rewrites()` em `frontend/atendimento-app/next.config.ts` são incorporados à configuração de produção em tempo de compilação (*build time*) pelo Next.js. Qualquer alteração no destino `BACKEND_URL`, em `NEXT_PUBLIC_API_URL` ou no `basePath` exige recompilar o build do frontend (`pnpm build`) e reconstruir a imagem Docker (`docker compose --profile PROD up -d --build`).
 
 #### 7. Build do Projeto (Opcional)
 

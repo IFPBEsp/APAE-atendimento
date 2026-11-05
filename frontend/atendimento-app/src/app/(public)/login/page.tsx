@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { Mail, Lock, Eye, EyeOff } from "lucide-react"; 
+import Link from "next/link";
+import { Mail, Eye, EyeOff } from "lucide-react";
 import { Nunito, Baloo_2 } from "next/font/google";
 import { Card, CardContent } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
@@ -29,8 +30,9 @@ const baloo2Font = Baloo_2({
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false); 
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+  const [loginAttempts, setLoginAttempts] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [isCheckingSession, setIsCheckingSession] = useState(true);
 
@@ -79,6 +81,7 @@ export default function LoginPage() {
 
       router.replace("/home");
     } catch (err) {
+      setLoginAttempts((prev) => prev + 1);
       if (isAxiosError(err)) {
         const message = (err.response?.data as { message?: string } | undefined)
           ?.message;
@@ -93,115 +96,122 @@ export default function LoginPage() {
 
   if (isCheckingSession) {
     return (
-      <div className="h-screen w-screen bg-[url('/background-login-apae.svg')] relative bg-no-repeat bg-cover bg-center flex items-center justify-center">
-        <div className="absolute flex items-center justify-center inset-0 bg-[#0D4F97]/80">
-          <p className="text-white font-semibold">Validando sessão...</p>
-        </div>
+      <div className="h-screen w-screen bg-[#0D4F97] flex items-center justify-center">
+        <p className="text-white font-semibold">Validando sessão...</p>
       </div>
     );
   }
 
   return (
-    <div className="h-screen w-screen bg-[url('/background-login-apae.svg')] relative bg-no-repeat bg-cover bg-center flex items-center justify-center">
-      <div className="absolute flex items-center justify-center inset-0 bg-[#0D4F97]/80">
-        <div className="absolute z-50 mt-[-32rem] w-[128px] h-[128px] bg-white rounded-full flex items-center justify-center mx-auto mb-[0px]">
-          <Image
-            src="/logo-apae.svg"
-            alt="APAE Logo"
-            width={90}
-            height={140}
-            className="mt-[3rem]"
-            priority
-          />
-        </div>
-
-        <Card className="w-[340px] h-[520px] rounded-[30px] sm:w-[410px]">
-          <CardContent className="flex flex-col justify-end h-full pb-6">
-            <form onSubmit={handleSubmit}>
-              <div className="flex flex-col gap-6">
-                <div className="grid gap-2">
-                  <Label
-                    htmlFor="email"
-                    className={`font-bold text-gray-700 ${nunitoFont.className}`}
-                  >
-                    Email do profissional{" "}
-                    <span className="text-[#F28C38]">*</span>
-                  </Label>
-
-                  <InputGroup className="h-[46px] rounded-full w-full bg-white font-normal text-gray-700 focus-within:ring-2">
-                    <InputGroupInput
-                      id="email"
-                      className={nunitoFont.className}
-                      type="email"
-                      value={email}
-                      placeholder="seuemail@dominio.com"
-                      autoComplete="username"
-                      onChange={(e) => {
-                        setEmail(e.target.value);
-                        setError("");
-                      }}
-                      aria-invalid={error !== ""}
-                      required
-                    />
-                    <InputGroupAddon align="inline-end">
-                      <Mail />
-                    </InputGroupAddon>
-                  </InputGroup>
-                </div>
-
-                <div className="grid gap-2">
-                  <Label
-                    htmlFor="password"
-                    className={`font-bold text-gray-700 ${nunitoFont.className}`}
-                  >
-                    Senha <span className="text-[#F28C38]">*</span>
-                  </Label>
-
-                  <InputGroup className="h-[46px] rounded-full w-full bg-white font-normal text-gray-700 focus-within:ring-2">
-                    <InputGroupInput
-                      id="password"
-                      className={nunitoFont.className}
-                      type={showPassword ? "text" : "password"}
-                      value={password}
-                      placeholder="********"
-                      minLength={8}
-                      onChange={(e) => {
-                        setPassword(e.target.value);
-                        setError("");
-                      }}
-                      aria-invalid={error !== ""}
-                      required
-                    />
-                    <InputGroupAddon align="inline-end">
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="text-gray-500 hover:text-gray-800 focus:outline-none transition-colors flex items-center justify-center w-full h-full"
-                        title={showPassword ? "Ocultar senha" : "Mostrar senha"}
-                      >
-                        {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                      </button>
-                    </InputGroupAddon>
-                  </InputGroup>
-                </div>
-              </div>
-
-              <div className="h-7 mt-[8px] mb-[18px]">
-                {error ? <p className="text-sm text-red-600">{error}</p> : null}
-              </div>
-
-              <Button
-                type="submit"
-                disabled={!canSubmit}
-                className={`active:scale-[0.98] w-full h-[46px] rounded-full bg-[#165BAA] disabled:bg-[#B0C6DE] hover:bg-[#13447D] text-[18px] hover:cursor-pointer ${baloo2Font.className}`}
-                style={{ boxShadow: "4px 4px 10px rgba(0, 0, 0, 0.25)" }}
-              >
-                {isLoading ? "Entrando..." : "Entrar"}
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
+    <div className="h-screen w-screen bg-[#0D4F97] relative flex items-center justify-center">
+      <div className="absolute z-50 mt-[-32rem] w-[128px] h-[128px] bg-white rounded-full flex items-center justify-center mx-auto mb-[0px]">
+        <Image
+          src="/logo-apae.svg"
+          alt="APAE Logo"
+          width={90}
+          height={140}
+          className="mt-[3rem]"
+          priority
+        />
       </div>
+
+      <Card className="w-[340px] h-[520px] rounded-[30px] sm:w-[410px]">
+        <CardContent className="flex flex-col justify-end h-full pb-6">
+          <form onSubmit={handleSubmit}>
+            <div className="flex flex-col gap-6">
+              <div className="grid gap-2">
+                <Label
+                  htmlFor="email"
+                  className={`font-bold text-gray-700 ${nunitoFont.className}`}
+                >
+                  Email do profissional{" "}
+                  <span className="text-[#F28C38]">*</span>
+                </Label>
+
+                <InputGroup className="h-[46px] rounded-full w-full bg-white font-normal text-gray-700 focus-within:ring-2">
+                  <InputGroupInput
+                    id="email"
+                    className={nunitoFont.className}
+                    type="email"
+                    value={email}
+                    placeholder="seuemail@dominio.com"
+                    autoComplete="username"
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      setError("");
+                    }}
+                    aria-invalid={error !== ""}
+                    required
+                  />
+                  <InputGroupAddon align="inline-end">
+                    <Mail />
+                  </InputGroupAddon>
+                </InputGroup>
+              </div>
+
+              <div className="grid gap-2">
+                <Label
+                  htmlFor="password"
+                  className={`font-bold text-gray-700 ${nunitoFont.className}`}
+                >
+                  Senha <span className="text-[#F28C38]">*</span>
+                </Label>
+
+                <InputGroup className="h-[46px] rounded-full w-full bg-white font-normal text-gray-700 focus-within:ring-2">
+                  <InputGroupInput
+                    id="password"
+                    className={nunitoFont.className}
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    placeholder="********"
+                    minLength={8}
+                    onChange={(e) => {
+                      setPassword(e.target.value);
+                      setError("");
+                    }}
+                    aria-invalid={error !== ""}
+                    required
+                  />
+                  <InputGroupAddon align="inline-end">
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="text-gray-500 hover:text-gray-800 focus:outline-none transition-colors flex items-center justify-center w-full h-full"
+                      title={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                    >
+                      {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                    </button>
+                  </InputGroupAddon>
+                </InputGroup>
+
+                {loginAttempts >= 1 && (
+                  <div className="flex justify-end mt-1">
+                    <Link
+                      href="/esqueci-senha"
+                      className={`text-sm text-[#165BAA] hover:text-[#13447D] hover:underline transition-colors ${nunitoFont.className}`}
+                    >
+                      Esqueci minha senha
+                    </Link>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="h-7 mt-[8px] mb-[18px]">
+              {error ? <p className="text-sm text-red-600">{error}</p> : null}
+            </div>
+
+            <Button
+              type="submit"
+              disabled={!canSubmit}
+              className={`active:scale-[0.98] w-full h-[46px] rounded-full bg-[#165BAA] disabled:bg-[#B0C6DE] hover:bg-[#13447D] text-[18px] hover:cursor-pointer ${baloo2Font.className}`}
+              style={{ boxShadow: "4px 4px 10px rgba(0, 0, 0, 0.25)" }}
+            >
+              {isLoading ? "Entrando..." : "Entrar"}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   );
 }

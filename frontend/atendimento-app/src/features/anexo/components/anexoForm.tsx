@@ -70,10 +70,17 @@ export default function AnexoForm({ onSubmit }: AnexoFormProps) {
   }, [arquivo]);
   const renderizar =
     previewUrl &&
-    arquivo &&
-    renderizarFormatoArquivo(arquivo[0].type, previewUrl, 'form');
+    arquivo?.[0]?.type
+      ? renderizarFormatoArquivo(arquivo[0].type, previewUrl, 'form')
+      : null;
 
-  const removerArquivo = () => setValue("arquivo", undefined);
+  const removerArquivo = () => {
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+    }
+    setPreviewUrl(null);
+    setValue("arquivo", undefined);
+  };
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();

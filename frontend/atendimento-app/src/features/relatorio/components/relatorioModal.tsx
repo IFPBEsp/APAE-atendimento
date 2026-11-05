@@ -78,6 +78,24 @@ export function RelatorioViewModal({
     data.presignedUrl || "",
     'full',
   );
+    const handleSalvar = async () => {
+    try {
+      const response = await fetch(data.presignedUrl);
+      if (!response.ok) throw new Error("Falha ao baixar arquivo");
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = data.nomeArquivo;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    } catch {
+      window.open(data.presignedUrl, "_blank");
+    }
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4 py-6 animate-in fade-in duration-200">
       <div className="bg-white rounded-[24px] w-full max-w-[632px] max-h-[90vh] flex flex-col shadow-2xl overflow-hidden slide-in-from-bottom-10 overflow-y-auto">
@@ -112,21 +130,14 @@ export function RelatorioViewModal({
           <span className="text-sm text-[#344054] underline decoration-1">
             {data.nomeArquivo}
           </span>
-          <a
-            href={data.presignedUrl}
-            download={data.nomeArquivo}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="w-full"
+          <Button
+            onClick={handleSalvar}
+            className="w-full bg-[#165BAA] hover:bg-[#13447D] text-white h-12 rounded-full text-base font-semibold shadow-lg cursor-pointer"
+            disabled={disabled}
           >
-            <Button
-              className="w-full bg-[#165BAA] hover:bg-[#13447D] text-white h-12 rounded-full text-base font-semibold shadow-lg"
-              disabled={disabled}
-            >
-              <Download size={20} className="mr-2" />
-              Salvar anexo
-            </Button>
-          </a>
+            <Download size={20} className="mr-2" />
+            Salvar anexo
+          </Button>
         </div>
       </div>
     </div>
