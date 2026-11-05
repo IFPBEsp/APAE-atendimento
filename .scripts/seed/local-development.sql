@@ -118,10 +118,16 @@ VALUES
     (
         'aa000000-0000-4000-8000-000000000001',
         'a9000000-0000-4000-8000-000000000001',
-        1,
+        0,
         'Evolucao ficticia',
         'Registro criado exclusivamente para desenvolvimento local.'
     )
 ON CONFLICT DO NOTHING;
+
+UPDATE atendimento.topico
+SET ordem = 0
+WHERE id = 'aa000000-0000-4000-8000-000000000001'
+  AND atendimento_id = 'a9000000-0000-4000-8000-000000000001'
+  AND ordem = 1;
 
 COMMIT;
