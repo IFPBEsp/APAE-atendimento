@@ -3,7 +3,7 @@
 import Header from "@/components/shared/header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Plus } from "lucide-react";
+import { AlertCircle, ArrowLeft, Plus } from "lucide-react";
 import { Nunito } from "next/font/google";
 import { useRouter, useParams } from "next/navigation";
 import { AtendimentoModal } from "@/features/atendimento/components/atendimentoNovoModal";
@@ -22,6 +22,8 @@ export default function AtendimentoPage() {
     paciente,
     atendimentos,
     loading,
+    isError,
+    refetch,
     dataSelecionada,
     setDataSelecionada,
     atendimentosFiltrados,
@@ -82,7 +84,28 @@ export default function AtendimentoPage() {
           </p>
         )}
 
-        {!loading && atendimentosFiltrados.length === 0 && (
+        {!loading && isError && (
+          <div
+            role="alert"
+            className="flex flex-col items-center justify-center mt-20 gap-3 text-center"
+          >
+            <AlertCircle size={48} className="text-red-500" />
+            <p
+              className={`text-red-600 text-[15px] font-medium ${nunitoFont.className}`}
+            >
+              Erro ao carregar os atendimentos deste paciente.
+            </p>
+
+            <Button
+              onClick={() => void refetch()}
+              className="mt-2 bg-[#165BAA] hover:bg-[#13447D] text-white cursor-pointer"
+            >
+              Tentar novamente
+            </Button>
+          </div>
+        )}
+
+        {!loading && !isError && atendimentosFiltrados.length === 0 && (
           <div className="text-center mt-20">
             <p
               className={`text-[#344054] text-[15px] font-medium ${nunitoFont.className}`}
@@ -109,25 +132,27 @@ export default function AtendimentoPage() {
           />
         </AtendimentoModal>
 
-        {Object.entries(atendimentosAgrupados).map(([mes, itens]) => (
-          <div key={mes} className="flex flex-col gap-4">
-            <h2 className="text-lg font-bold text-[#344054] capitalize">
-              {mes}
-            </h2>
+        {!loading &&
+          !isError &&
+          Object.entries(atendimentosAgrupados).map(([mes, itens]) => (
+            <div key={mes} className="flex flex-col gap-4">
+              <h2 className="text-lg font-bold text-[#344054] capitalize">
+                {mes}
+              </h2>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {itens.map((a) => (
-                <AtendimentoCard
-                  key={a.id}
-                  {...a}
-                  atendimentos={atendimentos}
-                />
-              ))}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {itens.map((a) => (
+                  <AtendimentoCard
+                    key={a.id}
+                    {...a}
+                    atendimentos={atendimentos}
+                  />
+                ))}
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
 
-        {!loading && totalPaginas > 1 && (
+        {!loading && !isError && totalPaginas > 1 && (
           <div className="flex items-center justify-center gap-4 mt-6">
             <Button
               variant="outline"
