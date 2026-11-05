@@ -27,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -49,7 +50,7 @@ class AtendimentoControllerIntegrationTest extends AbstractIntegrationTest {
 
     @AfterEach
     void cleanupSeedLocalData() {
-        jdbcTemplate.update("DELETE FROM atendimento.topico WHERE id = ?::uuid", SEED_TOPICO_ID);
+        jdbcTemplate.update("DELETE FROM atendimento.topico WHERE atendimento_id = ?::uuid", SEED_ATENDIMENTO_ID);
         jdbcTemplate.update("DELETE FROM atendimento.atendimento WHERE id = ?::uuid", SEED_ATENDIMENTO_ID);
         jdbcTemplate.update("DELETE FROM atendimento.agendamento WHERE id = 'a8000000-0000-4000-8000-000000000001'::uuid");
         jdbcTemplate.update("DELETE FROM apae_geral.agendamentos WHERE id = 'a7000000-0000-4000-8000-000000000001'::uuid");
@@ -221,5 +222,62 @@ class AtendimentoControllerIntegrationTest extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.content[0].atendimentos[0].relatorio", hasSize(1)))
                 .andExpect(jsonPath("$.content[0].atendimentos[0].relatorio[0].id").value(SEED_TOPICO_ID))
                 .andExpect(jsonPath("$.content[0].atendimentos[0].relatorio[0].titulo").value("Evolucao ficticia"));
+    }
+
+    @Test
+    @DisplayName("Deve preservar os tópicos e a ordem após editar o atendimento fictício e reexecutar o seed local")
+    void devePreservarTopicosEditadosDoAtendimentoFicticioAoReexecutarSeedLocal() throws Exception {
+        executarSeedLocal();
+
+        String payloadEdicao = """
+        {
+          "pacienteId": "%s",
+          "relatorio": [
+            {"titulo": "Primeiro topico editado", "descricao": "Descricao editada 1"},
+            {"titulo": "Segundo topico editado", "descricao": "Descricao editada 2"}
+          ],
+          "data": "10-05-2026",
+          "hora": "09:00"
+        }
+        """.formatted(SEED_PACIENTE_ID);
+
+        mockMvc.perform(
+                        put("/atendimentos/{atendimentoId}", SEED_ATENDIMENTO_ID)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(payloadEdicao)
+                                .with(authentication(autenticarComo(SEED_PROFISSIONAL_ID)))
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.relatorio", hasSize(2)))
+                .andExpect(jsonPath("$.relatorio[0].titulo").value("Primeiro topico editado"))
+                .andExpect(jsonPath("$.relatorio[1].titulo").value("Segundo topico editado"));
+
+        executarSeedLocal();
+
+        List<Integer> ordensPersistidas = jdbcTemplate.queryForList(
+                "SELECT ordem FROM atendimento.topico WHERE atendimento_id = ?::uuid ORDER BY ordem ASC",
+                Integer.class,
+                SEED_ATENDIMENTO_ID
+        );
+        assertEquals(List.of(0, 1), ordensPersistidas);
+
+        List<String> titulosPersistidos = jdbcTemplate.queryForList(
+                "SELECT titulo FROM atendimento.topico WHERE atendimento_id = ?::uuid ORDER BY ordem ASC",
+                String.class,
+                SEED_ATENDIMENTO_ID
+        );
+        assertEquals(List.of("Primeiro topico editado", "Segundo topico editado"), titulosPersistidos);
+
+        mockMvc.perform(
+                        get("/atendimentos/{pacienteId}", SEED_PACIENTE_ID)
+                                .param("page", "0")
+                                .param("size", "10")
+                                .with(authentication(autenticarComo(SEED_PROFISSIONAL_ID)))
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].atendimentos[0].id").value(SEED_ATENDIMENTO_ID))
+                .andExpect(jsonPath("$.content[0].atendimentos[0].relatorio", hasSize(2)))
+                .andExpect(jsonPath("$.content[0].atendimentos[0].relatorio[0].titulo").value("Primeiro topico editado"))
+                .andExpect(jsonPath("$.content[0].atendimentos[0].relatorio[1].titulo").value("Segundo topico editado"));
     }
 }
