@@ -275,4 +275,30 @@ class AtendimentoServiceTest {
 
         assertEquals("6", entity.getNumeracao());
     }
+
+    @Test
+    @DisplayName("AtendimentoMapper deve filtrar tópicos nulos defensivamente ao converter para DTO")
+    void mapperDeveFiltrarTopicosNulosDefensivamente() {
+        AtendimentoMapper mapperReal = new AtendimentoMapper();
+
+        Topico topicoValido = new Topico();
+        UUID topicoId = UUID.randomUUID();
+        topicoValido.setId(topicoId);
+        topicoValido.setTitulo("Evolucao ficticia");
+        topicoValido.setDescricao("Descricao valida");
+
+        Atendimento atendimento = new Atendimento();
+        atendimento.setId(UUID.fromString("a9000000-0000-4000-8000-000000000001"));
+        atendimento.setDataAtendimento(LocalDateTime.of(2026, 5, 10, 9, 0));
+        atendimento.setNumeracao("AT-LOCAL-001");
+        atendimento.setStatus(true);
+        atendimento.setRelatorio(java.util.Arrays.asList(null, topicoValido));
+
+        AtendimentoResponseDTO dto = assertDoesNotThrow(() -> mapperReal.toDTOPadrao(atendimento));
+
+        assertNotNull(dto);
+        assertEquals(1, dto.relatorio().size());
+        assertEquals(topicoId, dto.relatorio().getFirst().id());
+        assertEquals("Evolucao ficticia", dto.relatorio().getFirst().titulo());
+    }
 }
