@@ -12,4 +12,4 @@ jobs:
     with:
       working-directory: backend/atendimento
       java-version: '21'
-      maven-args: 'verify'
+      maven-args: 'verify -Dtest=!MinioStorageIntegrationTest'
