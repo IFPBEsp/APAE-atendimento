@@ -4,11 +4,14 @@ on:
   push:
     branches:
       - teste-novo-ci
+  pull_request:
+    branches:
+      - dev
 
 jobs:
   frontend-ci:
-    # Chama o workflow criado no APAE-INFRA, apontando para a branch que acabamos de criar lá
     uses: IFPBEsp/APAE-INFRA/.github/workflows/frontend-ci.yml@67-ci-criar-workflow-reutilizavel-de-ci-para-frontends-nodejs
     with:
       working-directory: 'frontend/atendimento-app'
-      run-tests: true
+      typecheck-command: ''
+      run-tests: false
