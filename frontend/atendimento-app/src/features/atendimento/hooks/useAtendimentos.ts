@@ -9,7 +9,7 @@ export function useAtendimentos(pacienteId: string) {
   const [open, setOpen] = useState(false);
   const [paginaAtual, setPaginaAtual] = useState(0);
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["atendimentos", pacienteId, paginaAtual],
     enabled: !!pacienteId,
     queryFn: () => carregarAtendimentos(pacienteId, paginaAtual, 10),
@@ -50,6 +50,9 @@ export function useAtendimentos(pacienteId: string) {
     atendimentosFiltrados,
     atendimentosAgrupados,
     loading: isLoading,
+    isError,
+    erro: isError,
+    refetch,
 
     dataSelecionada,
     setDataSelecionada,
