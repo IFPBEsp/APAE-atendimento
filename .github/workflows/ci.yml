@@ -1,63 +1,17 @@
-name: CI Pipeline
+name: Teste CI Reutilizável Frontend
 
 on:
+  push:
+    branches:
+      - teste-novo-ci
   pull_request:
     branches:
       - dev
 
 jobs:
-  frontend:
-    name: Frontend Check
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: frontend/atendimento-app
-    steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-      - name: Instalar pnpm
-        uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa # v4
-        with:
-          version: "10.33.0"
-      - name: Setup Node.js
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
-        with:
-          node-version: "22.13"
-          cache: 'pnpm'
-          cache-dependency-path: frontend/atendimento-app/pnpm-lock.yaml
-      - name: Aprovar builds do pnpm
-        run: pnpm approve-builds
-      - name: Instalar dependências
-        run: pnpm install --frozen-lockfile
-      - name: Linting
-        run: pnpm lint
-      - name: Testes e Build
-        run: pnpm run build 
-
-  backend:
-    name: Backend Check
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: backend/atendimento
-    steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-      - name: Setup Java
-        uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3 # v4
-        with:
-          java-version: '21' 
-          distribution: 'temurin'
-          cache: maven
-      - name: Deixar o Maven wrapper executável
-        run: chmod +x mvnw
-      - name: Build e Testes
-        run: ./mvnw clean package -DskipTests
-
-  security:
-    name: Semgrep Custom Rules
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-      - name: Instalar Semgrep
-        run: python3 -m pip install semgrep
-      - name: Rodar Semgrep
-        run: semgrep scan --config="p/default" --config="p/java" --config="p/typescript" --config=".github/semgrep-custom-rules.yml" --error
+  frontend-ci:
+    uses: IFPBEsp/APAE-INFRA/.github/workflows/frontend-ci.yml@67-ci-criar-workflow-reutilizavel-de-ci-para-frontends-nodejs
+    with:
+      working-directory: 'frontend/atendimento-app'
+      typecheck-command: ''
+      run-tests: false
