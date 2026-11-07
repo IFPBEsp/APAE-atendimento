@@ -12,6 +12,7 @@ import org.springframework.test.context.ActiveProfiles;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -26,7 +27,7 @@ class AgendamentoRepositoryTest {
     @Autowired
     private TestEntityManager entityManager;
 
-    private Agendamento criarEPersistirAgendamento(Long profissionalId, Long pacienteId, LocalDateTime dataHora) {
+    private Agendamento criarEPersistirAgendamento(UUID profissionalId, UUID pacienteId, LocalDateTime dataHora) {
         Agendamento agendamento = new Agendamento();
         agendamento.setProfissionalId(profissionalId);
         agendamento.setPacienteId(pacienteId);
@@ -37,9 +38,9 @@ class AgendamentoRepositoryTest {
     @Test
     @DisplayName("Deve retornar agendamentos por profissional ordenados por data decrescente")
     void findByProfissionalIdOrderByDataHoraDesc_DeveRetornarOrdenado() {
-        Long profissionalId = 1L;
-        criarEPersistirAgendamento(profissionalId, 10L, LocalDateTime.now().minusDays(2));
-        criarEPersistirAgendamento(profissionalId, 20L, LocalDateTime.now());
+        UUID profissionalId = UUID.randomUUID();
+        criarEPersistirAgendamento(profissionalId, UUID.randomUUID(), LocalDateTime.now().minusDays(2));
+        criarEPersistirAgendamento(profissionalId, UUID.randomUUID(), LocalDateTime.now());
 
         List<Agendamento> resultado = agendamentoRepository.findByProfissionalIdOrderByDataHoraDesc(profissionalId);
 
@@ -50,27 +51,29 @@ class AgendamentoRepositoryTest {
     @Test
     @DisplayName("Deve retornar agendamentos no intervalo de datas ordenados decrescentemente")
     void findByProfissionalIdAndDataHoraBetweenOrderByDataHoraDesc_DeveFiltrarPorIntervalo() {
-        Long profissionalId = 2L;
+        UUID profissionalId = UUID.randomUUID();
+        UUID paciente20 = UUID.randomUUID();
+        UUID paciente30 = UUID.randomUUID();
         LocalDateTime hoje = LocalDateTime.now();
         
-        criarEPersistirAgendamento(profissionalId, 10L, hoje.minusDays(5));
-        criarEPersistirAgendamento(profissionalId, 20L, hoje);
-        criarEPersistirAgendamento(profissionalId, 30L, hoje.minusDays(1));
-        criarEPersistirAgendamento(profissionalId, 40L, hoje.plusDays(5));
+        criarEPersistirAgendamento(profissionalId, UUID.randomUUID(), hoje.minusDays(5));
+        criarEPersistirAgendamento(profissionalId, paciente20, hoje);
+        criarEPersistirAgendamento(profissionalId, paciente30, hoje.minusDays(1));
+        criarEPersistirAgendamento(profissionalId, UUID.randomUUID(), hoje.plusDays(5));
 
         List<Agendamento> resultado = agendamentoRepository
                 .findByProfissionalIdAndDataHoraBetweenOrderByDataHoraDesc(profissionalId, hoje.minusDays(2), hoje.plusDays(1));
 
         assertThat(resultado).hasSize(2);
-        assertThat(resultado.get(0).getPacienteId()).isEqualTo(20L);
-        assertThat(resultado.get(1).getPacienteId()).isEqualTo(30L);
+        assertThat(resultado.get(0).getPacienteId()).isEqualTo(paciente20);
+        assertThat(resultado.get(1).getPacienteId()).isEqualTo(paciente30);
     }
 
     @Test
     @DisplayName("Deve encontrar por dataInicio (inclusiva), dataFim (exclusiva), profissional e paciente")
     void findByDataHoraAndProfissionalIdAndPacienteId_DeveRespeitarLogicaDeIntervaloCustomizada() {
-        Long profissionalId = 3L;
-        Long pacienteId = 100L;
+        UUID profissionalId = UUID.randomUUID();
+        UUID pacienteId = UUID.randomUUID();
         LocalDateTime inicio = LocalDateTime.of(2026, 11, 6, 10, 0);
         LocalDateTime fim = LocalDateTime.of(2026, 11, 6, 11, 0);
 
@@ -89,9 +92,9 @@ class AgendamentoRepositoryTest {
     @Test
     @DisplayName("Deve retornar true se existir agendamento, false caso contrário")
     void existsByProfissionalIdAndDataHora_DeveRetornarTrueOuFalse() {
-        Long profissionalId = 4L;
+        UUID profissionalId = UUID.randomUUID();
         LocalDateTime dataHora = LocalDateTime.now();
-        criarEPersistirAgendamento(profissionalId, 1L, dataHora);
+        criarEPersistirAgendamento(profissionalId, UUID.randomUUID(), dataHora);
 
         boolean existe = agendamentoRepository.existsByProfissionalIdAndDataHora(profissionalId, dataHora);
         assertThat(existe).isTrue();
@@ -103,8 +106,8 @@ class AgendamentoRepositoryTest {
     @Test
     @DisplayName("Deve buscar agendamento exato por ID, Profissional ID e Paciente ID")
     void findByIdAndProfissionalIdAndPacienteId_DeveRetornarCorretamente() {
-        Long profissionalId = 5L;
-        Long pacienteId = 200L;
+        UUID profissionalId = UUID.randomUUID();
+        UUID pacienteId = UUID.randomUUID();
         Agendamento salvo = criarEPersistirAgendamento(profissionalId, pacienteId, LocalDateTime.now());
 
         Optional<Agendamento> resultado = agendamentoRepository
@@ -117,8 +120,8 @@ class AgendamentoRepositoryTest {
     @Test
     @DisplayName("Deve buscar agendamento exato por ID e Profissional ID")
     void findByIdAndProfissionalId_DeveRetornarCorretamente() {
-        Long profissionalId = 6L;
-        Agendamento salvo = criarEPersistirAgendamento(profissionalId, 300L, LocalDateTime.now());
+        UUID profissionalId = UUID.randomUUID();
+        Agendamento salvo = criarEPersistirAgendamento(profissionalId, UUID.randomUUID(), LocalDateTime.now());
 
         Optional<Agendamento> resultado = agendamentoRepository
                 .findByIdAndProfissionalId(salvo.getId(), profissionalId);
