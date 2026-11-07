@@ -139,24 +139,6 @@ public class AgendamentoService {
         return agendamentoMapper.toDTOPadrao(repository.save(agendamento));
     }
 
-    public Agendamento buscarAgendamentoPorDataProfissionalEPaciente(
-            LocalDate data,
-            UUID profissionalId,
-            UUID pacienteId
-    ) {
-        LocalDateTime dataInicio = data.atStartOfDay();
-        LocalDateTime dataFim = dataInicio.plusDays(1);
-
-        return repository.findByDataHoraAndProfissionalIdAndPacienteId(
-                dataInicio,
-                dataFim,
-                profissionalId,
-                pacienteId
-        ).orElseThrow(() -> new AgendamentoNotFoundException(
-                "Nenhum agendamento encontrado para esse profissional e paciente nesta data."
-        ));
-    }
-
     public Agendamento buscarPorIdEProfissional(UUID agendamentoId, UUID profissionalId) {
         return repository.findByIdAndProfissionalId(agendamentoId, profissionalId)
                 .orElseThrow(() -> new AgendamentoNotFoundException(
