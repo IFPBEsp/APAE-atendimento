@@ -22,6 +22,7 @@ public class AtendimentoMapper extends AbstractMapper<Atendimento, AtendimentoRe
         Atendimento atendimento = new Atendimento();
 
         atendimento.setPacienteId(dto.pacienteId());
+        atendimento.setAgendamentoId(dto.agendamentoId());
         atendimento.setDataAtendimento(LocalDateTime.of(dto.data(), dto.hora()));
 
         List<Topico> relatorio = Optional.ofNullable(dto.relatorio())
