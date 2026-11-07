@@ -247,10 +247,8 @@ class AgendamentoServiceIntegrationTest extends AbstractIntegrationTest {
                 PROFISSIONAL_ID
         );
 
-        agendamentoService.concluir(
-                PROFISSIONAL_ID,
-                PACIENTE_VINCULADO_ID,
-                criado.id()
+        agendamentoService.setStatus(
+                agendamentoService.buscarPorIdEProfissional(criado.id(), PROFISSIONAL_ID)
         );
 
         assertThrows(
