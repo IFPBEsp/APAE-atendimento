@@ -105,9 +105,9 @@ export default function RedefinirSenhaPage() {
 
   if (isCheckingSession) {
     return (
-      <main className="min-h-screen bg-[#F8FAFD] flex items-center justify-center">
-        <p className="text-sm text-[#475467]">Validando sessão...</p>
-      </main>
+      <div className="h-screen w-screen bg-[#0D4F97] flex flex-col items-center justify-center">
+        <p className="text-white font-semibold">Validando sessão...</p>
+      </div>
     );
   }
 
