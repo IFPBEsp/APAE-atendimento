@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { AlertCircle, ArrowLeft, Plus } from "lucide-react";
 import { Nunito } from "next/font/google";
-import { useRouter, useParams } from "next/navigation";
+import { useEffect } from "react";
+import { useRouter, useParams, useSearchParams } from "next/navigation";
 import { AtendimentoModal } from "@/features/atendimento/components/atendimentoNovoModal";
 import AtendimentoCard from "../components/atendimentoCard";
 import AtendimentoForm from "@/features/atendimento/components/atendimentoForm";
@@ -16,6 +17,8 @@ const nunitoFont = Nunito({ weight: "700" });
 export default function AtendimentoPage() {
   const router = useRouter();
   const params = useParams();
+  const searchParams = useSearchParams();
+  const agendamentoId = searchParams?.get("agendamentoId") ?? undefined;
   const pacienteId = typeof params.id === "string" ? params.id : "";
 
   const {
@@ -37,6 +40,26 @@ export default function AtendimentoPage() {
     primeiraPagina,
     ultimaPagina,
   } = useAtendimentos(pacienteId);
+
+  useEffect(() => {
+    if (agendamentoId) {
+      setOpen(true);
+    }
+  }, [agendamentoId, setOpen]);
+
+  function handleModalOpenChange(isOpen: boolean) {
+    setOpen(isOpen);
+    if (!isOpen && agendamentoId) {
+      router.replace("/agenda");
+    }
+  }
+
+  function handleFormSuccess() {
+    setOpen(false);
+    if (agendamentoId) {
+      router.replace(`/atendimento/${encodeURIComponent(pacienteId)}`);
+    }
+  }
 
   return (
     <div className="min-h-screen w-full bg-[#F8FAFD]">
@@ -123,12 +146,13 @@ export default function AtendimentoPage() {
           </div>
         )}
 
-        <AtendimentoModal open={open} onOpenChange={setOpen}>
+        <AtendimentoModal open={open} onOpenChange={handleModalOpenChange}>
           <AtendimentoForm
             atendimentos={atendimentos}
             pacienteNome={paciente?.nomeCompleto}
             pacienteId={pacienteId}
-            onClose={() => setOpen(false)}
+            agendamentoId={agendamentoId}
+            onClose={handleFormSuccess}
           />
         </AtendimentoModal>
 
