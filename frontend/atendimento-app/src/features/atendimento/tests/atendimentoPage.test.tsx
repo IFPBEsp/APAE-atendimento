@@ -3,19 +3,36 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import AtendimentoPage from "../components/atendimentoPage";
+import AtendimentoForm from "../components/atendimentoForm";
+import { criarAtendimento } from "../services/atendimentoService";
 import normalizarAtendimento, {
   carregarAtendimentos,
 } from "../utils/normalizarAtendimento";
 
+const mockPush = jest.fn();
+const mockBack = jest.fn();
+const mockReplace = jest.fn();
+let mockSearchParams = new URLSearchParams();
+
 jest.mock("next/navigation", () => ({
   useRouter: () => ({
-    back: jest.fn(),
-    push: jest.fn(),
+    back: mockBack,
+    push: mockPush,
+    replace: mockReplace,
   }),
   useParams: () => ({
     id: "a4000000-0000-4000-8000-000000000001",
   }),
+  useSearchParams: () => mockSearchParams,
 }));
+
+jest.mock("../services/atendimentoService", () => {
+  const actual = jest.requireActual("../services/atendimentoService");
+  return {
+    ...actual,
+    criarAtendimento: jest.fn(),
+  };
+});
 
 jest.mock("../../../components/shared/header", () => ({
   __esModule: true,
@@ -33,6 +50,8 @@ jest.mock("../utils/normalizarAtendimento", () => {
 
 const mockedCarregarAtendimentos =
   carregarAtendimentos as jest.MockedFunction<typeof carregarAtendimentos>;
+const mockedCriarAtendimento =
+  criarAtendimento as jest.MockedFunction<typeof criarAtendimento>;
 
 function renderWithQueryClient(ui: React.ReactElement) {
   const queryClient = new QueryClient({
@@ -51,6 +70,7 @@ function renderWithQueryClient(ui: React.ReactElement) {
 describe("AtendimentoPage - Estados de erro, vazio e nova tentativa", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockSearchParams = new URLSearchParams();
   });
 
   it("deve exibir estado de erro explícito quando a consulta falhar e permitir tentar novamente", async () => {
@@ -157,5 +177,147 @@ describe("AtendimentoPage - Estados de erro, vazio e nova tentativa", () => {
 
     expect(resultado.relatorio).toHaveLength(1);
     expect(resultado.relatorio[0].titulo).toBe("Evolucao ficticia");
+  });
+
+  it("deve vincular o agendamentoId apenas ao primeiro atendimento quando varias linhas forem salvas", async () => {
+    mockSearchParams = new URLSearchParams("agendamentoId=agendamento-123");
+    mockedCriarAtendimento.mockResolvedValue({} as never);
+
+    const { container } = renderWithQueryClient(
+      <AtendimentoForm
+        pacienteId="a4000000-0000-4000-8000-000000000001"
+        pacienteNome="Paciente Ficticio Um"
+        onClose={jest.fn()}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /Adicionar atendimento/i }));
+
+    const condicoes = screen.getAllByPlaceholderText("campo vazio");
+    const datas = container.querySelectorAll('input[type="date"]');
+    const horas = container.querySelectorAll('input[type="time"]');
+    expect(condicoes).toHaveLength(2);
+
+    ["Primeira", "Segunda"].forEach((texto, i) => {
+      fireEvent.change(condicoes[i], { target: { value: texto } });
+      fireEvent.change(datas[i], { target: { value: "2026-05-10" } });
+      fireEvent.change(horas[i], { target: { value: i === 0 ? "09:00" : "10:00" } });
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Salvar atendimento/i }));
+
+    await waitFor(() => expect(mockedCriarAtendimento).toHaveBeenCalledTimes(2));
+
+    const [primeiro] = mockedCriarAtendimento.mock.calls[0];
+    const [segundo] = mockedCriarAtendimento.mock.calls[1];
+    expect(primeiro.agendamentoId).toBe("agendamento-123");
+    expect(segundo).not.toHaveProperty("agendamentoId");
+  });
+
+  it("no fluxo de conclusao, fechar o modal sem salvar retorna para a agenda sem nenhuma requisicao", async () => {
+    mockSearchParams = new URLSearchParams("agendamentoId=agendamento-123");
+    mockedCarregarAtendimentos.mockResolvedValueOnce({
+      paciente: {
+        id: "a4000000-0000-4000-8000-000000000001",
+        nomeCompleto: "Paciente Ficticio Um",
+      } as never,
+      atendimentos: [],
+      totalPages: 0,
+      totalElements: 0,
+      currentPage: 0,
+      pageSize: 10,
+      first: true,
+      last: true,
+    });
+
+    renderWithQueryClient(<AtendimentoPage />);
+
+    const botaoFechar = await screen.findByRole("button", { name: /Fechar/i });
+    fireEvent.click(botaoFechar);
+
+    await waitFor(() => expect(mockReplace).toHaveBeenCalledWith("/agenda"));
+    expect(mockedCriarAtendimento).not.toHaveBeenCalled();
+  });
+
+  it("deve capturar agendamentoId via useSearchParams no AtendimentoForm e envia-lo no payload ao salvar", async () => {
+    mockSearchParams = new URLSearchParams("agendamentoId=agendamento-123");
+    mockedCriarAtendimento.mockResolvedValueOnce({
+      id: "atendimento-1",
+      data: "10/05/2026",
+      hora: "09:00",
+      numeracao: "1",
+      status: true,
+      relatorio: [{ titulo: "Paciente estavel", descricao: "Paciente estavel" }],
+    });
+
+    const onClose = jest.fn();
+
+    const { container } = renderWithQueryClient(
+      <AtendimentoForm
+        pacienteId="a4000000-0000-4000-8000-000000000001"
+        pacienteNome="Paciente Ficticio Um"
+        onClose={onClose}
+      />,
+    );
+
+    const condicaoInput = screen.getByPlaceholderText("campo vazio");
+    fireEvent.change(condicaoInput, {
+      target: { value: "Paciente estavel" },
+    });
+
+    const dateInput = container.querySelector('input[type="date"]');
+    const timeInput = container.querySelector('input[type="time"]');
+    expect(dateInput).not.toBeNull();
+    expect(timeInput).not.toBeNull();
+
+    fireEvent.change(dateInput!, { target: { value: "2026-05-10" } });
+    fireEvent.change(timeInput!, { target: { value: "09:00" } });
+
+    const botaoSalvar = screen.getByRole("button", {
+      name: /Salvar atendimento/i,
+    });
+    fireEvent.click(botaoSalvar);
+
+    await waitFor(() => {
+      expect(mockedCriarAtendimento).toHaveBeenCalledWith({
+        pacienteId: "a4000000-0000-4000-8000-000000000001",
+        agendamentoId: "agendamento-123",
+        data: "10-05-2026",
+        hora: "09:00",
+        numeracao: "1",
+        relatorio: [
+          {
+            titulo: "Paciente estavel",
+            descricao: "Paciente estavel",
+          },
+        ],
+      });
+    });
+
+    expect(onClose).toHaveBeenCalled();
+  });
+
+  it("deve voltar para a listagem ao clicar em Voltar sem disparar requisicao de criacao de atendimento", async () => {
+    mockedCarregarAtendimentos.mockResolvedValueOnce({
+      paciente: {
+        id: "a4000000-0000-4000-8000-000000000001",
+        nomeCompleto: "Paciente Ficticio Um",
+      } as never,
+      atendimentos: [],
+      totalPages: 0,
+      totalElements: 0,
+      currentPage: 0,
+      pageSize: 10,
+      first: true,
+      last: true,
+    });
+
+    renderWithQueryClient(<AtendimentoPage />);
+
+    const botaoVoltar = screen.getByRole("button", { name: /Voltar/i });
+    fireEvent.click(botaoVoltar);
+
+    expect(mockBack).toHaveBeenCalledTimes(1);
+    expect(mockedCriarAtendimento).not.toHaveBeenCalled();
   });
 });
