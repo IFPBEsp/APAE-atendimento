@@ -11,6 +11,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -52,8 +53,8 @@ class AgendamentoRepositoryTest {
         Long profissionalId = 2L;
         LocalDateTime hoje = LocalDateTime.now();
         
-        criarEPersistirAgendamento(profissionalId, 10L, hoje.minusDays(5)); 
-        criarEPersistirAgendamento(profissionalId, 20L, hoje); 
+        criarEPersistirAgendamento(profissionalId, 10L, hoje.minusDays(5));
+        criarEPersistirAgendamento(profissionalId, 20L, hoje);
         criarEPersistirAgendamento(profissionalId, 30L, hoje.minusDays(1));
         criarEPersistirAgendamento(profissionalId, 40L, hoje.plusDays(5));
 
@@ -63,5 +64,65 @@ class AgendamentoRepositoryTest {
         assertThat(resultado).hasSize(2);
         assertThat(resultado.get(0).getPacienteId()).isEqualTo(20L);
         assertThat(resultado.get(1).getPacienteId()).isEqualTo(30L);
+    }
+
+    @Test
+    @DisplayName("Deve encontrar por dataInicio (inclusiva), dataFim (exclusiva), profissional e paciente")
+    void findByDataHoraAndProfissionalIdAndPacienteId_DeveRespeitarLogicaDeIntervaloCustomizada() {
+        Long profissionalId = 3L;
+        Long pacienteId = 100L;
+        LocalDateTime inicio = LocalDateTime.of(2026, 11, 6, 10, 0);
+        LocalDateTime fim = LocalDateTime.of(2026, 11, 6, 11, 0);
+
+        criarEPersistirAgendamento(profissionalId, pacienteId, inicio);
+        criarEPersistirAgendamento(profissionalId, pacienteId, inicio.plusMinutes(30));
+        criarEPersistirAgendamento(profissionalId, pacienteId, fim);
+
+        List<Agendamento> resultado = agendamentoRepository
+                .findByDataHoraAndProfissionalIdAndPacienteId(inicio, fim, profissionalId, pacienteId);
+
+        assertThat(resultado).hasSize(2);
+        assertThat(resultado).extracting(Agendamento::getDataHora)
+                .containsExactlyInAnyOrder(inicio, inicio.plusMinutes(30));
+    }
+
+    @Test
+    @DisplayName("Deve retornar true se existir agendamento, false caso contrário")
+    void existsByProfissionalIdAndDataHora_DeveRetornarTrueOuFalse() {
+        Long profissionalId = 4L;
+        LocalDateTime dataHora = LocalDateTime.now();
+        criarEPersistirAgendamento(profissionalId, 1L, dataHora);
+
+        boolean existe = agendamentoRepository.existsByProfissionalIdAndDataHora(profissionalId, dataHora);
+        assertThat(existe).isTrue();
+
+        boolean existeFalso = agendamentoRepository.existsByProfissionalIdAndDataHora(profissionalId, dataHora.plusHours(1));
+        assertThat(existeFalso).isFalse();
+    }
+
+    @Test
+    @DisplayName("Deve buscar agendamento exato por ID, Profissional ID e Paciente ID")
+    void findByIdAndProfissionalIdAndPacienteId_DeveRetornarCorretamente() {
+        Long profissionalId = 5L;
+        Long pacienteId = 200L;
+        Agendamento salvo = criarEPersistirAgendamento(profissionalId, pacienteId, LocalDateTime.now());
+
+        Optional<Agendamento> resultado = agendamentoRepository
+                .findByIdAndProfissionalIdAndPacienteId(salvo.getId(), profissionalId, pacienteId);
+
+        assertThat(resultado).isPresent();
+        assertThat(resultado.get().getId()).isEqualTo(salvo.getId());
+    }
+
+    @Test
+    @DisplayName("Deve buscar agendamento exato por ID e Profissional ID")
+    void findByIdAndProfissionalId_DeveRetornarCorretamente() {
+        Long profissionalId = 6L;
+        Agendamento salvo = criarEPersistirAgendamento(profissionalId, 300L, LocalDateTime.now());
+
+        Optional<Agendamento> resultado = agendamentoRepository
+                .findByIdAndProfissionalId(salvo.getId(), profissionalId);
+
+        assertThat(resultado).isPresent();
     }
 }
