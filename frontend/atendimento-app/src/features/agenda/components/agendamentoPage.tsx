@@ -18,7 +18,6 @@ import { Input } from "@/components/ui/input";
 
 import { AgendamentoModal } from "../components/agendamentoModal";
 import { AgendamentoModalDeletar } from "../components/agendamentoModalDeletar";
-import { AgendamentoModalConcluir } from "../components/agendamentoModalConcluir";
 import AgendamentoForm, {
   AgendamentoFormData,
 } from "../components/agendamentoForm";
@@ -27,7 +26,6 @@ import AgendamentoCard from "../components/agendamentoCard";
 import { useAgendamentos } from "../hooks/useAgendamentos";
 import { useCriarAgendamento } from "../hooks/useCriarAgendamento";
 import { useDeletarAgendamento } from "../hooks/useDeletarAgendamento";
-import { useConcluirAgendamento } from "../hooks/useConcluirAgendamento";
 import { useEditarAgendamento } from "../hooks/useEditarAgendamento";
 
 import { agruparPorData } from "../utils/agruparPorData";
@@ -53,7 +51,6 @@ const size = 10;
   const [openCreate, setOpenCreate] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
   const [openDelete, setOpenDelete] = useState(false);
-  const [openConcluir, setOpenConcluir] = useState(false);
   const [agendamentoSelecionado, setAgendamentoSelecionado] =
     useState<Agendamento | null>(null);
 
@@ -73,7 +70,6 @@ const pagination = agendamentosData?.pagination;
   const criarAgendamentoMutation = useCriarAgendamento();
   const editarAgendamentoMutation = useEditarAgendamento();
   const deletarAgendamentoMutation = useDeletarAgendamento();
-  const concluirAgendamentoMutation = useConcluirAgendamento();
 
 
   const gruposParaRenderizar = agruparPorData(agendamentos);
@@ -161,22 +157,6 @@ const pagination = agendamentosData?.pagination;
     }
   }
 
-  async function confirmarConcluirAgendamento() {
-    if (!agendamentoSelecionado) return;
-
-    try {
-      await concluirAgendamentoMutation.mutateAsync({
-        pacienteId: agendamentoSelecionado.pacienteId,
-        agendamentoId: agendamentoSelecionado.id,
-      });
-
-      toast.success("Agendamento concluído com sucesso!");
-      setOpenConcluir(false);
-      setAgendamentoSelecionado(null);
-    } catch {
-      toast.error("Erro ao concluir agendamento.");
-    }
-  }
 
   return (
     <div className="min-h-screen w-full bg-[#F8FAFD]">
@@ -237,6 +217,7 @@ const pagination = agendamentosData?.pagination;
               {itens.map((item) => (
                 <AgendamentoCard
                   id={item.id}
+                  pacienteId={item.pacienteId}
                   key={item.id}
                   paciente={item.paciente}
                   horario={item.horario}
@@ -246,10 +227,6 @@ const pagination = agendamentosData?.pagination;
                   onEditClick={() => {
                     setAgendamentoSelecionado(item);
                     setOpenEdit(true);
-                  }}
-                  onConcluirClick={() => {
-                    setAgendamentoSelecionado(item);
-                    setOpenConcluir(true);
                   }}
                   onDeleteClick={() => {
                     setAgendamentoSelecionado(item);
@@ -351,15 +328,6 @@ const pagination = agendamentosData?.pagination;
           setAgendamentoSelecionado(null);
         }}
         onConfirm={confirmarDeleteAgendamento}
-      />
-
-      <AgendamentoModalConcluir
-        isOpen={openConcluir}
-        onClose={() => {
-          setOpenConcluir(false);
-          setAgendamentoSelecionado(null);
-        }}
-        onConfirm={confirmarConcluirAgendamento}
       />
     </div>
   );
