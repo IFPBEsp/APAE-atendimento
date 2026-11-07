@@ -284,28 +284,6 @@ public class AgendamentoService {
         repository.save(agendamento);
     }
 
-    public void concluir(
-            UUID profissionalId,
-            UUID pacienteId,
-            UUID agendamentoId
-    ) {
-        if (!pacienteService.existeRelacao(pacienteId, profissionalId)) {
-            throw new RelacaoInvalidException("Voce nao tem vinculo com este paciente para concluir o agendamento.");
-        }
-
-        Agendamento agendamento = repository
-                .findByIdAndProfissionalIdAndPacienteId(
-                        agendamentoId,
-                        profissionalId,
-                        pacienteId
-                )
-                .orElseThrow(() -> new AgendamentoNotFoundException(
-                        "O agendamento nao existe ou nao pertence ao profissional autenticado."
-                ));
-
-        setStatus(agendamento);
-    }
-
     public boolean verificarAgendamentoExiste(
             UUID profissionalId,
             LocalDate data,
