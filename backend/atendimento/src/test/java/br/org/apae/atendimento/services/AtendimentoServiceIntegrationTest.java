@@ -64,14 +64,16 @@ class AtendimentoServiceIntegrationTest extends AbstractIntegrationTest {
                 paciente.getId(),
                 List.of(new TopicoRequestDTO("Titulo 1", "Descricao 1")),
                 LocalDate.of(2026, 5, 10),
-                LocalTime.of(10, 0)
+                LocalTime.of(10, 0),
+                null
         );
 
         AtendimentoRequestDTO request2 = new AtendimentoRequestDTO(
                 paciente.getId(),
                 List.of(new TopicoRequestDTO("Titulo 2", "Descricao 2")),
                 LocalDate.of(2026, 5, 11),
-                LocalTime.of(11, 0)
+                LocalTime.of(11, 0),
+                null
         );
 
         AtendimentoResponseDTO created1 = atendimentoService.addAtendimento(request1, profissional.getId());
@@ -86,7 +88,8 @@ class AtendimentoServiceIntegrationTest extends AbstractIntegrationTest {
                 paciente.getId(),
                 List.of(new TopicoRequestDTO("Titulo editado", "Descricao editada")),
                 LocalDate.of(2026, 5, 15),
-                LocalTime.of(14, 0)
+                LocalTime.of(14, 0),
+                null
         );
 
         AtendimentoResponseDTO edited = atendimentoService.editar(
@@ -131,7 +134,8 @@ class AtendimentoServiceIntegrationTest extends AbstractIntegrationTest {
                 paciente.getId(),
                 List.of(new TopicoRequestDTO("Titulo", "Descricao")),
                 LocalDate.of(2026, 6, 10),
-                LocalTime.of(9, 0)
+                LocalTime.of(9, 0),
+                null
         );
 
         assertThrows(RelacaoInvalidException.class,
@@ -153,7 +157,8 @@ class AtendimentoServiceIntegrationTest extends AbstractIntegrationTest {
                         new TopicoRequestDTO("Topico 3", "Descricao 3")
                 ),
                 LocalDate.of(2026, 7, 10),
-                LocalTime.of(9, 0)
+                LocalTime.of(9, 0),
+                null
         );
 
         AtendimentoResponseDTO criado = atendimentoService.addAtendimento(criacao, profissionalId);
@@ -180,7 +185,8 @@ class AtendimentoServiceIntegrationTest extends AbstractIntegrationTest {
                         new TopicoRequestDTO("Topico 1 Mantido", "Descricao 1 Mantida")
                 ),
                 LocalDate.of(2026, 7, 10),
-                LocalTime.of(9, 0)
+                LocalTime.of(9, 0),
+                null
         );
 
         atendimentoService.editar(edicao, criado.id(), profissionalId);
