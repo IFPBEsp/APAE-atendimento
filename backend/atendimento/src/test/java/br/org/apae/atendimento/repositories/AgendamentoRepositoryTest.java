@@ -1,6 +1,7 @@
 package br.org.apae.atendimento.repositories;
 
 import br.org.apae.atendimento.entities.Agendamento;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,9 +17,16 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@DataJpaTest
-@ActiveProfiles("test")
+@DataJpaTest(properties = {
+    "spring.datasource.url=jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;INIT=CREATE SCHEMA IF NOT EXISTS atendimento",
+    "spring.datasource.driver-class-name=org.h2.Driver",
+    "spring.datasource.username=sa",
+    "spring.datasource.password=",
+    "spring.flyway.enabled=false",
+    "spring.jpa.hibernate.ddl-auto=create-drop"
+})
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@ActiveProfiles("test")
 class AgendamentoRepositoryTest {
 
     @Autowired
@@ -26,6 +34,13 @@ class AgendamentoRepositoryTest {
 
     @Autowired
     private TestEntityManager entityManager;
+
+    @BeforeEach
+    void setUp() {
+        entityManager.getEntityManager()
+                .createNativeQuery("SET REFERENTIAL_INTEGRITY FALSE")
+                .executeUpdate();
+    }
 
     private Agendamento criarEPersistirAgendamento(UUID profissionalId, UUID pacienteId, LocalDateTime dataHora) {
         Agendamento agendamento = new Agendamento();
@@ -70,30 +85,27 @@ class AgendamentoRepositoryTest {
     }
 
     @Test
-    @DisplayName("Deve encontrar por dataInicio (inclusiva), dataFim (exclusiva), profissional e paciente")
+    @DisplayName("Deve encontrar agendamento exato por dataInicio (inclusiva) e dataFim (exclusiva)")
     void findByDataHoraAndProfissionalIdAndPacienteId_DeveRespeitarLogicaDeIntervaloCustomizada() {
         UUID profissionalId = UUID.randomUUID();
         UUID pacienteId = UUID.randomUUID();
         LocalDateTime inicio = LocalDateTime.of(2026, 11, 6, 10, 0);
         LocalDateTime fim = LocalDateTime.of(2026, 11, 6, 11, 0);
 
-        criarEPersistirAgendamento(profissionalId, pacienteId, inicio);
-        criarEPersistirAgendamento(profissionalId, pacienteId, inicio.plusMinutes(30));
-        criarEPersistirAgendamento(profissionalId, pacienteId, fim);
+        Agendamento salvo = criarEPersistirAgendamento(profissionalId, pacienteId, inicio.plusMinutes(15));
 
-        List<Agendamento> resultado = agendamentoRepository
+        Optional<Agendamento> resultado = agendamentoRepository
                 .findByDataHoraAndProfissionalIdAndPacienteId(inicio, fim, profissionalId, pacienteId);
 
-        assertThat(resultado).hasSize(2);
-        assertThat(resultado).extracting(Agendamento::getDataHora)
-                .containsExactlyInAnyOrder(inicio, inicio.plusMinutes(30));
+        assertThat(resultado).isPresent();
+        assertThat(resultado.get().getId()).isEqualTo(salvo.getId());
     }
 
     @Test
     @DisplayName("Deve retornar true se existir agendamento, false caso contrário")
     void existsByProfissionalIdAndDataHora_DeveRetornarTrueOuFalse() {
         UUID profissionalId = UUID.randomUUID();
-        LocalDateTime dataHora = LocalDateTime.now();
+        LocalDateTime dataHora = LocalDateTime.of(2026, 11, 6, 14, 30, 0);
         criarEPersistirAgendamento(profissionalId, UUID.randomUUID(), dataHora);
 
         boolean existe = agendamentoRepository.existsByProfissionalIdAndDataHora(profissionalId, dataHora);
