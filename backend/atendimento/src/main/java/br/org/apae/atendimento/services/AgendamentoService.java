@@ -157,6 +157,13 @@ public class AgendamentoService {
         ));
     }
 
+    public Agendamento buscarPorIdEProfissional(UUID agendamentoId, UUID profissionalId) {
+        return repository.findByIdAndProfissionalId(agendamentoId, profissionalId)
+                .orElseThrow(() -> new AgendamentoNotFoundException(
+                        "O agendamento nao existe ou nao pertence ao profissional autenticado."
+                ));
+    }
+
     @Transactional
     public Page<DiaAgendamentoResponseDTO> listarAgrupadoPorDia(
             UUID profissionalId,
