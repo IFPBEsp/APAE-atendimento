@@ -26,6 +26,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -129,8 +131,8 @@ class ProfissionalSaudeControllerTest {
                 LocalDate.of(2015, 5, 10),
                 "Rua de Teste, 123",
                 "83988888888",
-                Set.of(),
-                Set.of(),
+                Set.of("Maria Souza", "João Souza"),
+                Set.of("TEA", "TDAH"),
                 "12345678901",
                 "https://teste.com/foto"
         );
@@ -145,6 +147,16 @@ class ProfissionalSaudeControllerTest {
                 .andExpect(jsonPath("$.length()").value(1))
                 .andExpect(jsonPath("$[0].id").value(pacienteId.toString()))
                 .andExpect(jsonPath("$[0].nomeCompleto").value("Paciente Teste"))
+                .andExpect(jsonPath("$[0].dataDeNascimento").value("2015-05-10"))
+                .andExpect(jsonPath("$[0].endereco").value("Rua de Teste, 123"))
+                .andExpect(jsonPath("$[0].contato").value("83988888888"))
+                .andExpect(jsonPath("$[0].responsaveis", hasSize(2)))
+                .andExpect(jsonPath("$[0].responsaveis",
+                        containsInAnyOrder("Maria Souza", "João Souza")))
+                .andExpect(jsonPath("$[0].transtornos", hasSize(2)))
+                .andExpect(jsonPath("$[0].transtornos",
+                        containsInAnyOrder("TEA", "TDAH")))
+                .andExpect(jsonPath("$[0].cpf").value("12345678901"))
                 .andExpect(jsonPath("$[0].fotoPreAssinada")
                         .value("https://teste.com/foto"));
 
