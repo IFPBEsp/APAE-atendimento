@@ -139,6 +139,25 @@ class JwtAuthenticationFilterTest {
     }
 
     @Test
+    @DisplayName("Deve continuar a cadeia quando houver cookies, mas nenhum chamado token")
+    void deveContinuarQuandoHouverCookiesSemOCookieToken()
+            throws ServletException, IOException {
+        MockHttpServletRequest request = protectedRequest();
+        request.setCookies(
+                new jakarta.servlet.http.Cookie("preferencia", "escuro"),
+                new jakarta.servlet.http.Cookie("idioma", "pt-BR"));
+        MockHttpServletResponse response = response();
+        MockFilterChain chain = new MockFilterChain();
+
+        filter.doFilter(request, response, chain);
+
+        assertSame(request, chain.getRequest());
+        assertEquals(200, response.getStatus());
+        assertNull(SecurityContextHolder.getContext().getAuthentication());
+        verifyNoInteractions(jwtService, tokenBlocklistService);
+    }
+
+    @Test
     @DisplayName("Deve continuar a cadeia quando o cookie token estiver vazio")
     void deveContinuarQuandoCookieTokenEstiverVazio()
             throws ServletException, IOException {
@@ -184,11 +203,14 @@ class JwtAuthenticationFilterTest {
 
         when(jwtService.tokenValido(TOKEN)).thenReturn(true);
         when(jwtService.extrairJti(TOKEN)).thenReturn(null);
+        MockFilterChain chain = new MockFilterChain();
 
-        filter.doFilter(request, response, new MockFilterChain());
+        filter.doFilter(request, response, chain);
 
         assertEquals(401, response.getStatus());
         assertEquals("Token inválido", response.getErrorMessage());
+        assertNull(chain.getRequest());
+        assertNull(SecurityContextHolder.getContext().getAuthentication());
         verify(tokenBlocklistService, never()).estaRevogado(null);
     }
 
@@ -202,10 +224,14 @@ class JwtAuthenticationFilterTest {
 
         when(jwtService.tokenValido(TOKEN)).thenReturn(true);
         when(jwtService.extrairJti(TOKEN)).thenReturn(" ");
+        MockFilterChain chain = new MockFilterChain();
 
-        filter.doFilter(request, response, new MockFilterChain());
+        filter.doFilter(request, response, chain);
 
         assertEquals(401, response.getStatus());
+        assertEquals("Token inválido", response.getErrorMessage());
+        assertNull(chain.getRequest());
+        assertNull(SecurityContextHolder.getContext().getAuthentication());
         verify(tokenBlocklistService, never()).estaRevogado(" ");
     }
 
@@ -220,11 +246,14 @@ class JwtAuthenticationFilterTest {
         when(jwtService.tokenValido(TOKEN)).thenReturn(true);
         when(jwtService.extrairJti(TOKEN)).thenReturn(JTI);
         when(tokenBlocklistService.estaRevogado(JTI)).thenReturn(true);
+        MockFilterChain chain = new MockFilterChain();
 
-        filter.doFilter(request, response, new MockFilterChain());
+        filter.doFilter(request, response, chain);
 
         assertEquals(401, response.getStatus());
         assertEquals("Token inválido", response.getErrorMessage());
+        assertNull(chain.getRequest());
+        assertNull(SecurityContextHolder.getContext().getAuthentication());
         verify(jwtService, never()).extrairSubject(TOKEN);
     }
 
@@ -240,11 +269,13 @@ class JwtAuthenticationFilterTest {
         when(jwtService.extrairJti(TOKEN)).thenReturn(JTI);
         when(tokenBlocklistService.estaRevogado(JTI)).thenReturn(false);
         when(jwtService.extrairSubject(TOKEN)).thenReturn("uuid-invalido");
+        MockFilterChain chain = new MockFilterChain();
 
-        filter.doFilter(request, response, new MockFilterChain());
+        filter.doFilter(request, response, chain);
 
         assertEquals(401, response.getStatus());
         assertEquals("Token inválido", response.getErrorMessage());
+        assertNull(chain.getRequest());
         assertNull(SecurityContextHolder.getContext().getAuthentication());
     }
 
@@ -258,11 +289,13 @@ class JwtAuthenticationFilterTest {
 
         when(jwtService.tokenValido(TOKEN))
                 .thenThrow(new MalformedJwtException("Token malformado"));
+        MockFilterChain chain = new MockFilterChain();
 
-        filter.doFilter(request, response, new MockFilterChain());
+        filter.doFilter(request, response, chain);
 
         assertEquals(401, response.getStatus());
         assertEquals("Token inválido", response.getErrorMessage());
+        assertNull(chain.getRequest());
         assertNull(SecurityContextHolder.getContext().getAuthentication());
     }
 
