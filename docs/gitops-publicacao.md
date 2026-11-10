@@ -43,3 +43,24 @@ git diff --check
 Checks de PR nao comprovam publicacao no GHCR. O aceite da #106 exige uma
 execucao real na `main` e evidencias de notificacao, homologacao, promocao
 sem rebuild e rollback.
+
+## Imagem MinIO dos testes de integracao
+
+O teste `MinioStorageIntegrationTest` compila uma imagem exclusiva de teste a
+partir do repositorio oficial `minio/minio`, no commit
+`9e49d5e7a648f00e26f2246f4dc28e6b07f8c84a`
+(`RELEASE.2025-10-15T17-29-55Z`). A imagem oficial de Go tambem esta fixada
+por digest no Dockerfile de teste em `src/test/resources/minio-test.Dockerfile`.
+Isso evita depender das imagens publicas de MinIO que deixaram de estar
+acessiveis nos registros consultados. Nao se trata de uma imagem de producao.
+
+O Testcontainers compila uma vez e utiliza o mesmo binario nas duas instancias
+que compartilham um volume temporario. O teste continua verificando criacao
+do bucket, gravacao e leitura do arquivo depois de recriar o container.
+A primeira execucao precisa de acesso ao Docker Hub e ao proxy/checksum
+publico de modulos Go; as seguintes podem reutilizar o cache do Docker.
+
+```bash
+cd backend/atendimento
+bash ./mvnw --batch-mode --no-transfer-progress verify
+```
