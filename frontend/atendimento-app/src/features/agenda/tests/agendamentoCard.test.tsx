@@ -54,12 +54,12 @@ describe("AgendamentoCard - botão Concluir Atendimento", () => {
     expect(screen.getByText(/Atendimento Concluído/i)).toBeInTheDocument();
   });
 
-  it("desabilita o botão e não navega para agendamentos externos (Sistema Geral)", () => {
+  it("oculta o botão de concluir para agendamentos externos (Sistema Geral)", () => {
     renderCard({ externo: true });
 
-    const botao = screen.getByRole("button", { name: /Concluir Atendimento/i });
-    expect(botao).toBeDisabled();
-    fireEvent.click(botao);
+    expect(
+      screen.queryByRole("button", { name: /Concluir Atendimento/i }),
+    ).not.toBeInTheDocument();
     expect(mockPush).not.toHaveBeenCalled();
   });
 });
