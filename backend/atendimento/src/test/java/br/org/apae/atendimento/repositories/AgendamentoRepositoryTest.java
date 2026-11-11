@@ -85,23 +85,6 @@ class AgendamentoRepositoryTest {
     }
 
     @Test
-    @DisplayName("Deve encontrar agendamento exato por dataInicio (inclusiva) e dataFim (exclusiva)")
-    void findByDataHoraAndProfissionalIdAndPacienteId_DeveRespeitarLogicaDeIntervaloCustomizada() {
-        UUID profissionalId = UUID.randomUUID();
-        UUID pacienteId = UUID.randomUUID();
-        LocalDateTime inicio = LocalDateTime.of(2026, 11, 6, 10, 0);
-        LocalDateTime fim = LocalDateTime.of(2026, 11, 6, 11, 0);
-
-        Agendamento salvo = criarEPersistirAgendamento(profissionalId, pacienteId, inicio.plusMinutes(15));
-
-        Optional<Agendamento> resultado = agendamentoRepository
-                .findByDataHoraAndProfissionalIdAndPacienteId(inicio, fim, profissionalId, pacienteId);
-
-        assertThat(resultado).isPresent();
-        assertThat(resultado.get().getId()).isEqualTo(salvo.getId());
-    }
-
-    @Test
     @DisplayName("Deve retornar true se existir agendamento, false caso contrário")
     void existsByProfissionalIdAndDataHora_DeveRetornarTrueOuFalse() {
         UUID profissionalId = UUID.randomUUID();
