@@ -23,6 +23,7 @@ function renderCard(props: Partial<React.ComponentProps<typeof AgendamentoCard>>
       id={AGENDAMENTO_ID}
       pacienteId={PACIENTE_ID}
       paciente="Paciente Ficticio Um"
+      data="10-05-2026"
       horario="09:00"
       numeroAtendimento="1"
       status={false}
@@ -35,13 +36,13 @@ function renderCard(props: Partial<React.ComponentProps<typeof AgendamentoCard>>
 describe("AgendamentoCard - botão Concluir Atendimento", () => {
   beforeEach(() => jest.clearAllMocks());
 
-  it("redireciona para o prontuário com agendamentoId na query, sem chamar a API", () => {
+  it("redireciona para o prontuário com agendamentoId, data, hora e paciente na query, sem chamar a API", () => {
     renderCard();
 
     fireEvent.click(screen.getByRole("button", { name: /Concluir Atendimento/i }));
 
     expect(mockPush).toHaveBeenCalledWith(
-      `/atendimento/${PACIENTE_ID}?agendamentoId=${AGENDAMENTO_ID}`,
+      `/atendimento/${PACIENTE_ID}?agendamentoId=${AGENDAMENTO_ID}&data=10-05-2026&hora=09%3A00&paciente=Paciente+Ficticio+Um`,
     );
     expect(api.patch).not.toHaveBeenCalled();
     expect(api.post).not.toHaveBeenCalled();
