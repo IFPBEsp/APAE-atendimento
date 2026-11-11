@@ -18,6 +18,8 @@ interface AtendimentoFormProps {
   pacienteId?: string;
   pacienteNome?: string;
   agendamentoId?: string;
+  dataInicial?: string;
+  horaInicial?: string;
 }
 
 interface LinhaAtendimento {
@@ -28,18 +30,41 @@ interface LinhaAtendimento {
   isEditing: boolean;
 }
 
+function normalizarDataParaISO(valor?: string): string {
+  if (!valor) return "";
+  const limpo = valor.replace(/\//g, "-");
+  if (/^\d{4}-\d{2}-\d{2}$/.test(limpo)) return limpo;
+  if (/^\d{2}-\d{2}-\d{4}$/.test(limpo)) return brParaISO(limpo);
+  return limpo;
+}
+
 export default function AtendimentoForm({
   atendimentos = [],
   atendimentoEditavel,
   onClose,
   pacienteId: pacienteIdProp,
-  pacienteNome = "Nome não informado",
+  pacienteNome: pacienteNomeProp,
   agendamentoId: agendamentoIdProp,
+  dataInicial: dataInicialProp,
+  horaInicial: horaInicialProp,
 }: AtendimentoFormProps) {
   const params = useParams();
   const searchParams = useSearchParams();
   const agendamentoId =
     agendamentoIdProp ?? searchParams?.get("agendamentoId") ?? undefined;
+  const dataAgendamentoISO = normalizarDataParaISO(
+    dataInicialProp ?? searchParams?.get("data") ?? undefined,
+  );
+  const horaAgendamento = (
+    horaInicialProp ??
+    searchParams?.get("hora") ??
+    searchParams?.get("horario") ??
+    ""
+  ).slice(0, 5);
+  const pacienteNome =
+    pacienteNomeProp ||
+    searchParams?.get("paciente") ||
+    "Nome não informado";
   const pacienteId = pacienteIdProp ?? (typeof params?.id === "string" ? params.id : "");
   const queryClient = useQueryClient();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -67,8 +92,8 @@ export default function AtendimentoForm({
       {
         id: crypto.randomUUID(),
         condicao: "",
-        data: "",
-        hora: "",
+        data: dataAgendamentoISO,
+        hora: horaAgendamento,
         isEditing: true,
       },
     ];
