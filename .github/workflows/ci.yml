@@ -13,5 +13,5 @@ jobs:
     uses: IFPBEsp/APAE-INFRA/.github/workflows/frontend-ci.yml@67-ci-criar-workflow-reutilizavel-de-ci-para-frontends-nodejs
     with:
       working-directory: 'frontend/atendimento-app'
-      typecheck-command: ''
-      run-tests: false
+      run-tests: true
+      run-build: true
