@@ -1,28 +1,35 @@
+"use client";
+
+import { useRouter } from "next/navigation";
 import { Trash2, Check, Lock, User, Pencil, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface AgendamentoCardProps {
   id: string;
+  pacienteId: string;
   paciente: string;
+  data?: string;
   horario: string;
   numeroAtendimento: string;
   status: boolean;
   externo: boolean;
   onDeleteClick?: () => void;
-  onConcluirClick?: () => void;
   onEditClick?: () => void;
 }
 
 export default function AgendamentoCard({
+  id,
+  pacienteId,
   paciente,
+  data,
   horario,
   numeroAtendimento,
   status,
   externo,
   onDeleteClick,
-  onConcluirClick,
   onEditClick,
 }: AgendamentoCardProps) {
+  const router = useRouter();
   const showActions = !externo && !status;
   const showCompleted = status;
   const hasFooter = showActions || showCompleted;
@@ -107,8 +114,20 @@ export default function AgendamentoCard({
           ) : (
             <div className="flex items-center justify-between w-full">
               <Button
-                onClick={onConcluirClick}
-                className="bg-white border border-[#165BAA] text-[#165BAA] hover:bg-[#165BAA] hover:text-white h-9 px-4 rounded-[10px] text-[12px] font-semibold shadow-none transition-colors"
+                onClick={() => {
+                  if (externo || status || !pacienteId) return;
+                  const query = new URLSearchParams({
+                    agendamentoId: id,
+                  });
+                  if (data) query.set("data", data);
+                  if (horario) query.set("hora", horario);
+                  if (paciente) query.set("paciente", paciente);
+                  router.push(
+                    `/atendimento/${encodeURIComponent(pacienteId)}?${query.toString()}`,
+                  );
+                }}
+                disabled={!pacienteId}
+                className="bg-white border border-[#165BAA] text-[#165BAA] hover:bg-[#165BAA] hover:text-white h-9 px-4 rounded-[10px] text-[12px] font-semibold shadow-none transition-colors disabled:opacity-50"
               >
                 Concluir Atendimento
               </Button>
