@@ -19,6 +19,9 @@ export default function AtendimentoPage() {
   const params = useParams();
   const searchParams = useSearchParams();
   const agendamentoId = searchParams?.get("agendamentoId") ?? undefined;
+  const dataAgendamento = searchParams?.get("data") ?? undefined;
+  const horaAgendamento = searchParams?.get("hora") ?? undefined;
+  const pacienteAgendamento = searchParams?.get("paciente") ?? undefined;
   const pacienteId = typeof params.id === "string" ? params.id : "";
 
   const {
@@ -149,9 +152,11 @@ export default function AtendimentoPage() {
         <AtendimentoModal open={open} onOpenChange={handleModalOpenChange}>
           <AtendimentoForm
             atendimentos={atendimentos}
-            pacienteNome={paciente?.nomeCompleto}
+            pacienteNome={paciente?.nomeCompleto ?? pacienteAgendamento}
             pacienteId={pacienteId}
             agendamentoId={agendamentoId}
+            dataInicial={dataAgendamento}
+            horaInicial={horaAgendamento}
             onClose={handleFormSuccess}
           />
         </AtendimentoModal>
