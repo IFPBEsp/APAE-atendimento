@@ -8,6 +8,7 @@ interface AgendamentoCardProps {
   id: string;
   pacienteId: string;
   paciente: string;
+  data?: string;
   horario: string;
   numeroAtendimento: string;
   status: boolean;
@@ -20,6 +21,7 @@ export default function AgendamentoCard({
   id,
   pacienteId,
   paciente,
+  data,
   horario,
   numeroAtendimento,
   status,
@@ -114,8 +116,14 @@ export default function AgendamentoCard({
               <Button
                 onClick={() => {
                   if (externo || status || !pacienteId) return;
+                  const query = new URLSearchParams({
+                    agendamentoId: id,
+                  });
+                  if (data) query.set("data", data);
+                  if (horario) query.set("hora", horario);
+                  if (paciente) query.set("paciente", paciente);
                   router.push(
-                    `/atendimento/${encodeURIComponent(pacienteId)}?agendamentoId=${encodeURIComponent(id)}`,
+                    `/atendimento/${encodeURIComponent(pacienteId)}?${query.toString()}`,
                   );
                 }}
                 disabled={!pacienteId}
