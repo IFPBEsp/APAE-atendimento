@@ -220,6 +220,7 @@ const pagination = agendamentosData?.pagination;
                   pacienteId={item.pacienteId}
                   key={item.id}
                   paciente={item.paciente}
+                  data={item.data}
                   horario={item.horario}
                   numeroAtendimento={item.numeracao}
                   status={item.status}
