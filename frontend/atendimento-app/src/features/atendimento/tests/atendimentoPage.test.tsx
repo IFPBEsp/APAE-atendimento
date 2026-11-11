@@ -239,12 +239,14 @@ describe("AtendimentoPage - Estados de erro, vazio e nova tentativa", () => {
     expect(mockedCriarAtendimento).not.toHaveBeenCalled();
   });
 
-  it("deve capturar agendamentoId via useSearchParams no AtendimentoForm e envia-lo no payload ao salvar", async () => {
-    mockSearchParams = new URLSearchParams("agendamentoId=agendamento-123");
+  it("deve preencher paciente, data e hora do agendamento no AtendimentoForm e manter o agendamentoId mesmo ao ajustar data ou hora", async () => {
+    mockSearchParams = new URLSearchParams(
+      "agendamentoId=agendamento-123&data=10-05-2026&hora=09:00&paciente=Paciente+Ficticio+Um",
+    );
     mockedCriarAtendimento.mockResolvedValueOnce({
       id: "atendimento-1",
-      data: "10/05/2026",
-      hora: "09:00",
+      data: "12/05/2026",
+      hora: "14:30",
       numeracao: "1",
       status: true,
       relatorio: [{ titulo: "Paciente estavel", descricao: "Paciente estavel" }],
@@ -255,23 +257,31 @@ describe("AtendimentoPage - Estados de erro, vazio e nova tentativa", () => {
     const { container } = renderWithQueryClient(
       <AtendimentoForm
         pacienteId="a4000000-0000-4000-8000-000000000001"
-        pacienteNome="Paciente Ficticio Um"
         onClose={onClose}
       />,
     );
+
+    const pacienteInput = screen.getByTitle(
+      "Nome do paciente",
+    ) as HTMLInputElement;
+    const dateInput = container.querySelector(
+      'input[type="date"]',
+    ) as HTMLInputElement;
+    const timeInput = container.querySelector(
+      'input[type="time"]',
+    ) as HTMLInputElement;
+
+    expect(pacienteInput.value).toBe("Paciente Ficticio Um");
+    expect(dateInput.value).toBe("2026-05-10");
+    expect(timeInput.value).toBe("09:00");
 
     const condicaoInput = screen.getByPlaceholderText("campo vazio");
     fireEvent.change(condicaoInput, {
       target: { value: "Paciente estavel" },
     });
 
-    const dateInput = container.querySelector('input[type="date"]');
-    const timeInput = container.querySelector('input[type="time"]');
-    expect(dateInput).not.toBeNull();
-    expect(timeInput).not.toBeNull();
-
-    fireEvent.change(dateInput!, { target: { value: "2026-05-10" } });
-    fireEvent.change(timeInput!, { target: { value: "09:00" } });
+    fireEvent.change(dateInput, { target: { value: "2026-05-12" } });
+    fireEvent.change(timeInput, { target: { value: "14:30" } });
 
     const botaoSalvar = screen.getByRole("button", {
       name: /Salvar atendimento/i,
@@ -282,8 +292,8 @@ describe("AtendimentoPage - Estados de erro, vazio e nova tentativa", () => {
       expect(mockedCriarAtendimento).toHaveBeenCalledWith({
         pacienteId: "a4000000-0000-4000-8000-000000000001",
         agendamentoId: "agendamento-123",
-        data: "10-05-2026",
-        hora: "09:00",
+        data: "12-05-2026",
+        hora: "14:30",
         numeracao: "1",
         relatorio: [
           {
