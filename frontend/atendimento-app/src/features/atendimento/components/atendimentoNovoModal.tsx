@@ -30,10 +30,7 @@ export function AtendimentoModal({
         className={`sm:max-w-[950px] w-[95vw] rounded-[28px] max-h-[90vh] overflow-y-auto p-8 ${nunitoFont.className}`}
       >
         <div className="relative">
-          <DialogClose
-            aria-label="Fechar"
-            className="absolute right-0 top-0 text-gray-500 hover:text-black transition-colors outline-none cursor-pointer"
-          >
+          <DialogClose className="absolute right-0 top-0 text-gray-500 hover:text-black transition-colors outline-none cursor-pointer">
             <X className="h-6 w-6" />
           </DialogClose>
 

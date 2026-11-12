@@ -34,7 +34,7 @@ export function MeusDadosModal({ trigger }: MeusDadosModalProps) {
     try {
       await logoutRequest();
     } finally {
-      window.location.href = "/atendimento/login";
+      window.location.href = "/login";
     }
   };
 

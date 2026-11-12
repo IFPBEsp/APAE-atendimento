@@ -36,9 +36,6 @@ public class Atendimento {
     @Column(name = "profissional_id", nullable = false)
     private UUID profissionalId;
 
-    @Column(name = "agendamento_id")
-    private UUID agendamentoId;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "paciente_id", insertable = false, updatable = false)
     private Paciente paciente;

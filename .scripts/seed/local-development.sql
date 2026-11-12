@@ -100,35 +100,28 @@ VALUES
     )
 ON CONFLICT DO NOTHING;
 
-WITH atendimento_inserido AS (
-    INSERT INTO atendimento.atendimento
-        (id, numeracao, data_atendimento, paciente_id, profissional_id, status)
-    VALUES
-        (
-            'a9000000-0000-4000-8000-000000000001',
-            'AT-LOCAL-001',
-            CURRENT_TIMESTAMP - INTERVAL '1 day',
-            'a4000000-0000-4000-8000-000000000001',
-            'a3000000-0000-4000-8000-000000000001',
-            TRUE
-        )
-    ON CONFLICT DO NOTHING
-    RETURNING id
-)
-INSERT INTO atendimento.topico (id, atendimento_id, ordem, titulo, descricao)
-SELECT
-    'aa000000-0000-4000-8000-000000000001'::uuid,
-    id,
-    0,
-    'Evolucao ficticia',
-    'Registro criado exclusivamente para desenvolvimento local.'
-FROM atendimento_inserido
+INSERT INTO atendimento.atendimento
+    (id, numeracao, data_atendimento, paciente_id, profissional_id, status)
+VALUES
+    (
+        'a9000000-0000-4000-8000-000000000001',
+        'AT-LOCAL-001',
+        CURRENT_TIMESTAMP - INTERVAL '1 day',
+        'a4000000-0000-4000-8000-000000000001',
+        'a3000000-0000-4000-8000-000000000001',
+        TRUE
+    )
 ON CONFLICT DO NOTHING;
 
-UPDATE atendimento.topico
-SET ordem = 0
-WHERE id = 'aa000000-0000-4000-8000-000000000001'
-  AND atendimento_id = 'a9000000-0000-4000-8000-000000000001'
-  AND ordem = 1;
+INSERT INTO atendimento.topico (id, atendimento_id, ordem, titulo, descricao)
+VALUES
+    (
+        'aa000000-0000-4000-8000-000000000001',
+        'a9000000-0000-4000-8000-000000000001',
+        1,
+        'Evolucao ficticia',
+        'Registro criado exclusivamente para desenvolvimento local.'
+    )
+ON CONFLICT DO NOTHING;
 
 COMMIT;

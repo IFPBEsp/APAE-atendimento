@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -74,5 +75,14 @@ public class AgendamentoController implements AgendamentoControllerDocs {
                                                      @AuthenticationPrincipal UsuarioAutenticado usuarioAutenticado){
         service.deletar(usuarioAutenticado.getId(), pacienteId, agendamentoId);
         return ResponseEntity.ok().body("Agendamento excluído");
+    }
+
+    @Override
+    @PatchMapping("/{pacienteId}/{agendamentoId}/concluir")
+    public ResponseEntity<String> concluirAgendamento(@PathVariable UUID pacienteId,
+                                                     @PathVariable UUID agendamentoId,
+                                                     @AuthenticationPrincipal UsuarioAutenticado usuarioAutenticado) {
+        service.concluir(usuarioAutenticado.getId(), pacienteId, agendamentoId);
+        return ResponseEntity.ok().body("Agendamento concluído");
     }
 }

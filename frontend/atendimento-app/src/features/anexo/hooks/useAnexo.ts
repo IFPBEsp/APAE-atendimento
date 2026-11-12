@@ -20,7 +20,6 @@ import type { ArquivoPagination } from "@/features/arquivo/types";
 import { validarTipoArquivo } from "@/services/validarTipoArquivo";
 import { validarTamanhoArquivo } from "@/services/validarTamanhoArquivo";
 import { construirArquivoFormData } from "@/services/construirArquivoFormData";
-import { validarDataISO } from "@/features/relatorio/utils/sanitizeRelatorio";
 
 import type { Anexo } from "../types";
 
@@ -103,7 +102,6 @@ export function useAnexos(pacienteId: string) {
   const handleEnviarAnexo = (formData: AnexoEnvioFormData) => {
     try {
       if (!formData.data) throw new Error("Data obrigatória");
-      validarDataISO(formData.data);
       if (!formData.titulo?.trim()) throw new Error("Título obrigatório");
       if (!formData.arquivo?.length) throw new Error("Arquivo obrigatório");
       

@@ -23,7 +23,6 @@ import {
   validarTexto,
   validarDataISO,
   validarArquivo,
-  obterDataHojeISO,
 } from "@/features/relatorio/utils/sanitizeRelatorio";
 import { toast } from "sonner";
 
@@ -42,8 +41,6 @@ export default function RelatorioForm({
   dadosPdf,
   carregandoPdf,
 }: RelatorioFormProps) {
-  const hoje = obterDataHojeISO();
-
   const {
     register,
     handleSubmit,
@@ -54,7 +51,7 @@ export default function RelatorioForm({
     clearErrors,
   } = useForm<RelatorioEnvioFormData>({
     defaultValues: {
-      data: hoje,
+      data: new Date().toISOString().split("T")[0],
       titulo: "",
       descricao: "",
     },
@@ -187,7 +184,6 @@ export default function RelatorioForm({
 
   return (
     <form
-      noValidate
       onSubmit={handleSubmit(onSubmitLocal)}
       className="grid gap-6 pt-5 text-[#344054]"
     >
@@ -199,7 +195,6 @@ export default function RelatorioForm({
         <Input
           id="dataInput"
           type="date"
-          max={hoje}
           className="rounded-[30px] border-[#B2D7EC] focus-visible:ring-0 focus-visible:border-[#B2D7EC]"
           {...register("data")}
         />

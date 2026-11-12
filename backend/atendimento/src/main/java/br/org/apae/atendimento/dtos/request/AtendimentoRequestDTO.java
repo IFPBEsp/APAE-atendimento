@@ -22,7 +22,5 @@ public record AtendimentoRequestDTO(
         LocalDate data,
 
         @NotNull(message = "A hora do atendimento é obrigatória")
-        LocalTime hora,
-
-        UUID agendamentoId) {
+        LocalTime hora) {
 }

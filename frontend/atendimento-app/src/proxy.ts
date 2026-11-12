@@ -21,7 +21,7 @@ export function proxy(request: NextRequest) {
   );
 
   if (isPrivateRoute && !token) {
-    return NextResponse.redirect(new URL("/atendimento/login", request.url));
+    return NextResponse.redirect(new URL("/login", request.url));
   }
 
   return NextResponse.next();

@@ -14,7 +14,6 @@ import {
   validarTexto,
   validarDataISO,
   validarArquivo,
-  obterDataHojeISO,
 } from "@/features/relatorio/utils/sanitizeRelatorio";
 import { renderizarFormatoArquivo } from "@/utils/renderizarFormatoArquivo";
 
@@ -40,12 +39,10 @@ interface AnexoFormProps {
 }
 
 export default function AnexoForm({ onSubmit }: AnexoFormProps) {
-  const hoje = obterDataHojeISO();
-
   const { register, handleSubmit, watch, setValue } =
     useForm<AnexoEnvioFormData>({
       defaultValues: {
-        data: hoje,
+        data: new Date().toISOString().split("T")[0],
         titulo: "",
         descricao: "",
       },
@@ -137,7 +134,6 @@ export default function AnexoForm({ onSubmit }: AnexoFormProps) {
 
   return (
     <form
-      noValidate
       onSubmit={handleSubmit(onSubmitLocal)}
       className="grid gap-6 pt-5 text-[#344054]"
     >
@@ -150,7 +146,6 @@ export default function AnexoForm({ onSubmit }: AnexoFormProps) {
         <Input
           id="dataInput"
           type="date"
-          max={hoje}
           className="rounded-[30px] border-[#B2D7EC] focus-visible:ring-0 focus-visible:border-[#B2D7EC]"
           {...register("data")}
         />

@@ -7,7 +7,6 @@ import { Eye, EyeOff, Lock, Save } from "lucide-react";
 import { Nunito, Baloo_2 } from "next/font/google";
 import { isAxiosError } from "axios";
 
-import apaeLogo from "../../../../../public/APAE-logo.svg";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -116,7 +115,7 @@ export default function RedefinirSenhaPage() {
       <header className="w-full border-b bg-[#F8FAFD] shadow-sm">
         <div className="flex items-center gap-3 px-6 py-3">
           <Image
-            src={apaeLogo}
+            src="/APAE-logo.svg"
             alt="Logo APAE"
             width={40}
             height={40}

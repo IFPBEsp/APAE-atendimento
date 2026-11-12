@@ -41,12 +41,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String path = (contextPath != null && !contextPath.isEmpty() && uri.startsWith(contextPath))
                 ? uri.substring(contextPath.length())
                 : uri;
-                
-        
-        if (path.startsWith("/atendimento")) {
-            path = path.substring("/atendimento".length());
-        }
-
         return HttpMethod.OPTIONS.matches(request.getMethod())
                 || "/auth/login".equals(path)
                 || "/auth/logout".equals(path)

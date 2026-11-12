@@ -1,39 +1,28 @@
-"use client";
-
-import { useRouter } from "next/navigation";
 import { Trash2, Check, Lock, User, Pencil, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface AgendamentoCardProps {
   id: string;
-  pacienteId: string;
   paciente: string;
-  data?: string;
   horario: string;
   numeroAtendimento: string;
   status: boolean;
   externo: boolean;
   onDeleteClick?: () => void;
+  onConcluirClick?: () => void;
   onEditClick?: () => void;
 }
 
 export default function AgendamentoCard({
-  id,
-  pacienteId,
   paciente,
-  data,
   horario,
   numeroAtendimento,
   status,
   externo,
   onDeleteClick,
+  onConcluirClick,
   onEditClick,
 }: AgendamentoCardProps) {
-  const router = useRouter();
-  const showActions = !externo && !status;
-  const showCompleted = status;
-  const hasFooter = showActions || showCompleted;
-
   return (
     <div
       className={`group bg-white border ${
@@ -68,11 +57,8 @@ export default function AgendamentoCard({
         )}
       </div>
 
-      <div
-        className={`flex justify-between items-center border border-gray-200 rounded-[12px] px-3 py-2.5 ${
-          hasFooter ? "my-3.5" : "mt-3.5"
-        } bg-white`}
-      >
+      <div className="flex justify-between items-center border border-gray-200 rounded-[12px] px-3 py-2.5 my-3.5 bg-white">
+        
         <div className="flex items-center gap-3 pl-1">
           <Clock className="text-[#165BAA]" size={18} />
           <div className="flex flex-col">
@@ -101,37 +87,33 @@ export default function AgendamentoCard({
         )}
       </div>
 
-      {hasFooter && (
-        <div className="flex items-center justify-between mt-auto">
-          {showCompleted ? (
-            <Button
-              disabled
-              className="text-white w-full h-9 rounded-[10px] text-[13px] font-semibold shadow-none disabled:opacity-100 disabled:bg-[#7fe4a9]"
-            >
-              <Check size={16} className="mr-2" strokeWidth={3} />
-              Atendimento Concluído
-            </Button>
-          ) : (
-            <div className="flex items-center justify-between w-full">
-              <Button
-                onClick={() => {
-                  if (externo || status || !pacienteId) return;
-                  const query = new URLSearchParams({
-                    agendamentoId: id,
-                  });
-                  if (data) query.set("data", data);
-                  if (horario) query.set("hora", horario);
-                  if (paciente) query.set("paciente", paciente);
-                  router.push(
-                    `/atendimento/${encodeURIComponent(pacienteId)}?${query.toString()}`,
-                  );
-                }}
-                disabled={!pacienteId}
-                className="bg-white border border-[#165BAA] text-[#165BAA] hover:bg-[#165BAA] hover:text-white h-9 px-4 rounded-[10px] text-[12px] font-semibold shadow-none transition-colors disabled:opacity-50"
-              >
-                Concluir Atendimento
-              </Button>
+      <div className="flex items-center justify-between mt-auto">
+        
+        {status ? (
+          <Button
+            disabled
+            className="text-white w-full h-9 rounded-[10px] text-[13px] font-semibold shadow-none disabled:opacity-100 disabled:bg-[#7fe4a9]"
+          >
+            <Check size={16} className="mr-2" strokeWidth={3} />
+            Atendimento Concluído
+          </Button>
+        ) : (
 
+          <div className="flex items-center justify-between w-full">
+            
+            <Button
+              onClick={() => {
+                if (!externo && !status) {
+                  onConcluirClick?.();
+                }
+              }}
+              disabled={externo}
+              className="bg-white border border-[#165BAA] text-[#165BAA] hover:bg-[#165BAA] hover:text-white h-9 px-4 rounded-[10px] text-[12px] font-semibold shadow-none transition-colors disabled:opacity-50"
+            >
+              Concluir Atendimento
+            </Button>
+
+            {!externo && (
               <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                 <button
                   onClick={onEditClick}
@@ -149,10 +131,11 @@ export default function AgendamentoCard({
                   <Trash2 size={15} />
                 </button>
               </div>
-            </div>
-          )}
-        </div>
-      )}
+            )}
+            
+          </div>
+        )}
+      </div>
     </div>
   );
 }

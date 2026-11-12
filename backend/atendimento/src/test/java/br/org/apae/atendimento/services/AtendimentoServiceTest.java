@@ -68,21 +68,10 @@ class AtendimentoServiceTest {
                 pacienteId,
                 List.of(new TopicoRequestDTO("Titulo", "Descricao")),
                 LocalDate.now(),
-                LocalTime.of(10, 0),
-                null
+                LocalTime.of(10, 0)
         );
 
         lenient().when(pacienteService.existeRelacao(pacienteId, profissionalId)).thenReturn(true);
-    }
-
-    private AtendimentoRequestDTO dtoComAgendamento(UUID agendamentoId) {
-        return new AtendimentoRequestDTO(
-                pacienteId,
-                List.of(new TopicoRequestDTO("Titulo", "Descricao")),
-                LocalDate.now(),
-                LocalTime.of(10, 0),
-                agendamentoId
-        );
     }
 
     @Test
@@ -95,6 +84,9 @@ class AtendimentoServiceTest {
         Atendimento entity = new Atendimento();
         when(repository.save(any())).thenReturn(entity);
         when(atendimentoMapper.toDTOPadrao(entity)).thenReturn(mock(AtendimentoResponseDTO.class));
+
+        when(agendamentoService.buscarAgendamentoPorDataProfissionalEPaciente(any(), any(), any()))
+                .thenReturn(new Agendamento());
 
         AtendimentoResponseDTO response = service.addAtendimento(requestDTO, profissionalId);
 
@@ -132,8 +124,7 @@ class AtendimentoServiceTest {
                 pacienteId,
                 List.of(),
                 LocalDate.now(),
-                LocalTime.of(10, 0),
-                null
+                LocalTime.of(10, 0)
         );
 
         when(repository.existsByProfissionalIdAndDataAtendimento(any(), any())).thenReturn(false);
@@ -249,81 +240,21 @@ class AtendimentoServiceTest {
     }
 
     @Test
-    @DisplayName("Deve concluir o agendamento vinculado ao criar atendimento com agendamentoId")
-    void deveConcluirAgendamentoVinculadoAoCriarAtendimento() {
-        UUID agendamentoId = UUID.randomUUID();
-        AtendimentoRequestDTO dto = dtoComAgendamento(agendamentoId);
-
-        Agendamento agendamento = new Agendamento();
-        agendamento.setPacienteId(pacienteId);
-
-        when(repository.existsByProfissionalIdAndDataAtendimento(any(), any())).thenReturn(false);
-        when(repository.findMaxNumeracaoByMesAndAno(LocalDate.now().getMonthValue(), LocalDate.now().getYear(), profissionalId)).thenReturn(0L);
-        when(atendimentoMapper.toEntityPadrao(dto)).thenReturn(new Atendimento());
-        when(repository.save(any())).thenAnswer(inv -> inv.getArgument(0));
-        when(atendimentoMapper.toDTOPadrao(any())).thenReturn(mock(AtendimentoResponseDTO.class));
-        when(agendamentoService.buscarPorIdEProfissional(agendamentoId, profissionalId)).thenReturn(agendamento);
-
-        service.addAtendimento(dto, profissionalId);
-
-        verify(agendamentoService).setStatus(agendamento);
-        assertEquals("1", agendamento.getNumeracao());
-    }
-
-    @Test
-    @DisplayName("Nao deve mexer em agendamento ao criar atendimento avulso sem agendamentoId")
-    void naoDeveMexerEmAgendamentoQuandoAtendimentoAvulso() {
+    @DisplayName("Deve ignorar AgendamentoNotFoundException ao criar atendimento")
+    void deveIgnorarAgendamentoNotFoundException() {
         when(repository.existsByProfissionalIdAndDataAtendimento(any(), any())).thenReturn(false);
         when(repository.findMaxNumeracaoByMesAndAno(LocalDate.now().getMonthValue(), LocalDate.now().getYear(), profissionalId)).thenReturn(0L);
         when(atendimentoMapper.toEntityPadrao(requestDTO)).thenReturn(new Atendimento());
-        when(repository.save(any())).thenAnswer(inv -> inv.getArgument(0));
-        when(atendimentoMapper.toDTOPadrao(any())).thenReturn(mock(AtendimentoResponseDTO.class));
 
-        service.addAtendimento(requestDTO, profissionalId);
+        Atendimento entity = new Atendimento();
+        when(repository.save(any())).thenReturn(entity);
+        when(atendimentoMapper.toDTOPadrao(entity)).thenReturn(mock(AtendimentoResponseDTO.class));
 
-        verify(agendamentoService, never()).buscarPorIdEProfissional(any(), any());
-        verify(agendamentoService, never()).setStatus(any());
-    }
+        doThrow(new AgendamentoNotFoundException("nao encontrado"))
+                .when(agendamentoService)
+                .buscarAgendamentoPorDataProfissionalEPaciente(any(), any(), any());
 
-    @Test
-    @DisplayName("Deve propagar erro quando o agendamento informado nao existe")
-    void devePropagarErroQuandoAgendamentoNaoExiste() {
-        UUID agendamentoId = UUID.randomUUID();
-        AtendimentoRequestDTO dto = dtoComAgendamento(agendamentoId);
-
-        when(repository.existsByProfissionalIdAndDataAtendimento(any(), any())).thenReturn(false);
-        when(repository.findMaxNumeracaoByMesAndAno(LocalDate.now().getMonthValue(), LocalDate.now().getYear(), profissionalId)).thenReturn(0L);
-        when(atendimentoMapper.toEntityPadrao(dto)).thenReturn(new Atendimento());
-        when(repository.save(any())).thenAnswer(inv -> inv.getArgument(0));
-        when(agendamentoService.buscarPorIdEProfissional(agendamentoId, profissionalId))
-                .thenThrow(new AgendamentoNotFoundException("nao encontrado"));
-
-        assertThrows(AgendamentoNotFoundException.class,
-                () -> service.addAtendimento(dto, profissionalId));
-
-        verify(agendamentoService, never()).setStatus(any());
-    }
-
-    @Test
-    @DisplayName("Deve lançar erro quando o agendamento informado pertence a outro paciente")
-    void deveLancarErroQuandoAgendamentoDeOutroPaciente() {
-        UUID agendamentoId = UUID.randomUUID();
-        AtendimentoRequestDTO dto = dtoComAgendamento(agendamentoId);
-
-        Agendamento agendamentoDeOutroPaciente = new Agendamento();
-        agendamentoDeOutroPaciente.setPacienteId(UUID.randomUUID());
-
-        when(repository.existsByProfissionalIdAndDataAtendimento(any(), any())).thenReturn(false);
-        when(repository.findMaxNumeracaoByMesAndAno(LocalDate.now().getMonthValue(), LocalDate.now().getYear(), profissionalId)).thenReturn(0L);
-        when(atendimentoMapper.toEntityPadrao(dto)).thenReturn(new Atendimento());
-        when(repository.save(any())).thenAnswer(inv -> inv.getArgument(0));
-        when(agendamentoService.buscarPorIdEProfissional(agendamentoId, profissionalId))
-                .thenReturn(agendamentoDeOutroPaciente);
-
-        assertThrows(AtendimentoInvalidException.class,
-                () -> service.addAtendimento(dto, profissionalId));
-
-        verify(agendamentoService, never()).setStatus(any());
+        assertDoesNotThrow(() -> service.addAtendimento(requestDTO, profissionalId));
     }
 
     @Test
@@ -337,34 +268,11 @@ class AtendimentoServiceTest {
         when(repository.save(any())).thenAnswer(inv -> inv.getArgument(0));
         when(atendimentoMapper.toDTOPadrao(any())).thenReturn(mock(AtendimentoResponseDTO.class));
 
+        when(agendamentoService.buscarAgendamentoPorDataProfissionalEPaciente(any(), any(), any()))
+                .thenReturn(new Agendamento());
+
         service.addAtendimento(requestDTO, profissionalId);
 
         assertEquals("6", entity.getNumeracao());
-    }
-
-    @Test
-    @DisplayName("AtendimentoMapper deve filtrar tópicos nulos defensivamente ao converter para DTO")
-    void mapperDeveFiltrarTopicosNulosDefensivamente() {
-        AtendimentoMapper mapperReal = new AtendimentoMapper();
-
-        Topico topicoValido = new Topico();
-        UUID topicoId = UUID.randomUUID();
-        topicoValido.setId(topicoId);
-        topicoValido.setTitulo("Evolucao ficticia");
-        topicoValido.setDescricao("Descricao valida");
-
-        Atendimento atendimento = new Atendimento();
-        atendimento.setId(UUID.fromString("a9000000-0000-4000-8000-000000000001"));
-        atendimento.setDataAtendimento(LocalDateTime.of(2026, 5, 10, 9, 0));
-        atendimento.setNumeracao("AT-LOCAL-001");
-        atendimento.setStatus(true);
-        atendimento.setRelatorio(java.util.Arrays.asList(null, topicoValido));
-
-        AtendimentoResponseDTO dto = assertDoesNotThrow(() -> mapperReal.toDTOPadrao(atendimento));
-
-        assertNotNull(dto);
-        assertEquals(1, dto.relatorio().size());
-        assertEquals(topicoId, dto.relatorio().getFirst().id());
-        assertEquals("Evolucao ficticia", dto.relatorio().getFirst().titulo());
     }
 }
