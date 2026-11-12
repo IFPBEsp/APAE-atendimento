@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus, Check, Pencil, Trash2, Clock, Calendar } from "lucide-react";
@@ -17,6 +17,9 @@ interface AtendimentoFormProps {
   onClose: () => void;
   pacienteId?: string;
   pacienteNome?: string;
+  agendamentoId?: string;
+  dataInicial?: string;
+  horaInicial?: string;
 }
 
 interface LinhaAtendimento {
@@ -151,47 +154,82 @@ function abrirPicker(input: HTMLInputElement | null, isEditing: boolean) {
   }
 }
 
-export default function AtendimentoForm({
-  atendimentos = [],
-  atendimentoEditavel,
-  onClose,
-  pacienteId: pacienteIdProp,
-  pacienteNome = "Nome não informado",
-}: Readonly<AtendimentoFormProps>) {
+function normalizarDataParaISO(valor?: string): string {
+  if (!valor) return "";
+  const limpo = valor.replace(/\//g, "-");
+  if (/^\d{4}-\d{2}-\d{2}$/.test(limpo)) return limpo;
+  if (/^\d{2}-\d{2}-\d{4}$/.test(limpo)) return brParaISO(limpo);
+  return limpo;
+}
+
+function resolverDadosIniciais(
+  props: Readonly<AtendimentoFormProps>,
+  params: ReturnType<typeof useParams>,
+  searchParams: ReturnType<typeof useSearchParams>
+) {
+  const agendamentoId = props.agendamentoId ?? searchParams?.get("agendamentoId") ?? undefined;
+  const dataAgendamentoISO = normalizarDataParaISO(
+    props.dataInicial ?? searchParams?.get("data") ?? undefined
+  );
+  const horaBruta = props.horaInicial ?? searchParams?.get("hora") ?? searchParams?.get("horario") ?? "";
+  const horaAgendamento = horaBruta.slice(0, 5);
+  const pacienteNome = props.pacienteNome || searchParams?.get("paciente") || "Nome não informado";
+  const paramId = typeof params?.id === "string" ? params.id : "";
+  const pacienteId = props.pacienteId ?? paramId;
+
+  return { agendamentoId, dataAgendamentoISO, horaAgendamento, pacienteNome, pacienteId };
+}
+
+function criarLinhasIniciais(
+  atendimentoEditavel: Atendimento | undefined,
+  dataAgendamentoISO: string,
+  horaAgendamento: string
+): LinhaAtendimento[] {
+  if (atendimentoEditavel) {
+    const relatorioPrincipal = atendimentoEditavel.relatorio?.[0];
+    const textoCondicao = relatorioPrincipal?.descricao || relatorioPrincipal?.titulo || "";
+    return [
+      {
+        id: atendimentoEditavel.id,
+        condicao: textoCondicao.slice(0, 70),
+        data: brParaISO(atendimentoEditavel.data.replace(/\//g, "-")),
+        hora: atendimentoEditavel.hora,
+        isEditing: true,
+      },
+    ];
+  }
+  return [
+    {
+      id: crypto.randomUUID(),
+      condicao: "",
+      data: dataAgendamentoISO,
+      hora: horaAgendamento,
+      isEditing: true,
+    },
+  ];
+}
+
+export default function AtendimentoForm(props: Readonly<AtendimentoFormProps>) {
+  const { atendimentos = [], atendimentoEditavel, onClose } = props;
   const params = useParams();
-  const pacienteId = pacienteIdProp ?? (typeof params?.id === "string" ? params.id : "");
+  const searchParams = useSearchParams();
+  const {
+    agendamentoId,
+    dataAgendamentoISO,
+    horaAgendamento,
+    pacienteNome,
+    pacienteId,
+  } = resolverDadosIniciais(props, params, searchParams);
+
   const queryClient = useQueryClient();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const dateInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
   const timeInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
 
-  const [linhas, setLinhas] = useState<LinhaAtendimento[]>(() => {
-    if (atendimentoEditavel) {
-      return [
-        {
-          id: atendimentoEditavel.id,
-          condicao: (
-            atendimentoEditavel.relatorio?.[0]?.descricao ||
-            atendimentoEditavel.relatorio?.[0]?.titulo ||
-            ""
-          ).slice(0, 70),
-          data: brParaISO(atendimentoEditavel.data.replace(/\//g, "-")),
-          hora: atendimentoEditavel.hora,
-          isEditing: true,
-        },
-      ];
-    }
-    return [
-      {
-        id: crypto.randomUUID(),
-        condicao: "",
-        data: "",
-        hora: "",
-        isEditing: true,
-      },
-    ];
-  });
+  const [linhas, setLinhas] = useState<LinhaAtendimento[]>(() =>
+    criarLinhasIniciais(atendimentoEditavel, dataAgendamentoISO, horaAgendamento)
+  );
 
   function handleUpdateLinha(id: string, campo: "condicao" | "data" | "hora", valor: string) {
     const valorTratado = campo === "condicao" ? valor.slice(0, 70) : valor;
@@ -228,34 +266,32 @@ export default function AtendimentoForm({
   function validarLinhas(linhasParaValidar: LinhaAtendimento[]): boolean {
     for (let i = 0; i < linhasParaValidar.length; i++) {
       const linha = linhasParaValidar[i];
-      if (!linha.condicao.trim()) { 
-        toast.error(`Preencha a condição na linha ${i + 1}.`); 
-        return false; 
+      if (!linha.condicao.trim()) {
+        toast.error(`Preencha a condição na linha ${i + 1}.`);
+        return false;
       }
-      if (linha.condicao.length > 70) { 
-        toast.error(`A condição na linha ${i + 1} deve ter no máximo 70 caracteres.`); 
-        return false; 
+      if (linha.condicao.length > 70) {
+        toast.error(`A condição na linha ${i + 1} deve ter no máximo 70 caracteres.`);
+        return false;
       }
-      if (!linha.data) { 
-        toast.error(`Selecione a data na linha ${i + 1}.`); 
-        return false; 
+      if (!linha.data) {
+        toast.error(`Selecione a data na linha ${i + 1}.`);
+        return false;
       }
-      if (!linha.hora) { 
-        toast.error(`Selecione a hora na linha ${i + 1}.`); 
-        return false; 
+      if (!linha.hora) {
+        toast.error(`Selecione a hora na linha ${i + 1}.`);
+        return false;
       }
     }
     return true;
   }
 
   async function handleSave() {
-    if (!pacienteId) { 
-      toast.error("Paciente inválido."); 
-      return; 
+    if (!pacienteId) {
+      toast.error("Paciente inválido.");
+      return;
     }
-    if (linhas.length === 0) return;
-    
-    if (!validarLinhas(linhas)) return;
+    if (linhas.length === 0 || !validarLinhas(linhas)) return;
 
     setIsSubmitting(true);
     try {
@@ -275,6 +311,7 @@ export default function AtendimentoForm({
           linhas.map((linha, index) => {
             const payload: AtendimentoPayload = {
               pacienteId,
+              ...(agendamentoId && index === 0 ? { agendamentoId } : {}),
               data: isoParaBR(linha.data),
               hora: linha.hora,
               numeracao: calcularNumeracao(linha.data, index),
@@ -286,6 +323,7 @@ export default function AtendimentoForm({
         toast.success(linhas.length > 1 ? "Atendimentos criados!" : "Atendimento criado!");
       }
       queryClient.invalidateQueries({ queryKey: ["atendimentos"] });
+      queryClient.invalidateQueries({ queryKey: ["agendamentos"] });
       onClose();
     } catch {
       toast.error("Erro ao salvar.");
