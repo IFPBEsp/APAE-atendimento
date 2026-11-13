@@ -34,12 +34,14 @@ api.interceptors.response.use(
     const isAuthEndpoint = url?.startsWith("/auth/");
     const isAuthLogin = url?.includes("/auth/login");
     const isAuthMe = url?.includes("/auth/me");
+    const isAuthEsqueciSenha = url?.includes("/auth/esqueci-senha");
 
     if (status === 401) {
       if (
         typeof window !== "undefined" &&
         !isAuthLogin &&
         !isAuthMe &&
+        !isAuthEsqueciSenha &&
         !window.location.pathname.includes("/login")
       ) {
         window.location.href = "/atendimento/login";
