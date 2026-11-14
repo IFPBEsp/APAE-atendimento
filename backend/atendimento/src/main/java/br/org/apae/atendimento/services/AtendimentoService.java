@@ -20,7 +20,6 @@ import br.org.apae.atendimento.entities.Agendamento;
 import br.org.apae.atendimento.entities.Atendimento;
 import br.org.apae.atendimento.entities.Topico;
 import br.org.apae.atendimento.exceptions.invalid.TopicoInvalidException;
-import br.org.apae.atendimento.exceptions.notfound.AgendamentoNotFoundException;
 import br.org.apae.atendimento.exceptions.invalid.AtendimentoInvalidException;
 import br.org.apae.atendimento.exceptions.invalid.RelacaoInvalidException;
 import br.org.apae.atendimento.exceptions.notfound.AtendimentoNotFoundException;
@@ -67,14 +66,14 @@ public class AtendimentoService {
         dadosConvertidos.setNumeracao(gerarProximaNumeracao(profissionalId, atendimentoRequestDTO.data()));
 
         Atendimento dadosPersistidos = repository.save(dadosConvertidos);
-        try {
+
+        if (atendimentoRequestDTO.agendamentoId() != null) {
             tratarAgendamento(
                     profissionalId,
                     atendimentoRequestDTO.pacienteId(),
-                    atendimentoRequestDTO.data(),
+                    atendimentoRequestDTO.agendamentoId(),
                     dadosPersistidos.getNumeracao()
             );
-        } catch (AgendamentoNotFoundException e) {
         }
 
         return atendimentoMapper.toDTOPadrao(dadosPersistidos);
@@ -93,12 +92,12 @@ public class AtendimentoService {
         }
     }
 
-    public void tratarAgendamento(UUID profissionalId, UUID pacienteId, LocalDate data, String numeracao) {
-        Agendamento agendamento = agendamentoService.buscarAgendamentoPorDataProfissionalEPaciente(
-                data,
-                profissionalId,
-                pacienteId
-        );
+    public void tratarAgendamento(UUID profissionalId, UUID pacienteId, UUID agendamentoId, String numeracao) {
+        Agendamento agendamento = agendamentoService.buscarPorIdEProfissional(agendamentoId, profissionalId);
+
+        if (!agendamento.getPacienteId().equals(pacienteId)) {
+            throw new AtendimentoInvalidException("O agendamento informado pertence a outro paciente.");
+        }
 
         agendamento.setNumeracao(numeracao);
         agendamentoService.setStatus(agendamento);
@@ -217,14 +216,13 @@ public class AtendimentoService {
             throw new AtendimentoNotFoundException("O atendimento nao existe ou nao pertence ao profissional autenticado.");
         }
 
-        try {
+        if (atendimento.getAgendamentoId() != null) {
             tratarAgendamento(
                     profissionalId,
                     atendimento.getPacienteId(),
-                    atendimento.getDataAtendimento().toLocalDate(),
+                    atendimento.getAgendamentoId(),
                     atendimento.getNumeracao()
             );
-        } catch (AgendamentoNotFoundException e) {
         }
     }
 }

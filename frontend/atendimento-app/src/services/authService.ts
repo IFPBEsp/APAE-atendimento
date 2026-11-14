@@ -19,7 +19,7 @@ export type LoginResponse = {
   redirectTo?: string | null;
 };
 
-export const ESQUECI_SENHA_ROUTE = "auth/esqueci-senha";
+export const ESQUECI_SENHA_ROUTE = "/auth/esqueci-senha";
 
 export async function login(payload: LoginPayload): Promise<LoginResponse> {
   const { data } = await api.post<LoginResponse>("/auth/login", payload);
@@ -29,23 +29,13 @@ export async function login(payload: LoginPayload): Promise<LoginResponse> {
 export async function esqueciSenha(
   payload: EsqueciSenhaPayload,
 ): Promise<LoginResponse> {
-  // Chamada fictícia (mock) para a rota `auth/esqueci-senha` (será integrada ao backend na issue #442)
-  await new Promise((resolve) => setTimeout(resolve, 600));
-
-  const cpfLimpo = payload.cpf.replace(/\D/g, "");
-
-  if (
-    !payload.email.trim() ||
-    cpfLimpo.length !== 11 ||
-    cpfLimpo === "00000000000"
-  ) {
-    throw new Error("E-mail ou CPF não conferem com os dados cadastrados.");
-  }
-
-  return {
-    success: true,
-    message: "Senha redefinida com sucesso!",
-  };
+  const { email, cpf, novaSenha } = payload;
+  const { data } = await api.post<LoginResponse>(ESQUECI_SENHA_ROUTE, {
+    email,
+    cpf,
+    novaSenha,
+  });
+  return data;
 }
 
 export async function redefinirSenha(novaSenha: string): Promise<LoginResponse> {

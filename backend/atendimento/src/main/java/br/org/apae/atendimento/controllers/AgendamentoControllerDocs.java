@@ -72,18 +72,4 @@ public interface AgendamentoControllerDocs {
             UUID agendamentoId,
             @Parameter(hidden = true) UsuarioAutenticado usuarioAutenticado
     );
-
-    @Operation(summary = "Concluir agendamento", description = "Marca o status do agendamento como concluído.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Agendamento concluído com sucesso"),
-            @ApiResponse(responseCode = "401", description = "Não autorizado"),
-            @ApiResponse(responseCode = "404", description = "Agendamento não encontrado")
-    })
-    ResponseEntity<String> concluirAgendamento(
-            @Parameter(description = "ID do paciente")
-            UUID pacienteId,
-            @Parameter(description = "ID do agendamento a ser concluído")
-            UUID agendamentoId,
-            @Parameter(hidden = true) UsuarioAutenticado usuarioAutenticado
-    );
 }
