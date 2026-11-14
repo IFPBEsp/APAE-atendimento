@@ -36,7 +36,7 @@ public class AuthService{
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
     }
-    
+
     public AutenticacaoResponseDTO autenticar(LoginRequestDTO requestDTO) {
         String emailSanitizado = requestDTO.email().trim().toLowerCase(Locale.ROOT);
         String senhaInformada = requestDTO.password() == null ? "" : requestDTO.password();
@@ -82,7 +82,9 @@ public class AuthService{
 
         String cpfUsuario = somenteDigitos(usuario.getCpf());
 
-        if (!isUsuarioAtendimentoAtivo(usuario) || cpfUsuario.isBlank() || !cpfUsuario.equals(cpfInformado)) {
+        validarUsuarioAtendimento(usuario, MSG_DADOS_NAO_CONFEREM);
+
+        if (cpfUsuario.isBlank() || !cpfUsuario.equals(cpfInformado)) {
             throw new BadCredentialsException(MSG_DADOS_NAO_CONFEREM);
         }
 
@@ -97,8 +99,12 @@ public class AuthService{
     }
 
     private void validarUsuarioAtendimento(ProfissionalSaude usuario) {
+        validarUsuarioAtendimento(usuario, MSG_CREDENCIAIS_INVALIDAS);
+    }
+
+    private void validarUsuarioAtendimento(ProfissionalSaude usuario, String mensagemErro) {
         if (!isUsuarioAtendimentoAtivo(usuario)) {
-            throw new BadCredentialsException(MSG_CREDENCIAIS_INVALIDAS);
+            throw new BadCredentialsException(mensagemErro);
         }
     }
 
