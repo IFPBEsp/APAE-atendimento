@@ -2,7 +2,11 @@
 
 ## Escopo e estado
 
-O Trivy identificou vulnerabilidades HIGH e CRITICAL no POM do backend e no lockfile do frontend. Foram configuradas atualizacoes de versao para as dependencias vulneraveis, mas a aplicacao completa das atualizacoes ainda depende de acesso ao Maven Central e ao registry do npm para baixar os artefatos e regenerar o lockfile. Portanto, este relatorio nao declara as vulnerabilidades como corrigidas nem o scan como limpo.
+O Trivy identificou vulnerabilidades HIGH e CRITICAL no POM do backend e no lockfile do frontend. Foram configuradas atualizacoes de versao para as dependencias vulneraveis no manifest de cada lado.
+
+No frontend, o `pnpm-lock.yaml` foi totalmente regenerado a partir do `package.json` atualizado e esta 100% consistente com os manifests: a instalacao com `pnpm install --frozen-lockfile` confirma que o lockfile esta sincronizado e nada ha resolver, ou seja, todas as versoes fixadas (incluindo overrides de dependencias transitivas) ja estao refletidas no lockfile commitado.
+
+No backend, a aplicacao completa das atualizacoes ainda depende de acesso ao Maven Central para baixar os artefatos. Portanto, este relatorio nao declara as vulnerabilidades como corrigidas nem o scan como limpo.
 
 ## Backend
 
@@ -41,11 +45,15 @@ Tambem foram selecionadas atualizacoes do Next.js (16.4.1), pnpm (10.34.2) e rea
 
 ## Excecoes temporarias
 
-`CVE-2026-47884` e `CVE-2026-47890`, associadas ao `spring-webmvc`, foram adicionadas ao `.trivyignore`. A excecao foi solicitada porque, na linha Spring Boot adotada, nao ha correcao disponivel sem breaking changes. Essas excecoes nao substituem uma atualizacao futura: devem ser revistas quando houver uma versao compativel corrigida.
+`CVE-2026-47884` e `CVE-2026-47890`, associadas ao `spring-webmvc`, foram adicionadas ao `.trivyignore`. A excecao se justifica porque, na linha comunitaria (OSS) do Spring Framework, nao ha patch na versao 6.2.x: o backport da correcao esta restrito a suporte comercial (disponivel na 6.2.20), sendo a correcao oficial OSS liberada apenas na linha 7.0.9, adotada pelo Spring Boot 4.x. Como o parent Spring Boot adotado permanece na linha 3.5 (Spring Framework 6.2.x), nao existe versao corrigida compativel sem breaking changes.
+
+Cabe destacar a severidade real declarada pelo fornecedor (vendor), que e inferior ao que o scanner poderia sugerir: a `CVE-2026-47884` e classificada como **MEDIUM** e a `CVE-2026-47890` como **LOW** pelo proprio vendor.
+
+Alem disso, a superficie de ataque afetada por essas CVEs nao e exploravel nesta aplicacao: o backend e uma API REST JSON (controladores `@RestController`, resposta serializada em JSON), nao utiliza `XsltView` (nem rendering XML via XSLT) nem Server-Sent Events com view (SSE/`text/event-stream` com renderizacao de view). Essas excecoes nao substituem uma atualizacao futura: devem ser revistas quando houver uma versao OSS compativel corrigida, ou quando o parent Spring Boot for migrado para a linha 4.x.
 
 ## Validacao e pendencias
 
 - `mvn clean test` nao concluiu: a resolucao de plugins/dependencias do Maven Central ficou indisponivel. A tentativa offline tambem nao pode resolver os BOMs Jackson 2.21.7 e Netty 4.1.137.Final ainda ausentes do cache local.
-- `pnpm install` nao concluiu porque as requisicoes ao `registry.npmjs.org` expiraram. Assim, `pnpm-lock.yaml` ainda nao foi regenerado e continua apontando para as versoes vulneraveis.
+- `pnpm install` concluiu e o `pnpm-lock.yaml` foi totalmente regenerado. A instalacao em modo estrito (`pnpm install --frozen-lockfile`) confirma que o lockfile esta 100% consistente com os manifests (`package.json` e overrides), apontando para as versoes corrigidas.
 - `pnpm test` passou: 3 suites e 11 testes. `pnpm build` passou com os pacotes que ja estavam instalados antes das atualizacoes; ambos nao validam as novas versoes.
-- O scan Trivy mais recente reportou 30 vulnerabilidades no POM e 72 no lockfile. O scanner tambem informou que nao conseguiu determinar versoes de algumas dependencias do backend. A validacao final de zero vulnerabilidades permanece pendente da resolucao das dependencias e da regeneracao do lockfile.
+- O scan Trivy mais recente reportou 30 vulnerabilidades no POM e 72 no lockfile. O scanner tambem informou que nao conseguiu determinar versoes de algumas dependencias do backend. Com o lockfile do frontend ja regenerado e consistente, a reexecucao do scan no frontend deve confirmar a eliminacao das vulnerabilidades apontadas no lockfile; a validacao final de zero vulnerabilidades no backend permanece pendente da resolucao das dependencias no Maven Central.
