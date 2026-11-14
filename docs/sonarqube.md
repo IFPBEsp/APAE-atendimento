@@ -142,3 +142,28 @@ docker compose -f docker-compose.sonar.yml down -v
 ```
 
 Use o `-v` com cuidado — ele remove toda a persistência local do SonarQube.
+
+## Quality Gates Personalizados (#469)
+
+Os projetos utilizam Quality Gates dedicados baseados na realidade do time. As regras incidem **apenas sobre o Código Novo** (*New Code*).
+**Regra de revisão (Catraca):** Os limites sobem ao final de cada fase, mas nunca descem.
+
+### 1. `apae-atendimento-backend`
+| Métrica (Código Novo) | Valor Atual | Limite no Gate | Condição |
+| :--- | :---: | :---: | :--- |
+| **Cobertura** | 58.0% | **58.0%** | Menor que |
+| **Duplicação** | 0.8% | **1.0%** | Maior que |
+| **Confiabilidade** | C (3) | **C (3)** | Maior que |
+| **Segurança** | D (4) | **D (4)** | Maior que |
+| **Hotspots Revisados** | N/A | **100%** | Menor que |
+
+### 2. `apae-atendimento-frontend`
+*(A métrica de cobertura está ativa. O relatório lcov.info é enviado com sucesso ao Sonar).*
+
+| Métrica (Código Novo) | Valor Atual | Limite no Gate | Condição |
+| :--- | :---: | :---: | :--- |
+| **Cobertura** | 9.3% | **9.0%** | Menor que |
+| **Duplicação** | 4.2% | **5.0%** | Maior que |
+| **Confiabilidade** | B (2) | **B (2)** | Maior que |
+| **Segurança** | A (1) | **A (1)** | Maior que |
+| **Hotspots Revisados** | N/A | **100%** | Menor que |
