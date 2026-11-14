@@ -1,0 +1,23 @@
+name: GitHub Actions Workflow Lint
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/**"
+      - ".github/actions/**"
+      - ".github/actionlint.yaml"
+      - ".github/zizmor.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  workflow-lint:
+    name: Workflow Lint
+    uses: IFPBEsp/APAE-INFRA/.github/workflows/workflow-lint-reusable.yml@73a73d9c1c511442e51721f22d3ad3deadd6afdd
+    permissions:
+      contents: read
+      actions: read
+      security-events: write
+    with:
+      zizmor-min-severity: "medium"
