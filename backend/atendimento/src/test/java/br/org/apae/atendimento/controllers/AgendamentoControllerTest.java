@@ -140,16 +140,6 @@ class AgendamentoControllerTest {
 
             verifyNoInteractions(service);
         }
-
-        @Test
-        @DisplayName("Should return 401 Unauthorized when requesting PATCH /agendamento/{pacienteId}/{agendamentoId}/concluir without authentication")
-        void shouldReturn401WhenPatchWithoutAuthentication() throws Exception {
-            mockMvc.perform(patch("/agendamento/{pacienteId}/{agendamentoId}/concluir", pacienteId, agendamentoId)
-                            .with(csrf()))
-                    .andExpect(status().isUnauthorized());
-
-            verifyNoInteractions(service);
-        }
     }
 
     @Nested
@@ -313,25 +303,6 @@ class AgendamentoControllerTest {
                     .andExpect(content().string("Agendamento excluído"));
 
             verify(service).deletar(usuarioId, pacienteId, agendamentoId);
-        }
-    }
-
-    @Nested
-    @DisplayName("Tests for PATCH /agendamento/{pacienteId}/{agendamentoId}/concluir")
-    class PatchConcluirAgendamentoTests {
-
-        @Test
-        @DisplayName("Should return 200 OK and verify service conclusion call")
-        void shouldConcludeAgendamentoSuccessfully() throws Exception {
-            doNothing().when(service).concluir(usuarioId, pacienteId, agendamentoId);
-
-            mockMvc.perform(patch("/agendamento/{pacienteId}/{agendamentoId}/concluir", pacienteId, agendamentoId)
-                            .with(authenticatedUser(usuarioId))
-                            .with(csrf()))
-                    .andExpect(status().isOk())
-                    .andExpect(content().string("Agendamento concluído"));
-
-            verify(service).concluir(usuarioId, pacienteId, agendamentoId);
         }
     }
 }

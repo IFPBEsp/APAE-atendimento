@@ -1,7 +1,8 @@
-﻿import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import AnexoForm from "../components/anexoForm";
 import React from "react";
 import { toast } from "sonner";
+import { obterDataHojeISO } from "@/features/relatorio/utils/sanitizeRelatorio";
 
 jest.mock("react-pdf", () => ({
   Document: ({ children }: { children: React.ReactNode }) => (
@@ -57,7 +58,10 @@ describe("AnexoForm - cenários negativos", () => {
     renderForm();
     setArquivo(new File(["abc"], "ok.pdf", { type: "application/pdf" }));
 
-    fireEvent.change(screen.getByLabelText(/data/i), {
+    const inputData = screen.getByLabelText(/data/i);
+    expect(inputData).toHaveAttribute("max", obterDataHojeISO());
+
+    fireEvent.change(inputData, {
       target: { value: "2999-01-01" },
     });
     fireEvent.change(screen.getByPlaceholderText(/título do anexo/i), {
@@ -69,7 +73,11 @@ describe("AnexoForm - cenários negativos", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /adicionar anexo/i }));
 
-    await waitFor(() => expect(toast.error).toHaveBeenCalled());
+    await waitFor(() =>
+      expect(toast.error).toHaveBeenCalledWith(
+        "A data não pode estar no futuro",
+      ),
+    );
     expect(mockOnSubmit).not.toHaveBeenCalled();
   });
 

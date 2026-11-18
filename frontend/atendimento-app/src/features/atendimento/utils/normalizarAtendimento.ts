@@ -11,7 +11,7 @@ export default function normalizarAtendimento(item: Atendimento): Atendimento {
     data: formatarData(item.data),
     hora: `${hora}:${minuto}`,
     numeracao: item.numeracao ?? 1,
-    relatorio: item.relatorio,
+    relatorio: (item.relatorio ?? []).filter(Boolean),
     status: item.status ?? false,
   };
 }

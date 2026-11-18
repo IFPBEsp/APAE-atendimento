@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { ArrowLeft, ClipboardPlus } from "lucide-react";
+import { ArrowLeft, ClipboardPlus, Loader2 } from "lucide-react";
 import { Nunito } from "next/font/google";
 
 import Header from "@/components/shared/header";
@@ -48,7 +48,6 @@ export default function AnexoPage() {
     enviando,
   } = useAnexos(pacienteId);
 
-  
   const [reportToDelete, setReportToDelete] = useState<Anexo | null>(null);
   const [reportToView, setReportToView] = useState<Anexo | null>(null);
 
@@ -91,17 +90,23 @@ export default function AnexoPage() {
       {/* CONTENT */}
       <section className="bg-white rounded-t-3xl p-6 min-h-screen flex flex-col gap-4">
         <h1
-          className={`text-xl text-[#344054] font-bold ${nunitoFont.className}`}
+          className={`text-xl text-[#344054] font-bold flex items-center gap-2.5 ${nunitoFont.className}`}
         >
-          {isLoadingPDF || !dadosPDF
-            ? "Carregando nome paciente..."
-            : dadosPDF?.paciente.nome}
+          {isLoadingPDF || !dadosPDF ? (
+            <>
+              <Loader2 className="w-5 h-5 animate-spin text-[#165BAA]" />
+              <span className="text-gray-400 font-semibold">Carregando nome paciente...</span>
+            </>
+          ) : (
+            dadosPDF?.paciente.nome
+          )}
         </h1>
 
         {loading && (
-          <p className="text-center text-gray-500 mt-20">
-            Carregando anexos...
-          </p>
+          <div className="flex flex-col items-center justify-center gap-3 py-20 w-full">
+            <Loader2 className="w-10 h-10 animate-spin text-[#165BAA]" />
+            <p className="text-sm font-medium text-gray-500">Carregando anexos...</p>
+          </div>
         )}
 
         {!loading && anexosFiltrados.length === 0 && (
