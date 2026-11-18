@@ -15,6 +15,7 @@ import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.images.builder.ImageFromDockerfile;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -26,6 +27,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @Testcontainers
 class MinioStorageIntegrationTest {
+
+    // MinIO no longer publishes the Docker Hub image used by this test.
+    // Build once from the official source commit; both instances use the same binary.
+    private static final ImageFromDockerfile MINIO_IMAGE = new ImageFromDockerfile()
+            .withFileFromClasspath("Dockerfile", "minio-test.Dockerfile");
 
     private static final String ACCESS_KEY = "atendimento_minio";
     private static final String SECRET_KEY = "atendimento_minio_123";
@@ -45,7 +51,7 @@ class MinioStorageIntegrationTest {
             // ==========================================
             // FASE 1: Instância inicial do MinIO
             // ==========================================
-            try (GenericContainer<?> minio1 = new GenericContainer<>("minio/minio:latest")
+            try (GenericContainer<?> minio1 = new GenericContainer<>(MINIO_IMAGE)
                     .withEnv("MINIO_ROOT_USER", ACCESS_KEY)
                     .withEnv("MINIO_ROOT_PASSWORD", SECRET_KEY)
                     .withCommand("server /data")
@@ -106,7 +112,7 @@ class MinioStorageIntegrationTest {
             // ==========================================
             // FASE 2: Reinicialização do MinIO (mesmo volume)
             // ==========================================
-            try (GenericContainer<?> minio2 = new GenericContainer<>("minio/minio:latest")
+            try (GenericContainer<?> minio2 = new GenericContainer<>(MINIO_IMAGE)
                     .withEnv("MINIO_ROOT_USER", ACCESS_KEY)
                     .withEnv("MINIO_ROOT_PASSWORD", SECRET_KEY)
                     .withCommand("server /data")
