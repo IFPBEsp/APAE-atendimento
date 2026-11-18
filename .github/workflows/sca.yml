@@ -1,0 +1,37 @@
+name: Dependency Vulnerability Check (SCA)
+
+on:
+  pull_request:
+    paths:
+      - "backend/atendimento/pom.xml"
+      - "frontend/atendimento-app/package.json"
+      - "frontend/atendimento-app/pnpm-lock.yaml"
+      - "frontend/atendimento-app/pnpm-workspace.yaml"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - ".trivyignore"
+      - ".github/workflows/sca.yml"
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  sca-backend:
+    name: SCA Maven (backend/atendimento)
+    uses: IFPBEsp/APAE-INFRA/.github/workflows/sca-reusable.yml@291d01c4e8c573e6862f5b3c655a4622889b09b5
+    with:
+      scan-path: "backend/atendimento"
+      severity: "HIGH,CRITICAL"
+      ignore-unfixed: true
+      fail-on-vulnerabilities: true
+
+  sca-frontend:
+    name: SCA pnpm (raiz e frontend/atendimento-app)
+    uses: IFPBEsp/APAE-INFRA/.github/workflows/sca-reusable.yml@291d01c4e8c573e6862f5b3c655a4622889b09b5
+    with:
+      scan-path: "."
+      skip-dirs: "backend"
+      severity: "HIGH,CRITICAL"
+      ignore-unfixed: true
+      fail-on-vulnerabilities: true
