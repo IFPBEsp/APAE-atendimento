@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus, Check, Pencil, Trash2, Clock, Calendar } from "lucide-react";
@@ -17,6 +17,9 @@ interface AtendimentoFormProps {
   onClose: () => void;
   pacienteId?: string;
   pacienteNome?: string;
+  agendamentoId?: string;
+  dataInicial?: string;
+  horaInicial?: string;
 }
 
 interface LinhaAtendimento {
@@ -27,14 +30,41 @@ interface LinhaAtendimento {
   isEditing: boolean;
 }
 
+function normalizarDataParaISO(valor?: string): string {
+  if (!valor) return "";
+  const limpo = valor.replace(/\//g, "-");
+  if (/^\d{4}-\d{2}-\d{2}$/.test(limpo)) return limpo;
+  if (/^\d{2}-\d{2}-\d{4}$/.test(limpo)) return brParaISO(limpo);
+  return limpo;
+}
+
 export default function AtendimentoForm({
   atendimentos = [],
   atendimentoEditavel,
   onClose,
   pacienteId: pacienteIdProp,
-  pacienteNome = "Nome não informado",
+  pacienteNome: pacienteNomeProp,
+  agendamentoId: agendamentoIdProp,
+  dataInicial: dataInicialProp,
+  horaInicial: horaInicialProp,
 }: AtendimentoFormProps) {
   const params = useParams();
+  const searchParams = useSearchParams();
+  const agendamentoId =
+    agendamentoIdProp ?? searchParams?.get("agendamentoId") ?? undefined;
+  const dataAgendamentoISO = normalizarDataParaISO(
+    dataInicialProp ?? searchParams?.get("data") ?? undefined,
+  );
+  const horaAgendamento = (
+    horaInicialProp ??
+    searchParams?.get("hora") ??
+    searchParams?.get("horario") ??
+    ""
+  ).slice(0, 5);
+  const pacienteNome =
+    pacienteNomeProp ||
+    searchParams?.get("paciente") ||
+    "Nome não informado";
   const pacienteId = pacienteIdProp ?? (typeof params?.id === "string" ? params.id : "");
   const queryClient = useQueryClient();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -62,8 +92,8 @@ export default function AtendimentoForm({
       {
         id: crypto.randomUUID(),
         condicao: "",
-        data: "",
-        hora: "",
+        data: dataAgendamentoISO,
+        hora: horaAgendamento,
         isEditing: true,
       },
     ];
@@ -131,6 +161,7 @@ export default function AtendimentoForm({
           linhas.map((linha, index) => {
             const payload: AtendimentoPayload = {
               pacienteId,
+              ...(agendamentoId && index === 0 ? { agendamentoId } : {}),
               data: isoParaBR(linha.data),
               hora: linha.hora,
               numeracao: calcularNumeracao(linha.data, index),
@@ -142,6 +173,7 @@ export default function AtendimentoForm({
         toast.success(linhas.length > 1 ? "Atendimentos criados!" : "Atendimento criado!");
       }
       queryClient.invalidateQueries({ queryKey: ["atendimentos"] });
+      queryClient.invalidateQueries({ queryKey: ["agendamentos"] });
       onClose();
     } catch {
       toast.error("Erro ao salvar.");

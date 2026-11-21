@@ -1,7 +1,9 @@
 package br.org.apae.atendimento.services;
 
+import br.org.apae.atendimento.dtos.request.AgendamentoRequestDTO;
 import br.org.apae.atendimento.dtos.request.AtendimentoRequestDTO;
 import br.org.apae.atendimento.dtos.request.TopicoRequestDTO;
+import br.org.apae.atendimento.dtos.response.AgendamentoResponseDTO;
 import br.org.apae.atendimento.dtos.response.AtendimentoResponseDTO;
 import br.org.apae.atendimento.dtos.response.MesAnoAtendimentoResponseDTO;
 import br.org.apae.atendimento.dtos.response.TopicoResponseDTO;
@@ -34,6 +36,9 @@ class AtendimentoServiceIntegrationTest extends AbstractIntegrationTest {
     private AtendimentoService atendimentoService;
 
     @Autowired
+    private AgendamentoService agendamentoService;
+
+    @Autowired
     private PacienteRepository pacienteRepository;
 
     @Autowired
@@ -64,14 +69,16 @@ class AtendimentoServiceIntegrationTest extends AbstractIntegrationTest {
                 paciente.getId(),
                 List.of(new TopicoRequestDTO("Titulo 1", "Descricao 1")),
                 LocalDate.of(2026, 5, 10),
-                LocalTime.of(10, 0)
+                LocalTime.of(10, 0),
+                null
         );
 
         AtendimentoRequestDTO request2 = new AtendimentoRequestDTO(
                 paciente.getId(),
                 List.of(new TopicoRequestDTO("Titulo 2", "Descricao 2")),
                 LocalDate.of(2026, 5, 11),
-                LocalTime.of(11, 0)
+                LocalTime.of(11, 0),
+                null
         );
 
         AtendimentoResponseDTO created1 = atendimentoService.addAtendimento(request1, profissional.getId());
@@ -86,7 +93,8 @@ class AtendimentoServiceIntegrationTest extends AbstractIntegrationTest {
                 paciente.getId(),
                 List.of(new TopicoRequestDTO("Titulo editado", "Descricao editada")),
                 LocalDate.of(2026, 5, 15),
-                LocalTime.of(14, 0)
+                LocalTime.of(14, 0),
+                null
         );
 
         AtendimentoResponseDTO edited = atendimentoService.editar(
@@ -131,7 +139,8 @@ class AtendimentoServiceIntegrationTest extends AbstractIntegrationTest {
                 paciente.getId(),
                 List.of(new TopicoRequestDTO("Titulo", "Descricao")),
                 LocalDate.of(2026, 6, 10),
-                LocalTime.of(9, 0)
+                LocalTime.of(9, 0),
+                null
         );
 
         assertThrows(RelacaoInvalidException.class,
@@ -153,7 +162,8 @@ class AtendimentoServiceIntegrationTest extends AbstractIntegrationTest {
                         new TopicoRequestDTO("Topico 3", "Descricao 3")
                 ),
                 LocalDate.of(2026, 7, 10),
-                LocalTime.of(9, 0)
+                LocalTime.of(9, 0),
+                null
         );
 
         AtendimentoResponseDTO criado = atendimentoService.addAtendimento(criacao, profissionalId);
@@ -180,7 +190,8 @@ class AtendimentoServiceIntegrationTest extends AbstractIntegrationTest {
                         new TopicoRequestDTO("Topico 1 Mantido", "Descricao 1 Mantida")
                 ),
                 LocalDate.of(2026, 7, 10),
-                LocalTime.of(9, 0)
+                LocalTime.of(9, 0),
+                null
         );
 
         atendimentoService.editar(edicao, criado.id(), profissionalId);
@@ -199,5 +210,41 @@ class AtendimentoServiceIntegrationTest extends AbstractIntegrationTest {
         List<String> titulosEdicao = recarregadoEdicao.getContent().getFirst().atendimentos().getFirst()
                 .relatorio().stream().map(TopicoResponseDTO::titulo).toList();
         assertEquals(List.of("Topico 3 Editado", "Topico 1 Mantido"), titulosEdicao);
+    }
+
+    @Test
+    @DisplayName("Deve vincular o atendimento ao agendamento e concluir o agendamento ao criar com agendamentoId")
+    void deveVincularAtendimentoEConcluirAgendamentoAoCriarComAgendamentoId() {
+        UUID profissionalId = UUID.fromString("44444444-4444-4444-4444-444444444444");
+        UUID pacienteId = UUID.fromString("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+        LocalDate data = LocalDate.now().plusDays(20);
+
+        AgendamentoResponseDTO agendamento = agendamentoService.agendar(
+                new AgendamentoRequestDTO(pacienteId, data, LocalTime.of(9, 0)),
+                profissionalId
+        );
+
+        assertFalse(agendamentoService.buscarPorIdEProfissional(agendamento.id(), profissionalId).isStatus());
+
+        AtendimentoResponseDTO criado = atendimentoService.addAtendimento(
+                new AtendimentoRequestDTO(
+                        pacienteId,
+                        List.of(new TopicoRequestDTO("Titulo", "Descricao")),
+                        data,
+                        LocalTime.of(9, 30),
+                        agendamento.id()
+                ),
+                profissionalId
+        );
+        entityManager.flush();
+        entityManager.clear();
+
+        UUID agendamentoIdSalvo = jdbcTemplate.queryForObject(
+                "SELECT agendamento_id FROM atendimento.atendimento WHERE id = ?",
+                UUID.class,
+                criado.id()
+        );
+        assertEquals(agendamento.id(), agendamentoIdSalvo);
+        assertTrue(agendamentoService.buscarPorIdEProfissional(agendamento.id(), profissionalId).isStatus());
     }
 }

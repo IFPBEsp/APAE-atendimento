@@ -15,6 +15,7 @@ export interface Atendimento {
 
 export interface AtendimentoPayload {
   pacienteId: string;
+  agendamentoId?: string;
   data: string;
   hora: string;
   numeracao?: string;
