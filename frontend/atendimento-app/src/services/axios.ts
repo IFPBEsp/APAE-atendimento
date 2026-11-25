@@ -6,7 +6,7 @@ type ErrorResponse = {
 };
 
 export const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/atendimento",
+  baseURL: process.env.NEXT_PUBLIC_API_URL || "/atendimento/api",
   withCredentials: true,
   headers: {
     Accept: "application/json",
@@ -34,15 +34,17 @@ api.interceptors.response.use(
     const isAuthEndpoint = url?.startsWith("/auth/");
     const isAuthLogin = url?.includes("/auth/login");
     const isAuthMe = url?.includes("/auth/me");
+    const isAuthEsqueciSenha = url?.includes("/auth/esqueci-senha");
 
     if (status === 401) {
       if (
         typeof window !== "undefined" &&
         !isAuthLogin &&
         !isAuthMe &&
-        window.location.pathname !== "/login"
+        !isAuthEsqueciSenha &&
+        !window.location.pathname.includes("/login")
       ) {
-        window.location.href = "/login";
+        window.location.href = "/atendimento/login";
       }
 
       return Promise.reject(error);

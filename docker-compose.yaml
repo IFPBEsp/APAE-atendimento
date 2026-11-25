@@ -156,10 +156,12 @@ services:
       context: ./frontend/atendimento-app
       dockerfile: Dockerfile
       args:
-        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8080/atendimento}
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-/atendimento/api}
+        BACKEND_URL: http://backend:8080
     restart: unless-stopped
     environment:
-      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8080/atendimento}
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-/atendimento/api}
+      BACKEND_URL: http://backend:8080
     ports:
       - "3001:3000"
     depends_on:

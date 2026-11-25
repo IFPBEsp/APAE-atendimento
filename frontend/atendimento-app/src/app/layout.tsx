@@ -17,6 +17,9 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "APAE - Atendimento",
+  icons: {
+    icon: "/atendimento/favicon.ico",
+  },
 };
 
 export default function RootLayout({

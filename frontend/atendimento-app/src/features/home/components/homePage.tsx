@@ -38,10 +38,10 @@ export default function HomePage() {
   }
 
   return (
-      <>
+      <div className="min-h-screen flex flex-col">
         <Header />
 
-        <main className="bg-[#F8FAFD] flex flex-col items-center text-center pb-24">
+        <main className="bg-[#F8FAFD] flex flex-1 flex-col items-center text-center">
           <section className="w-full px-4 sm:px-8 mt-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between pb-5">
             <div className="text-center flex flex-col items-center sm:flex-row sm:items-center sm:gap-2 sm:text-left">
               <h1 className="font-semibold text-[#344054] text-xl">
@@ -96,29 +96,32 @@ export default function HomePage() {
             </div>
           </section>
 
-          <section className="w-full bg-white rounded-t-3xl p-6 flex flex-col gap-4 sm:grid sm:grid-cols-2 sm:gap-6 min-h-[400px]">
-            {loading &&
-                Array.from({ length: 4 }).map((_, i) => (
-                    <div
-                        key={i}
-                        className="w-full h-[200px] bg-gray-100 animate-pulse rounded-2xl border border-gray-200 p-4"
-                    >
-                      <div className="flex gap-4">
-                        <div className="w-24 h-24 bg-gray-200 rounded-xl"></div>
-                        <div className="flex-1 space-y-3 py-1">
-                          <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                          <div className="space-y-2">
-                            <div className="h-3 bg-gray-200 rounded w-full"></div>
-                            <div className="h-3 bg-gray-200 rounded w-5/6"></div>
-                            <div className="h-3 bg-gray-200 rounded w-4/6"></div>
+          <section className="w-full flex-1 bg-white rounded-t-3xl p-6 pb-24 md:pb-6 flex flex-col gap-4 min-h-[400px]">
+            {loading && (
+                <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                  {Array.from({ length: 4 }).map((_, i) => (
+                      <div
+                          key={i}
+                          className="w-full h-[200px] bg-gray-100 animate-pulse rounded-2xl border border-gray-200 p-4"
+                      >
+                        <div className="flex gap-4">
+                          <div className="w-24 h-24 bg-gray-200 rounded-xl"></div>
+                          <div className="flex-1 space-y-3 py-1">
+                            <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                            <div className="space-y-2">
+                              <div className="h-3 bg-gray-200 rounded w-full"></div>
+                              <div className="h-3 bg-gray-200 rounded w-5/6"></div>
+                              <div className="h-3 bg-gray-200 rounded w-4/6"></div>
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                ))}
+                  ))}
+                </div>
+            )}
 
             {erro && (
-                <div className="col-span-1 sm:col-span-2 flex flex-col items-center justify-center py-12 gap-3">
+                <div className="flex flex-col items-center justify-center py-12 gap-3">
                   <AlertCircle size={48} className="text-red-500" />
                   <p className="text-red-600 text-lg font-medium">
                     Erro ao carregar pacientes
@@ -133,7 +136,7 @@ export default function HomePage() {
             )}
 
             {!loading && !erro && pacientes.length === 0 && (
-                <div className="col-span-1 sm:col-span-2 flex flex-col items-center justify-center py-12 gap-2 text-gray-500">
+                <div className="flex flex-col items-center justify-center py-12 gap-2 text-gray-500">
                   <Search size={40} className="text-gray-300 mb-2" />
                   <p className="text-lg font-medium text-gray-600">
                     Nenhum paciente encontrado
@@ -146,7 +149,7 @@ export default function HomePage() {
 
             {!loading && !erro && pacientes.length > 0 && (
                 <div
-                    className={`col-span-1 sm:col-span-2 w-full grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 transition-opacity duration-200 ${
+                    className={`w-full grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 transition-opacity duration-200 ${
                         isFetching ? "opacity-50 pointer-events-none" : "opacity-100"
                     }`}
                 >
@@ -163,7 +166,7 @@ export default function HomePage() {
             )}
 
             {!loading && !erro && pagination && (
-                <div className="col-span-1 sm:col-span-2 flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 border-t border-gray-100 pt-6 px-2 w-full">
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-auto border-t border-gray-100 pt-6 px-2 w-full">
                   <span className="text-sm text-gray-500 font-medium">
                     Página {pagination.page} de {pagination.totalPages} ({pagination.totalItems} pacientes)
                   </span>
@@ -202,6 +205,6 @@ export default function HomePage() {
           </button>
 
         </main>
-      </>
+      </div>
   );
 }

@@ -1,2 +1,12 @@
-# .husky/pre-commit
-# não precisa mais do shebang nem do _/husky.sh
+#!/bin/sh
+
+if ! command -v gitleaks >/dev/null 2>&1; then
+    echo ""
+    echo "⚠️  [AVISO] 'gitleaks' não encontrado no PATH."
+    echo "👉 Instale para evitar vazar credenciais: https://github.com/IFPBEsp/APAE-INFRA/blob/dev/docs/seguranca/gitleaks.md"
+    echo "ℹ️  O commit continuará localmente, mas será verificado obrigatoriamente no CI."
+    echo ""
+    exit 0
+fi
+
+gitleaks git --pre-commit --staged --redact -v || exit 1

@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { User } from "lucide-react";
 
+import apaeLogo from "../../../public/APAE-logo.svg";
 import { MeusDadosModal } from "../../features/profissional/components/meusDadosModal";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
@@ -17,7 +18,7 @@ export default function Header() {
           className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-3"
         >
           <Image
-            src="/APAE-logo.svg"
+            src={apaeLogo}
             alt="Logo APAE"
             width={40}
             height={40}
