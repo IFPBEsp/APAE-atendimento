@@ -1,12 +1,10 @@
-import { Expand, Check, Pencil, Trash2 } from "lucide-react";
+import { Expand, Pencil, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { AtendimentoDetailsModal } from "./atendimentoDetailsModal";
 import { AtendimentoModal } from "./atendimentoNovoModal";
 import { AtendimentoDeleteModal } from "./atendimentoDeleteModal";
 import AtendimentoForm from "./atendimentoForm";
 import { Atendimento, Relatorio } from "../types";
-import { useConcluirAtendimento } from "../hooks/useConcluirAtendimento";
-import { Button } from "@/components/ui/button";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { deletarAtendimento } from "../services/atendimentoService";
 import { useParams } from "next/navigation";
@@ -34,7 +32,6 @@ export default function AtendimentoCard({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
-  const { mutate: concluir, isPending } = useConcluirAtendimento();
 
   const { id: pacienteIdParam } = useParams();
   const pacienteId = typeof pacienteIdParam === "string" ? pacienteIdParam : "";
@@ -86,29 +83,7 @@ export default function AtendimentoCard({
           </p>
         </div>
 
-        {/* Rodapé do card: concluir + editar/excluir */}
         <div className="flex items-center justify-between mt-auto pt-2 border-t border-gray-50">
-          <Button
-            onClick={() => !status && concluir(id)}
-            disabled={status || isPending}
-            className={`h-8 px-3 rounded-full text-xs shadow-sm ${
-              status
-                ? "bg-green-500 hover:bg-green-600 disabled:opacity-100 text-white"
-                : "bg-white border border-[#3B82F6] hover:bg-[#F8FAFD] text-[#344054]"
-            }`}
-          >
-            {status ? (
-              <>
-                <Check size={14} className="mr-1" />
-                Concluído
-              </>
-            ) : isPending ? (
-              <>Concluindo...</>
-            ) : (
-              <>Marcar como Concluído</>
-            )}
-          </Button>
-
           <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
             <button
               onClick={() => setEditOpen(true)}
