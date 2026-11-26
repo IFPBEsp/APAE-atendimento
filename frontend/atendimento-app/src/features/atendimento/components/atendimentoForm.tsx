@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { isoParaBR, brParaISO } from "@/utils/formatarData";
 import { criarAtendimento, editarAtendimento } from "../services/atendimentoService";
+import { calcularNumeracao } from "../utils/calcularNumeracao";
 import { Atendimento, AtendimentoPayload } from "../types";
 
 interface AtendimentoFormProps {
@@ -253,16 +254,6 @@ export default function AtendimentoForm(props: Readonly<AtendimentoFormProps>) {
     setLinhas((prev) => [...prev, { id: crypto.randomUUID(), condicao: "", data: "", hora: "", isEditing: true }]);
   }
 
-  function calcularNumeracao(dataISO: string, offset: number = 0): string {
-    if (!dataISO) return "1";
-    const [ano, mes] = dataISO.split("-");
-    const atendimentosDoMes = atendimentos.filter((a) => {
-      const [, mesBR, anoBR] = a.data.split("/");
-      return mesBR === mes && anoBR === ano;
-    });
-    return String(atendimentosDoMes.length + 1 + offset);
-  }
-
   function validarLinhas(linhasParaValidar: LinhaAtendimento[]): boolean {
     for (let i = 0; i < linhasParaValidar.length; i++) {
       const linha = linhasParaValidar[i];
@@ -314,7 +305,7 @@ export default function AtendimentoForm(props: Readonly<AtendimentoFormProps>) {
               ...(agendamentoId && index === 0 ? { agendamentoId } : {}),
               data: isoParaBR(linha.data),
               hora: linha.hora,
-              numeracao: calcularNumeracao(linha.data, index),
+              numeracao: calcularNumeracao(atendimentos, linha.data, index),
               relatorio: [{ titulo: linha.condicao.trim(), descricao: linha.condicao.trim() }],
             };
             return criarAtendimento(payload);
@@ -338,7 +329,7 @@ export default function AtendimentoForm(props: Readonly<AtendimentoFormProps>) {
     <div className="w-full pt-1">
       <div className="w-full overflow-x-auto">
         <div className="min-w-[850px] px-1">
-          
+
           <div className={`${gridClasses} pb-2 text-left`}>
             <span className="text-[14px] font-bold text-[#0A2540] pl-1">Nome do paciente</span>
             <span className="text-[14px] font-bold text-[#0A2540] pl-1">Condição do paciente</span>
