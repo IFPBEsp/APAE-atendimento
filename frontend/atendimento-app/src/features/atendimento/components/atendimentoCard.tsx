@@ -83,7 +83,7 @@ export default function AtendimentoCard({
           </p>
         </div>
 
-        <div className="flex items-center justify-between mt-auto pt-2 border-t border-gray-50">
+        <div className="flex items-center justify-end mt-auto pt-2 border-t border-gray-50">
           <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
             <button
               onClick={() => setEditOpen(true)}
