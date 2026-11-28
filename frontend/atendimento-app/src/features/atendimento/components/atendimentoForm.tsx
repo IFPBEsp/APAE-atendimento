@@ -12,6 +12,8 @@ import { criarAtendimento, editarAtendimento } from "../services/atendimentoServ
 import { calcularNumeracao } from "../utils/calcularNumeracao";
 import { Atendimento, AtendimentoPayload } from "../types";
 
+const LIMITE_CONDICAO = 100;
+
 interface AtendimentoFormProps {
   atendimentos?: Atendimento[];
   atendimentoEditavel?: Atendimento;
@@ -71,13 +73,13 @@ function LinhaAtendimentoRow({
           id={`condicao-${linha.id}`}
           value={linha.condicao}
           onChange={(e) => onUpdate(linha.id, "condicao", e.target.value)}
-          maxLength={70}
+          maxLength={LIMITE_CONDICAO}
           placeholder="campo vazio"
-          className="h-11 w-full rounded-xl border-[#D0D5DD] bg-white text-[#101828] font-medium placeholder:italic placeholder:text-gray-400 text-[14px] shadow-sm focus-visible:ring-1 focus-visible:ring-[#165BAA] focus-visible:border-[#165BAA] focus-visible:ring-offset-0 pl-3 pr-12"
+          className="h-11 w-full rounded-xl border-[#D0D5DD] bg-white text-[#101828] font-medium placeholder:italic placeholder:text-gray-400 text-[14px] shadow-sm focus-visible:ring-1 focus-visible:ring-[#165BAA] focus-visible:border-[#165BAA] focus-visible:ring-offset-0 pl-3 pr-14"
         />
 
         <span className="absolute right-3 text-[11px] font-medium text-[#667085] pointer-events-none select-none">
-          {linha.condicao.length}/70
+          {linha.condicao.length}/{LIMITE_CONDICAO}
         </span>
       </div>
 
@@ -173,7 +175,7 @@ function criarLinhasIniciais(
     return [
       {
         id: atendimentoEditavel.id,
-        condicao: textoCondicao.slice(0, 70),
+        condicao: textoCondicao.slice(0, LIMITE_CONDICAO),
         data: brParaISO(atendimentoEditavel.data.replace(/\//g, "-")),
         hora: atendimentoEditavel.hora,
       },
@@ -235,7 +237,7 @@ export default function AtendimentoForm(props: Readonly<AtendimentoFormProps>) {
   const isSubmitting = criarMutation.isPending || editarMutation.isPending;
 
   function handleUpdateLinha(id: string, campo: "condicao" | "data" | "hora", valor: string) {
-    const valorTratado = campo === "condicao" ? valor.slice(0, 70) : valor;
+    const valorTratado = campo === "condicao" ? valor.slice(0, LIMITE_CONDICAO) : valor;
     setLinhas((prev) => prev.map((linha) => (linha.id === id ? { ...linha, [campo]: valorTratado } : linha)));
   }
 
@@ -258,8 +260,8 @@ export default function AtendimentoForm(props: Readonly<AtendimentoFormProps>) {
         toast.error(`Preencha a condição na linha ${i + 1}.`);
         return false;
       }
-      if (linha.condicao.length > 70) {
-        toast.error(`A condição na linha ${i + 1} deve ter no máximo 70 caracteres.`);
+      if (linha.condicao.length > LIMITE_CONDICAO) {
+        toast.error(`A condição na linha ${i + 1} deve ter no máximo ${LIMITE_CONDICAO} caracteres.`);
         return false;
       }
       if (!linha.data) {
