@@ -7,13 +7,27 @@ export const normalizar = (s = "") => s.trim().replace(/\s+/g, " ");
 
 export const sanitizeFilename = (n = "") => n.replace(/[^a-zA-Z0-9._-]/g, "_");
 
+export function obterDataHojeISO(): string {
+  const agora = new Date();
+  const offset = agora.getTimezoneOffset() * 60000;
+  return new Date(agora.getTime() - offset).toISOString().split("T")[0];
+}
+
 export function validarDataISO(dataISO: string) {
   const hoje = new Date();
-  const min = new Date();
+  hoje.setHours(0, 0, 0, 0);
+  const min = new Date(hoje);
   min.setFullYear(hoje.getFullYear() - 30);
   const d = new Date(dataISO + "T00:00:00");
-  if (d < min || d > hoje)
+  if ( isNaN(d.getTime()) ) {
+    throw new Error("Data inválida.");
+  }
+  if (d > hoje) {
+    throw new Error("A data não pode estar no futuro");
+  }
+  if (d < min) {
     throw new Error("Data fora do intervalo de 30 anos até hoje.");
+  }
   return dataISO;
 }
 

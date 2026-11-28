@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private static final String TOKEN_COOKIE_NAME = "token";
+    private static final String MSG_TOKEN_INVALIDO = "Token inválido";
 
     private final JwtService jwtService;
     private final TokenBlocklistService tokenBlocklistService;
@@ -72,13 +73,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         try {
             if (!jwtService.tokenValido(token)) {
-                response.sendError(HttpStatus.UNAUTHORIZED.value(), "Token inválido");
+                response.sendError(HttpStatus.UNAUTHORIZED.value(), MSG_TOKEN_INVALIDO);
                 return;
             }
 
             String jti = jwtService.extrairJti(token);
             if (jti == null || jti.isBlank() || tokenBlocklistService.estaRevogado(jti)) {
-                response.sendError(HttpStatus.UNAUTHORIZED.value(), "Token inválido");
+                response.sendError(HttpStatus.UNAUTHORIZED.value(), MSG_TOKEN_INVALIDO);
                 return;
             }
 
@@ -101,7 +102,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             filterChain.doFilter(request, response);
         } catch (JwtException | IllegalArgumentException e) {
-            response.sendError(HttpStatus.UNAUTHORIZED.value(), "Token inválido");
+            response.sendError(HttpStatus.UNAUTHORIZED.value(), MSG_TOKEN_INVALIDO);
         }
     }
 

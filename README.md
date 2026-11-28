@@ -277,6 +277,7 @@ pnpm docker:drop   # Remove os containers e exclui todos os volumes locais
 | **Docker & Docker Compose** | 20+ | Subida dos containers PostgreSQL e MinIO locais |
 | **Java JDK** | 21+ | Compilação e execução do backend Spring Boot |
 | **Git** | — | Controle de versão do projeto |
+| [**Gitleaks**](https://github.com/IFPBEsp/APAE-INFRA/blob/dev/docs/seguranca/gitleaks.md) | v8.30.1+ | Detecção de segredos e credenciais no hook `pre-commit` |
 
 ### Passo a Passo de Execução Manual
 

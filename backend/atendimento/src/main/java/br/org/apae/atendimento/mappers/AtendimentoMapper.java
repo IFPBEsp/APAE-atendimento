@@ -10,6 +10,8 @@ import br.org.apae.atendimento.entities.Atendimento;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
@@ -20,9 +22,13 @@ public class AtendimentoMapper extends AbstractMapper<Atendimento, AtendimentoRe
         Atendimento atendimento = new Atendimento();
 
         atendimento.setPacienteId(dto.pacienteId());
+        atendimento.setAgendamentoId(dto.agendamentoId());
         atendimento.setDataAtendimento(LocalDateTime.of(dto.data(), dto.hora()));
 
-        List<Topico> relatorio = dto.relatorio().stream()
+        List<Topico> relatorio = Optional.ofNullable(dto.relatorio())
+                .orElseGet(List::of)
+                .stream()
+                .filter(Objects::nonNull)
                 .map(t -> {
                     Topico topico = new Topico();
                     topico.setTitulo(t.titulo());
@@ -38,7 +44,10 @@ public class AtendimentoMapper extends AbstractMapper<Atendimento, AtendimentoRe
 
     @Override
     public AtendimentoResponseDTO toDTOPadrao(Atendimento entidadePadraoAtendimento) {
-        List<TopicoResponseDTO> relatorio = entidadePadraoAtendimento.getRelatorio().stream()
+        List<TopicoResponseDTO> relatorio = Optional.ofNullable(entidadePadraoAtendimento.getRelatorio())
+                .orElseGet(List::of)
+                .stream()
+                .filter(Objects::nonNull)
                 .map(t -> new TopicoResponseDTO(
                         t.getId(),
                         t.getTitulo(),

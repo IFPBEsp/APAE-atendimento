@@ -16,6 +16,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { isAxiosError } from "axios";
 import { login, me } from "@/services/authService";
+import logoApae from "../../../../public/logo-apae.svg";
 
 const nunitoFont = Nunito({
   weight: "700",
@@ -106,7 +107,7 @@ export default function LoginPage() {
     <div className="h-screen w-screen bg-[#0D4F97] relative flex items-center justify-center">
       <div className="absolute z-50 mt-[-32rem] w-[128px] h-[128px] bg-white rounded-full flex items-center justify-center mx-auto mb-[0px]">
         <Image
-          src="/logo-apae.svg"
+          src={logoApae}
           alt="APAE Logo"
           width={90}
           height={140}

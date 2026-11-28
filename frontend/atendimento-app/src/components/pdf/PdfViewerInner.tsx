@@ -5,7 +5,7 @@ import { Document, Page, pdfjs } from 'react-pdf';
 
 
 pdfjs.GlobalWorkerOptions.workerSrc = 
-  `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
+  `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.mjs`;
 
 interface PDFThumbnailProps {
   pdfUrl: string;

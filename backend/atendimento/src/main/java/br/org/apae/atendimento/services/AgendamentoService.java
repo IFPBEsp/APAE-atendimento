@@ -33,6 +33,9 @@ import jakarta.transaction.Transactional;
 
 @Service
 public class AgendamentoService {
+    private static final String MSG_AGENDAMENTO_NAO_ENCONTRADO_OU_NAO_PERTENCE =
+            "O agendamento nao existe ou nao pertence ao profissional autenticado.";
+
     private AgendamentoRepository repository;
     private PacienteService pacienteService;
     private PacienteRepository pacienteRepository;
@@ -98,7 +101,7 @@ public class AgendamentoService {
     ) {
         Agendamento agendamento = repository
                 .findByIdAndProfissionalId(agendamentoId, profissionalId)
-                .orElseThrow(() -> new AgendamentoNotFoundException("O agendamento nao existe ou nao pertence ao profissional autenticado."));
+                .orElseThrow(() -> new AgendamentoNotFoundException(MSG_AGENDAMENTO_NAO_ENCONTRADO_OU_NAO_PERTENCE));
 
         if (agendamento.isStatus()) {
             throw new AgendamentoInvalidException("Nao e possivel editar um agendamento que ja foi concluido.");
@@ -139,22 +142,11 @@ public class AgendamentoService {
         return agendamentoMapper.toDTOPadrao(repository.save(agendamento));
     }
 
-    public Agendamento buscarAgendamentoPorDataProfissionalEPaciente(
-            LocalDate data,
-            UUID profissionalId,
-            UUID pacienteId
-    ) {
-        LocalDateTime dataInicio = data.atStartOfDay();
-        LocalDateTime dataFim = dataInicio.plusDays(1);
-
-        return repository.findByDataHoraAndProfissionalIdAndPacienteId(
-                dataInicio,
-                dataFim,
-                profissionalId,
-                pacienteId
-        ).orElseThrow(() -> new AgendamentoNotFoundException(
-                "Nenhum agendamento encontrado para esse profissional e paciente nesta data."
-        ));
+    public Agendamento buscarPorIdEProfissional(UUID agendamentoId, UUID profissionalId) {
+        return repository.findByIdAndProfissionalId(agendamentoId, profissionalId)
+                .orElseThrow(() -> new AgendamentoNotFoundException(
+                        MSG_AGENDAMENTO_NAO_ENCONTRADO_OU_NAO_PERTENCE
+                ));
     }
 
     @Transactional
@@ -260,7 +252,7 @@ public class AgendamentoService {
                         pacienteId
                 )
                 .orElseThrow(() -> new AgendamentoNotFoundException(
-                        "O agendamento nao existe ou nao pertence ao profissional autenticado."
+                        MSG_AGENDAMENTO_NAO_ENCONTRADO_OU_NAO_PERTENCE
                 ));
 
         repository.delete(agendamento);
@@ -275,28 +267,6 @@ public class AgendamentoService {
 
         agendamento.setStatus(true);
         repository.save(agendamento);
-    }
-
-    public void concluir(
-            UUID profissionalId,
-            UUID pacienteId,
-            UUID agendamentoId
-    ) {
-        if (!pacienteService.existeRelacao(pacienteId, profissionalId)) {
-            throw new RelacaoInvalidException("Voce nao tem vinculo com este paciente para concluir o agendamento.");
-        }
-
-        Agendamento agendamento = repository
-                .findByIdAndProfissionalIdAndPacienteId(
-                        agendamentoId,
-                        profissionalId,
-                        pacienteId
-                )
-                .orElseThrow(() -> new AgendamentoNotFoundException(
-                        "O agendamento nao existe ou nao pertence ao profissional autenticado."
-                ));
-
-        setStatus(agendamento);
     }
 
     public boolean verificarAgendamentoExiste(
