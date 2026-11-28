@@ -27,7 +27,7 @@ export function AtendimentoModal({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className={`sm:max-w-[950px] w-[95vw] rounded-[28px] max-h-[90vh] overflow-y-auto p-8 ${nunitoFont.className}`}
+        className={`sm:max-w-[640px] w-[95vw] rounded-[28px] max-h-[90vh] overflow-y-auto p-8 ${nunitoFont.className}`}
       >
         <div className="relative">
           <DialogClose
