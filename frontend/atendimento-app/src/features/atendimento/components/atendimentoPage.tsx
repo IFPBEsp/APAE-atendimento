@@ -3,7 +3,7 @@
 import Header from "@/components/shared/header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { AlertCircle, ArrowLeft, Plus } from "lucide-react";
+import { AlertCircle, ArrowLeft, Plus, User } from "lucide-react";
 import { Nunito } from "next/font/google";
 import { useEffect } from "react";
 import { useRouter, useParams, useSearchParams } from "next/navigation";
@@ -99,9 +99,12 @@ export default function AtendimentoPage() {
 
       <section className="bg-white rounded-t-3xl p-6 min-h-screen mx-auto flex flex-col gap-4">
         <h1
-          className={`text-xl text-[#344054] font-bold ${nunitoFont.className}`}
+          className={`flex items-center gap-2 text-xl text-[#344054] font-bold ${nunitoFont.className}`}
         >
-          {paciente?.nomeCompleto}
+          {paciente?.nomeCompleto && (
+            <User className="h-5 w-5 shrink-0 text-[#165BAA]" aria-hidden="true" />
+          )}
+          <span className="min-w-0 break-words">{paciente?.nomeCompleto}</span>
         </h1>
 
         {loading && (
