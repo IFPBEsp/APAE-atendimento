@@ -27,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @Testcontainers
 class MinioStorageIntegrationTest {
 
+    private static final String MINIO_IMAGE = "alpine/minio:RELEASE.2025-10-15T17-29-55Z";
     private static final String ACCESS_KEY = "atendimento_minio";
     private static final String SECRET_KEY = "atendimento_minio_123";
     private static final String TEST_BUCKET = "apae-atendimento-integration-test";
@@ -45,10 +46,11 @@ class MinioStorageIntegrationTest {
             // ==========================================
             // FASE 1: Instância inicial do MinIO
             // ==========================================
-            try (GenericContainer<?> minio1 = new GenericContainer<>("minio/minio:latest")
+            try (GenericContainer<?> minio1 = new GenericContainer<>(MINIO_IMAGE)
                     .withEnv("MINIO_ROOT_USER", ACCESS_KEY)
                     .withEnv("MINIO_ROOT_PASSWORD", SECRET_KEY)
                     .withCommand("server /data")
+                    .withCreateContainerCmdModifier(cmd -> cmd.withUser("0"))
                     .withCreateContainerCmdModifier(cmd -> cmd.getHostConfig().withBinds(new Bind(volumeName, new Volume("/data"))))
                     .withExposedPorts(9000)
                     .waitingFor(Wait.forHttp("/minio/health/ready").forPort(9000).withStartupTimeout(Duration.ofSeconds(60)))) {
@@ -106,10 +108,11 @@ class MinioStorageIntegrationTest {
             // ==========================================
             // FASE 2: Reinicialização do MinIO (mesmo volume)
             // ==========================================
-            try (GenericContainer<?> minio2 = new GenericContainer<>("minio/minio:latest")
+            try (GenericContainer<?> minio2 = new GenericContainer<>(MINIO_IMAGE)
                     .withEnv("MINIO_ROOT_USER", ACCESS_KEY)
                     .withEnv("MINIO_ROOT_PASSWORD", SECRET_KEY)
                     .withCommand("server /data")
+                    .withCreateContainerCmdModifier(cmd -> cmd.withUser("0"))
                     .withCreateContainerCmdModifier(cmd -> cmd.getHostConfig().withBinds(new Bind(volumeName, new Volume("/data"))))
                     .withExposedPorts(9000)
                     .waitingFor(Wait.forHttp("/minio/health/ready").forPort(9000).withStartupTimeout(Duration.ofSeconds(60)))) {
