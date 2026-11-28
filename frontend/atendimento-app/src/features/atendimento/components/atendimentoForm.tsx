@@ -4,7 +4,7 @@ import { useState, useRef } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, Check, Pencil, Trash2, Clock, Calendar } from "lucide-react";
+import { Plus, Check, Trash2, Clock, Calendar } from "lucide-react";
 import { toast } from "sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { isoParaBR, brParaISO } from "@/utils/formatarData";
@@ -28,7 +28,6 @@ interface LinhaAtendimento {
   condicao: string;
   data: string;
   hora: string;
-  isEditing: boolean;
 }
 
 interface LinhaAtendimentoRowProps {
@@ -36,10 +35,9 @@ interface LinhaAtendimentoRowProps {
   pacienteNome: string;
   gridClasses: string;
   onUpdate: (id: string, campo: "condicao" | "data" | "hora", valor: string) => void;
-  onEdit: (id: string) => void;
   onRemove: (id: string) => void;
-  onOpenDatePicker: (id: string, isEditing: boolean) => void;
-  onOpenTimePicker: (id: string, isEditing: boolean) => void;
+  onOpenDatePicker: (id: string) => void;
+  onOpenTimePicker: (id: string) => void;
   setDateRef: (id: string, el: HTMLInputElement | null) => void;
   setTimeRef: (id: string, el: HTMLInputElement | null) => void;
 }
@@ -49,7 +47,6 @@ function LinhaAtendimentoRow({
   pacienteNome,
   gridClasses,
   onUpdate,
-  onEdit,
   onRemove,
   onOpenDatePicker,
   onOpenTimePicker,
@@ -58,7 +55,6 @@ function LinhaAtendimentoRow({
 }: Readonly<LinhaAtendimentoRowProps>) {
   const hasHora = Boolean(linha.hora);
   const isPM = hasHora && Number(linha.hora.split(":")[0]) >= 12;
-  const disabledClasses = linha.isEditing ? "" : "opacity-70 pointer-events-none";
 
   return (
     <div className={gridClasses}>
@@ -76,40 +72,35 @@ function LinhaAtendimentoRow({
           value={linha.condicao}
           onChange={(e) => onUpdate(linha.id, "condicao", e.target.value)}
           maxLength={70}
-          disabled={!linha.isEditing}
           placeholder="campo vazio"
           className="h-11 w-full rounded-xl border-[#D0D5DD] bg-white text-[#101828] font-medium placeholder:italic placeholder:text-gray-400 text-[14px] shadow-sm focus-visible:ring-1 focus-visible:ring-[#165BAA] focus-visible:border-[#165BAA] focus-visible:ring-offset-0 pl-3 pr-12"
         />
 
-        {linha.isEditing && (
-          <span className="absolute right-3 text-[11px] font-medium text-[#667085] pointer-events-none select-none">
-            {linha.condicao.length}/70
-          </span>
-        )}
+        <span className="absolute right-3 text-[11px] font-medium text-[#667085] pointer-events-none select-none">
+          {linha.condicao.length}/70
+        </span>
       </div>
 
-      <div className={`flex items-center justify-center gap-1.5 w-full h-11 rounded-xl border border-[#D0D5DD] bg-white shadow-sm focus-within:ring-1 focus-within:ring-[#165BAA] focus-within:border-[#165BAA] transition-colors ${disabledClasses}`}>
+      <div className="flex items-center justify-center gap-1.5 w-full h-11 rounded-xl border border-[#D0D5DD] bg-white shadow-sm focus-within:ring-1 focus-within:ring-[#165BAA] focus-within:border-[#165BAA] transition-colors">
         <Input
           ref={(el) => setDateRef(linha.id, el)}
           type="date"
           value={linha.data}
           onChange={(e) => onUpdate(linha.id, "data", e.target.value)}
-          disabled={!linha.isEditing}
           className="w-[95px] h-full p-0 border-none shadow-none focus-visible:ring-0 bg-transparent text-[#101828] font-medium text-[14px] text-center [&::-webkit-calendar-picker-indicator]:hidden cursor-pointer"
         />
         <Calendar
           className="w-[16px] h-[16px] text-[#667085] shrink-0 cursor-pointer hover:text-[#165BAA] transition-colors"
-          onClick={() => onOpenDatePicker(linha.id, linha.isEditing)}
+          onClick={() => onOpenDatePicker(linha.id)}
         />
       </div>
 
-      <div className={`flex items-center justify-center gap-1.5 w-full h-11 rounded-xl border border-[#D0D5DD] bg-white shadow-sm focus-within:ring-1 focus-within:ring-[#165BAA] focus-within:border-[#165BAA] transition-colors ${disabledClasses}`}>
+      <div className="flex items-center justify-center gap-1.5 w-full h-11 rounded-xl border border-[#D0D5DD] bg-white shadow-sm focus-within:ring-1 focus-within:ring-[#165BAA] focus-within:border-[#165BAA] transition-colors">
         <Input
           ref={(el) => setTimeRef(linha.id, el)}
           type="time"
           value={linha.hora}
           onChange={(e) => onUpdate(linha.id, "hora", e.target.value)}
-          disabled={!linha.isEditing}
           className="w-[50px] h-full p-0 border-none shadow-none focus-visible:ring-0 bg-transparent text-[#101828] font-medium text-[14px] text-center [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-time-picker-indicator]:hidden cursor-pointer"
         />
         <span className={`text-[13px] font-bold text-[#667085] select-none ${hasHora ? "" : "opacity-0"}`}>
@@ -117,21 +108,11 @@ function LinhaAtendimentoRow({
         </span>
         <Clock
           className="w-[16px] h-[16px] text-[#667085] shrink-0 cursor-pointer hover:text-[#165BAA] transition-colors"
-          onClick={() => onOpenTimePicker(linha.id, linha.isEditing)}
+          onClick={() => onOpenTimePicker(linha.id)}
         />
       </div>
 
       <div className="flex items-center justify-center gap-2 w-full">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={() => onEdit(linha.id)}
-          className="h-11 px-4 w-[90px] rounded-xl border border-[#2563EB] text-[#2563EB] hover:bg-blue-50 font-semibold text-[14px] bg-white shadow-sm flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
-        >
-          <Pencil className="w-[15px] h-[15px] shrink-0" />
-          Editar
-        </Button>
-
         <Button
           type="button"
           variant="outline"
@@ -146,8 +127,8 @@ function LinhaAtendimentoRow({
   );
 }
 
-function abrirPicker(input: HTMLInputElement | null, isEditing: boolean) {
-  if (!isEditing || !input) return;
+function abrirPicker(input: HTMLInputElement | null) {
+  if (!input) return;
   try {
     input.showPicker();
   } catch {
@@ -195,7 +176,6 @@ function criarLinhasIniciais(
         condicao: textoCondicao.slice(0, 70),
         data: brParaISO(atendimentoEditavel.data.replace(/\//g, "-")),
         hora: atendimentoEditavel.hora,
-        isEditing: true,
       },
     ];
   }
@@ -205,7 +185,6 @@ function criarLinhasIniciais(
       condicao: "",
       data: dataAgendamentoISO,
       hora: horaAgendamento,
-      isEditing: true,
     },
   ];
 }
@@ -260,21 +239,16 @@ export default function AtendimentoForm(props: Readonly<AtendimentoFormProps>) {
     setLinhas((prev) => prev.map((linha) => (linha.id === id ? { ...linha, [campo]: valorTratado } : linha)));
   }
 
-  function handleEditLinha(id: string) {
-    setLinhas((prev) => prev.map((linha) => (linha.id === id ? { ...linha, isEditing: true } : linha)));
-    setTimeout(() => { document.getElementById(`condicao-${id}`)?.focus(); }, 50);
-  }
-
   function handleRemoveLinha(id: string) {
     if (linhas.length === 1) {
-      setLinhas([{ id: crypto.randomUUID(), condicao: "", data: "", hora: "", isEditing: true }]);
+      setLinhas([{ id: crypto.randomUUID(), condicao: "", data: "", hora: "" }]);
       return;
     }
     setLinhas((prev) => prev.filter((linha) => linha.id !== id));
   }
 
   function handleAddLinha() {
-    setLinhas((prev) => [...prev, { id: crypto.randomUUID(), condicao: "", data: "", hora: "", isEditing: true }]);
+    setLinhas((prev) => [...prev, { id: crypto.randomUUID(), condicao: "", data: "", hora: "" }]);
   }
 
   function validarLinhas(linhasParaValidar: LinhaAtendimento[]): boolean {
@@ -354,10 +328,9 @@ export default function AtendimentoForm(props: Readonly<AtendimentoFormProps>) {
                 pacienteNome={pacienteNome}
                 gridClasses={gridClasses}
                 onUpdate={handleUpdateLinha}
-                onEdit={handleEditLinha}
                 onRemove={handleRemoveLinha}
-                onOpenDatePicker={(id, isEditing) => abrirPicker(dateInputRefs.current[id], isEditing)}
-                onOpenTimePicker={(id, isEditing) => abrirPicker(timeInputRefs.current[id], isEditing)}
+                onOpenDatePicker={(id) => abrirPicker(dateInputRefs.current[id])}
+                onOpenTimePicker={(id) => abrirPicker(timeInputRefs.current[id])}
                 setDateRef={(id, el) => { dateInputRefs.current[id] = el; }}
                 setTimeRef={(id, el) => { timeInputRefs.current[id] = el; }}
               />
