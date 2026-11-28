@@ -222,6 +222,8 @@ export default function AtendimentoForm(props: Readonly<AtendimentoFormProps>) {
   });
 
   const isSubmitting = criarMutation.isPending || editarMutation.isPending;
+  const modoEdicao = Boolean(atendimentoEditavel);
+  const rotuloSalvar = modoEdicao ? "Salvar alterações" : "Salvar atendimento";
 
   function handleUpdateLinha(id: string, campo: "condicao" | "data" | "hora", valor: string) {
     const valorTratado = campo === "condicao" ? valor.slice(0, LIMITE_CONDICAO) : valor;
@@ -312,7 +314,7 @@ export default function AtendimentoForm(props: Readonly<AtendimentoFormProps>) {
             key={linha.id}
             linha={linha}
             indice={indice}
-            podeRemover={linhas.length > 1}
+            podeRemover={!modoEdicao && linhas.length > 1}
             onUpdate={handleUpdateLinha}
             onRemove={handleRemoveLinha}
           />
@@ -321,16 +323,18 @@ export default function AtendimentoForm(props: Readonly<AtendimentoFormProps>) {
 
       <hr className="w-full border-t border-[#E4E7EC]" />
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={handleAddLinha}
-          className="h-[52px] w-full rounded-full border-2 border-[#165BAA] text-[#165BAA] hover:bg-blue-50 bg-white font-bold text-[15px] shadow-sm flex items-center justify-center gap-2 transition-all active:scale-95 cursor-pointer"
-        >
-          <Plus className="w-5 h-5" />
-          Adicionar atendimento
-        </Button>
+      <div className={`grid grid-cols-1 gap-4 w-full ${modoEdicao ? "" : "sm:grid-cols-2"}`}>
+        {!modoEdicao && (
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleAddLinha}
+            className="h-[52px] w-full rounded-full border-2 border-[#165BAA] text-[#165BAA] hover:bg-blue-50 bg-white font-bold text-[15px] shadow-sm flex items-center justify-center gap-2 transition-all active:scale-95 cursor-pointer"
+          >
+            <Plus className="w-5 h-5" />
+            Adicionar atendimento
+          </Button>
+        )}
 
         <Button
           type="button"
@@ -339,7 +343,7 @@ export default function AtendimentoForm(props: Readonly<AtendimentoFormProps>) {
           className="h-[52px] w-full rounded-full bg-[#165BAA] hover:bg-[#134e8f] text-white font-bold text-[15px] shadow-md flex items-center justify-center gap-2 transition-all active:scale-95 cursor-pointer"
         >
           <Check className="w-5 h-5 text-white" />
-          {isSubmitting ? "Salvando..." : "Salvar atendimento"}
+          {isSubmitting ? "Salvando..." : rotuloSalvar}
         </Button>
       </div>
     </div>
