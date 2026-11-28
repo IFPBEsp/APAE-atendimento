@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, Check, Trash2, Clock, Calendar } from "lucide-react";
+import { Plus, Check, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { isoParaBR, brParaISO } from "@/utils/formatarData";
@@ -38,10 +38,6 @@ interface LinhaAtendimentoRowProps {
   gridClasses: string;
   onUpdate: (id: string, campo: "condicao" | "data" | "hora", valor: string) => void;
   onRemove: (id: string) => void;
-  onOpenDatePicker: (id: string) => void;
-  onOpenTimePicker: (id: string) => void;
-  setDateRef: (id: string, el: HTMLInputElement | null) => void;
-  setTimeRef: (id: string, el: HTMLInputElement | null) => void;
 }
 
 function LinhaAtendimentoRow({
@@ -50,10 +46,6 @@ function LinhaAtendimentoRow({
   gridClasses,
   onUpdate,
   onRemove,
-  onOpenDatePicker,
-  onOpenTimePicker,
-  setDateRef,
-  setTimeRef,
 }: Readonly<LinhaAtendimentoRowProps>) {
   const hasHora = Boolean(linha.hora);
   const isPM = hasHora && Number(linha.hora.split(":")[0]) >= 12;
@@ -83,35 +75,25 @@ function LinhaAtendimentoRow({
         </span>
       </div>
 
-      <div className="flex items-center justify-center gap-1.5 w-full h-11 rounded-xl border border-[#D0D5DD] bg-white shadow-sm focus-within:ring-1 focus-within:ring-[#165BAA] focus-within:border-[#165BAA] transition-colors">
+      <div className="flex items-center w-full h-11 rounded-xl border border-[#D0D5DD] bg-white shadow-sm focus-within:ring-1 focus-within:ring-[#165BAA] focus-within:border-[#165BAA] transition-colors">
         <Input
-          ref={(el) => setDateRef(linha.id, el)}
           type="date"
           value={linha.data}
           onChange={(e) => onUpdate(linha.id, "data", e.target.value)}
-          className="w-[95px] h-full p-0 border-none shadow-none focus-visible:ring-0 bg-transparent text-[#101828] font-medium text-[14px] text-center [&::-webkit-calendar-picker-indicator]:hidden cursor-pointer"
-        />
-        <Calendar
-          className="w-[16px] h-[16px] text-[#667085] shrink-0 cursor-pointer hover:text-[#165BAA] transition-colors"
-          onClick={() => onOpenDatePicker(linha.id)}
+          className="w-full h-full px-3 border-none shadow-none focus-visible:ring-0 bg-transparent text-[#101828] font-medium text-[14px] cursor-pointer"
         />
       </div>
 
-      <div className="flex items-center justify-center gap-1.5 w-full h-11 rounded-xl border border-[#D0D5DD] bg-white shadow-sm focus-within:ring-1 focus-within:ring-[#165BAA] focus-within:border-[#165BAA] transition-colors">
+      <div className="flex items-center w-full h-11 rounded-xl border border-[#D0D5DD] bg-white shadow-sm focus-within:ring-1 focus-within:ring-[#165BAA] focus-within:border-[#165BAA] transition-colors">
         <Input
-          ref={(el) => setTimeRef(linha.id, el)}
           type="time"
           value={linha.hora}
           onChange={(e) => onUpdate(linha.id, "hora", e.target.value)}
-          className="w-[50px] h-full p-0 border-none shadow-none focus-visible:ring-0 bg-transparent text-[#101828] font-medium text-[14px] text-center [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-time-picker-indicator]:hidden cursor-pointer"
+          className="flex-1 min-w-0 h-full px-3 border-none shadow-none focus-visible:ring-0 bg-transparent text-[#101828] font-medium text-[14px] cursor-pointer"
         />
-        <span className={`text-[13px] font-bold text-[#667085] select-none ${hasHora ? "" : "opacity-0"}`}>
+        <span className={`pr-3 text-[13px] font-bold text-[#667085] select-none ${hasHora ? "" : "opacity-0"}`}>
           {isPM ? "PM" : "AM"}
         </span>
-        <Clock
-          className="w-[16px] h-[16px] text-[#667085] shrink-0 cursor-pointer hover:text-[#165BAA] transition-colors"
-          onClick={() => onOpenTimePicker(linha.id)}
-        />
       </div>
 
       <div className="flex items-center justify-center gap-2 w-full">
@@ -127,15 +109,6 @@ function LinhaAtendimentoRow({
       </div>
     </div>
   );
-}
-
-function abrirPicker(input: HTMLInputElement | null) {
-  if (!input) return;
-  try {
-    input.showPicker();
-  } catch {
-    input.click();
-  }
 }
 
 function normalizarDataParaISO(valor?: string): string {
@@ -204,9 +177,6 @@ export default function AtendimentoForm(props: Readonly<AtendimentoFormProps>) {
   } = resolverDadosIniciais(props, params, searchParams);
 
   const queryClient = useQueryClient();
-
-  const dateInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
-  const timeInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
 
   const [linhas, setLinhas] = useState<LinhaAtendimento[]>(() =>
     criarLinhasIniciais(atendimentoEditavel, dataAgendamentoISO, horaAgendamento)
@@ -331,10 +301,6 @@ export default function AtendimentoForm(props: Readonly<AtendimentoFormProps>) {
                 gridClasses={gridClasses}
                 onUpdate={handleUpdateLinha}
                 onRemove={handleRemoveLinha}
-                onOpenDatePicker={(id) => abrirPicker(dateInputRefs.current[id])}
-                onOpenTimePicker={(id) => abrirPicker(timeInputRefs.current[id])}
-                setDateRef={(id, el) => { dateInputRefs.current[id] = el; }}
-                setTimeRef={(id, el) => { timeInputRefs.current[id] = el; }}
               />
             ))}
           </div>
