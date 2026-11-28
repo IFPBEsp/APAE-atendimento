@@ -34,16 +34,16 @@ interface LinhaAtendimento {
 
 interface LinhaAtendimentoRowProps {
   linha: LinhaAtendimento;
-  pacienteNome: string;
-  gridClasses: string;
+  indice: number;
+  podeRemover: boolean;
   onUpdate: (id: string, campo: "condicao" | "data" | "hora", valor: string) => void;
   onRemove: (id: string) => void;
 }
 
 function LinhaAtendimentoRow({
   linha,
-  pacienteNome,
-  gridClasses,
+  indice,
+  podeRemover,
   onUpdate,
   onRemove,
 }: Readonly<LinhaAtendimentoRowProps>) {
@@ -51,61 +51,78 @@ function LinhaAtendimentoRow({
   const isPM = hasHora && Number(linha.hora.split(":")[0]) >= 12;
 
   return (
-    <div className={gridClasses}>
-      <Input
-        value={pacienteNome}
-        disabled
-        readOnly
-        title="Nome do paciente"
-        className="h-11 w-full rounded-xl border-[#D0D5DD] bg-white text-[#101828] font-medium text-[14px] shadow-sm disabled:opacity-100 cursor-not-allowed focus-visible:ring-0 truncate px-3"
-      />
-
-      <div className="relative w-full flex items-center">
-        <Input
-          id={`condicao-${linha.id}`}
-          value={linha.condicao}
-          onChange={(e) => onUpdate(linha.id, "condicao", e.target.value)}
-          maxLength={LIMITE_CONDICAO}
-          placeholder="campo vazio"
-          className="h-11 w-full rounded-xl border-[#D0D5DD] bg-white text-[#101828] font-medium placeholder:italic placeholder:text-gray-400 text-[14px] shadow-sm focus-visible:ring-1 focus-visible:ring-[#165BAA] focus-visible:border-[#165BAA] focus-visible:ring-offset-0 pl-3 pr-14"
-        />
-
-        <span className="absolute right-3 text-[11px] font-medium text-[#667085] pointer-events-none select-none">
-          {linha.condicao.length}/{LIMITE_CONDICAO}
+    <div className="w-full rounded-2xl border-2 border-[#98A2B3] bg-white p-4 shadow-sm flex flex-col gap-4">
+      <div className="flex items-center justify-between">
+        <span className="text-[13px] font-bold uppercase tracking-wide text-[#165BAA]">
+          Atendimento #{indice + 1}
         </span>
+
+        {podeRemover && (
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={() => onRemove(linha.id)}
+            className="h-8 px-2 text-[13px] font-semibold text-[#EF4444] hover:bg-red-50 hover:text-[#EF4444] flex items-center gap-1 cursor-pointer"
+          >
+            <Trash2 className="w-[14px] h-[14px] shrink-0" />
+            Remover
+          </Button>
+        )}
       </div>
 
-      <div className="flex items-center w-full h-11 rounded-xl border border-[#D0D5DD] bg-white shadow-sm focus-within:ring-1 focus-within:ring-[#165BAA] focus-within:border-[#165BAA] transition-colors">
-        <Input
-          type="date"
-          value={linha.data}
-          onChange={(e) => onUpdate(linha.id, "data", e.target.value)}
-          className="w-full h-full px-3 border-none shadow-none focus-visible:ring-0 bg-transparent text-[#101828] font-medium text-[14px] cursor-pointer"
-        />
+      <div className="flex flex-col gap-1.5">
+        <label htmlFor={`condicao-${linha.id}`} className="text-[14px] font-bold text-[#0A2540]">
+          Condição do paciente
+        </label>
+        <div className="relative w-full flex items-center">
+          <Input
+            id={`condicao-${linha.id}`}
+            value={linha.condicao}
+            onChange={(e) => onUpdate(linha.id, "condicao", e.target.value)}
+            maxLength={LIMITE_CONDICAO}
+            placeholder="campo vazio"
+            className="h-11 w-full rounded-xl border-[#D0D5DD] bg-white text-[#101828] font-medium placeholder:italic placeholder:text-gray-400 text-[14px] shadow-sm focus-visible:ring-1 focus-visible:ring-[#165BAA] focus-visible:border-[#165BAA] focus-visible:ring-offset-0 pl-3 pr-14"
+          />
+
+          <span className="absolute right-3 text-[11px] font-medium text-[#667085] pointer-events-none select-none">
+            {linha.condicao.length}/{LIMITE_CONDICAO}
+          </span>
+        </div>
       </div>
 
-      <div className="flex items-center w-full h-11 rounded-xl border border-[#D0D5DD] bg-white shadow-sm focus-within:ring-1 focus-within:ring-[#165BAA] focus-within:border-[#165BAA] transition-colors">
-        <Input
-          type="time"
-          value={linha.hora}
-          onChange={(e) => onUpdate(linha.id, "hora", e.target.value)}
-          className="flex-1 min-w-0 h-full px-3 border-none shadow-none focus-visible:ring-0 bg-transparent text-[#101828] font-medium text-[14px] cursor-pointer"
-        />
-        <span className={`pr-3 text-[13px] font-bold text-[#667085] select-none ${hasHora ? "" : "opacity-0"}`}>
-          {isPM ? "PM" : "AM"}
-        </span>
-      </div>
+      <div className="grid grid-cols-2 gap-4">
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor={`data-${linha.id}`} className="text-[14px] font-bold text-[#0A2540]">
+            Data
+          </label>
+          <div className="flex items-center w-full h-11 rounded-xl border border-[#D0D5DD] bg-white shadow-sm focus-within:ring-1 focus-within:ring-[#165BAA] focus-within:border-[#165BAA] transition-colors">
+            <Input
+              id={`data-${linha.id}`}
+              type="date"
+              value={linha.data}
+              onChange={(e) => onUpdate(linha.id, "data", e.target.value)}
+              className="w-full h-full px-3 border-none shadow-none focus-visible:ring-0 bg-transparent text-[#101828] font-medium text-[14px] cursor-pointer"
+            />
+          </div>
+        </div>
 
-      <div className="flex items-center justify-center gap-2 w-full">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={() => onRemove(linha.id)}
-          className="h-11 px-3 w-[100px] rounded-xl border border-[#EF4444] text-[#EF4444] hover:bg-red-50 font-semibold text-[14px] bg-white shadow-sm flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
-        >
-          <Trash2 className="w-[15px] h-[15px] shrink-0" />
-          Remover
-        </Button>
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor={`hora-${linha.id}`} className="text-[14px] font-bold text-[#0A2540]">
+            Hora
+          </label>
+          <div className="flex items-center w-full h-11 rounded-xl border border-[#D0D5DD] bg-white shadow-sm focus-within:ring-1 focus-within:ring-[#165BAA] focus-within:border-[#165BAA] transition-colors">
+            <Input
+              id={`hora-${linha.id}`}
+              type="time"
+              value={linha.hora}
+              onChange={(e) => onUpdate(linha.id, "hora", e.target.value)}
+              className="flex-1 min-w-0 h-full px-3 border-none shadow-none focus-visible:ring-0 bg-transparent text-[#101828] font-medium text-[14px] cursor-pointer"
+            />
+            <span className={`pr-3 text-[13px] font-bold text-[#667085] select-none ${hasHora ? "" : "opacity-0"}`}>
+              {isPM ? "PM" : "AM"}
+            </span>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -212,10 +229,6 @@ export default function AtendimentoForm(props: Readonly<AtendimentoFormProps>) {
   }
 
   function handleRemoveLinha(id: string) {
-    if (linhas.length === 1) {
-      setLinhas([{ id: crypto.randomUUID(), condicao: "", data: "", hora: "" }]);
-      return;
-    }
     setLinhas((prev) => prev.filter((linha) => linha.id !== id));
   }
 
@@ -277,61 +290,57 @@ export default function AtendimentoForm(props: Readonly<AtendimentoFormProps>) {
     criarMutation.mutate(payloads);
   }
 
-  const gridClasses = "grid grid-cols-[1.4fr_1.4fr_140px_130px_195px] gap-3 items-center w-full";
-
   return (
-    <div className="w-full pt-1">
-      <div className="w-full overflow-x-auto">
-        <div className="min-w-[850px] px-1">
+    <div className="w-full pt-1 flex flex-col gap-4">
+      <div className="flex flex-col gap-1.5">
+        <label htmlFor="paciente-nome" className="text-[14px] font-bold text-[#0A2540]">
+          Nome do paciente
+        </label>
+        <Input
+          id="paciente-nome"
+          value={pacienteNome}
+          disabled
+          readOnly
+          title="Nome do paciente"
+          className="h-11 w-full rounded-xl border-[#D0D5DD] bg-white text-[#101828] font-medium text-[14px] shadow-sm disabled:opacity-100 cursor-not-allowed focus-visible:ring-0 truncate px-3"
+        />
+      </div>
 
-          <div className={`${gridClasses} pb-2 text-left`}>
-            <span className="text-[14px] font-bold text-[#0A2540] pl-1">Nome do paciente</span>
-            <span className="text-[14px] font-bold text-[#0A2540] pl-1">Condição do paciente</span>
-            <span className="text-[14px] font-bold text-[#0A2540] text-center w-full block">Data</span>
-            <span className="text-[14px] font-bold text-[#0A2540] text-center w-full block">Hora</span>
-            <span className="text-[14px] font-bold text-[#0A2540] text-center w-full block">Ações</span>
-          </div>
+      <div className="flex flex-col gap-4 max-h-[50vh] overflow-y-auto p-1">
+        {linhas.map((linha, indice) => (
+          <LinhaAtendimentoRow
+            key={linha.id}
+            linha={linha}
+            indice={indice}
+            podeRemover={linhas.length > 1}
+            onUpdate={handleUpdateLinha}
+            onRemove={handleRemoveLinha}
+          />
+        ))}
+      </div>
 
-          <div className="flex flex-col gap-3 max-h-[360px] overflow-y-auto overflow-x-hidden p-1 pr-2">
-            {linhas.map((linha) => (
-              <LinhaAtendimentoRow
-                key={linha.id}
-                linha={linha}
-                pacienteNome={pacienteNome}
-                gridClasses={gridClasses}
-                onUpdate={handleUpdateLinha}
-                onRemove={handleRemoveLinha}
-              />
-            ))}
-          </div>
+      <hr className="w-full border-t border-[#E4E7EC]" />
 
-          <div className="h-11 mt-3 w-full bg-transparent" />
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={handleAddLinha}
+          className="h-[52px] w-full rounded-full border-2 border-[#165BAA] text-[#165BAA] hover:bg-blue-50 bg-white font-bold text-[15px] shadow-sm flex items-center justify-center gap-2 transition-all active:scale-95 cursor-pointer"
+        >
+          <Plus className="w-5 h-5" />
+          Adicionar atendimento
+        </Button>
 
-          <hr className="w-full border-t border-[#E4E7EC] mt-3 mb-6" />
-
-          <div className="grid grid-cols-2 gap-4 w-full">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleAddLinha}
-              className="h-[52px] w-full rounded-full border-2 border-[#165BAA] text-[#165BAA] hover:bg-blue-50 bg-white font-bold text-[15px] shadow-sm flex items-center justify-center gap-2 transition-all active:scale-95 cursor-pointer"
-            >
-              <Plus className="w-5 h-5" />
-              Adicionar atendimento
-            </Button>
-
-            <Button
-              type="button"
-              onClick={handleSave}
-              disabled={isSubmitting}
-              className="h-[52px] w-full rounded-full bg-[#165BAA] hover:bg-[#134e8f] text-white font-bold text-[15px] shadow-md flex items-center justify-center gap-2 transition-all active:scale-95 cursor-pointer"
-            >
-              <Check className="w-5 h-5 text-white" />
-              {isSubmitting ? "Salvando..." : "Salvar atendimento"}
-            </Button>
-          </div>
-
-        </div>
+        <Button
+          type="button"
+          onClick={handleSave}
+          disabled={isSubmitting}
+          className="h-[52px] w-full rounded-full bg-[#165BAA] hover:bg-[#134e8f] text-white font-bold text-[15px] shadow-md flex items-center justify-center gap-2 transition-all active:scale-95 cursor-pointer"
+        >
+          <Check className="w-5 h-5 text-white" />
+          {isSubmitting ? "Salvando..." : "Salvar atendimento"}
+        </Button>
       </div>
     </div>
   );
