@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus, Check, Pencil, Trash2, Clock, Calendar } from "lucide-react";
 import { toast } from "sonner";
-import { useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { isoParaBR, brParaISO } from "@/utils/formatarData";
 import { criarAtendimento, editarAtendimento } from "../services/atendimentoService";
 import { calcularNumeracao } from "../utils/calcularNumeracao";
@@ -223,7 +223,6 @@ export default function AtendimentoForm(props: Readonly<AtendimentoFormProps>) {
   } = resolverDadosIniciais(props, params, searchParams);
 
   const queryClient = useQueryClient();
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const dateInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
   const timeInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
@@ -231,6 +230,30 @@ export default function AtendimentoForm(props: Readonly<AtendimentoFormProps>) {
   const [linhas, setLinhas] = useState<LinhaAtendimento[]>(() =>
     criarLinhasIniciais(atendimentoEditavel, dataAgendamentoISO, horaAgendamento)
   );
+
+  function finalizarSalvamento(mensagem: string) {
+    toast.success(mensagem);
+    queryClient.invalidateQueries({ queryKey: ["atendimentos"] });
+    queryClient.invalidateQueries({ queryKey: ["agendamentos"] });
+    onClose();
+  }
+
+  const criarMutation = useMutation({
+    mutationFn: (payloads: AtendimentoPayload[]) =>
+      Promise.all(payloads.map((payload) => criarAtendimento(payload))),
+    onSuccess: (_data, payloads) =>
+      finalizarSalvamento(payloads.length > 1 ? "Atendimentos criados!" : "Atendimento criado!"),
+    onError: () => toast.error("Erro ao salvar."),
+  });
+
+  const editarMutation = useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload: AtendimentoPayload }) =>
+      editarAtendimento(id, payload),
+    onSuccess: () => finalizarSalvamento("Atendimento atualizado!"),
+    onError: () => toast.error("Erro ao salvar."),
+  });
+
+  const isSubmitting = criarMutation.isPending || editarMutation.isPending;
 
   function handleUpdateLinha(id: string, campo: "condicao" | "data" | "hora", valor: string) {
     const valorTratado = campo === "condicao" ? valor.slice(0, 70) : valor;
@@ -277,50 +300,35 @@ export default function AtendimentoForm(props: Readonly<AtendimentoFormProps>) {
     return true;
   }
 
-  async function handleSave() {
+  function handleSave() {
     if (!pacienteId) {
       toast.error("Paciente inválido.");
       return;
     }
     if (linhas.length === 0 || !validarLinhas(linhas)) return;
 
-    setIsSubmitting(true);
-    try {
-      if (atendimentoEditavel) {
-        const linha = linhas[0];
-        const payload: AtendimentoPayload = {
-          pacienteId,
-          data: isoParaBR(linha.data),
-          hora: linha.hora,
-          numeracao: String(atendimentoEditavel.numeracao),
-          relatorio: [{ titulo: linha.condicao.trim(), descricao: linha.condicao.trim() }],
-        };
-        await editarAtendimento(atendimentoEditavel.id, payload);
-        toast.success("Atendimento atualizado!");
-      } else {
-        await Promise.all(
-          linhas.map((linha, index) => {
-            const payload: AtendimentoPayload = {
-              pacienteId,
-              ...(agendamentoId && index === 0 ? { agendamentoId } : {}),
-              data: isoParaBR(linha.data),
-              hora: linha.hora,
-              numeracao: calcularNumeracao(atendimentos, linha.data, index),
-              relatorio: [{ titulo: linha.condicao.trim(), descricao: linha.condicao.trim() }],
-            };
-            return criarAtendimento(payload);
-          })
-        );
-        toast.success(linhas.length > 1 ? "Atendimentos criados!" : "Atendimento criado!");
-      }
-      queryClient.invalidateQueries({ queryKey: ["atendimentos"] });
-      queryClient.invalidateQueries({ queryKey: ["agendamentos"] });
-      onClose();
-    } catch {
-      toast.error("Erro ao salvar.");
-    } finally {
-      setIsSubmitting(false);
+    if (atendimentoEditavel) {
+      const linha = linhas[0];
+      const payload: AtendimentoPayload = {
+        pacienteId,
+        data: isoParaBR(linha.data),
+        hora: linha.hora,
+        numeracao: String(atendimentoEditavel.numeracao),
+        relatorio: [{ titulo: linha.condicao.trim(), descricao: linha.condicao.trim() }],
+      };
+      editarMutation.mutate({ id: atendimentoEditavel.id, payload });
+      return;
     }
+
+    const payloads: AtendimentoPayload[] = linhas.map((linha, index) => ({
+      pacienteId,
+      ...(agendamentoId && index === 0 ? { agendamentoId } : {}),
+      data: isoParaBR(linha.data),
+      hora: linha.hora,
+      numeracao: calcularNumeracao(atendimentos, linha.data, index),
+      relatorio: [{ titulo: linha.condicao.trim(), descricao: linha.condicao.trim() }],
+    }));
+    criarMutation.mutate(payloads);
   }
 
   const gridClasses = "grid grid-cols-[1.4fr_1.4fr_140px_130px_195px] gap-3 items-center w-full";
